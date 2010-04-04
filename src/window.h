@@ -12,9 +12,12 @@
 #include "imageloader.h"
 #include "infobar.h"
 #include "checkerboard.h"
+#include "main.h"
 
 #include <GL/freeglut.h>
 #include <vector>
+
+typedef enum { PROP_INFOBAR, PROP_CHECKERS, PROP_FITIMAGE, PROP_FULLSCREEN } Property;
 
 class CWindow {
 public:
@@ -22,7 +25,8 @@ public:
 	virtual ~CWindow();
 
 	bool Init(int argc, char *argv[], const char* path);
-	void ShowCursor(bool show);
+	void SetProp(Property prop);
+	void SetProp(unsigned char r, unsigned char g, unsigned char b);
 
 private:
 	int m_winW, m_winH;
@@ -37,31 +41,27 @@ private:
 
 	GLint m_textureSize;
 	int m_quadsCount;
-	typedef struct QUAD {
-		GLuint tex;
-		int col, row;
+	typedef struct QUAD_IMG : Quad {
 		int w, h;
-		struct VERTEX {
-			GLfloat x, y;
-			GLfloat tx, ty;
-		} v[4];
-	} Quad;
-	typedef std::vector<Quad> Quads;
+		int col, row;
+	} QuadImg;
+	typedef std::vector<QuadImg> Quads;
 	typedef Quads::const_iterator QuadsIc;
 	Quads m_quads;
 	int m_loadingTime;
 
 	std::auto_ptr<CFilesList> m_filesList;
 	std::auto_ptr<CImageLoader> m_il;
-	std::auto_ptr<CInfoBar> m_infoBar;
+	std::auto_ptr<CInfoBar> m_ib;
 	std::auto_ptr<CCheckerboard> m_cb;
 
 private:
 	bool loadImage(int step);
+	void showCursor(bool show);
 //	void centerWindow();
 	void calculateScale();
 	void updateInfobar();
-	bool createTextures(int width, int height, bool alpha, unsigned char* bitmap);
+	void createTextures(int width, int height, bool alpha, unsigned char* bitmap);
 	void copyBuffer(unsigned char* bitmap, int col, int row, int width, bool alpha, unsigned char* buffer, int w, int h);
 
 	void fnProgressLoading(Imlib_Image im, char percent, int update_x, int update_y, int update_w, int update_h);

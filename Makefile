@@ -1,6 +1,6 @@
 CC=g++
 CFLAGS=-O2 -c -Wall -I/usr/include
-LDFLAGS=-s -lGL -lglut -lImlib2
+LDFLAGS=-s -lGL -lGLU -lglut -lImlib2
 
 SOURCES= \
 	src/checkerboard.cpp \

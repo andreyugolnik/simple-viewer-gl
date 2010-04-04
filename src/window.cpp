@@ -9,8 +9,9 @@
 #include "main.h"
 
 #include <math.h>
-#include <string.h>
+#include <iostream>
 #include <stdlib.h>
+#include <string.h>
 
 extern std::auto_ptr<CWindow> g_window;
 
@@ -18,6 +19,10 @@ CWindow::CWindow() :
 	m_winW(0), m_winH(0), m_scale(1), m_windowed(true), m_fitImage(false), m_cusorVisible(true),
 	m_lastMouseX(-1), m_lastMouseY(-1), m_mouseLB(false), m_mouseDx(0), m_mouseDy(0), m_renderNa(false),
 	m_textureSize(256), m_quadsCount(0) {
+
+		m_il.reset(new CImageLoader());
+		m_cb.reset(new CCheckerboard());
+		m_ib.reset(new CInfoBar());
 }
 
 CWindow::~CWindow() {
@@ -55,39 +60,48 @@ bool CWindow::Init(int argc, char *argv[], const char* path) {
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_textureSize);
-		printf("Max texture size: %d, ", m_textureSize);
+		std::cout << "Max texture size: " << m_textureSize << ", ";
 		int size	= std::max(glutGet(GLUT_SCREEN_WIDTH), glutGet(GLUT_SCREEN_HEIGHT));
 		m_textureSize	= std::min(m_textureSize, size);
 		float power   = log((float)m_textureSize) / log(2.0f);
 		m_textureSize	= (int)pow(2.0f, (int)(ceil(power)));
-		printf("set max to: %d\n", m_textureSize);
+		std::cout << "set max to: " << m_textureSize << std::endl;
 
 //		m_pow2	= glutExtensionSupported("GL_ARB_texture_non_power_of_two");
-//		printf("Non Power of Two extension %s\n", m_pow2 ? "available" : "not available");
-
-		m_il.reset(new CImageLoader());
-		m_infoBar.reset(new CInfoBar());
-		m_cb.reset(new CCheckerboard());
-
+//		std::cout << "Non Power of Two extension " << (m_pow2 ? "available" : "not available") << std::endl;
 
 		// setup progress each 10%
 		imlib_context_set_progress_function(callbackProgressLoading);
 		imlib_context_set_progress_granularity(10);
 
-	//	ctx = glcGenContext();
-	//	glcContext(ctx);
-	//	//glcAppendCatalog("/usr/share/fonts/dejavu/");
-	//	myFont = glcGenFontID();
-	//	glcNewFontFromFamily(myFont, "DejaVu"); // Select the family of my font
-	//	//glcFontFace(myFont, "Bold"); // Select the face of my font
-	//	glcFont(myFont);
-	//	glcScale(12.f, 12.f);
+		m_cb->Init();
 
 		loadImage(0);
 
 		return true;
 	}
 	return false;
+}
+
+void CWindow::SetProp(Property prop) {
+	switch(prop) {
+	case PROP_INFOBAR:
+		m_ib->Show(false);
+		break;
+	case PROP_CHECKERS:
+		m_cb->Enable(true);
+		break;
+	case PROP_FITIMAGE:
+		m_fitImage	= true;
+		break;
+	case PROP_FULLSCREEN:
+		m_windowed	= false;
+		break;
+	}
+}
+
+void CWindow::SetProp(unsigned char r, unsigned char g, unsigned char b) {
+	m_cb->SetColor(r, g, b);
 }
 
 void CWindow::fnRender() {
@@ -113,7 +127,7 @@ void CWindow::fnRender() {
 		}
 
 		for(int i = 0; i < m_quadsCount; i++) {
-			Quad quad	= m_quads[i];
+			QuadImg quad	= m_quads[i];
 
 			float x	= m_mouseDx + quad.col * m_textureSize * m_scale;
 			float y	= m_mouseDy + quad.row * m_textureSize * m_scale;
@@ -137,7 +151,7 @@ void CWindow::fnRender() {
 		}
 	}
 
-	m_infoBar->Render();
+	m_ib->Render();
 
 	glutSwapBuffers();
 }
@@ -169,7 +183,7 @@ void CWindow::fnResize(int width, int height) {
 }
 
 void CWindow::fnMouse(int x, int y) {
-	ShowCursor(true);
+	showCursor(true);
 
 	int diffx	= x - m_lastMouseX;
 	int diffy	= y - m_lastMouseY;
@@ -216,7 +230,7 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y) {
 		break;
 	case 'i':
 	case 'I':
-		m_infoBar->Show(!m_infoBar->Visible());
+		m_ib->Show(!m_ib->Visible());
 		glutPostRedisplay();
 		break;
 	case 's':
@@ -273,7 +287,7 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y) {
 		glutPostRedisplay();
 		break;
 //	default:
-//		printf("%d\n", key);
+//		std::cout << key << std::endl;
 //		break;
 	}
 }
@@ -372,6 +386,7 @@ bool CWindow::loadImage(int step) {
 	const char* path	= m_filesList->GetName(step);
 	if(path != 0) {
 		// loading progress by callback
+		std::cout << "Loading";
 		m_loadingTime	= glutGet(GLUT_ELAPSED_TIME);
 
 		if(true == m_il->LoadImage(path, 0)) {
@@ -405,22 +420,19 @@ void CWindow::updateInfobar() {
 	s.sub_count		= m_il->GetSubCount();
 	s.file_size		= m_il->GetSize();
 	s.files_count	= m_filesList->GetCount();
-	m_infoBar->Update(&s);
+	m_ib->Update(&s);
 }
 
-bool CWindow::createTextures(int width, int height, bool alpha, unsigned char* bitmap) {
-	printf(" %d x %d, ", width, height);
-
-	bool ret	= true;
+void CWindow::createTextures(int width, int height, bool alpha, unsigned char* bitmap) {
+	std::cout << " " << width << " x " << height << ", ";
 
 	int cols	= (int)ceilf((float)width / m_textureSize);
 	int rows	= (int)ceilf((float)height / m_textureSize);
 	m_quadsCount	= cols * rows;
-	printf("textures: %d (%d x %d)\n", m_quadsCount, cols, rows);
-	fflush(stdout);
+	std::cout << "textures: " << m_quadsCount << " (" << cols << " x " << rows << ")" << std::endl;
 
 	while(m_quadsCount > (int)m_quads.size()) {
-		Quad quad;
+		QuadImg quad;
 		glGenTextures(1, &quad.tex);
 		glBindTexture(GL_TEXTURE_2D, quad.tex);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -450,9 +462,8 @@ bool CWindow::createTextures(int width, int height, bool alpha, unsigned char* b
 			glTexImage2D(GL_TEXTURE_2D, 0, (alpha == true ? 4 : 3), m_textureSize, m_textureSize, 0, fmt, GL_UNSIGNED_BYTE, buffer);
 			int e	= glGetError();
 			if(GL_NO_ERROR != e) {
-				const GLubyte* s   = gluErrorString(e);
-				printf("%d: %s\n", e, s);
-				ret	= false;
+				std::cout << "can't update texture " << idx << ": " << e << std::endl;
+//				const GLubyte* s   = gluErrorString(e);
 			}
 
 			m_quads[idx].col	= col;
@@ -471,8 +482,6 @@ bool CWindow::createTextures(int width, int height, bool alpha, unsigned char* b
 	}
 
 	delete[] buffer;
-
-	return ret;
 }
 
 
@@ -501,7 +510,7 @@ void CWindow::copyBuffer(unsigned char* bitmap, int col, int row, int width, boo
 	}
 }
 
-void CWindow::ShowCursor(bool show) {
+void CWindow::showCursor(bool show) {
 	if(m_cusorVisible != show) {
 		m_cusorVisible	= show;
 		glutSetCursor(show == true ? GLUT_CURSOR_RIGHT_ARROW : GLUT_CURSOR_NONE);
@@ -524,7 +533,7 @@ void CWindow::callbackRender() {
 }
 
 void CWindow::callbackTimerCursor(int value) {
-	g_window->ShowCursor(false);
+	g_window->showCursor(false);
 }
 
 void CWindow::callbackMouse(int x, int y) {
@@ -549,7 +558,7 @@ void CWindow::callbackKeyboard(unsigned char key, int x, int y) {
 
 
 void CWindow::fnProgressLoading(Imlib_Image im, char percent, int update_x, int update_y, int update_w, int update_h) {
-	printf("."); fflush(stdout);
+	std::cout << ".";
 	if(m_loadingTime + 1000 < glutGet(GLUT_ELAPSED_TIME)) {
 		m_cb->RenderLoading();
 		glutSwapBuffers();

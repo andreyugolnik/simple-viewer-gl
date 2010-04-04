@@ -38,14 +38,9 @@
 			<Add directory="$(#freetype2.include)" />
 		</Compiler>
 		<Linker>
-			<Add library="X11" />
-			<Add library="freetype" />
-			<Add library="Xft" />
-			<Add library="pthread" />
-			<Add library="jpeg" />
 			<Add library="GL" />
+			<Add library="GLU" />
 			<Add library="glut" />
-			<Add library="png" />
 			<Add library="Imlib2" />
 			<Add directory="$(#gfl.lib)" />
 			<Add directory="$(#freetype2.lib)" />
@@ -72,7 +67,7 @@
 			<lib_finder disable_auto="1" />
 			<AutoVersioning>
 				<Scheme minor_max="10" build_max="0" rev_max="0" rev_rand_max="10" build_times_to_increment_minor="100" />
-				<Settings autoincrement="1" date_declarations="0" do_auto_increment="0" ask_to_increment="0" language="C++" svn="0" svn_directory="/home/andrey/projects/sview/.svn" header_path="src/version.h" />
+				<Settings autoincrement="1" date_declarations="0" do_auto_increment="1" ask_to_increment="0" language="C++" svn="0" svn_directory="/home/andrey/projects/sview/.svn" header_path="src/version.h" />
 				<Changes_Log show_changes_editor="0" app_title="%p %M.%m.%b-%s" changeslog_path="ChangesLog.txt" />
 				<Code header_guard="VERSION_H" namespace="AutoVersion" prefix="" />
 			</AutoVersioning>

@@ -6,9 +6,9 @@
 /////////////////////////////////////////////////
 
 #include "fileslist.h"
+#include <iostream>
 #include <algorithm>
 #include <dirent.h>
-#include <stdlib.h>
 
 CFilesList::CFilesList(const char* file) : m_listCreated(false), m_position(0), m_removeCurrent(false) {
 	m_files.push_back(file);
@@ -41,7 +41,7 @@ bool CFilesList::ParseDir() {
 	struct dirent** namelist;
 	int n = scandir(dir.c_str(), &namelist, filter, alphasort);
 	if(n < 0) {
-		printf("Can't scan dir %s\n", dir.c_str());
+		std::cout << "Can't scan dir " << dir << std::endl;
 		return false;
 	}
 	else {
@@ -71,10 +71,6 @@ bool CFilesList::ParseDir() {
 		size_t slen	= m_files[i].length();
 		if(slen >= len && m_files[i].substr(slen - len, len) == name) {
 			m_position	= i;
-//			// update remove image index
-//			if(g_nImageToRemove != -1) {
-//				g_nImageToRemove	= i;
-//			}
 			break;
 		}
 	}
@@ -119,7 +115,7 @@ const char* CFilesList::GetName(int delta) {
 	if(delta != 0 && m_removeCurrent == true) {
 		m_removeCurrent	= false;
 		if(0 == unlink(m_files[m_position].c_str())) {
-			printf("File '%s' has been removed from disk.\n", m_files[m_position].c_str());
+			std::cout << "File '" << m_files[m_position] << "' has been removed from disk." << std::endl;
 		}
 		// remove path from list
 		m_files.erase(m_files.begin() + m_position);

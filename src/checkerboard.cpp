@@ -12,7 +12,15 @@
 
 const int tex_size	= 128;
 
-CCheckerboard::CCheckerboard() : m_enabled(true), r(0), g(0), b(1) {
+CCheckerboard::CCheckerboard() : m_enabled(false), m_r(0), m_g(0), m_b(1) {
+}
+CCheckerboard::~CCheckerboard() {
+	glDeleteTextures(1, &m_cb.tex);
+	glDeleteTextures(1, &m_loading.tex);
+	glDeleteTextures(1, &m_na.tex);
+}
+
+void CCheckerboard::Init() {
 	// Create checkerboard texture
 	//
 	glGenTextures(1, &m_cb.tex);
@@ -24,7 +32,7 @@ CCheckerboard::CCheckerboard() : m_enabled(true), r(0), g(0), b(1) {
 
 	unsigned char* buffer	= new unsigned char[tex_size * tex_size * 3];
 
-	unsigned char* p	= buffer;;
+	unsigned char* p	= buffer;
 	bool checker_height_odd	= true;
 	for(int y = 0; y < tex_size; y++) {
 		if(y % 16 == 0) {
@@ -85,10 +93,10 @@ CCheckerboard::CCheckerboard() : m_enabled(true), r(0), g(0), b(1) {
 		imgNa.bytes_per_pixel == 4 ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, imgNa.pixel_data);
 }
 
-CCheckerboard::~CCheckerboard() {
-	glDeleteTextures(1, &m_cb.tex);
-	glDeleteTextures(1, &m_loading.tex);
-	glDeleteTextures(1, &m_na.tex);
+void CCheckerboard::SetColor(unsigned char r, unsigned char g, unsigned char b) {
+	m_r	= r / 255.0f;
+	m_g	= g / 255.0f;
+	m_b	= b / 255.0f;
 }
 
 void CCheckerboard::Render() {
@@ -119,7 +127,7 @@ void CCheckerboard::Render() {
 
 	}
 	else {
-		glClearColor(r, g, b, 1);
+		glClearColor(m_r, m_g, m_b, 1);
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
 }
@@ -134,10 +142,10 @@ void CCheckerboard::RenderLoading() {
 	float x	= ceil((w - imgLoading.width) / 2);
 	float y	= ceil((h - imgLoading.height) / 2);
 
-	m_loading.v[0].x = x;			m_loading.v[0].y = y;
+	m_loading.v[0].x = x;						m_loading.v[0].y = y;
 	m_loading.v[1].x = x + imgLoading.width;	m_loading.v[1].y = y;
 	m_loading.v[2].x = x + imgLoading.width;	m_loading.v[2].y = y + imgLoading.height;
-	m_loading.v[3].x = x;			m_loading.v[3].y = y + imgLoading.height;
+	m_loading.v[3].x = x;						m_loading.v[3].y = y + imgLoading.height;
 
 	glBindTexture(GL_TEXTURE_2D, m_loading.tex);
 	glBegin(GL_QUADS);

@@ -8,6 +8,8 @@
 #include "imageloader.h"
 //#include "imagejpeg.h"
 //#include "imagepng.h"
+#include <iostream>
+#include <fstream>
 #include <algorithm>
 
 CImageLoader::CImageLoader() : m_image(0), m_angle(ANGLE_0) {
@@ -42,18 +44,18 @@ bool CImageLoader::LoadImage(const char* path, int sub_image) {
 
 	if(path != 0) {
 		// get file size
-		FILE* f	= fopen(path, "rb");
-		if(f != 0) {
-			fseek(f, 0, SEEK_END);
-			m_size	= ftell(f);
-			fclose(f);
+		std::ifstream f(path, std::ios::binary);
+		if(f.good() != 0) {
+			f.seekg(0, std::ios::end);
+			m_size	= f.tellg();
+			f.close();
 		}
 
 		// try to load image from disk
 		Imlib_Load_Error error_return;
 		m_image	= imlib_load_image_with_error_return(path, &error_return);
 		if(m_image == 0) {
-			printf("Error loading file '%s': %i\n", path, error_return);  fflush(stdout);
+			std::cout << "Error loading file '" << m_path << "': " << error_return << std::endl;
 			return false;
 		}
 
