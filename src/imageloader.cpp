@@ -55,7 +55,7 @@ bool CImageLoader::LoadImage(const char* path, int sub_image) {
 		Imlib_Load_Error error_return;
 		m_image	= imlib_load_image_with_error_return(path, &error_return);
 		if(m_image == 0) {
-			std::cout << "Error loading file '" << m_path << "': " << error_return << std::endl;
+			std::cout << ": error loading file '" << m_path << "' (" << error_return << ")" << std::endl;
 			return false;
 		}
 

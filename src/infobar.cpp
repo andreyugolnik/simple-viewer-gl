@@ -40,6 +40,8 @@ void CInfoBar::Render() {
 		for( ; *p; p++) {
 			glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, (unsigned char)*p);
 		}
+
+		glEnable(GL_TEXTURE_2D);
 	}
 }
 

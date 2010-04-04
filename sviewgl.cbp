@@ -57,6 +57,12 @@
 		<Unit filename="src/infobar.h" />
 		<Unit filename="src/main.cpp" />
 		<Unit filename="src/main.h" />
+		<Unit filename="src/notavailable.cpp" />
+		<Unit filename="src/notavailable.h" />
+		<Unit filename="src/progress.cpp" />
+		<Unit filename="src/progress.h" />
+		<Unit filename="src/quad.cpp" />
+		<Unit filename="src/quad.h" />
 		<Unit filename="src/version.h" />
 		<Unit filename="src/window.cpp" />
 		<Unit filename="src/window.h" />

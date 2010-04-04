@@ -12,9 +12,10 @@
 #include "imageloader.h"
 #include "infobar.h"
 #include "checkerboard.h"
+#include "progress.h"
+#include "notavailable.h"
 #include "main.h"
 
-#include <GL/freeglut.h>
 #include <vector>
 
 typedef enum { PROP_INFOBAR, PROP_CHECKERS, PROP_FITIMAGE, PROP_FULLSCREEN } Property;
@@ -37,7 +38,6 @@ private:
 	int m_lastMouseX, m_lastMouseY;
 	bool m_mouseLB, m_keyPressed;
 	int m_mouseDx, m_mouseDy;
-	bool m_renderNa;
 
 	GLint m_textureSize;
 	int m_quadsCount;
@@ -48,12 +48,13 @@ private:
 	typedef std::vector<QuadImg> Quads;
 	typedef Quads::const_iterator QuadsIc;
 	Quads m_quads;
-	int m_loadingTime;
 
 	std::auto_ptr<CFilesList> m_filesList;
 	std::auto_ptr<CImageLoader> m_il;
 	std::auto_ptr<CInfoBar> m_ib;
 	std::auto_ptr<CCheckerboard> m_cb;
+	std::auto_ptr<CNotAvailable> m_na;
+	std::auto_ptr<CProgress> m_progress;
 
 private:
 	bool loadImage(int step);

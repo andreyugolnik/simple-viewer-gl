@@ -18,11 +18,13 @@ extern std::auto_ptr<CWindow> g_window;
 CWindow::CWindow() :
 	m_winW(0), m_winH(0), m_scale(1), m_windowed(true), m_fitImage(false), m_cusorVisible(true),
 	m_lastMouseX(-1), m_lastMouseY(-1), m_mouseLB(false), m_keyPressed(false), m_mouseDx(0), m_mouseDy(0),
-	m_renderNa(false), m_textureSize(256), m_quadsCount(0) {
+	m_textureSize(256), m_quadsCount(0) {
 
 		m_il.reset(new CImageLoader());
 		m_cb.reset(new CCheckerboard());
+		m_na.reset(new CNotAvailable());
 		m_ib.reset(new CInfoBar());
+		m_progress.reset(new CProgress());
 }
 
 CWindow::~CWindow() {
@@ -37,7 +39,6 @@ bool CWindow::Init(int argc, char *argv[], const char* path) {
 	if(m_filesList->GetName() != 0) {
 		glutInit(&argc, argv);
 		glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);// | GLUT_DEPTH);
-		m_loadingTime	= glutGet(GLUT_ELAPSED_TIME);
 
 		glutCreateWindow(TITLE);
 
@@ -75,6 +76,8 @@ bool CWindow::Init(int argc, char *argv[], const char* path) {
 		imlib_context_set_progress_granularity(10);
 
 		m_cb->Init();
+		m_na->Init();
+		m_progress->Init();
 
 		loadImage(0);
 
@@ -109,10 +112,7 @@ void CWindow::fnRender() {
 
 	glColor3f(1, 1, 1);
 
-	if(m_renderNa == true) {
-		m_cb->RenderNa();
-	}
-	else {
+	if(m_na->Render() == false) {
 		calculateScale();
 
 		if(m_mouseLB == true || m_keyPressed == true) {
@@ -393,14 +393,12 @@ bool CWindow::loadImage(int step) {
 		m_il->SetAngle(ANGLE_0);
 		m_scale		= 1;
 		m_quadsCount	= 0;
-		m_renderNa	= false;
+		m_na->Enable(false);
 	}
 
 	const char* path	= m_filesList->GetName(step);
 	if(path != 0) {
-		// loading progress by callback
-		std::cout << "Loading";
-		m_loadingTime	= glutGet(GLUT_ELAPSED_TIME);
+		m_progress->Start();
 
 		if(true == m_il->LoadImage(path, 0)) {
 			unsigned char* bitmap	= m_il->GetBitmap();
@@ -409,7 +407,7 @@ bool CWindow::loadImage(int step) {
 			ret	= true;
 		}
 		else {
-			m_renderNa	= true;
+			m_na->Enable(true);
 		}
 
 		updateInfobar();
@@ -571,11 +569,7 @@ void CWindow::callbackKeyboard(unsigned char key, int x, int y) {
 
 
 void CWindow::fnProgressLoading(Imlib_Image im, char percent, int update_x, int update_y, int update_w, int update_h) {
-	std::cout << ".";
-	if(m_loadingTime + 1000 < glutGet(GLUT_ELAPSED_TIME)) {
-		m_cb->RenderLoading();
-		glutSwapBuffers();
-	}
+	m_progress->Render();
 }
 
 int CWindow::callbackProgressLoading(Imlib_Image im, char percent, int update_x, int update_y, int update_w, int update_h) {

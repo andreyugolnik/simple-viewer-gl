@@ -4,6 +4,9 @@ LDFLAGS=-s -lGL -lGLU -lglut -lImlib2
 
 SOURCES= \
 	src/checkerboard.cpp \
+	src/notavailable.cpp \
+	src/progress.cpp \
+	src/quad.cpp \
 	src/fileslist.cpp \
 	src/imageloader.cpp \
 	src/infobar.cpp \
@@ -22,4 +25,4 @@ $(EXECUTABLE): $(OBJECTS)
 	$(CC) $(CFLAGS) $< -o $@
 
 clean:
-	rm src/*.o
+	rm $(OBJECTS) $(EXECUTABLE)
