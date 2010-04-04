@@ -29,7 +29,6 @@ public:
 	bool Visible() { return m_visible; }
 	void Show(bool show = true) { m_visible = show; }
 	void Update(const InfoBar* p);
-//	void Update(const char* text = 0);
 
 private:
 	bool m_visible;

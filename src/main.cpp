@@ -48,8 +48,8 @@ int main(int argc, char *argv[]) {
 		else if(strncmp(argv[i], "-f", 2) == 0)
 			g_window->SetProp(PROP_FULLSCREEN);
 		else if(strncmp(argv[i], "-C", 2) == 0) {
-			unsigned char r, g, b;
-			if(3 == sscanf(argv[i + 1], "%2cx%2cx%2cx", &r, &g, &b)) {
+			int r, g, b;
+			if(3 == sscanf(argv[i + 1], "%2x%2x%2x", &r, &g, &b)) {
 				g_window->SetProp(r, g, b);
 				i++;
 			}

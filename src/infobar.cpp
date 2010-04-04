@@ -96,18 +96,3 @@ void CInfoBar::Update(const InfoBar* p) {
 
 	glutSetWindowTitle(title.str().c_str());
 }
-//
-//void CInfoBar::Update(const char* text) {
-//	std::stringstream title;
-//
-//	if(text != 0) {
-//		m_bottominfo	= text;
-//		title << text << " - " << TITLE;;
-//	}
-//	else {
-//		m_bottominfo	= "";
-//		title << TITLE;;
-//	}
-//
-//	glutSetWindowTitle(title.str().c_str());
-//}
