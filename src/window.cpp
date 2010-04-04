@@ -17,8 +17,8 @@ extern std::auto_ptr<CWindow> g_window;
 
 CWindow::CWindow() :
 	m_winW(0), m_winH(0), m_scale(1), m_windowed(true), m_fitImage(false), m_cusorVisible(true),
-	m_lastMouseX(-1), m_lastMouseY(-1), m_mouseLB(false), m_mouseDx(0), m_mouseDy(0), m_renderNa(false),
-	m_textureSize(256), m_quadsCount(0) {
+	m_lastMouseX(-1), m_lastMouseY(-1), m_mouseLB(false), m_keyPressed(false), m_mouseDx(0), m_mouseDy(0),
+	m_renderNa(false), m_textureSize(256), m_quadsCount(0) {
 
 		m_il.reset(new CImageLoader());
 		m_cb.reset(new CCheckerboard());
@@ -115,7 +115,8 @@ void CWindow::fnRender() {
 	else {
 		calculateScale();
 
-		if(m_mouseLB == true) {
+		if(m_mouseLB == true || m_keyPressed == true) {
+			m_keyPressed	= false;
 			int w	= (int)(m_il->GetWidth() * m_scale);
 			int h	= (int)(m_il->GetHeight() * m_scale);
 
@@ -295,20 +296,32 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y) {
 void CWindow::fnKeyboardSpecial(int key, int x, int y) {
 	switch(key) {
 	case GLUT_KEY_LEFT:
-		m_mouseDx	+= 10;
-		glutPostRedisplay();
+		if(m_fitImage == false) {
+			m_keyPressed	= true;
+			m_mouseDx	+= 10;
+			glutPostRedisplay();
+		}
 		break;
 	case GLUT_KEY_RIGHT:
-		m_mouseDx	-= 10;
-		glutPostRedisplay();
+		if(m_fitImage == false) {
+			m_keyPressed	= true;
+			m_mouseDx	-= 10;
+			glutPostRedisplay();
+		}
 		break;
 	case GLUT_KEY_UP:
-		m_mouseDy	+= 10;
-		glutPostRedisplay();
+		if(m_fitImage == false) {
+			m_keyPressed	= true;
+			m_mouseDy	+= 10;
+			glutPostRedisplay();
+		}
 		break;
 	case GLUT_KEY_DOWN:
-		m_mouseDy	-= 10;
-		glutPostRedisplay();
+		if(m_fitImage == false) {
+			m_keyPressed	= true;
+			m_mouseDy	-= 10;
+			glutPostRedisplay();
+		}
 		break;
 	case GLUT_KEY_PAGE_UP:
 		break;

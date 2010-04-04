@@ -35,7 +35,7 @@ private:
 	bool m_fitImage;
 	bool m_cusorVisible;
 	int m_lastMouseX, m_lastMouseY;
-	bool m_mouseLB;
+	bool m_mouseLB, m_keyPressed;
 	int m_mouseDx, m_mouseDy;
 	bool m_renderNa;
 
