@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="Simple Viewer GL" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="linux_Debug">
+				<Option platforms="Unix;" />
+				<Option output="sviewgl" prefix_auto="1" extension_auto="1" />
+				<Option object_output="debug_linux/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option parameters='-n -r -c &quot;img/Николай Маркеллов (За зеленой дверью).jpg&quot; img/sdl_DavidIgreja.png' />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="linux_Release">
+				<Option platforms="Unix;" />
+				<Option output="sviewgl" prefix_auto="1" extension_auto="1" />
+				<Option object_output="release_linux/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-fexceptions" />
+			<Add directory="$(#gfl.include)" />
+			<Add directory="$(#freetype2.include)" />
+		</Compiler>
+		<Linker>
+			<Add library="X11" />
+			<Add library="freetype" />
+			<Add library="Xft" />
+			<Add library="pthread" />
+			<Add library="jpeg" />
+			<Add library="GL" />
+			<Add library="glut" />
+			<Add library="png" />
+			<Add library="Imlib2" />
+			<Add directory="$(#gfl.lib)" />
+			<Add directory="$(#freetype2.lib)" />
+		</Linker>
+		<Unit filename="src/checkerboard.cpp" />
+		<Unit filename="src/checkerboard.h" />
+		<Unit filename="src/fileslist.cpp" />
+		<Unit filename="src/fileslist.h" />
+		<Unit filename="src/imageloader.cpp" />
+		<Unit filename="src/imageloader.h" />
+		<Unit filename="src/img-loading.hpp" />
+		<Unit filename="src/img-na.hpp" />
+		<Unit filename="src/infobar.cpp" />
+		<Unit filename="src/infobar.h" />
+		<Unit filename="src/main.cpp" />
+		<Unit filename="src/main.h" />
+		<Unit filename="src/version.h" />
+		<Unit filename="src/window.cpp" />
+		<Unit filename="src/window.h" />
+		<Extensions>
+			<envvars />
+			<code_completion />
+			<debugger />
+			<lib_finder disable_auto="1" />
+			<AutoVersioning>
+				<Scheme minor_max="10" build_max="0" rev_max="0" rev_rand_max="10" build_times_to_increment_minor="100" />
+				<Settings autoincrement="1" date_declarations="0" do_auto_increment="0" ask_to_increment="0" language="C++" svn="0" svn_directory="/home/andrey/projects/sview/.svn" header_path="src/version.h" />
+				<Changes_Log show_changes_editor="0" app_title="%p %M.%m.%b-%s" changeslog_path="ChangesLog.txt" />
+				<Code header_guard="VERSION_H" namespace="AutoVersion" prefix="" />
+			</AutoVersioning>
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
