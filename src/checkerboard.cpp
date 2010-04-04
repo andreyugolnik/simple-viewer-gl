@@ -12,7 +12,7 @@
 
 const int tex_size	= 128;
 
-CCheckerboard::CCheckerboard() : m_enabled(false), m_r(0), m_g(0), m_b(1) {
+CCheckerboard::CCheckerboard() : m_enabled(true), m_r(0), m_g(0), m_b(1) {
 }
 CCheckerboard::~CCheckerboard() {
 	glDeleteTextures(1, &m_cb.tex);

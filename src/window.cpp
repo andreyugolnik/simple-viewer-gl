@@ -89,7 +89,7 @@ void CWindow::SetProp(Property prop) {
 		m_ib->Show(false);
 		break;
 	case PROP_CHECKERS:
-		m_cb->Enable(true);
+		m_cb->Enable(false);
 		break;
 	case PROP_FITIMAGE:
 		m_fitImage	= true;
