@@ -17,8 +17,10 @@ public:
 
 	virtual void SetSpriteSize(float w, float h);
 	virtual void Render(float x, float y);
+	float GetWidth() const { return m_w; }
+	float GetHeight() const { return m_h; }
 
-private:
+protected:
 	GLuint m_tex;
 	GLfloat m_w, m_h;	// sprite width / height
 	GLfloat m_tw, m_th;	// initial texture width / height
@@ -27,9 +29,11 @@ private:
 		GLfloat tx, ty;	// vertex texture coordinates
 	} m_v[4];
 
+protected:
+	virtual void init(int tw, int th, const unsigned char* data, int bpp);
+
 private:
 	CQuad();
-	void init(int tw, int th, const unsigned char* data, int bpp);
 };
 
 #endif // QUAD_H

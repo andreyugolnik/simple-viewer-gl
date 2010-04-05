@@ -14,7 +14,8 @@
 #include "checkerboard.h"
 #include "progress.h"
 #include "notavailable.h"
-#include "main.h"
+//#include "main.h"
+#include "quadimage.h"
 
 #include <vector>
 
@@ -41,11 +42,7 @@ private:
 
 	GLint m_textureSize;
 	int m_quadsCount;
-	typedef struct QUAD_IMG : Quad {
-		int w, h;
-		int col, row;
-	} QuadImg;
-	typedef std::vector<QuadImg> Quads;
+	typedef std::vector<CQuadImage*> Quads;
 	typedef Quads::const_iterator QuadsIc;
 	Quads m_quads;
 

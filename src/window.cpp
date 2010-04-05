@@ -30,7 +30,7 @@ CWindow::CWindow() :
 CWindow::~CWindow() {
 	QuadsIc it = m_quads.begin(), itEnd = m_quads.end();
 	for( ; it != itEnd; ++it) {
-		glDeleteTextures(1, &(*it).tex);
+		delete (*it);
 	}
 }
 
@@ -128,27 +128,30 @@ void CWindow::fnRender() {
 		}
 
 		for(int i = 0; i < m_quadsCount; i++) {
-			QuadImg quad	= m_quads[i];
+			CQuadImage* quad	= m_quads[i];
 
-			float x	= m_mouseDx + quad.col * m_textureSize * m_scale;
-			float y	= m_mouseDy + quad.row * m_textureSize * m_scale;
+			float x	= m_mouseDx + quad->GetCol() * m_textureSize * m_scale;
+			float y	= m_mouseDy + quad->GetRow() * m_textureSize * m_scale;
 
-			float quadw	= quad.w * m_scale;
-			float quadh	= quad.h * m_scale;
-			quad.v[0].x = x;			quad.v[0].y = y;
-			quad.v[1].x = x + quadw;	quad.v[1].y = y;
-			quad.v[2].x = x + quadw;	quad.v[2].y = y + quadh;
-			quad.v[3].x = x;			quad.v[3].y = y + quadh;
-
+			float quadw	= quad->GetWidth() * m_scale;
+			float quadh	= quad->GetHeight() * m_scale;
 			if(x + quadw >= 0 && x < m_winW && y + quadh >= 0 && y < m_winH) {
-				glBindTexture(GL_TEXTURE_2D, quad.tex);
-				glBegin(GL_QUADS);
-					glTexCoord2fv(&quad.v[0].tx);	glVertex2fv(&quad.v[0].x);
-					glTexCoord2fv(&quad.v[1].tx);	glVertex2fv(&quad.v[1].x);
-					glTexCoord2fv(&quad.v[2].tx);	glVertex2fv(&quad.v[2].x);
-					glTexCoord2fv(&quad.v[3].tx);	glVertex2fv(&quad.v[3].x);
-				glEnd();
+				quad->Render(x, y);
 			}
+//			quad.v[0].x = x;			quad.v[0].y = y;
+//			quad.v[1].x = x + quadw;	quad.v[1].y = y;
+//			quad.v[2].x = x + quadw;	quad.v[2].y = y + quadh;
+//			quad.v[3].x = x;			quad.v[3].y = y + quadh;
+//
+//			if(x + quadw >= 0 && x < m_winW && y + quadh >= 0 && y < m_winH) {
+//				glBindTexture(GL_TEXTURE_2D, quad.tex);
+//				glBegin(GL_QUADS);
+//					glTexCoord2fv(&quad.v[0].tx);	glVertex2fv(&quad.v[0].x);
+//					glTexCoord2fv(&quad.v[1].tx);	glVertex2fv(&quad.v[1].x);
+//					glTexCoord2fv(&quad.v[2].tx);	glVertex2fv(&quad.v[2].x);
+//					glTexCoord2fv(&quad.v[3].tx);	glVertex2fv(&quad.v[3].x);
+//				glEnd();
+//			}
 		}
 	}
 
@@ -443,17 +446,9 @@ void CWindow::createTextures(int width, int height, bool alpha, unsigned char* b
 	std::cout << "textures: " << m_quadsCount << " (" << cols << " x " << rows << ")" << std::endl;
 
 	while(m_quadsCount > (int)m_quads.size()) {
-		QuadImg quad;
-		glGenTextures(1, &quad.tex);
-		glBindTexture(GL_TEXTURE_2D, quad.tex);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+		CQuadImage* quad	= new CQuadImage(m_textureSize);
 		m_quads.push_back(quad);
 	}
-
-	GLenum fmt	= (alpha == true ? GL_BGRA : GL_BGR);
 
 	unsigned char* buffer	= new unsigned char[m_textureSize * m_textureSize * (alpha == true ? 4 : 3)];
 
@@ -463,29 +458,14 @@ void CWindow::createTextures(int width, int height, bool alpha, unsigned char* b
 		int width2	= width;
 		int h	= (height2 > m_textureSize ? m_textureSize : height2);
 		for(int col = 0; col < cols; col++) {
-			glBindTexture(GL_TEXTURE_2D, m_quads[idx].tex);
-
 			int w	= (width2 > m_textureSize ? m_textureSize : width2);
 			width2	-= w;
 
 			copyBuffer(bitmap, col, row, width, alpha, buffer, w, h);
 
-			glTexImage2D(GL_TEXTURE_2D, 0, (alpha == true ? 4 : 3), m_textureSize, m_textureSize, 0, fmt, GL_UNSIGNED_BYTE, buffer);
-			int e	= glGetError();
-			if(GL_NO_ERROR != e) {
-				std::cout << "can't update texture " << idx << ": " << e << std::endl;
-//				const GLubyte* s   = gluErrorString(e);
-			}
-
-			m_quads[idx].col	= col;
-			m_quads[idx].row	= row;
-			m_quads[idx].w	= w;
-			m_quads[idx].h	= h;
-
-			m_quads[idx].v[0].tx = 0;							m_quads[idx].v[0].ty = 0;
-			m_quads[idx].v[1].tx = w / (float)m_textureSize;	m_quads[idx].v[1].ty = 0;
-			m_quads[idx].v[2].tx = w / (float)m_textureSize;	m_quads[idx].v[2].ty = h / (float)m_textureSize;
-			m_quads[idx].v[3].tx = 0;							m_quads[idx].v[3].ty = h / (float)m_textureSize;
+			m_quads[idx]->SetCell(col, row);
+			m_quads[idx]->Update(alpha == true ? 4 : 3, buffer);
+			m_quads[idx]->SetSpriteSize(w, h);
 
 			idx++;
 		}

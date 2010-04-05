@@ -63,6 +63,8 @@
 		<Unit filename="src/progress.h" />
 		<Unit filename="src/quad.cpp" />
 		<Unit filename="src/quad.h" />
+		<Unit filename="src/quadimage.cpp" />
+		<Unit filename="src/quadimage.h" />
 		<Unit filename="src/version.h" />
 		<Unit filename="src/window.cpp" />
 		<Unit filename="src/window.h" />
