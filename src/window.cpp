@@ -154,7 +154,7 @@ void CWindow::fnRender() {
 
 void CWindow::fnResize(int width, int height) {
 	m_winW	= width;
-	m_winH	= height;
+	m_winH	= height - m_ib->GetHeight();
 
 //	if(m_winW < DEF_WINDOW_W || m_winH < DEF_WINDOW_H) {
 //		m_winW	= std::max(m_winW, DEF_WINDOW_W);
@@ -168,11 +168,11 @@ void CWindow::fnResize(int width, int height) {
 	m_imageDx	= (m_winW - w) / 2;
 	m_imageDy	= (m_winH - h) / 2;
 
-	glViewport(0, 0, m_winW, m_winH);
+	glViewport(0, 0, m_winW, m_winH + m_ib->GetHeight());
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glOrtho(0, m_winW, m_winH, 0, -1, 1);
+	glOrtho(0, m_winW, m_winH + m_ib->GetHeight(), 0, -1, 1);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -227,6 +227,7 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y) {
 	case 'i':
 	case 'I':
 		m_ib->Show(!m_ib->Visible());
+		fnResize(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
 		glutPostRedisplay();
 		break;
 	case 's':

@@ -11,7 +11,8 @@
 #include <sstream>
 #include <GL/glut.h>
 
-CInfoBar::CInfoBar() : m_visible(true) {
+CInfoBar::CInfoBar() : m_visible(true), m_height(20) {
+	m_bg.reset(new CQuad(0, 0));
 }
 
 CInfoBar::~CInfoBar() {
@@ -19,24 +20,19 @@ CInfoBar::~CInfoBar() {
 
 void CInfoBar::Render() {
 	if(m_visible == true) {
-		const int x	= 5;
-		int height	= glutGet(GLUT_WINDOW_HEIGHT) - 5;
+		int w	= glutGet(GLUT_WINDOW_WIDTH);
+		int h	= glutGet(GLUT_WINDOW_HEIGHT);
+
+		glColor3f(0, 0, 0.1f);
+		m_bg->SetSpriteSize(w, m_height);
+		m_bg->Render(0, h - m_height);
 
 		glDisable(GL_TEXTURE_2D);
-		glColor3f(0, 0, 0);
-		glRasterPos2i(x+1, height+1);
 
-	//	glcRenderString(string);
+		glColor3f(1, 1, 0.5f);
+		glRasterPos2i(5, h - 5);
+
 		const char* p	= m_bottominfo.c_str();
-		for( ; *p; p++) {
-			glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, (unsigned char)*p);
-			//glutStrokeCharacter(GLUT_STROKE_ROMAN, *p);
-		}
-
-		glColor3f(0, 1, 0);
-		glRasterPos2i(x, height);
-
-		p	= m_bottominfo.c_str();
 		for( ; *p; p++) {
 			glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, (unsigned char)*p);
 		}
