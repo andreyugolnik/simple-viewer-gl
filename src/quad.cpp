@@ -6,6 +6,7 @@
 /////////////////////////////////////////////////
 
 #include "quad.h"
+#include <iostream>
 
 CQuad::CQuad(int tw, int th, const unsigned char* data, int bpp) : m_tex(0), m_w(0), m_h(0) {
 	init(tw, th, data, bpp);
@@ -27,6 +28,8 @@ void CQuad::init(int tw, int th, const unsigned char* data, int bpp) {
 
 		if(data != 0) {
 			glGenTextures(1, &m_tex);
+
+			// TODO move out of this method
 			glBindTexture(GL_TEXTURE_2D, m_tex);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -34,6 +37,11 @@ void CQuad::init(int tw, int th, const unsigned char* data, int bpp) {
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 
 			glTexImage2D(GL_TEXTURE_2D, 0, bpp, tw, th, 0, bpp == 4 ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, data);
+			int e	= glGetError();
+			if(GL_NO_ERROR != e) {
+		//		const GLubyte* s   = gluErrorString(e);
+				std::cout << "can't update texture " << m_tex << ": " << e << std::endl;
+			}
 		}
 	}
 }

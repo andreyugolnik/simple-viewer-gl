@@ -41,7 +41,7 @@ void CProgress::Render() {
 		glColor3f(1, 1, 1);
 		m_loading->Render(x, y);
 
-		// render progress
+		// TODO render progress
 		for(int i = 0; i < m_progress; i++) {
 			m_square->Render(i * 6, 6);
 		}
