@@ -101,6 +101,9 @@ void CWindow::SetProp(Property prop) {
 	case PROP_FULLSCREEN:
 		m_windowed	= false;
 		break;
+	case PROP_BORDER:
+		m_showBorder	= true;
+		break;
 	}
 }
 

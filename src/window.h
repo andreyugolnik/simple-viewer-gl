@@ -19,7 +19,7 @@
 
 #include <vector>
 
-typedef enum { PROP_INFOBAR, PROP_CHECKERS, PROP_FITIMAGE, PROP_FULLSCREEN } Property;
+typedef enum { PROP_INFOBAR, PROP_CHECKERS, PROP_FITIMAGE, PROP_FULLSCREEN, PROP_BORDER } Property;
 
 class CWindow {
 public:

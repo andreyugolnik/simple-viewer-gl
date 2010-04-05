@@ -47,6 +47,8 @@ int main(int argc, char *argv[]) {
 			g_window->SetProp(PROP_FITIMAGE);
 		else if(strncmp(argv[i], "-f", 2) == 0)
 			g_window->SetProp(PROP_FULLSCREEN);
+		else if(strncmp(argv[i], "-b", 2) == 0)
+			g_window->SetProp(PROP_BORDER);
 		else if(strncmp(argv[i], "-C", 2) == 0) {
 			int r, g, b;
 			if(3 == sscanf(argv[i + 1], "%2x%2x%2x", &r, &g, &b)) {
@@ -72,10 +74,11 @@ void showHelp(const char* pchArgv0) {
 	printf("\nUsage:\n");
 	printf("  %s [OPTION]... FILE\n", (p ? p + 1 : pchArgv0));
 	printf("  -h, --help    show this help;\n");
-	printf("  -i            disable on screen info;\n");
 	printf("  -s            enable scale to window;\n");
-	printf("  -f            start in fullscreen mode;\n");
 	printf("  -c            disable chequerboard;\n");
+	printf("  -i            disable on screen info;\n");
+	printf("  -b            show border around image;\n");
+	printf("  -f            start in fullscreen mode;\n");
 	printf("  -C RRGGBB     background color in hex format;\n");
 
 	printf("\nAvailable keys:\n");
@@ -95,7 +98,7 @@ void showHelp(const char* pchArgv0) {
 //	printf("  <r>           rotate clockwice;\n");
 //	printf("  <l>           rotate counter clockwise;\n");
 	printf("  <c>           hide / show chequerboard;\n");
-	printf("  <i>           hide / show on screen info.\n");
-	printf("  <b>           hide / show border around image.\n");
+	printf("  <i>           hide / show on screen info;\n");
+	printf("  <b>           hide / show border around image;\n");
 	printf("\n");
 }
