@@ -8,14 +8,14 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
+#include "quadimage.h"
 #include "fileslist.h"
 #include "imageloader.h"
 #include "infobar.h"
 #include "checkerboard.h"
 #include "progress.h"
 #include "notavailable.h"
-//#include "main.h"
-#include "quadimage.h"
+#include "imageborder.h"
 
 #include <vector>
 
@@ -35,6 +35,7 @@ private:
 	float m_scale;
 	bool m_windowed;
 	bool m_fitImage;
+	bool m_showBorder;
 	bool m_cusorVisible;
 	int m_lastMouseX, m_lastMouseY;
 	bool m_mouseLB, m_keyPressed;
@@ -52,6 +53,7 @@ private:
 	std::auto_ptr<CCheckerboard> m_cb;
 	std::auto_ptr<CNotAvailable> m_na;
 	std::auto_ptr<CProgress> m_progress;
+	std::auto_ptr<CImageBorder> m_border;
 
 private:
 	bool loadImage(int step);

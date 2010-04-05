@@ -16,7 +16,7 @@
 extern std::auto_ptr<CWindow> g_window;
 
 CWindow::CWindow() :
-	m_winW(0), m_winH(0), m_scale(1), m_windowed(true), m_fitImage(false), m_cusorVisible(true),
+	m_winW(0), m_winH(0), m_scale(1), m_windowed(true), m_fitImage(false), m_showBorder(false), m_cusorVisible(true),
 	m_lastMouseX(-1), m_lastMouseY(-1), m_mouseLB(false), m_keyPressed(false), m_imageDx(0), m_imageDy(0),
 	m_textureSize(256), m_quadsCount(0) {
 
@@ -25,6 +25,7 @@ CWindow::CWindow() :
 		m_na.reset(new CNotAvailable());
 		m_ib.reset(new CInfoBar());
 		m_progress.reset(new CProgress());
+		m_border.reset(new CImageBorder());
 }
 
 CWindow::~CWindow() {
@@ -115,15 +116,16 @@ void CWindow::fnRender() {
 	if(m_na->Render() == false) {
 		calculateScale();
 
+		float img_w	= m_il->GetWidth() * m_scale;
+		float img_h	= m_il->GetHeight() * m_scale;
+
 		if(m_mouseLB == true || m_keyPressed == true) {
 			m_keyPressed	= false;
-			int w	= (int)(m_il->GetWidth() * m_scale);
-			int h	= (int)(m_il->GetHeight() * m_scale);
 
 			const int delta	= 20;
-			m_imageDx	= std::max(m_imageDx, delta - w);
+			m_imageDx	= std::max(m_imageDx, delta - (int)img_w);
 			m_imageDx	= std::min(m_imageDx, m_winW - delta);
-			m_imageDy	= std::max(m_imageDy, delta - h);
+			m_imageDy	= std::max(m_imageDy, delta - (int)img_h);
 			m_imageDy	= std::min(m_imageDy, m_winH - delta);
 		}
 
@@ -138,6 +140,10 @@ void CWindow::fnRender() {
 			if(x + w >= 0 && x < m_winW && y + h >= 0 && y < m_winH) {
 				quad->RenderEx(x, y, w, h);
 			}
+		}
+
+		if(m_showBorder == true) {
+			m_border->Render((float)m_imageDx, (float)m_imageDy, img_w, img_h);
 		}
 	}
 
@@ -239,6 +245,11 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y) {
 		break;
 	case 8:	// backspace
 		loadImage(-1);
+		glutPostRedisplay();
+		break;
+	case 'b':
+	case 'B':
+		m_showBorder	= !m_showBorder;
 		glutPostRedisplay();
 		break;
 	case '+':

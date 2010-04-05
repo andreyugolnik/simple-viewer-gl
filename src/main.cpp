@@ -96,5 +96,6 @@ void showHelp(const char* pchArgv0) {
 //	printf("  <l>           rotate counter clockwise;\n");
 	printf("  <c>           hide / show chequerboard;\n");
 	printf("  <i>           hide / show on screen info.\n");
+	printf("  <b>           hide / show border around image.\n");
 	printf("\n");
 }

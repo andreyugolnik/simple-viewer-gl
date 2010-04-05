@@ -49,6 +49,8 @@
 		<Unit filename="src/checkerboard.h" />
 		<Unit filename="src/fileslist.cpp" />
 		<Unit filename="src/fileslist.h" />
+		<Unit filename="src/imageborder.cpp" />
+		<Unit filename="src/imageborder.h" />
 		<Unit filename="src/imageloader.cpp" />
 		<Unit filename="src/imageloader.h" />
 		<Unit filename="src/img-loading.hpp" />

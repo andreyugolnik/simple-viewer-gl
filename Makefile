@@ -3,6 +3,7 @@ CFLAGS=-O2 -c -Wall -I/usr/include
 LDFLAGS=-s -lGL -lGLU -lglut -lImlib2
 
 SOURCES= \
+	src/imageborder.cpp \
 	src/checkerboard.cpp \
 	src/notavailable.cpp \
 	src/progress.cpp \
