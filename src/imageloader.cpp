@@ -22,6 +22,11 @@ CImageLoader::~CImageLoader() {
 }
 
 bool CImageLoader::LoadImage(const char* path, int sub_image) {
+	// invalid image path
+	if(path == 0) {
+		return false;
+	}
+
 	// image already loaded
 	if(m_path.empty() == false && path != 0 && m_path == path) {
 		return true;

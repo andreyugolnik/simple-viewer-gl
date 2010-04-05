@@ -16,7 +16,7 @@
 extern std::auto_ptr<CWindow> g_window;
 
 CWindow::CWindow() :
-	m_winW(0), m_winH(0), m_scale(1), m_windowed(true), m_fitImage(false), m_showBorder(false), m_cusorVisible(true),
+	m_winW(0), m_winH(0), m_scale(1), m_windowed(true), m_fitImage(false), m_showBorder(false), m_recursiveDir(false), m_cusorVisible(true),
 	m_lastMouseX(-1), m_lastMouseY(-1), m_mouseLB(false), m_keyPressed(false), m_imageDx(0), m_imageDy(0),
 	m_textureSize(256), m_quadsCount(0) {
 
@@ -36,7 +36,7 @@ CWindow::~CWindow() {
 }
 
 bool CWindow::Init(int argc, char *argv[], const char* path) {
-	m_filesList.reset(new CFilesList(path));
+	m_filesList.reset(new CFilesList(path, m_recursiveDir));
 	if(m_filesList->GetName() != 0) {
 		glutInit(&argc, argv);
 		glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);// | GLUT_DEPTH);
@@ -103,6 +103,9 @@ void CWindow::SetProp(Property prop) {
 		break;
 	case PROP_BORDER:
 		m_showBorder	= true;
+		break;
+	case PROP_RECURSIVE:
+		m_recursiveDir	= true;
 		break;
 	}
 }
@@ -422,31 +425,30 @@ bool CWindow::loadImage(int step) {
 	}
 
 	const char* path	= m_filesList->GetName(step);
-	if(path != 0) {
-		m_progress->Start();
+	m_progress->Start();
 
-		if(true == m_il->LoadImage(path, 0)) {
-			unsigned char* bitmap	= m_il->GetBitmap();
-			createTextures(m_il->GetWidth(), m_il->GetHeight(), m_il->HasAlpha(), bitmap);
+	if(true == m_il->LoadImage(path, 0)) {
+		unsigned char* bitmap	= m_il->GetBitmap();
+		createTextures(m_il->GetWidth(), m_il->GetHeight(), m_il->HasAlpha(), bitmap);
 
-			ret	= true;
-		}
-		else {
-			m_na->Enable(true);
-		}
-
-		updateInfobar();
-
-		fnResize(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
-//		centerWindow();
+		ret	= true;
 	}
+	else {
+		m_na->Enable(true);
+	}
+
+	updateInfobar();
+
+	fnResize(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
+//	centerWindow();
 
 	return ret;
 }
 
 void CWindow::updateInfobar() {
 	INFO_BAR s;
-	s.path			= m_filesList->GetName(0);
+	const char* path	= m_filesList->GetName(0);
+	s.path			= path != 0 ? path : "";
 	s.index			= m_filesList->GetIndex();
 	s.width			= m_il->GetWidth();
 	s.height		= m_il->GetHeight();

@@ -49,6 +49,8 @@ int main(int argc, char *argv[]) {
 			g_window->SetProp(PROP_FULLSCREEN);
 		else if(strncmp(argv[i], "-b", 2) == 0)
 			g_window->SetProp(PROP_BORDER);
+		else if(strncmp(argv[i], "-r", 2) == 0)
+			g_window->SetProp(PROP_RECURSIVE);
 		else if(strncmp(argv[i], "-C", 2) == 0) {
 			int r, g, b;
 			if(3 == sscanf(argv[i + 1], "%2x%2x%2x", &r, &g, &b)) {
@@ -79,6 +81,7 @@ void showHelp(const char* pchArgv0) {
 	printf("  -i            disable on screen info;\n");
 	printf("  -b            show border around image;\n");
 	printf("  -f            start in fullscreen mode;\n");
+	printf("  -r            recursive directory scan;\n");
 	printf("  -C RRGGBB     background color in hex format;\n");
 
 	printf("\nAvailable keys:\n");

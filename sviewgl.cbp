@@ -12,7 +12,7 @@
 				<Option object_output="debug_linux/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters='-n -r -c &quot;img/Николай Маркеллов (За зеленой дверью).jpg&quot; img/sdl_DavidIgreja.png' />
+				<Option parameters="img/" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>

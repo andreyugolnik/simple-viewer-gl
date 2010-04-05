@@ -10,8 +10,10 @@
 #include <algorithm>
 #include <dirent.h>
 
-CFilesList::CFilesList(const char* file) : m_listCreated(false), m_position(0), m_removeCurrent(false) {
-	m_files.push_back(file);
+CFilesList::CFilesList(const char* file, bool recursive) : m_listCreated(false), m_recursive(recursive), m_position(0), m_removeCurrent(false) {
+	if(file != 0) {
+		m_files.push_back(file);
+	}
 }
 
 CFilesList::~CFilesList() {
@@ -26,56 +28,73 @@ bool CFilesList::ParseDir() {
 	std::string dir, name;
 	size_t pos	= m_files[0].find_last_of('/');
 	if(std::string::npos != pos) {
-		dir		= m_files[0].substr(0, pos) + '/';
+		dir		= m_files[0].substr(0, pos);
 		name	= m_files[0].substr(pos + 1);
 	}
 	else {
-		dir	= "./";
+		dir	= ".";
 		name	= m_files[0];
 	}
 
 	// remove initial image from list (it will be added again below)
 	m_files.clear();
 
-	// parse dir
+	if(true == scanDirectory(dir)) {
+		// sorting images by names
+		std::sort(m_files.begin(), m_files.end());
+
+		// search startup image index in sorted list
+		size_t len		= name.length();
+		size_t count	= m_files.size();
+		for(size_t i = 0; i < count; i++) {
+			size_t slen	= m_files[i].length();
+			if(slen >= len && m_files[i].substr(slen - len, len) == name) {
+				m_position	= i;
+				break;
+			}
+		}
+
+		m_listCreated	= true;
+
+		return true;
+	}
+
+	return false;
+}
+
+bool CFilesList::scanDirectory(const std::string& dir) {
 	struct dirent** namelist;
 	int n = scandir(dir.c_str(), &namelist, filter, alphasort);
 	if(n < 0) {
-		std::cout << "Can't scan dir " << dir << std::endl;
+		std::cout << "Can't scan \"" << dir << "\" " << n << "." << std::endl;
 		return false;
 	}
 	else {
+		int count	= 0;
 		while(n--) {
-			std::string path	= dir + namelist[n]->d_name;
+			std::string path(dir);
+			path	+= "/";
+			path	+= namelist[n]->d_name;
 
 			// skip non non readable files/dirs
 			DIR* d	= opendir(path.c_str());
-			if(d == 0) {
-				m_files.push_back(path);
-			}
-			else {
+			if(d != 0) {
 				closedir(d);
+				if(m_recursive == true) {
+					scanDirectory(path);
+				}
+			}
+			else if(isValidExt(path.c_str()) == true) {
+				m_files.push_back(path);
+				count++;
 			}
 			free(namelist[n]);
 		}
+		if(count > 0) {
+			std::cout << "Scaning \"" << dir << "\" directory... " << count << " images found." << std::endl;
+		}
 		free(namelist);
 	}
-
-	// sorting images by names
-	std::sort(m_files.begin(), m_files.end());
-
-	// search startup image index in sorted list
-	size_t len		= name.length();
-	size_t count	= m_files.size();
-	for(size_t i = 0; i < count; i++) {
-		size_t slen	= m_files[i].length();
-		if(slen >= len && m_files[i].substr(slen - len, len) == name) {
-			m_position	= i;
-			break;
-		}
-	}
-
-	m_listCreated	= true;
 
 	return true;
 }
@@ -87,12 +106,16 @@ int CFilesList::filter(const struct dirent* p) {
 		return 0;
 	}
 
-	std::string	s	= p->d_name;
+	return 1;
+}
+
+bool CFilesList::isValidExt(const char* path) {
+	std::string s	= path;
 
 	// skip file without extension
 	size_t pos	= s.find_last_of('.');
 	if(std::string::npos == pos) {
-		return 0;
+		return false;
 	}
 
 	// skip non image file (detect by extension)
@@ -100,15 +123,15 @@ int CFilesList::filter(const struct dirent* p) {
 
 	const char* ext[]	= {
 		".jpeg", ".jpg", ".png", ".pnm", ".bmp", ".xpm", ".gif",
-		".tga", ".targa", ".tiff", ".lbm", ".id3", ".zlib", ".argb"
+		".tga", ".targa", ".tiff", ".lbm", ".id3", ".argb"
 	};
 	for(size_t i = 0; i < sizeof(ext) / sizeof(const char*); i++) {
 		if(s.substr(pos) == ext[i]) {
-			return 1;
+			return true;
 		}
 	}
 
-	return 0;
+	return false;
 }
 
 const char* CFilesList::GetName(int delta) {
@@ -126,6 +149,12 @@ const char* CFilesList::GetName(int delta) {
 
 	size_t count	= m_files.size();
 	if(count > 0) {
+		if(delta == 0 && count == 1 && isValidExt(m_files[m_position].c_str()) == false) {
+			if(false == ParseDir()) {
+				return 0;
+			}
+		}
+
 		m_position	+= delta;
 		if(m_position < 0) {
 			m_position	= count - 1;

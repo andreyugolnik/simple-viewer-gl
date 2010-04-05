@@ -13,7 +13,7 @@
 
 class CFilesList {
 public:
-	CFilesList(const char* file);
+	CFilesList(const char* file, bool recursive = false);
 	virtual ~CFilesList();
 
 	bool ParseDir();
@@ -24,11 +24,14 @@ public:
 
 private:
 	bool m_listCreated;
+	bool m_recursive;
 	int m_position;	// current position in list
 	bool m_removeCurrent;
 	std::vector<std::string> m_files;
 
 private:
+	bool scanDirectory(const std::string& dir);
+	bool isValidExt(const char* path);
 	static int filter(const struct dirent* p);
 };
 

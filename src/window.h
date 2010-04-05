@@ -19,7 +19,7 @@
 
 #include <vector>
 
-typedef enum { PROP_INFOBAR, PROP_CHECKERS, PROP_FITIMAGE, PROP_FULLSCREEN, PROP_BORDER } Property;
+typedef enum { PROP_INFOBAR, PROP_CHECKERS, PROP_FITIMAGE, PROP_FULLSCREEN, PROP_BORDER, PROP_RECURSIVE } Property;
 
 class CWindow {
 public:
@@ -36,6 +36,7 @@ private:
 	bool m_windowed;
 	bool m_fitImage;
 	bool m_showBorder;
+	bool m_recursiveDir;
 	bool m_cusorVisible;
 	int m_lastMouseX, m_lastMouseY;
 	bool m_mouseLB, m_keyPressed;

@@ -70,7 +70,7 @@ void CInfoBar::Update(const InfoBar* p) {
 
 		std::stringstream formated;
 		if(p->files_count > 1) {
-			formated << (p->index + 1) << " out " << p->files_count << ", ";
+			formated << (p->index + 1) << " out " << p->files_count << " | ";
 		}
 		formated  << name << " | " << dim.str() << " | " << size.str();
 		if(p->sub_count > 1) {
@@ -81,7 +81,7 @@ void CInfoBar::Update(const InfoBar* p) {
 
 		// set window title
 		if(p->files_count > 1) {
-			title << (p->index + 1) << " out " << p->files_count << ", " << name << " - " << TITLE;
+			title << (p->index + 1) << " out " << p->files_count << " - " << name << " - " << TITLE;
 		}
 		else {
 			title << name << " - " << TITLE;
