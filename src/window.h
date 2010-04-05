@@ -31,7 +31,8 @@ public:
 	void SetProp(unsigned char r, unsigned char g, unsigned char b);
 
 private:
-	int m_winW, m_winH;
+	int m_prevWinX, m_prevWinY, m_prevWinW, m_prevWinH;
+	int m_curWinW, m_curWinH;
 	float m_scale;
 	bool m_windowed;
 	bool m_fitImage;

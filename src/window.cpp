@@ -15,8 +15,8 @@
 
 extern std::auto_ptr<CWindow> g_window;
 
-CWindow::CWindow() :
-	m_winW(0), m_winH(0), m_scale(1), m_windowed(true), m_fitImage(false), m_showBorder(false), m_recursiveDir(false), m_cusorVisible(true),
+CWindow::CWindow() : m_prevWinX(0), m_prevWinY(0), m_prevWinW(DEF_WINDOW_W), m_prevWinH(DEF_WINDOW_H),
+	m_curWinW(0), m_curWinH(0), m_scale(1), m_windowed(true), m_fitImage(false), m_showBorder(false), m_recursiveDir(false), m_cusorVisible(true),
 	m_lastMouseX(-1), m_lastMouseY(-1), m_mouseLB(false), m_keyPressed(false), m_imageDx(0), m_imageDy(0),
 	m_textureSize(256), m_quadsCount(0) {
 
@@ -130,9 +130,9 @@ void CWindow::fnRender() {
 
 			const int delta	= 20;
 			m_imageDx	= std::max(m_imageDx, delta - (int)img_w);
-			m_imageDx	= std::min(m_imageDx, m_winW - delta);
+			m_imageDx	= std::min(m_imageDx, m_curWinW - delta);
 			m_imageDy	= std::max(m_imageDy, delta - (int)img_h);
-			m_imageDy	= std::min(m_imageDy, m_winH - delta);
+			m_imageDy	= std::min(m_imageDy, m_curWinH - delta);
 		}
 
 		for(int i = 0; i < m_quadsCount; i++) {
@@ -143,7 +143,7 @@ void CWindow::fnRender() {
 
 			float w	= quad->GetWidth() * m_scale;
 			float h	= quad->GetHeight() * m_scale;
-			if(x + w >= 0 && x < m_winW && y + h >= 0 && y < m_winH) {
+			if(x + w >= 0 && x < m_curWinW && y + h >= 0 && y < m_curWinH) {
 				quad->RenderEx(x, y, w, h);
 			}
 		}
@@ -159,26 +159,26 @@ void CWindow::fnRender() {
 }
 
 void CWindow::fnResize(int width, int height) {
-	m_winW	= width;
-	m_winH	= height - m_ib->GetHeight();
+	m_curWinW	= width;
+	m_curWinH	= height - m_ib->GetHeight();
 
-//	if(m_winW < DEF_WINDOW_W || m_winH < DEF_WINDOW_H) {
-//		m_winW	= std::max(m_winW, DEF_WINDOW_W);
-//		m_winH	= std::max(m_winH, DEF_WINDOW_H);
-//		glutReshapeWindow(m_winW, m_winH);
+//	if(m_curWinW < DEF_WINDOW_W || m_curWinH < DEF_WINDOW_H) {
+//		m_curWinW	= std::max(m_curWinW, DEF_WINDOW_W);
+//		m_curWinH	= std::max(m_curWinH, DEF_WINDOW_H);
+//		glutReshapeWindow(m_curWinW, m_curWinH);
 //	}
 
 	calculateScale();
 	int w	= (int)(m_il->GetWidth() * m_scale);
 	int h	= (int)(m_il->GetHeight() * m_scale);
-	m_imageDx	= (m_winW - w) / 2;
-	m_imageDy	= (m_winH - h) / 2;
+	m_imageDx	= (m_curWinW - w) / 2;
+	m_imageDy	= (m_curWinH - h) / 2;
 
-	glViewport(0, 0, m_winW, m_winH + m_ib->GetHeight());
+	glViewport(0, 0, m_curWinW, m_curWinH + m_ib->GetHeight());
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glOrtho(0, m_winW, m_winH + m_ib->GetHeight(), 0, -1, 1);
+	glOrtho(0, m_curWinW, m_curWinH + m_ib->GetHeight(), 0, -1, 1);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -280,11 +280,18 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y) {
 		break;
 	case 13:
 		m_windowed	= !m_windowed;
-		if(m_windowed	== false) {
-			glutFullScreen();
+		if(m_windowed == false) {
+			m_prevWinX	= glutGet(GLUT_WINDOW_X);
+			m_prevWinY	= glutGet(GLUT_WINDOW_Y);
+			m_prevWinW	= glutGet(GLUT_WINDOW_WIDTH);
+			m_prevWinH	= glutGet(GLUT_WINDOW_HEIGHT);
+			glutPositionWindow(0, 0);
+			glutReshapeWindow(glutGet(GLUT_SCREEN_WIDTH), glutGet(GLUT_SCREEN_HEIGHT));
+//			glutFullScreen();
 		}
 		else {
-			glutReshapeWindow(m_winW, m_winH);
+			glutPositionWindow(m_prevWinX, m_prevWinY);
+			glutReshapeWindow(m_prevWinW, m_prevWinH);
 		}
 		glutPostRedisplay();
 		break;
@@ -340,21 +347,21 @@ void CWindow::calculateScale() {
 		int h	= m_il->GetHeight();
 
         // scale only large images
-        if(w >= m_winW || h >= m_winH) {
+        if(w >= m_curWinW || h >= m_curWinH) {
             float aspect  = (float)w / h;
             float nW = 0;
             float nH = 0;
-            float dx	= (float)w / m_winW;
-            float dy	= (float)h / m_winH;
+            float dx	= (float)w / m_curWinW;
+            float dy	= (float)h / m_curWinH;
             if(dx > dy) {
-                if(w > m_winW) {
-                    nW  = m_winW;
+                if(w > m_curWinW) {
+                    nW  = m_curWinW;
                     nH  = nW / aspect;
                 }
             }
             else {
-                if(h > m_winH) {
-                    nH  = m_winH;
+                if(h > m_curWinH) {
+                    nH  = m_curWinH;
                     nW  = nH * aspect;
                 }
             }
