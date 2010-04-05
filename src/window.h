@@ -38,7 +38,7 @@ private:
 	bool m_cusorVisible;
 	int m_lastMouseX, m_lastMouseY;
 	bool m_mouseLB, m_keyPressed;
-	int m_mouseDx, m_mouseDy;
+	int m_imageDx, m_imageDy;
 
 	GLint m_textureSize;
 	int m_quadsCount;
@@ -58,6 +58,7 @@ private:
 	void showCursor(bool show);
 //	void centerWindow();
 	void calculateScale();
+	void updateScale(bool up);
 	void updateInfobar();
 	void createTextures(int width, int height, bool alpha, unsigned char* bitmap);
 	void copyBuffer(unsigned char* bitmap, int col, int row, int width, bool alpha, unsigned char* buffer, int w, int h);

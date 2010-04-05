@@ -17,7 +17,7 @@ extern std::auto_ptr<CWindow> g_window;
 
 CWindow::CWindow() :
 	m_winW(0), m_winH(0), m_scale(1), m_windowed(true), m_fitImage(false), m_cusorVisible(true),
-	m_lastMouseX(-1), m_lastMouseY(-1), m_mouseLB(false), m_keyPressed(false), m_mouseDx(0), m_mouseDy(0),
+	m_lastMouseX(-1), m_lastMouseY(-1), m_mouseLB(false), m_keyPressed(false), m_imageDx(0), m_imageDy(0),
 	m_textureSize(256), m_quadsCount(0) {
 
 		m_il.reset(new CImageLoader());
@@ -121,17 +121,17 @@ void CWindow::fnRender() {
 			int h	= (int)(m_il->GetHeight() * m_scale);
 
 			const int delta	= 20;
-			m_mouseDx	= std::max(m_mouseDx, delta - w);
-			m_mouseDx	= std::min(m_mouseDx, m_winW - delta);
-			m_mouseDy	= std::max(m_mouseDy, delta - h);
-			m_mouseDy	= std::min(m_mouseDy, m_winH - delta);
+			m_imageDx	= std::max(m_imageDx, delta - w);
+			m_imageDx	= std::min(m_imageDx, m_winW - delta);
+			m_imageDy	= std::max(m_imageDy, delta - h);
+			m_imageDy	= std::min(m_imageDy, m_winH - delta);
 		}
 
 		for(int i = 0; i < m_quadsCount; i++) {
 			CQuadImage* quad	= m_quads[i];
 
-			float x	= m_mouseDx + quad->GetCol() * m_textureSize * m_scale;
-			float y	= m_mouseDy + quad->GetRow() * m_textureSize * m_scale;
+			float x	= m_imageDx + quad->GetCol() * m_textureSize * m_scale;
+			float y	= m_imageDy + quad->GetRow() * m_textureSize * m_scale;
 
 			float w	= quad->GetWidth() * m_scale;
 			float h	= quad->GetHeight() * m_scale;
@@ -159,8 +159,8 @@ void CWindow::fnResize(int width, int height) {
 	calculateScale();
 	int w	= (int)(m_il->GetWidth() * m_scale);
 	int h	= (int)(m_il->GetHeight() * m_scale);
-	m_mouseDx	= (m_winW - w) / 2;
-	m_mouseDy	= (m_winH - h) / 2;
+	m_imageDx	= (m_winW - w) / 2;
+	m_imageDy	= (m_winH - h) / 2;
 
 	glViewport(0, 0, m_winW, m_winH);
 
@@ -181,8 +181,8 @@ void CWindow::fnMouse(int x, int y) {
 	m_lastMouseY	= y;
 	if(m_fitImage == false && m_mouseLB == true) {
 		if(diffx != 0 || diffy != 0) {
-			m_mouseDx	+= diffx;
-			m_mouseDy	+= diffy;
+			m_imageDx	+= diffx;
+			m_imageDy	+= diffy;
 			glutPostRedisplay();
 		}
 	}
@@ -190,10 +190,10 @@ void CWindow::fnMouse(int x, int y) {
 
 void CWindow::fnMouseWheel(int wheel, int direction, int x, int y) {
 	if(direction > 0) {
-		fnKeyboard('+', 0, 0);
+		updateScale(true);
 	}
 	else {//if(direction < 0) {
-		fnKeyboard('-', 0, 0);
+		updateScale(false);
 	}
 }
 
@@ -243,16 +243,10 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y) {
 		break;
 	case '+':
 	case '=':
-		m_scale	/= 0.95f;
-		m_fitImage	= false;
-		updateInfobar();
-		glutPostRedisplay();
+		updateScale(true);
 		break;
 	case '-':
-		m_scale	*= 0.95f;
-		m_fitImage	= false;
-		updateInfobar();
-		glutPostRedisplay();
+		updateScale(false);
 		break;
 	case 'c':
 	case 'C':
@@ -287,28 +281,28 @@ void CWindow::fnKeyboardSpecial(int key, int x, int y) {
 	case GLUT_KEY_LEFT:
 		if(m_fitImage == false) {
 			m_keyPressed	= true;
-			m_mouseDx	+= 10;
+			m_imageDx	+= 10;
 			glutPostRedisplay();
 		}
 		break;
 	case GLUT_KEY_RIGHT:
 		if(m_fitImage == false) {
 			m_keyPressed	= true;
-			m_mouseDx	-= 10;
+			m_imageDx	-= 10;
 			glutPostRedisplay();
 		}
 		break;
 	case GLUT_KEY_UP:
 		if(m_fitImage == false) {
 			m_keyPressed	= true;
-			m_mouseDy	+= 10;
+			m_imageDy	+= 10;
 			glutPostRedisplay();
 		}
 		break;
 	case GLUT_KEY_DOWN:
 		if(m_fitImage == false) {
 			m_keyPressed	= true;
-			m_mouseDy	-= 10;
+			m_imageDy	-= 10;
 			glutPostRedisplay();
 		}
 		break;
@@ -355,6 +349,33 @@ void CWindow::calculateScale() {
         	m_scale    = 1;
         }
 	}
+}
+
+// TODO update m_imageDx / m_imageDy according current mouse position
+void CWindow::updateScale(bool up) {
+	m_fitImage	= false;
+
+	int w	= m_il->GetWidth();
+	int h	= m_il->GetHeight();
+
+	float oldw	= w * m_scale;
+	float oldh	= h * m_scale;
+
+	if(up == true) {
+		m_scale	/= 0.95f;
+	}
+	else {
+		m_scale	*= 0.95f;
+	}
+
+	float neww	= w * m_scale;
+	float newh	= h * m_scale;
+
+	m_imageDx	+= (oldw - neww) / 2;
+	m_imageDy	+= (oldh - newh) / 2;
+
+	updateInfobar();
+	glutPostRedisplay();
 }
 
 //void CWindow::centerWindow() {
