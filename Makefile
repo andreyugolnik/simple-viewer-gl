@@ -7,6 +7,7 @@ SOURCES= \
 	src/notavailable.cpp \
 	src/progress.cpp \
 	src/quad.cpp \
+	src/quadimage.cpp \
 	src/fileslist.cpp \
 	src/imageloader.cpp \
 	src/infobar.cpp \
