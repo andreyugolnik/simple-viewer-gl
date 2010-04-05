@@ -17,7 +17,7 @@ CProgress::~CProgress() {
 }
 
 void CProgress::Init() {
-	m_loading.reset(new CQuad(imgLoading.width, imgLoading.height, imgLoading.pixel_data, imgLoading.bytes_per_pixel));
+	m_loading.reset(new CQuad(imgLoading.width, imgLoading.height, imgLoading.pixel_data, imgLoading.bytes_per_pixel * 8));
 	m_square.reset(new CQuad(4, 4));
 }
 

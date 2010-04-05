@@ -42,6 +42,7 @@
 			<Add library="GLU" />
 			<Add library="glut" />
 			<Add library="Imlib2" />
+			<Add library="jpeg" />
 			<Add directory="$(#gfl.lib)" />
 			<Add directory="$(#freetype2.lib)" />
 		</Linker>
@@ -49,6 +50,12 @@
 		<Unit filename="src/checkerboard.h" />
 		<Unit filename="src/fileslist.cpp" />
 		<Unit filename="src/fileslist.h" />
+		<Unit filename="src/formats/format.cpp" />
+		<Unit filename="src/formats/format.h" />
+		<Unit filename="src/formats/formatcommon.cpp" />
+		<Unit filename="src/formats/formatcommon.h" />
+		<Unit filename="src/formats/formatjpeg.cpp" />
+		<Unit filename="src/formats/formatjpeg.h" />
 		<Unit filename="src/imageborder.cpp" />
 		<Unit filename="src/imageborder.h" />
 		<Unit filename="src/imageloader.cpp" />

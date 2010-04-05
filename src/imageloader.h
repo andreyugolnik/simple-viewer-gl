@@ -8,9 +8,9 @@
 #ifndef IMAGELOADER_H
 #define IMAGELOADER_H
 
+#include "formats/format.h"
 #include <memory>
 #include <string>
-#include <Imlib2.h>
 
 typedef enum { ANGLE_0, ANGLE_90, ANGLE_180, ANGLE_270 } Angle;
 
@@ -23,25 +23,27 @@ public:
 	void SetAngle(Angle angle) { m_angle = angle; }
 
 	unsigned char* GetBitmap() const;
+	void FreeMemory();
 	int GetWidth() const;
 	int GetHeight() const;
 	int GetBpp() const;
-	bool HasAlpha() const;
+	int GetImageBpp() const;
 	long GetSize() const;
-	const char* GetFormat() const { return m_format.c_str(); };
-	int GetSub() const;
-	int GetSubCount() const;
+//	int GetSub() const;
+//	int GetSubCount() const;
 
 private:
-	Imlib_Image m_image;
 	Angle m_angle;
 	std::string m_path;
+	std::auto_ptr<CFormat> m_image;
 
-	int m_width, m_height, m_bpp;
-	long m_size;
-	DATA32* m_data;
-	bool m_alpha;
-	std::string m_format;
+private:
+	enum FILE_FORMAT { FORMAT_JPEG, FORMAT_COMMON } ;
+	struct FORMAT {
+		const char* ext;
+		int format;
+	};
+	int getFormat();
 };
 
 #endif // IMAGELOADER_H

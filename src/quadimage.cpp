@@ -25,7 +25,7 @@ CQuadImage::~CQuadImage() {
 void CQuadImage::Update(int bpp, const unsigned char* buffer) {
 	glBindTexture(GL_TEXTURE_2D, m_tex);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, bpp, m_tex_size, m_tex_size, 0, bpp == 4 ? GL_BGRA : GL_BGR, GL_UNSIGNED_BYTE, buffer);
+	glTexImage2D(GL_TEXTURE_2D, 0, bpp / 8, m_tex_size, m_tex_size, 0, bpp == 32 ? GL_BGRA : GL_BGR, GL_UNSIGNED_BYTE, buffer);
 	int e	= glGetError();
 	if(GL_NO_ERROR != e) {
 //		const GLubyte* s   = gluErrorString(e);

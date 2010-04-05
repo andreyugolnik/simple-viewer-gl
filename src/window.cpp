@@ -18,7 +18,7 @@ extern std::auto_ptr<CWindow> g_window;
 CWindow::CWindow() : m_prevWinX(0), m_prevWinY(0), m_prevWinW(DEF_WINDOW_W), m_prevWinH(DEF_WINDOW_H),
 	m_curWinW(0), m_curWinH(0), m_scale(1), m_windowed(true), m_fitImage(false), m_showBorder(false), m_recursiveDir(false), m_cusorVisible(true),
 	m_lastMouseX(-1), m_lastMouseY(-1), m_mouseLB(false), m_keyPressed(false), m_imageDx(0), m_imageDy(0),
-	m_textureSize(256), m_quadsCount(0) {
+	m_textureSize(256) {
 
 		m_il.reset(new CImageLoader());
 		m_cb.reset(new CCheckerboard());
@@ -29,10 +29,7 @@ CWindow::CWindow() : m_prevWinX(0), m_prevWinY(0), m_prevWinW(DEF_WINDOW_W), m_p
 }
 
 CWindow::~CWindow() {
-	QuadsIc it = m_quads.begin(), itEnd = m_quads.end();
-	for( ; it != itEnd; ++it) {
-		delete (*it);
-	}
+	deleteTextures();
 }
 
 bool CWindow::Init(int argc, char *argv[], const char* path) {
@@ -73,8 +70,8 @@ bool CWindow::Init(int argc, char *argv[], const char* path) {
 //		std::cout << "Non Power of Two extension " << (m_pow2 ? "available" : "not available") << std::endl;
 
 		// setup progress each 10%
-		imlib_context_set_progress_function(callbackProgressLoading);
-		imlib_context_set_progress_granularity(10);
+//		imlib_context_set_progress_function(callbackProgressLoading);
+//		imlib_context_set_progress_granularity(10);
 
 		m_cb->Init();
 		m_na->Init();
@@ -135,8 +132,9 @@ void CWindow::fnRender() {
 			m_imageDy	= std::min(m_imageDy, m_curWinH - delta);
 		}
 
-		for(int i = 0; i < m_quadsCount; i++) {
-			CQuadImage* quad	= m_quads[i];
+		QuadsIc it = m_quads.begin(), itEnd = m_quads.end();
+		for( ; it != itEnd; ++it) {
+			CQuadImage* quad	= *it;
 
 			float x	= m_imageDx + quad->GetCol() * m_textureSize * m_scale;
 			float y	= m_imageDy + quad->GetRow() * m_textureSize * m_scale;
@@ -427,7 +425,6 @@ bool CWindow::loadImage(int step) {
 		m_filesList->ParseDir();
 		m_il->SetAngle(ANGLE_0);
 		m_scale		= 1;
-		m_quadsCount	= 0;
 		m_na->Enable(false);
 	}
 
@@ -436,7 +433,8 @@ bool CWindow::loadImage(int step) {
 
 	if(true == m_il->LoadImage(path, 0)) {
 		unsigned char* bitmap	= m_il->GetBitmap();
-		createTextures(m_il->GetWidth(), m_il->GetHeight(), m_il->HasAlpha(), bitmap);
+		createTextures(m_il->GetWidth(), m_il->GetHeight(), m_il->GetBpp(), bitmap);
+		m_il->FreeMemory();
 
 		ret	= true;
 	}
@@ -459,29 +457,31 @@ void CWindow::updateInfobar() {
 	s.index			= m_filesList->GetIndex();
 	s.width			= m_il->GetWidth();
 	s.height		= m_il->GetHeight();
-	s.bpp			= m_il->GetBpp();
+	s.bpp			= m_il->GetImageBpp();
 	s.scale			= m_scale;
-	s.sub_image		= m_il->GetSub();
-	s.sub_count		= m_il->GetSubCount();
+	s.sub_image		= 0;//m_il->GetSub();
+	s.sub_count		= 1;//m_il->GetSubCount();
 	s.file_size		= m_il->GetSize();
 	s.files_count	= m_filesList->GetCount();
 	m_ib->Update(&s);
 }
 
-void CWindow::createTextures(int width, int height, bool alpha, unsigned char* bitmap) {
+void CWindow::createTextures(int width, int height, int bpp, unsigned char* bitmap) {
 	std::cout << " " << width << " x " << height << ", ";
 
 	int cols	= (int)ceilf((float)width / m_textureSize);
 	int rows	= (int)ceilf((float)height / m_textureSize);
-	m_quadsCount	= cols * rows;
-	std::cout << "textures: " << m_quadsCount << " (" << cols << " x " << rows << ")" << std::endl;
+	size_t quadsCount	= cols * rows;
+	std::cout << "textures: " << quadsCount << " (" << cols << " x " << rows << ")" << std::endl;
 
-	while(m_quadsCount > (int)m_quads.size()) {
+	deleteTextures();
+
+	while(quadsCount > m_quads.size()) {
 		CQuadImage* quad	= new CQuadImage(m_textureSize);
 		m_quads.push_back(quad);
 	}
 
-	unsigned char* buffer	= new unsigned char[m_textureSize * m_textureSize * (alpha == true ? 4 : 3)];
+	unsigned char* buffer	= new unsigned char[m_textureSize * m_textureSize * (bpp / 8)];
 
 	int idx	= 0;
 	int height2	= height;
@@ -492,10 +492,10 @@ void CWindow::createTextures(int width, int height, bool alpha, unsigned char* b
 			int w	= (width2 > m_textureSize ? m_textureSize : width2);
 			width2	-= w;
 
-			copyBuffer(bitmap, col, row, width, alpha, buffer, w, h);
+			copyBuffer(bitmap, col, row, width, bpp, buffer, w, h);
 
 			m_quads[idx]->SetCell(col, row);
-			m_quads[idx]->Update(alpha == true ? 4 : 3, buffer);
+			m_quads[idx]->Update(bpp, buffer);
 			m_quads[idx]->SetSpriteSize(w, h);
 
 			idx++;
@@ -506,29 +506,16 @@ void CWindow::createTextures(int width, int height, bool alpha, unsigned char* b
 	delete[] buffer;
 }
 
-
-void CWindow::copyBuffer(unsigned char* bitmap, int col, int row, int width, bool alpha, unsigned char* buffer, int w, int h) {
-	int bitmap_pitch	= width * 4;
-	int dx	= col * m_textureSize * 4;
+void CWindow::copyBuffer(unsigned char* bitmap, int col, int row, int width, int bpp, unsigned char* buffer, int w, int h) {
+	int bitmap_pitch	= width * (bpp / 8);
+	int dx	= col * m_textureSize * (bpp / 8);
 	int dy	= row * m_textureSize;
-	int txt_pitch	= m_textureSize * (alpha == true ? 4 : 3);
-	int count	= w * (alpha == true ? 4 : 3);
+	int txt_pitch	= m_textureSize * (bpp / 8);
+	int count	= w * (bpp / 8);
 	for(int line = 0; line < h; line++) {
 		int src	= dx + (dy + line) * bitmap_pitch;
 		int dst	= line * txt_pitch;
-		if(alpha == true) {
-			memcpy(&buffer[dst], &bitmap[src], count);
-		}
-		else {
-			unsigned char* psrc	= &bitmap[src];
-			unsigned char* pdst	= &buffer[dst];
-			for(int x = 0; x < w; x++) {
-				*pdst++	= *psrc++;
-				*pdst++	= *psrc++;
-				*pdst++	= *psrc++;
-				psrc++;
-			}
-		}
+		memcpy(&buffer[dst], &bitmap[src], count);
 	}
 }
 
@@ -542,6 +529,14 @@ void CWindow::showCursor(bool show) {
 	}
 }
 
+void CWindow::deleteTextures() {
+	glBindTexture(GL_TEXTURE_2D, 0);
+	QuadsIc it = m_quads.begin(), itEnd = m_quads.end();
+	for( ; it != itEnd; ++it) {
+		delete (*it);
+	}
+	m_quads.clear();
+}
 
 
 
@@ -579,12 +574,12 @@ void CWindow::callbackKeyboard(unsigned char key, int x, int y) {
 }
 
 
-void CWindow::fnProgressLoading(Imlib_Image im, char percent, int update_x, int update_y, int update_w, int update_h) {
-	m_progress->Render();
-}
-
-int CWindow::callbackProgressLoading(Imlib_Image im, char percent, int update_x, int update_y, int update_w, int update_h) {
-	g_window->fnProgressLoading(im, percent, update_x, update_y, update_w, update_h);
-	return 1;
-}
+//void CWindow::fnProgressLoading(Imlib_Image im, char percent, int update_x, int update_y, int update_w, int update_h) {
+//	m_progress->Render();
+//}
+//
+//int CWindow::callbackProgressLoading(Imlib_Image im, char percent, int update_x, int update_y, int update_w, int update_h) {
+//	g_window->fnProgressLoading(im, percent, update_x, update_y, update_w, update_h);
+//	return 1;
+//}
 

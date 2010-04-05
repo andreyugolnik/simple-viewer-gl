@@ -38,7 +38,7 @@ void CCheckerboard::Init() {
 		}
 	}
 
-	m_cb.reset(new CQuad(tex_size, tex_size, buffer, 3));
+	m_cb.reset(new CQuad(tex_size, tex_size, buffer, 24));
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 

@@ -36,7 +36,7 @@ void CQuad::init(int tw, int th, const unsigned char* data, int bpp) {
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 
-			glTexImage2D(GL_TEXTURE_2D, 0, bpp, tw, th, 0, bpp == 4 ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, data);
+			glTexImage2D(GL_TEXTURE_2D, 0, bpp / 8, tw, th, 0, bpp == 32 ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, data);
 			int e	= glGetError();
 			if(GL_NO_ERROR != e) {
 		//		const GLubyte* s   = gluErrorString(e);

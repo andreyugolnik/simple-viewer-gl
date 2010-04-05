@@ -44,7 +44,6 @@ private:
 	int m_imageDx, m_imageDy;
 
 	GLint m_textureSize;
-	int m_quadsCount;
 	typedef std::vector<CQuadImage*> Quads;
 	typedef Quads::const_iterator QuadsIc;
 	Quads m_quads;
@@ -64,11 +63,12 @@ private:
 	void calculateScale();
 	void updateScale(bool up);
 	void updateInfobar();
-	void createTextures(int width, int height, bool alpha, unsigned char* bitmap);
-	void copyBuffer(unsigned char* bitmap, int col, int row, int width, bool alpha, unsigned char* buffer, int w, int h);
+	void createTextures(int width, int height, int bpp, unsigned char* bitmap);
+	void copyBuffer(unsigned char* bitmap, int col, int row, int width, int bpp, unsigned char* buffer, int w, int h);
+	void deleteTextures();
 
-	void fnProgressLoading(Imlib_Image im, char percent, int update_x, int update_y, int update_w, int update_h);
-	static int callbackProgressLoading(Imlib_Image im, char percent, int update_x, int update_y, int update_w, int update_h);
+//	void fnProgressLoading(Imlib_Image im, char percent, int update_x, int update_y, int update_w, int update_h);
+//	static int callbackProgressLoading(Imlib_Image im, char percent, int update_x, int update_y, int update_w, int update_h);
 
 	void fnRender();
 	void fnResize(int width, int height);
