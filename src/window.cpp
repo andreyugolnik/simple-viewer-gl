@@ -133,25 +133,11 @@ void CWindow::fnRender() {
 			float x	= m_mouseDx + quad->GetCol() * m_textureSize * m_scale;
 			float y	= m_mouseDy + quad->GetRow() * m_textureSize * m_scale;
 
-			float quadw	= quad->GetWidth() * m_scale;
-			float quadh	= quad->GetHeight() * m_scale;
-			if(x + quadw >= 0 && x < m_winW && y + quadh >= 0 && y < m_winH) {
-				quad->Render(x, y);
+			float w	= quad->GetWidth() * m_scale;
+			float h	= quad->GetHeight() * m_scale;
+			if(x + w >= 0 && x < m_winW && y + h >= 0 && y < m_winH) {
+				quad->RenderEx(x, y, w, h);
 			}
-//			quad.v[0].x = x;			quad.v[0].y = y;
-//			quad.v[1].x = x + quadw;	quad.v[1].y = y;
-//			quad.v[2].x = x + quadw;	quad.v[2].y = y + quadh;
-//			quad.v[3].x = x;			quad.v[3].y = y + quadh;
-//
-//			if(x + quadw >= 0 && x < m_winW && y + quadh >= 0 && y < m_winH) {
-//				glBindTexture(GL_TEXTURE_2D, quad.tex);
-//				glBegin(GL_QUADS);
-//					glTexCoord2fv(&quad.v[0].tx);	glVertex2fv(&quad.v[0].x);
-//					glTexCoord2fv(&quad.v[1].tx);	glVertex2fv(&quad.v[1].x);
-//					glTexCoord2fv(&quad.v[2].tx);	glVertex2fv(&quad.v[2].x);
-//					glTexCoord2fv(&quad.v[3].tx);	glVertex2fv(&quad.v[3].x);
-//				glEnd();
-//			}
 		}
 	}
 

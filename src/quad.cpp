@@ -62,3 +62,18 @@ void CQuad::Render(float x, float y) {
 		glTexCoord2fv(&m_v[3].tx);	glVertex2fv(&m_v[3].x);
 	glEnd();
 }
+
+void CQuad::RenderEx(float x, float y, float w, float h) {
+	m_v[0].x = x;		m_v[0].y = y;
+	m_v[1].x = x + w;	m_v[1].y = y;
+	m_v[2].x = x + w;	m_v[2].y = y + h;
+	m_v[3].x = x;		m_v[3].y = y + h;
+
+	glBindTexture(GL_TEXTURE_2D, m_tex);
+	glBegin(GL_QUADS);
+		glTexCoord2fv(&m_v[0].tx);	glVertex2fv(&m_v[0].x);
+		glTexCoord2fv(&m_v[1].tx);	glVertex2fv(&m_v[1].x);
+		glTexCoord2fv(&m_v[2].tx);	glVertex2fv(&m_v[2].x);
+		glTexCoord2fv(&m_v[3].tx);	glVertex2fv(&m_v[3].x);
+	glEnd();
+}

@@ -17,8 +17,9 @@ public:
 
 	virtual void SetSpriteSize(float w, float h);
 	virtual void Render(float x, float y);
-	float GetWidth() const { return m_w; }
-	float GetHeight() const { return m_h; }
+	virtual void RenderEx(float x, float y, float w, float h);
+	virtual float GetWidth() const { return m_w; }
+	virtual float GetHeight() const { return m_h; }
 
 protected:
 	GLuint m_tex;
