@@ -10,7 +10,9 @@
 CFormat::CFormat(Callback callback) : m_callback(callback),
 	m_percent(-1), m_file(0),
 	m_bitmap(0), m_width(0), m_height(0), m_pitch(0),
-	m_bpp(0), m_bppImage(0), m_size(0) {
+	m_bpp(0), m_bppImage(0),
+	m_size(-1)	// -1 mean that file can't be opened
+{
 }
 
 CFormat::~CFormat() {
@@ -19,7 +21,7 @@ CFormat::~CFormat() {
 bool CFormat::openFile(const char* path) {
 	m_file	= fopen(path, "rb");
 	if(m_file == 0) {
-		printf("Can't open %s\n", path);
+		std::cout << "Can't open \"" << path << "\"." << std::endl;
 		return false;
 	}
 

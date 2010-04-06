@@ -66,7 +66,7 @@ void CInfoBar::Update(const InfoBar* p) {
 		}
 		const char* s[]	= { "B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB" };
 		std::stringstream size;
-		size << std::setprecision(3) << file_size << " " << (s[i]);
+		size << std::fixed << std::setprecision(i) << file_size << " " << (s[i]);
 
 		std::stringstream formated;
 		if(p->files_count > 1) {
