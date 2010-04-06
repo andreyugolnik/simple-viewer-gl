@@ -15,7 +15,8 @@
 
 extern std::auto_ptr<CWindow> g_window;
 
-CWindow::CWindow() : m_prevWinX(0), m_prevWinY(0), m_prevWinW(DEF_WINDOW_W), m_prevWinH(DEF_WINDOW_H),
+CWindow::CWindow() : m_initialImageLoading(true),
+	m_prevWinX(0), m_prevWinY(0), m_prevWinW(DEF_WINDOW_W), m_prevWinH(DEF_WINDOW_H),
 	m_curWinW(0), m_curWinH(0), m_scale(1), m_windowed(true), m_fitImage(false), m_showBorder(false), m_recursiveDir(false), m_cusorVisible(true),
 	m_lastMouseX(-1), m_lastMouseY(-1), m_mouseLB(false), m_keyPressed(false), m_imageDx(0), m_imageDy(0),
 	m_textureSize(256) {
@@ -73,7 +74,7 @@ bool CWindow::Init(int argc, char *argv[], const char* path) {
 		m_na->Init();
 		m_progress->Init();
 
-		loadImage(0);
+		m_initialImageLoading	= true;
 
 		return true;
 	}
@@ -108,6 +109,11 @@ void CWindow::SetProp(unsigned char r, unsigned char g, unsigned char b) {
 }
 
 void CWindow::fnRender() {
+	if(m_initialImageLoading == true) {
+		m_initialImageLoading	= false;
+		loadImage(0);
+	}
+
 	m_cb->Render();
 
 	glColor3f(1, 1, 1);
