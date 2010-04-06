@@ -1,11 +1,13 @@
 CC=g++
-CFLAGS=-O2 -c -Wall -I/usr/include
-LDFLAGS=-s -lGL -lglut -ljpeg -lImlib2
+CFLAGS=-O2 -c -Wall -I/usr/include -I/usr/include/freetype2
+LDFLAGS=-s -lGL -lglut -lfreetype -ljpeg -lImlib2
 
 SOURCES= \
 	src/formats/format.cpp \
 	src/formats/formatcommon.cpp \
 	src/formats/formatjpeg.cpp \
+	src/ftstring.cpp \
+	src/ftsymbol.cpp \
 	src/imageborder.cpp \
 	src/checkerboard.cpp \
 	src/notavailable.cpp \

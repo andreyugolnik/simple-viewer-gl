@@ -8,11 +8,14 @@
 #include "infobar.h"
 #include "main.h"
 #include <iomanip>
+#include <iostream>
 #include <sstream>
 #include <GL/glut.h>
 
-CInfoBar::CInfoBar() : m_visible(true), m_height(20) {
+CInfoBar::CInfoBar() : m_visible(true), m_height(18), m_fntSize(12) {
 	m_bg.reset(new CQuad(0, 0));
+	m_ft.reset(new CFTString(m_fntSize));
+//	m_ft.reset(new CFTString("arial.ttf", m_fntSize));
 }
 
 CInfoBar::~CInfoBar() {
@@ -27,17 +30,8 @@ void CInfoBar::Render() {
 		m_bg->SetSpriteSize(w, m_height);
 		m_bg->Render(0, h - m_height);
 
-		glDisable(GL_TEXTURE_2D);
-
 		glColor3f(1, 1, 0.5f);
-		glRasterPos2i(5, h - 5);
-
-		const char* p	= m_bottominfo.c_str();
-		for( ; *p; p++) {
-			glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, (unsigned char)*p);
-		}
-
-		glEnable(GL_TEXTURE_2D);
+		m_ft->Render(2, h - (m_height - m_fntSize));
 	}
 }
 
@@ -91,6 +85,8 @@ void CInfoBar::Update(const InfoBar* p) {
 		m_bottominfo	= "";
 		title << TITLE;
 	}
+
+	m_ft->Update(m_bottominfo.c_str());
 
 	glutSetWindowTitle(title.str().c_str());
 }

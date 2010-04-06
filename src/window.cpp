@@ -15,6 +15,10 @@
 
 extern std::auto_ptr<CWindow> g_window;
 
+//void closeWindow() {
+//	printf("done\n");
+//}
+
 CWindow::CWindow() : m_initialImageLoading(true),
 	m_prevWinX(0), m_prevWinY(0), m_prevWinW(DEF_WINDOW_W), m_prevWinH(DEF_WINDOW_H),
 	m_curWinW(0), m_curWinH(0), m_scale(1), m_windowed(true), m_fitImage(false), m_showBorder(false), m_recursiveDir(false), m_cusorVisible(true),
@@ -37,7 +41,7 @@ bool CWindow::Init(int argc, char *argv[], const char* path) {
 	m_filesList.reset(new CFilesList(path, m_recursiveDir));
 	if(m_filesList->GetName() != 0) {
 		glutInit(&argc, argv);
-		glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);// | GLUT_DEPTH);
+		glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
 
 		glutCreateWindow(TITLE);
 
@@ -51,6 +55,7 @@ bool CWindow::Init(int argc, char *argv[], const char* path) {
 		glutMotionFunc(callbackMouse);
 		glutPassiveMotionFunc(callbackMouse);
 		glutMouseWheelFunc(callbackMouseWheel);
+//		glutWMCloseFunc(closeWindow);
 
 		glEnable(GL_BLEND);
 		glEnable(GL_TEXTURE_2D);
@@ -59,6 +64,8 @@ bool CWindow::Init(int argc, char *argv[], const char* path) {
 
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+//		int version	= glutGet(GLUT_VERSION);
+//		std::cout << "GLUT v" << version << std::endl;
 		glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_textureSize);
 		std::cout << "Max texture size: " << m_textureSize << ", ";
 		int size	= std::max(glutGet(GLUT_SCREEN_WIDTH), glutGet(GLUT_SCREEN_HEIGHT));
@@ -223,7 +230,8 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y) {
 
 	switch(key) {
 	case 27:	// ESC
-		exit(0);
+//		exit(0);
+		glutLeaveMainLoop();
 		break;
 	case 127:	// Delete
 		if(mod == GLUT_ACTIVE_CTRL) {

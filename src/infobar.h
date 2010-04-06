@@ -8,6 +8,7 @@
 #ifndef INFOBAR_H
 #define INFOBAR_H
 
+#include "ftstring.h"
 #include "quad.h"
 #include <string>
 #include <memory>
@@ -35,9 +36,11 @@ public:
 
 private:
 	bool m_visible;
-	float m_height;
+	const float m_height;
+	const int m_fntSize;
 	std::string m_bottominfo;
 	std::auto_ptr<CQuad> m_bg;
+	std::auto_ptr<CFTString> m_ft;
 };
 
 #endif // INFOBAR_H
