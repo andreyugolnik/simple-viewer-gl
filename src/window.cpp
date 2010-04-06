@@ -20,7 +20,7 @@ CWindow::CWindow() : m_prevWinX(0), m_prevWinY(0), m_prevWinW(DEF_WINDOW_W), m_p
 	m_lastMouseX(-1), m_lastMouseY(-1), m_mouseLB(false), m_keyPressed(false), m_imageDx(0), m_imageDy(0),
 	m_textureSize(256) {
 
-		m_il.reset(new CImageLoader());
+		m_il.reset(new CImageLoader(callbackProgressLoading));
 		m_cb.reset(new CCheckerboard());
 		m_na.reset(new CNotAvailable());
 		m_ib.reset(new CInfoBar());
@@ -68,10 +68,6 @@ bool CWindow::Init(int argc, char *argv[], const char* path) {
 
 //		m_pow2	= glutExtensionSupported("GL_ARB_texture_non_power_of_two");
 //		std::cout << "Non Power of Two extension " << (m_pow2 ? "available" : "not available") << std::endl;
-
-		// setup progress each 10%
-//		imlib_context_set_progress_function(callbackProgressLoading);
-//		imlib_context_set_progress_granularity(10);
 
 		m_cb->Init();
 		m_na->Init();
@@ -574,12 +570,10 @@ void CWindow::callbackKeyboard(unsigned char key, int x, int y) {
 }
 
 
-//void CWindow::fnProgressLoading(Imlib_Image im, char percent, int update_x, int update_y, int update_w, int update_h) {
-//	m_progress->Render();
-//}
-//
-//int CWindow::callbackProgressLoading(Imlib_Image im, char percent, int update_x, int update_y, int update_w, int update_h) {
-//	g_window->fnProgressLoading(im, percent, update_x, update_y, update_w, update_h);
-//	return 1;
-//}
+void CWindow::fnProgressLoading(int percent) {
+	m_progress->Render(percent);
+}
 
+void CWindow::callbackProgressLoading(int percent) {
+	g_window->fnProgressLoading(percent);
+}

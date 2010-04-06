@@ -12,17 +12,23 @@
 #include <iostream>
 #include <stdio.h>
 
-#define WIDTHBYTES(bits) ((((bits) + 31) / 32) * 4)
+//#define WIDTHBYTES(bits) ((((bits) + 31) / 32) * 4)
+
+typedef void (*Callback)(int);
 
 class CFormat {
 	friend class CImageLoader;
 
 public:
-	CFormat();
+	CFormat(Callback callback = 0);
 	virtual ~CFormat();
 
 	virtual bool Load(const char* filename, int sub_image = 0) = 0;
 	virtual void FreeMemory() = 0;
+
+private:
+	Callback m_callback;
+	int m_percent;
 
 protected:
 	FILE* m_file;
@@ -36,8 +42,7 @@ protected:
 protected:
 	bool openFile(const char* path);
 	void convertRGB2BGR();
-
-private:
+	void progress(int percent);
 };
 
 #endif // FORMAT_H

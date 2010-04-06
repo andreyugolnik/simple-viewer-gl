@@ -8,7 +8,12 @@
 #include "formatcommon.h"
 #include <iostream>
 
-CFormatCommon::CFormatCommon() : CFormat(), m_image(0) {
+CFormatCommon* g_this	= 0;
+
+CFormatCommon::CFormatCommon(Callback callback) : CFormat(callback), m_image(0) {
+	g_this	= this;
+	imlib_context_set_progress_function(callbackProgress);
+	imlib_context_set_progress_granularity(10);	// setup progress each 10%
 }
 
 CFormatCommon::~CFormatCommon() {
@@ -45,4 +50,9 @@ void CFormatCommon::FreeMemory() {
 		imlib_free_image();
 		m_image	= 0;
 	}
+}
+
+int CFormatCommon::callbackProgress(void* p, char percent, int a, int b, int c, int d) {
+	g_this->progress(percent);
+	return 1;
 }

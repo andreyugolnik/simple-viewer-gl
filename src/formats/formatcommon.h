@@ -13,7 +13,7 @@
 
 class CFormatCommon : public CFormat {
 public:
-	CFormatCommon();
+	CFormatCommon(Callback callback);
 	virtual ~CFormatCommon();
 
 	bool Load(const char* filename, int sub_image = 0);
@@ -22,6 +22,9 @@ public:
 protected:
 private:
 	Imlib_Image m_image;
+
+private:
+	static int callbackProgress(void*, char percent, int, int, int, int);
 };
 
 #endif // FORMATCOMMON_H

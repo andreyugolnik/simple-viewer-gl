@@ -11,30 +11,33 @@
 #include <iostream>
 #include <algorithm>
 
-CImageLoader::CImageLoader() : m_angle(ANGLE_0) {
+CImageLoader::CImageLoader(Callback callback) : m_angle(ANGLE_0), m_callback(callback) {
 }
 
 CImageLoader::~CImageLoader() {
 }
 
 bool CImageLoader::LoadImage(const char* path, int sub_image) {
-	// image already loaded
-	if(m_path.empty() == false && path != 0 && m_path == path) {
-		return true;
+	if(path != 0) {
+		if(m_path.empty() == false && m_path == path) {
+			return true;	// image already loaded
+		}
+
+		m_angle		= ANGLE_0;
+		m_path		= path;
+
+		int format	= getFormat();
+		if(format == FORMAT_JPEG) {
+			m_image.reset(new CFormatJpeg(m_callback));
+		}
+		else {
+			m_image.reset(new CFormatCommon(m_callback));
+		}
+
+		return m_image->Load(path);
 	}
 
-	m_angle		= ANGLE_0;
-	m_path		= path;
-
-	int format	= getFormat();
-	if(format == FORMAT_JPEG) {
-		m_image.reset(new CFormatJpeg());
-	}
-	else {
-		m_image.reset(new CFormatCommon());
-	}
-
-	return m_image->Load(path);
+	return false;
 }
 
 unsigned char* CImageLoader::GetBitmap() const {

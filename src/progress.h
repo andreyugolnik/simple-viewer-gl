@@ -18,11 +18,10 @@ public:
 
 	void Init();
 	void Start();
-	void Render();
+	void Render(int percent);
 
 private:
 	int m_loadingTime;
-	int m_progress;
 	std::auto_ptr<CQuad> m_loading;
 	std::auto_ptr<CQuad> m_square;
 };

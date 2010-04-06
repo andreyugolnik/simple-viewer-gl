@@ -16,7 +16,7 @@ typedef enum { ANGLE_0, ANGLE_90, ANGLE_180, ANGLE_270 } Angle;
 
 class CImageLoader {
 public:
-	CImageLoader();
+	CImageLoader(Callback callback);
 	virtual ~CImageLoader();
 
 	bool LoadImage(const char* path, int sub_image);
@@ -34,6 +34,7 @@ public:
 
 private:
 	Angle m_angle;
+	Callback m_callback;
 	std::string m_path;
 	std::auto_ptr<CFormat> m_image;
 

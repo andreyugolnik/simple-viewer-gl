@@ -7,7 +7,8 @@
 
 #include "format.h"
 
-CFormat::CFormat() : m_file(0),
+CFormat::CFormat(Callback callback) : m_callback(callback),
+	m_percent(-1), m_file(0),
 	m_bitmap(0), m_width(0), m_height(0), m_pitch(0),
 	m_bpp(0), m_bppImage(0), m_size(0) {
 }
@@ -37,5 +38,14 @@ void CFormat::convertRGB2BGR() {
 		unsigned char r	= m_bitmap[i];
 		m_bitmap[i]		= m_bitmap[i + 2];
 		m_bitmap[i + 2]	= r;
+	}
+}
+
+void CFormat::progress(int percent) {
+	if(m_callback != 0) {
+		if(m_percent != percent) {
+			m_percent	= percent;
+			m_callback(percent);
+		}
 	}
 }

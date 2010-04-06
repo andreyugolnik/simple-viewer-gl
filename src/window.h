@@ -67,8 +67,8 @@ private:
 	void copyBuffer(unsigned char* bitmap, int col, int row, int width, int bpp, unsigned char* buffer, int w, int h);
 	void deleteTextures();
 
-//	void fnProgressLoading(Imlib_Image im, char percent, int update_x, int update_y, int update_w, int update_h);
-//	static int callbackProgressLoading(Imlib_Image im, char percent, int update_x, int update_y, int update_w, int update_h);
+	void fnProgressLoading(int percent);
+	static void callbackProgressLoading(int percent);
 
 	void fnRender();
 	void fnResize(int width, int height);

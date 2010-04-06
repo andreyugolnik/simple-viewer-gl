@@ -1,8 +1,11 @@
 CC=g++
 CFLAGS=-O2 -c -Wall -I/usr/include
-LDFLAGS=-s -lGL -lGLU -lglut -lImlib2
+LDFLAGS=-s -lGL -lglut -ljpeg -lImlib2
 
 SOURCES= \
+	src/formats/format.cpp \
+	src/formats/formatcommon.cpp \
+	src/formats/formatjpeg.cpp \
 	src/imageborder.cpp \
 	src/checkerboard.cpp \
 	src/notavailable.cpp \

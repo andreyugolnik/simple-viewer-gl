@@ -7,7 +7,6 @@
 
 #include "fileslist.h"
 #include <iostream>
-#include <algorithm>
 #include <dirent.h>
 
 CFilesList::CFilesList(const char* file, bool recursive) : m_listCreated(false), m_recursive(recursive), m_position(0), m_removeCurrent(false) {
@@ -29,7 +28,9 @@ bool CFilesList::ParseDir() {
 	size_t pos	= m_files[0].find_last_of('/');
 	if(std::string::npos != pos) {
 		dir		= m_files[0].substr(0, pos);
-		name	= m_files[0].substr(pos + 1);
+		if(pos + 1 != std::string::npos) {
+			name	= m_files[0].substr(pos + 1);
+		}
 	}
 	else {
 		dir	= ".";
@@ -41,7 +42,7 @@ bool CFilesList::ParseDir() {
 
 	if(true == scanDirectory(dir)) {
 		// sorting images by names
-		std::sort(m_files.begin(), m_files.end());
+		std::sort(m_files.begin(), m_files.end(), CComparator());
 
 		// search startup image index in sorted list
 		size_t len		= name.length();
@@ -84,7 +85,7 @@ bool CFilesList::scanDirectory(const std::string& dir) {
 					scanDirectory(path);
 				}
 			}
-			else if(isValidExt(path.c_str()) == true) {
+			else if(isValidExt(path) == true) {
 				m_files.push_back(path);
 				count++;
 			}
@@ -109,8 +110,9 @@ int CFilesList::filter(const struct dirent* p) {
 	return 1;
 }
 
-bool CFilesList::isValidExt(const char* path) {
-	std::string s	= path;
+bool CFilesList::isValidExt(const std::string& path) {
+	std::string s(path);
+	std::transform(s.begin(), s.end(), s.begin(), tolower);
 
 	// skip file without extension
 	size_t pos	= s.find_last_of('.');
@@ -119,7 +121,6 @@ bool CFilesList::isValidExt(const char* path) {
 	}
 
 	// skip non image file (detect by extension)
-	std::transform(s.begin(), s.end(), s.begin(), tolower);
 
 	const char* ext[]	= {
 		".jpeg", ".jpg", ".png", ".pnm", ".bmp", ".xpm", ".gif",
@@ -149,7 +150,7 @@ const char* CFilesList::GetName(int delta) {
 
 	size_t count	= m_files.size();
 	if(count > 0) {
-		if(delta == 0 && count == 1 && isValidExt(m_files[m_position].c_str()) == false) {
+		if(delta == 0 && count == 1 && isValidExt(m_files[m_position]) == false) {
 			if(false == ParseDir()) {
 				return 0;
 			}

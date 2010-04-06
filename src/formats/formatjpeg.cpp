@@ -10,7 +10,7 @@
 #include <jpeglib.h>
 #include <setjmp.h>
 
-CFormatJpeg::CFormatJpeg() : CFormat() {
+CFormatJpeg::CFormatJpeg(Callback callback) : CFormat(callback) {
 }
 
 CFormatJpeg::~CFormatJpeg() {
@@ -102,6 +102,9 @@ bool CFormatJpeg::Load(const char* filename, int sub_image) {
 		 */
 		jpeg_read_scanlines(&cinfo, &p, 1);
 		p	+= row_stride;
+
+		int percent	= (int)(100.0f * cinfo.output_scanline / cinfo.output_height);
+		progress(percent);
 	}
 
 	/* Step 7: Finish decompression */
