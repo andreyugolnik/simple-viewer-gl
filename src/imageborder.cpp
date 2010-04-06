@@ -7,7 +7,7 @@
 
 #include "imageborder.h"
 
-CImageBorder::CImageBorder() : m_width(1) {
+CImageBorder::CImageBorder() : m_width(2) {
 	SetColor(1, 0.1f, 0.1f, 1);
 }
 
@@ -30,8 +30,8 @@ void CImageBorder::Render(float x, float y, float w, float h) {
 }
 
 void CImageBorder::renderLine(float x1, float y1, float x2, float y2) {
-	v[0].x	= x1 + 0.5f;	v[0].y	= y1 + 0.5f;
-	v[1].x	= x2 + 0.5f;	v[1].y	= y2 + 0.5f;
+	v[0].x	= x1;	v[0].y	= y1;
+	v[1].x	= x2;	v[1].y	= y2;
 
 	glBegin(GL_LINES);
 		glColor4fv(&v[0].r), glVertex3fv(&v[0].x);
