@@ -447,6 +447,8 @@ bool CWindow::loadImage(int step) {
 }
 
 void CWindow::updateInfobar() {
+	calculateScale();
+
 	INFO_BAR s;
 	const char* path	= m_filesList->GetName(0);
 	s.path			= path != 0 ? path : "";
