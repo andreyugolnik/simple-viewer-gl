@@ -58,7 +58,8 @@ bool CFormatPsd::Load(const char* filename, int sub_image) {
 //		cleanup();
 //		return false;
 	}
-	std::cout << "Extra channels count: " << (channels >= 4 ? channels - 4 : channels) << std::endl;
+	int extraChannels	= channels - std::min(channels, 4);
+	std::cout << " " << extraChannels << " extra channel(s),";
 
 	// skip Color Mode Data Block
 	if(false == skipNextBlock()) {
