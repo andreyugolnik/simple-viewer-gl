@@ -14,6 +14,10 @@
 
 //#define WIDTHBYTES(bits) ((((bits) + 31) / 32) * 4)
 
+typedef unsigned char uint8;
+typedef unsigned short uint16;
+typedef unsigned int uint32;
+
 typedef void (*Callback)(int);
 
 class CFormat {
@@ -43,6 +47,8 @@ protected:
 	bool openFile(const char* path);
 	void convertRGB2BGR();
 	void progress(int percent);
+	uint16 read_uint16(uint8* p);
+	uint32 read_uint32(uint8* p);
 };
 
 #endif // FORMAT_H

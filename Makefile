@@ -6,6 +6,7 @@ SOURCES= \
 	src/formats/format.cpp \
 	src/formats/formatcommon.cpp \
 	src/formats/formatjpeg.cpp \
+	src/formats/formatpsd.cpp \
 	src/ftstring.cpp \
 	src/ftsymbol.cpp \
 	src/imageborder.cpp \

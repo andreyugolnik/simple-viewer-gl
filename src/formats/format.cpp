@@ -51,3 +51,11 @@ void CFormat::progress(int percent) {
 		}
 	}
 }
+
+uint16 CFormat::read_uint16(uint8* p) {
+    return (p[0] << 8) | p[1];
+}
+
+uint32 CFormat::read_uint32(uint8* p) {
+    return (p[0] << 24) | (p[1] << 16) | (p[2] << 8) | p[3];
+}

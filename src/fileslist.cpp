@@ -123,7 +123,7 @@ bool CFilesList::isValidExt(const std::string& path) {
 	// skip non image file (detect by extension)
 
 	const char* ext[]	= {
-		".jpeg", ".jpg", ".png", ".pnm", ".bmp", ".xpm", ".gif",
+		".jpeg", ".jpg", ".png", ".psd", ".pnm", ".bmp", ".xpm", ".gif",
 		".tga", ".targa", ".tiff", ".lbm", ".id3", ".argb"
 	};
 	for(size_t i = 0; i < sizeof(ext) / sizeof(const char*); i++) {

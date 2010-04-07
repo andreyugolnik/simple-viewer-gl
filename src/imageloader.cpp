@@ -8,6 +8,7 @@
 #include "imageloader.h"
 #include "formats/formatcommon.h"
 #include "formats/formatjpeg.h"
+#include "formats/formatpsd.h"
 #include <iostream>
 #include <algorithm>
 
@@ -29,6 +30,9 @@ bool CImageLoader::LoadImage(const char* path, int sub_image) {
 		int format	= getFormat();
 		if(format == FORMAT_JPEG) {
 			m_image.reset(new CFormatJpeg(m_callback));
+		}
+		else if(format == FORMAT_PSD) {
+			m_image.reset(new CFormatPsd(m_callback));
 		}
 		else {
 			m_image.reset(new CFormatCommon(m_callback));
@@ -122,8 +126,9 @@ int CImageLoader::getFormat() {
 	std::transform(s.begin(), s.end(), s.begin(), tolower);
 
 	FORMAT format[]	= {
-		{ ".jpeg", FORMAT_JPEG	},
-		{ ".jpg",  FORMAT_JPEG	},
+		{ ".jpeg", FORMAT_JPEG },
+		{ ".jpg",  FORMAT_JPEG },
+		{ ".psd",  FORMAT_PSD  },
 	};
 
 	for(size_t i = 0; i < sizeof(format) / sizeof(FORMAT); i++) {
