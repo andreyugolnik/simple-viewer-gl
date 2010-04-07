@@ -133,12 +133,13 @@ bool CFormatPsd::Load(const char* filename, int sub_image) {
 	int pos				= 0;
 	bool done			= false;
 	do {
-		size_t lineLength	= m_width;
+		int lineLength	= m_width;
 		if(compression == 1) {
 			lineLength	= m_linesLengths[currentChannel * m_height + currentRow];
 		}
 
-		if(lineLength != fread(m_buffer, 1, lineLength, m_file)) {
+		int readed	= fread(m_buffer, 1, lineLength, m_file);
+		if(lineLength != readed) {
 			std::cout << "Error reading Image Data Block" << std::endl;
 			cleanup();
 			return false;
