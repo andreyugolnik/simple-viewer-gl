@@ -142,6 +142,8 @@ bool CFormatPng::Load(const char* filename, int sub_image) {
 
 	delete[] row_pointers;
 
+	png_destroy_read_struct(&png, &info, NULL);
+
 	fclose(m_file);
 
 	return true;
