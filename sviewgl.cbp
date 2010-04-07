@@ -40,9 +40,10 @@
 		<Linker>
 			<Add library="GL" />
 			<Add library="glut" />
+			<Add library="freetype" />
 			<Add library="Imlib2" />
 			<Add library="jpeg" />
-			<Add library="freetype" />
+			<Add library="png" />
 			<Add directory="$(#gfl.lib)" />
 			<Add directory="$(#freetype2.lib)" />
 		</Linker>
@@ -56,6 +57,8 @@
 		<Unit filename="src/formats/formatcommon.h" />
 		<Unit filename="src/formats/formatjpeg.cpp" />
 		<Unit filename="src/formats/formatjpeg.h" />
+		<Unit filename="src/formats/formatpng.cpp" />
+		<Unit filename="src/formats/formatpng.h" />
 		<Unit filename="src/formats/formatpsd.cpp" />
 		<Unit filename="src/formats/formatpsd.h" />
 		<Unit filename="src/ftstring.cpp" />
