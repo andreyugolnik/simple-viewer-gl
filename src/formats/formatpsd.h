@@ -46,8 +46,15 @@ public:
 	void FreeMemory();
 
 private:
+	uint8* m_buffer;
+	uint16* m_linesLengths;
+	#define MAX_CHANNELS	24
+	uint8* m_chBufs[MAX_CHANNELS];
+
+private:
 	bool skipNextBlock();
 	void decompressLine(const uint8* src, uint32 line_length, uint8* dest);
+	void cleanup();
 };
 
 #endif // FORMATPSD_H
