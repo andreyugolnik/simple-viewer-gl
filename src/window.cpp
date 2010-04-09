@@ -70,9 +70,8 @@ bool CWindow::Init(int argc, char *argv[], const char* path) {
 		m_textureSize	= std::min(512, m_textureSize);
 		std::cout << "Using texture size: " << m_textureSize << "." << std::endl;
 
-		// TODO find pitch bug with some images when m_pow2 == true
-//		m_pow2	= glutExtensionSupported("GL_ARB_texture_non_power_of_two");
-//		std::cout << "Non Power of Two extension " << (m_pow2 ? "available." : "not available.") << std::endl;
+		m_pow2	= glutExtensionSupported("GL_ARB_texture_non_power_of_two");
+		std::cout << "Non Power of Two extension " << (m_pow2 ? "available." : "not available.") << std::endl;
 
 		m_cb->Init();
 		m_na->Init();
@@ -489,7 +488,7 @@ void CWindow::calculateTextureSize(int* texW, int* texH, int imgW, int imgH) {
 			th	= static_cast<int>(powf(2.0f, static_cast<int>(ceilf(power_h))));
 		}
     }
-	std::cout << "  select texture size: " << tw << " x " << th << std::endl;
+//	std::cout << "  select texture size: " << tw << " x " << th << std::endl;
 	*texW	= tw;
 	*texH	= th;
 }
@@ -506,7 +505,8 @@ void CWindow::createTextures() {
 
 	int texW, texH;
 	calculateTextureSize(&texW, &texH, width, height);
-	int texPitch	= texW * bytesPP;
+	// texture pitch should be multiple by 4
+	int texPitch	= static_cast<int>(ceilf(texW * bytesPP / 4.0f) * 4);
 
 	int cols	= static_cast<int>(ceilf(static_cast<float>(width) / texW));
 	int rows	= static_cast<int>(ceilf(static_cast<float>(height) / texH));
@@ -526,7 +526,7 @@ void CWindow::createTextures() {
 			int w	= (width2 > texW ? texW : width2);
 			width2	-= w;
 
-			int dx	= col * texPitch;//texW * bytesPP;
+			int dx	= col * texPitch;
 			int dy	= row * texH;
 			int count	= w * bytesPP;
 			for(int line = 0; line < h; line++) {
