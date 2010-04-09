@@ -12,7 +12,7 @@
 				<Option object_output="debug_linux/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters='-b &quot;img/30-day money back guarantee.psd&quot;' />
+				<Option parameters="-b particles.png" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>

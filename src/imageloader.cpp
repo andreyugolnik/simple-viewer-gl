@@ -23,7 +23,9 @@ CImageLoader::~CImageLoader() {
 bool CImageLoader::LoadImage(const char* path, int sub_image) {
 	if(path != 0) {
 		if(m_path.empty() == false && m_path == path) {
-			return true;	// image already loaded
+			if(m_image.get() != 0 && m_image->m_bitmap != 0) {
+				return true;	// image already loaded
+			}
 		}
 
 		m_angle		= ANGLE_0;
