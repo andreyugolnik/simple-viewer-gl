@@ -20,18 +20,18 @@ public:
 	virtual void RenderEx(float x, float y, float w, float h);
 	virtual float GetWidth() const { return m_w; }
 	virtual float GetHeight() const { return m_h; }
+	virtual float GetTexWidth() const { return m_tw; }
+	virtual float GetTexHeight() const { return m_th; }
 
 protected:
+	GLfloat m_tw, m_th;	// texture width / height
 	GLuint m_tex;
 	GLfloat m_w, m_h;	// sprite width / height
-	GLfloat m_tw, m_th;	// initial texture width / height
 	struct VERTEX {
 		GLfloat x, y;	// vertex screen coordinates
 		GLfloat tx, ty;	// vertex texture coordinates
 	} m_v[4];
 
-protected:
-	virtual void init(int tw, int th, const unsigned char* data, int bpp);
 
 private:
 	CQuad();

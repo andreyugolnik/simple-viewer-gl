@@ -23,7 +23,7 @@ CWindow::CWindow() : m_initialImageLoading(true),
 	m_prevWinX(0), m_prevWinY(0), m_prevWinW(DEF_WINDOW_W), m_prevWinH(DEF_WINDOW_H),
 	m_curWinW(0), m_curWinH(0), m_scale(1), m_windowed(true), m_fitImage(false), m_showBorder(false), m_recursiveDir(false), m_cusorVisible(true),
 	m_lastMouseX(-1), m_lastMouseY(-1), m_mouseLB(false), m_keyPressed(false), m_imageDx(0), m_imageDy(0),
-	m_textureSize(256) {
+	m_pow2(false), m_textureSize(256) {
 
 		m_il.reset(new CImageLoader(callbackProgressLoading));
 		m_cb.reset(new CCheckerboard());
@@ -67,21 +67,20 @@ bool CWindow::Init(int argc, char *argv[], const char* path) {
 //		int version	= glutGet(GLUT_VERSION);
 //		std::cout << "GLUT v" << version << std::endl;
 		glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_textureSize);
-		std::cout << "Max texture size: " << m_textureSize << ", ";
-		int size	= std::max(glutGet(GLUT_SCREEN_WIDTH), glutGet(GLUT_SCREEN_HEIGHT));
-		m_textureSize	= std::min(m_textureSize, size);
-		float power   = log((float)m_textureSize) / log(2.0f);
-		m_textureSize	= (int)pow(2.0f, (int)(ceil(power)));
-		std::cout << "set max to: " << m_textureSize << std::endl;
+		m_textureSize	= std::min(512, m_textureSize);
+		std::cout << "Using texture size: " << m_textureSize << "." << std::endl;
 
+		// TODO find pitch bug with some images when m_pow2 == true
 //		m_pow2	= glutExtensionSupported("GL_ARB_texture_non_power_of_two");
-//		std::cout << "Non Power of Two extension " << (m_pow2 ? "available" : "not available") << std::endl;
+//		std::cout << "Non Power of Two extension " << (m_pow2 ? "available." : "not available.") << std::endl;
 
 		m_cb->Init();
 		m_na->Init();
 		m_progress->Init();
 
 		m_initialImageLoading	= true;
+
+		std::cout << std::endl;
 
 		return true;
 	}
@@ -145,8 +144,8 @@ void CWindow::fnRender() {
 		for( ; it != itEnd; ++it) {
 			CQuadImage* quad	= *it;
 
-			float x	= m_imageDx + quad->GetCol() * m_textureSize * m_scale;
-			float y	= m_imageDy + quad->GetRow() * m_textureSize * m_scale;
+			float x	= m_imageDx + quad->GetCol() * quad->GetTexWidth() * m_scale;
+			float y	= m_imageDy + quad->GetRow() * quad->GetTexHeight() * m_scale;
 
 			float w	= quad->GetWidth() * m_scale;
 			float h	= quad->GetHeight() * m_scale;
@@ -442,8 +441,7 @@ bool CWindow::loadImage(int step) {
 	m_progress->Start();
 
 	if(true == m_il->LoadImage(path, 0)) {
-		unsigned char* bitmap	= m_il->GetBitmap();
-		createTextures(m_il->GetWidth(), m_il->GetHeight(), m_il->GetBpp(), bitmap);
+		createTextures();
 		m_il->FreeMemory();
 
 		ret	= true;
@@ -478,37 +476,70 @@ void CWindow::updateInfobar() {
 	m_ib->Update(&s);
 }
 
-void CWindow::createTextures(int width, int height, int bpp, unsigned char* bitmap) {
+void CWindow::calculateTextureSize(int* texW, int* texH, int imgW, int imgH) {
+	int tw	= std::min(m_textureSize, imgW);
+	int th	= std::min(m_textureSize, imgH);
+
+    // correct texture size
+    if(m_pow2 == false) {
+		float power_w	= logf((float)tw) / logf(2.0f);
+		float power_h	= logf((float)th) / logf(2.0f);
+		if(static_cast<int>(power_w) != power_w || static_cast<int>(power_h) != power_h) {
+			tw	= static_cast<int>(powf(2.0f, static_cast<int>(ceilf(power_w))));
+			th	= static_cast<int>(powf(2.0f, static_cast<int>(ceilf(power_h))));
+		}
+    }
+	std::cout << "  select texture size: " << tw << " x " << th << std::endl;
+	*texW	= tw;
+	*texH	= th;
+}
+
+void CWindow::createTextures() {
+	unsigned char* bitmap	= m_il->GetBitmap();
+	int width	= m_il->GetWidth();
+	int height	= m_il->GetHeight();
+	int bpp		= m_il->GetBpp();
+	int pitch	= m_il->GetPitch();
+	int bytesPP	= (bpp / 8);
+
 	std::cout << " " << width << " x " << height << ", ";
 
-	int cols	= (int)ceilf((float)width / m_textureSize);
-	int rows	= (int)ceilf((float)height / m_textureSize);
+	int texW, texH;
+	calculateTextureSize(&texW, &texH, width, height);
+	int texPitch	= texW * bytesPP;
+
+	int cols	= static_cast<int>(ceilf(static_cast<float>(width) / texW));
+	int rows	= static_cast<int>(ceilf(static_cast<float>(height) / texH));
 	size_t quadsCount	= cols * rows;
-	std::cout << "textures: " << quadsCount << " (" << cols << " x " << rows << ")" << std::endl;
+	std::cout << "textures: " << quadsCount << " (" << cols << " x " << rows << ") required" << std::endl;
 
 	deleteTextures();
 
-	while(quadsCount > m_quads.size()) {
-		CQuadImage* quad	= new CQuadImage(m_textureSize);
-		m_quads.push_back(quad);
-	}
-
-	unsigned char* buffer	= new unsigned char[m_textureSize * m_textureSize * (bpp / 8)];
+	unsigned char* buffer	= new unsigned char[texPitch * texH];
 
 	int idx	= 0;
 	int height2	= height;
 	for(int row = 0; row < rows; row++) {
 		int width2	= width;
-		int h	= (height2 > m_textureSize ? m_textureSize : height2);
+		int h	= (height2 > texH ? texH : height2);
 		for(int col = 0; col < cols; col++) {
-			int w	= (width2 > m_textureSize ? m_textureSize : width2);
+			int w	= (width2 > texW ? texW : width2);
 			width2	-= w;
 
-			copyBuffer(bitmap, col, row, width, bpp, buffer, w, h);
+			int dx	= col * texPitch;//texW * bytesPP;
+			int dy	= row * texH;
+			int count	= w * bytesPP;
+			for(int line = 0; line < h; line++) {
+				int src	= dx + (dy + line) * pitch;
+				int dst	= line * texPitch;
+				memcpy(&buffer[dst], &bitmap[src], count);
+			}
 
-			m_quads[idx]->SetCell(col, row);
-			m_quads[idx]->Update(bpp, buffer);
-			m_quads[idx]->SetSpriteSize(w, h);
+			CQuadImage* quad	= new CQuadImage(texW, texH, buffer, bpp);
+			quad->SetCell(col, row);
+			quad->SetSpriteSize(w, h);
+
+			m_quads.push_back(quad);
 
 			idx++;
 		}
@@ -516,19 +547,6 @@ void CWindow::createTextures(int width, int height, int bpp, unsigned char* bitm
 	}
 
 	delete[] buffer;
-}
-
-void CWindow::copyBuffer(unsigned char* bitmap, int col, int row, int width, int bpp, unsigned char* buffer, int w, int h) {
-	int bitmap_pitch	= width * (bpp / 8);
-	int dx	= col * m_textureSize * (bpp / 8);
-	int dy	= row * m_textureSize;
-	int txt_pitch	= m_textureSize * (bpp / 8);
-	int count	= w * (bpp / 8);
-	for(int line = 0; line < h; line++) {
-		int src	= dx + (dy + line) * bitmap_pitch;
-		int dst	= line * txt_pitch;
-		memcpy(&buffer[dst], &bitmap[src], count);
-	}
 }
 
 void CWindow::showCursor(bool show) {

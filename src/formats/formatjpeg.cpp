@@ -127,8 +127,6 @@ bool CFormatJpeg::Load(const char* filename, int sub_image) {
 	* warnings occurred (test whether jerr.pub.num_warnings is nonzero).
 	*/
 
-	convertRGB2BGR();
-
 	return true;
 }
 

@@ -27,7 +27,9 @@ Library requirements:
  - freeGLUT 2.6.0
  - freetype2
  - Imlib2
- - jpeg
+ - libjpeg
+ - libpng
+ - giflib
  - zlib
 
 

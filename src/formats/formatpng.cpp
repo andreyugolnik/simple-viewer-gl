@@ -105,9 +105,9 @@ bool CFormatPng::Load(const char* filename, int sub_image) {
 			int dst	= y * m_pitch;
 			for(int x = 0; x < m_width; x++) {
 				int dx	= x * 3;
-				m_bitmap[dst + dx + 0]	= *(row_pointers[y] + dx + 2);
+				m_bitmap[dst + dx + 0]	= *(row_pointers[y] + dx + 0);
 				m_bitmap[dst + dx + 1]	= *(row_pointers[y] + dx + 1);
-				m_bitmap[dst + dx + 2]	= *(row_pointers[y] + dx + 0);
+				m_bitmap[dst + dx + 2]	= *(row_pointers[y] + dx + 2);
 			}
 
 			int percent	= (int)(100.0f * y / m_height);
@@ -121,9 +121,9 @@ bool CFormatPng::Load(const char* filename, int sub_image) {
 			int dst	= y * m_pitch;
 			for(int x = 0; x < m_width; x++) {
 				int dx	= x * 4;
-				m_bitmap[dst + dx + 0]	= *(row_pointers[y] + dx + 2);
+				m_bitmap[dst + dx + 0]	= *(row_pointers[y] + dx + 0);
 				m_bitmap[dst + dx + 1]	= *(row_pointers[y] + dx + 1);
-				m_bitmap[dst + dx + 2]	= *(row_pointers[y] + dx + 0);
+				m_bitmap[dst + dx + 2]	= *(row_pointers[y] + dx + 2);
 				m_bitmap[dst + dx + 3]	= *(row_pointers[y] + dx + 3);
 			}
 

@@ -45,7 +45,7 @@ protected:
 
 protected:
 	bool openFile(const char* path);
-	void convertRGB2BGR();
+	void convertBGR2RGB();
 	void progress(int percent);
 	uint16 read_uint16(uint8* p);
 	uint32 read_uint32(uint8* p);

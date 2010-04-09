@@ -32,14 +32,14 @@ bool CFormat::openFile(const char* path) {
 	return true;
 }
 
-void CFormat::convertRGB2BGR() {
+void CFormat::convertBGR2RGB() {
 	int bytes	= m_bpp / 8;
 	int size	= m_width * m_height * bytes;
 
 	for(int i = 0; i < size; i += bytes) {
-		unsigned char r	= m_bitmap[i];
+		unsigned char b	= m_bitmap[i];
 		m_bitmap[i]		= m_bitmap[i + 2];
-		m_bitmap[i + 2]	= r;
+		m_bitmap[i + 2]	= b;
 	}
 }
 

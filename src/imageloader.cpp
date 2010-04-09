@@ -10,6 +10,7 @@
 #include "formats/formatjpeg.h"
 #include "formats/formatpsd.h"
 #include "formats/formatpng.h"
+#include "formats/formatgif.h"
 #include <iostream>
 #include <algorithm>
 
@@ -37,6 +38,9 @@ bool CImageLoader::LoadImage(const char* path, int sub_image) {
 		}
 		else if(format == FORMAT_PNG) {
 			m_image.reset(new CFormatPng(m_callback));
+		}
+		else if(format == FORMAT_GIF) {
+			m_image.reset(new CFormatGif(m_callback));
 		}
 		else {
 			m_image.reset(new CFormatCommon(m_callback));
@@ -77,6 +81,13 @@ int CImageLoader::GetHeight() const {
 			return m_image->m_width;
 		}
 		return m_image->m_height;
+	}
+	return 0;
+}
+
+int CImageLoader::GetPitch() const {
+	if(m_image.get() != 0) {
+		return m_image->m_pitch;
 	}
 	return 0;
 }
@@ -134,6 +145,7 @@ int CImageLoader::getFormat() {
 		{ ".jpg",  FORMAT_JPEG },
 		{ ".psd",  FORMAT_PSD  },
 		{ ".png",  FORMAT_PNG  },
+		{ ".gif",  FORMAT_GIF  },
 	};
 
 	for(size_t i = 0; i < sizeof(format) / sizeof(FORMAT); i++) {

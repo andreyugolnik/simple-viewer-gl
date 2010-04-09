@@ -168,7 +168,7 @@ bool CFormatPsd::Load(const char* filename, int sub_image) {
 		}
 	} while(done == false);
 
-	// convert or copy channel buffers to BGR / BGRA
+	// convert or copy channel buffers to RGB / RGBA
 	m_pitch		= m_width * channels;
 	m_bitmap	= new unsigned char[m_pitch * m_height];
 	unsigned char* bitmap	= m_bitmap;
@@ -176,10 +176,10 @@ bool CFormatPsd::Load(const char* filename, int sub_image) {
 	if(color_mode == PSD_MODE_RGB) {
 		if(channels == 3) {
 			for(int y = 0; y < m_height; y++) {
-				for (int x = 0; x < m_width; x++) {
-					bitmap[0]	= *(m_chBufs[2] + m_width * y + x);
+				for(int x = 0; x < m_width; x++) {
+					bitmap[0]	= *(m_chBufs[0] + m_width * y + x);
 					bitmap[1]	= *(m_chBufs[1] + m_width * y + x);
-					bitmap[2]	= *(m_chBufs[0] + m_width * y + x);
+					bitmap[2]	= *(m_chBufs[2] + m_width * y + x);
 					bitmap	+= 3;
 				}
 			}
@@ -187,9 +187,9 @@ bool CFormatPsd::Load(const char* filename, int sub_image) {
 		else if(channels == 4) {
 			for(int y = 0; y < m_height; y++) {
 				for(int x = 0; x < m_width; x++) {
-					bitmap[0]	= *(m_chBufs[2] + m_width * y + x);
+					bitmap[0]	= *(m_chBufs[0] + m_width * y + x);
 					bitmap[1]	= *(m_chBufs[1] + m_width * y + x);
-					bitmap[2]	= *(m_chBufs[0] + m_width * y + x);
+					bitmap[2]	= *(m_chBufs[2] + m_width * y + x);
 					bitmap[3]	= *(m_chBufs[3] + m_width * y + x);
 					bitmap += 4;
 				}

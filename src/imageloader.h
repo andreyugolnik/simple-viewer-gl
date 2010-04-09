@@ -26,6 +26,7 @@ public:
 	void FreeMemory();
 	int GetWidth() const;
 	int GetHeight() const;
+	int GetPitch() const;
 	int GetBpp() const;
 	int GetImageBpp() const;
 	long GetSize() const;
@@ -39,7 +40,7 @@ private:
 	std::auto_ptr<CFormat> m_image;
 
 private:
-	enum FILE_FORMAT { FORMAT_JPEG, FORMAT_PSD, FORMAT_PNG, FORMAT_COMMON } ;
+	enum FILE_FORMAT { FORMAT_JPEG, FORMAT_PSD, FORMAT_PNG, FORMAT_GIF, FORMAT_COMMON } ;
 	struct FORMAT {
 		const char* ext;
 		int format;
