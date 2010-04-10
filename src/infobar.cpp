@@ -52,15 +52,15 @@ void CInfoBar::Update(const InfoBar* p) {
 			dim << " (" << (int)(100 * p->scale) << "%)";
 		}
 
-		int i = 0;
-		float file_size	= p->file_size;
-		while(file_size > 1024) {
-			file_size	/= 1024;
-			i++;
-		}
-		const char* s[]	= { "B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB" };
+		long file_size	= p->file_size;
+		std::string file_s;
+		int file_precision	= getHumanSize(&file_size, file_s);
+		long mem_size	= p->mem_size;
+		std::string mem_s;
+		int mem_precision	= getHumanSize(&mem_size, mem_s);
 		std::stringstream size;
-		size << std::fixed << std::setprecision(i) << file_size << " " << (s[i]);
+		size << std::fixed << std::setprecision(file_precision) << file_size << " " << file_s;
+		size << " | mem: " << std::setprecision(mem_precision) << mem_size << " " << mem_s;
 
 		std::stringstream formated;
 		if(p->files_count > 1) {
@@ -89,4 +89,18 @@ void CInfoBar::Update(const InfoBar* p) {
 	m_ft->Update(m_bottominfo.c_str());
 
 	glutSetWindowTitle(title.str().c_str());
+}
+
+int CInfoBar::getHumanSize(long* size, std::string& suffix) {
+	const char* s[]	= { "B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB" };
+	int i = 0;
+	float file_size	= *size;
+	while(file_size > 1024) {
+		file_size	/= 1024;
+		i++;
+	}
+
+	*size	= (long)file_size;
+	suffix	= s[i];
+	return i;
 }

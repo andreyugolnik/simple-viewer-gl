@@ -30,6 +30,7 @@ public:
 	int GetBpp() const;
 	int GetImageBpp() const;
 	long GetSize() const;
+	size_t GetSizeMem() const;
 //	int GetSub() const;
 //	int GetSubCount() const;
 

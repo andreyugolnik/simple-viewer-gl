@@ -41,6 +41,7 @@ protected:
 	int m_bpp;						// bit per pixel of image in buffer
 	int m_bppImage;					// bit per pixel of original image
 	long m_size;					// file size on disk
+	size_t m_sizeMem;				// used memory
 	std::string m_info;				// additional info, such as EXIF
 
 protected:

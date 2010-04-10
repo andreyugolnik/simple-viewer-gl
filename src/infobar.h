@@ -20,6 +20,7 @@ typedef struct INFO_BAR {
 	float scale;
 	int sub_image, sub_count;
 	long file_size;
+	size_t mem_size;
 	int files_count;
 } InfoBar;
 
@@ -41,6 +42,9 @@ private:
 	std::string m_bottominfo;
 	std::auto_ptr<CQuad> m_bg;
 	std::auto_ptr<CFTString> m_ft;
+
+private:
+	int getHumanSize(long* size, std::string& suffix);
 };
 
 #endif // INFOBAR_H

@@ -23,6 +23,8 @@ bool CFilesList::ParseDir() {
 		return true;
 	}
 
+	std::string initial_file	= m_files[0];
+
 	// get base directory
 	std::string dir, name;
 	size_t pos	= m_files[0].find_last_of('/');
@@ -53,6 +55,11 @@ bool CFilesList::ParseDir() {
 				m_position	= i;
 				break;
 			}
+		}
+
+		// push back initial file
+		if(count == 0) {
+			m_files.push_back(initial_file);
 		}
 
 		m_listCreated	= true;

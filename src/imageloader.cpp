@@ -116,6 +116,13 @@ long CImageLoader::GetSize() const {
 	return 0;
 }
 
+size_t CImageLoader::GetSizeMem() const {
+	if(m_image.get() != 0) {
+		return m_image->m_sizeMem;
+	}
+	return 0;
+}
+
 //int CImageLoader::GetSub() const {
 ////	if(m_image.get() != 0) {
 ////		return m_image->m_subImage;

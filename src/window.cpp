@@ -462,8 +462,7 @@ void CWindow::updateInfobar() {
 
 	INFO_BAR s;
 	const char* path	= m_filesList->GetName(0);
-	s.path			= path != 0 ? path : "";
-	s.index			= m_filesList->GetIndex();
+	s.path			= path;
 	s.width			= m_il->GetWidth();
 	s.height		= m_il->GetHeight();
 	s.bpp			= m_il->GetImageBpp();
@@ -471,7 +470,10 @@ void CWindow::updateInfobar() {
 	s.sub_image		= 0;//m_il->GetSub();
 	s.sub_count		= 1;//m_il->GetSubCount();
 	s.file_size		= m_il->GetSize();
+	s.mem_size		= m_il->GetSizeMem();
+	s.index			= m_filesList->GetIndex();
 	s.files_count	= m_filesList->GetCount();
+
 	m_ib->Update(&s);
 }
 

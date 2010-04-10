@@ -98,7 +98,8 @@ bool CFormatPng::Load(const char* filename, int sub_image) {
 	png_read_image(png, row_pointers);
 
 	// create BGRA buffer and decode image data
-	m_bitmap	= new unsigned char[m_pitch * m_height];
+	m_sizeMem	= m_pitch * m_height;
+	m_bitmap	= new unsigned char[m_sizeMem];
 
 	if(info->color_type == PNG_COLOR_TYPE_RGB) {
 		for(int y = 0; y < m_height; y++) {
