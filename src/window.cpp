@@ -441,8 +441,6 @@ bool CWindow::loadImage(int step) {
 
 	if(true == m_il->LoadImage(path, 0)) {
 		createTextures();
-		m_il->FreeMemory();
-
 		ret	= true;
 	}
 	else {
@@ -450,6 +448,8 @@ bool CWindow::loadImage(int step) {
 	}
 
 	updateInfobar();
+
+	m_il->FreeMemory();
 
 	fnResize(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
 //	centerWindow();

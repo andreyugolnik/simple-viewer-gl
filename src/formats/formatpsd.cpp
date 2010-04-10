@@ -171,6 +171,7 @@ bool CFormatPsd::Load(const char* filename, int sub_image) {
 	// convert or copy channel buffers to RGB / RGBA
 	m_pitch		= m_width * channels;
 	m_bitmap	= new unsigned char[m_pitch * m_height];
+	m_sizeMem	= m_pitch * m_height;
 	unsigned char* bitmap	= m_bitmap;
 
 	if(color_mode == PSD_MODE_RGB) {

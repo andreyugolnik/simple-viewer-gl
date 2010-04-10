@@ -86,6 +86,7 @@ bool CFormatJpeg::Load(const char* filename, int sub_image) {
 	m_bpp		= cinfo.output_components * 8;
 	m_bppImage	= cinfo.num_components * 8;
 	m_bitmap	= new unsigned char[m_pitch * m_height];
+	m_sizeMem	= m_pitch * m_height;
 
 	/* Step 6: while (scan lines remain to be read) */
 	/*           jpeg_read_scanlines(...); */

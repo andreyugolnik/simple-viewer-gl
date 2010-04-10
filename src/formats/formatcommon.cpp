@@ -42,6 +42,7 @@ bool CFormatCommon::Load(const char* filename, int sub_image) {
 	m_bpp		= 32;	// Imlib2 always has 32-bit buffer, but sometimes alpha not used
 	m_bppImage	= (imlib_image_has_alpha() == 1 ? 32 : 24);
 	m_bitmap	= (unsigned char*)imlib_image_get_data_for_reading_only();
+	m_sizeMem	= m_pitch * m_height;
 
 	return true;
 }

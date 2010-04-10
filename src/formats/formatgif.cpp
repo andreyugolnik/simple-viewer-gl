@@ -52,6 +52,7 @@ bool CFormatGif::Load(const char* filename, int sub_image) {
 //	m_images	= file->ImageCount;
 	m_bppImage	= 0;//file->Image.ColorMap->BitsPerPixel;
 	m_bitmap	= 0;//new unsigned char[m_pitch * m_height];
+	m_sizeMem	= 0;
 
 	DGifCloseFile(file);
 
