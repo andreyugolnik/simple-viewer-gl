@@ -86,6 +86,8 @@
 		<Unit filename="src/quad.h" />
 		<Unit filename="src/quadimage.cpp" />
 		<Unit filename="src/quadimage.h" />
+		<Unit filename="src/rect.cpp" />
+		<Unit filename="src/rect.h" />
 		<Unit filename="src/version.h" />
 		<Unit filename="src/window.cpp" />
 		<Unit filename="src/window.h" />

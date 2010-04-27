@@ -148,9 +148,9 @@ void CWindow::fnRender() {
 
 			float w	= quad->GetWidth() * m_scale;
 			float h	= quad->GetHeight() * m_scale;
-			if(x + w >= 0 && x < m_curWinW && y + h >= 0 && y < m_curWinH) {
-				quad->RenderEx(x, y, w, h);
-			}
+			quad->SetWindowSize(m_curWinW, m_curWinH);
+			quad->RenderEx(x, y, w, h);
+//			quad->RenderEx(x, y, w, h, 180);
 		}
 
 		if(m_showBorder == true) {
