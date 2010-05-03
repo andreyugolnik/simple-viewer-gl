@@ -28,7 +28,33 @@ bool CFormatGif::Load(const char* filename, int sub_image) {
 		return false;
 	}
 
-//	ReadUntilImage(file);
+	m_width		= file->SWidth;		//file->Image.Width;
+	m_height	= file->SHeight;	//file->Image.Height;
+	m_pitch		= file->SWidth * 3;
+	m_bpp		= 24;
+//	m_images	= file->ImageCount;
+	m_bppImage	= 8;//file->Image.ColorMap->BitsPerPixel;
+	m_bitmap	= new unsigned char[m_pitch * m_height];
+	m_sizeMem	= m_pitch * m_height;
+
+	if(ReadUntilImage(file) != GIF_ERROR) {
+		ColorMapObject* ColorMap	= (file->Image.ColorMap ? file->Image.ColorMap : file->SColorMap);
+		GifRowType GifRow	= new GifPixelType[m_width];
+		for(int y = 0; y < m_height; y++) {
+			if(DGifGetLine(file, GifRow, m_width) == GIF_ERROR) {
+			}
+			for(int x = 0; x < m_width; x++) {
+				GifColorType* ColorMapEntry	= &ColorMap->Colors[GifRow[x]];
+				m_bitmap[y * m_pitch + x * 3 + 0]	= ColorMapEntry->Red;
+				m_bitmap[y * m_pitch + x * 3 + 1]	= ColorMapEntry->Green;
+				m_bitmap[y * m_pitch + x * 3 + 2]	= ColorMapEntry->Blue;
+			}
+
+			int percent	= (int)(100.0f * y / m_height);
+			progress(percent);
+		}
+		delete[] GifRow;
+	}
 
 	// UndefinedRecordType		- something is wrong!
 	// ScreenDescRecordType	- screen information. As the screen info is automatically read in when the file is open, this should not happen.
@@ -44,16 +70,6 @@ bool CFormatGif::Load(const char* filename, int sub_image) {
 //
 //	std::cout << "Record Type" << (int)recordType << std::endl;
 
-	m_width		= file->SWidth;		//file->Image.Width;
-	m_height	= file->SHeight;	//file->Image.Height;
-	m_pitch		= 0;
-	m_bpp		= 0;
-	// get real bits per pixel
-//	m_images	= file->ImageCount;
-	m_bppImage	= 0;//file->Image.ColorMap->BitsPerPixel;
-	m_bitmap	= 0;//new unsigned char[m_pitch * m_height];
-	m_sizeMem	= 0;
-
 	DGifCloseFile(file);
 
 	return true;
@@ -64,35 +80,41 @@ void CFormatGif::FreeMemory() {
 	m_bitmap	= 0;
 }
 
-int CFormatGif::ReadUntilImage(GifFileType *GifFile) {
+int CFormatGif::ReadUntilImage(GifFileType* file) {
     int ExtCode;
     GifRecordType RecordType;
     GifByteType* Extension;
 
-    /* Scan the content of the GIF file, until image descriptor is detected: */
+    // Scan the content of the GIF file, until image descriptor is detected:
     do {
-		if(DGifGetRecordType(GifFile, &RecordType) == GIF_ERROR)
+		if(DGifGetRecordType(file, &RecordType) == GIF_ERROR) {
 			return GIF_ERROR;
+		}
 
-		switch (RecordType) {
+		switch(RecordType) {
 		case IMAGE_DESC_RECORD_TYPE:
-			return DGifGetImageDesc(GifFile);
-		case EXTENSION_RECORD_TYPE:
-			/* Skip any extension blocks in file: */
-			if(DGifGetExtension(GifFile, &ExtCode, &Extension) == GIF_ERROR)
-				return GIF_ERROR;
+			return DGifGetImageDesc(file);
 
-			while (Extension != NULL)
-				if(DGifGetExtensionNext(GifFile, &Extension) == GIF_ERROR)
+		case EXTENSION_RECORD_TYPE:
+			// Skip any extension blocks in file:
+			if(DGifGetExtension(file, &ExtCode, &Extension) == GIF_ERROR) {
+				return GIF_ERROR;
+			}
+
+			while(Extension != NULL) {
+				if(DGifGetExtensionNext(file, &Extension) == GIF_ERROR) {
 					return GIF_ERROR;
+				}
+			}
 			break;
+
 		case TERMINATE_RECORD_TYPE:
 			break;
-		default:		     /* Should be traps by DGifGetRecordType */
+
+		default:	// Should be traps by DGifGetRecordType
 			break;
 		}
-    }
-    while(RecordType != TERMINATE_RECORD_TYPE);
+    } while(RecordType != TERMINATE_RECORD_TYPE);
 
-    return GIF_ERROR;		  /* We should be here - no image was found! */
+    return GIF_ERROR;	// We should be here - no image was found!
 }
