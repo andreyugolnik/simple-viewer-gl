@@ -37,21 +37,49 @@ bool CFormatGif::Load(const char* filename, int sub_image) {
 	m_bitmap	= new unsigned char[m_pitch * m_height];
 	m_sizeMem	= m_pitch * m_height;
 
-	if(ReadUntilImage(file) != GIF_ERROR) {
+	while(ReadUntilImage(file) != GIF_ERROR) {
 		ColorMapObject* ColorMap	= (file->Image.ColorMap ? file->Image.ColorMap : file->SColorMap);
-		GifRowType GifRow	= new GifPixelType[m_width];
-		for(int y = 0; y < m_height; y++) {
-			if(DGifGetLine(file, GifRow, m_width) == GIF_ERROR) {
-			}
-			for(int x = 0; x < m_width; x++) {
-				GifColorType* ColorMapEntry	= &ColorMap->Colors[GifRow[x]];
-				m_bitmap[y * m_pitch + x * 3 + 0]	= ColorMapEntry->Red;
-				m_bitmap[y * m_pitch + x * 3 + 1]	= ColorMapEntry->Green;
-				m_bitmap[y * m_pitch + x * 3 + 2]	= ColorMapEntry->Blue;
-			}
+		GifRowType GifRow	= new GifPixelType[file->Image.Width];
 
-			int percent	= (int)(100.0f * y / m_height);
-			progress(percent);
+		if(file->Image.Interlace) {
+			// Need to perform 4 passes on the images:
+			int InterlacedOffset[]	= { 0, 4, 2, 1 };	// The way Interlaced image should
+			int InterlacedJumps[]	= { 8, 8, 4, 2 };	// be read - offsets and jumps...
+
+			for(int i = 0; i < 4; i++) {
+				for(int y = InterlacedOffset[i]; y < file->Image.Height; y += InterlacedJumps[i]) {
+					if(DGifGetLine(file, GifRow, file->Image.Width) == GIF_ERROR) {
+					}
+
+					for(int x = 0; x < file->Image.Width; x++) {
+						GifColorType* ColorMapEntry	= &ColorMap->Colors[GifRow[x]];
+						int pos	= (y + file->Image.Top) * m_pitch + (x + file->Image.Left) * 3;
+						m_bitmap[pos + 0]	= ColorMapEntry->Red;
+						m_bitmap[pos + 1]	= ColorMapEntry->Green;
+						m_bitmap[pos + 2]	= ColorMapEntry->Blue;
+					}
+
+					int percent	= (int)(100.0f * y / file->Image.Height);
+					progress(percent);
+				}
+			}
+		}
+		else {
+			for(int y = 0; y < file->Image.Height; y++) {
+				if(DGifGetLine(file, GifRow, file->Image.Width) == GIF_ERROR) {
+				}
+
+				for(int x = 0; x < file->Image.Width; x++) {
+					GifColorType* ColorMapEntry	= &ColorMap->Colors[GifRow[x]];
+					int pos	= (y + file->Image.Top) * m_pitch + (x + file->Image.Left) * 3;
+					m_bitmap[pos + 0]	= ColorMapEntry->Red;
+					m_bitmap[pos + 1]	= ColorMapEntry->Green;
+					m_bitmap[pos + 2]	= ColorMapEntry->Blue;
+				}
+
+				int percent	= (int)(100.0f * y / file->Image.Height);
+				progress(percent);
+			}
 		}
 		delete[] GifRow;
 	}
