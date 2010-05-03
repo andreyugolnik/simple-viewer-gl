@@ -43,11 +43,11 @@ bool CFormatGif::Load(const char* filename, int sub_image) {
 
 		if(file->Image.Interlace) {
 			// Need to perform 4 passes on the images:
-			int InterlacedOffset[]	= { 0, 4, 2, 1 };	// The way Interlaced image should
-			int InterlacedJumps[]	= { 8, 8, 4, 2 };	// be read - offsets and jumps...
+			int interlacedOffset[]	= { 0, 4, 2, 1 };	// The way Interlaced image should
+			int interlacedJumps[]	= { 8, 8, 4, 2 };	// be read - offsets and jumps...
 
 			for(int i = 0; i < 4; i++) {
-				for(int y = InterlacedOffset[i]; y < file->Image.Height; y += InterlacedJumps[i]) {
+				for(int y = interlacedOffset[i]; y < file->Image.Height; y += interlacedJumps[i]) {
 					if(DGifGetLine(file, GifRow, file->Image.Width) == GIF_ERROR) {
 					}
 
