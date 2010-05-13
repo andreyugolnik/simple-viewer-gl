@@ -28,20 +28,32 @@ bool CFormatIco::Load(const char* filename, int sub_image) {
 		return false;
 	}
 
-	IcoImage* image	= new IcoImage[header.images];
-	if(header.images != fread(image, sizeof(IcoImage), header.images, m_file)) {
-		delete[] image;
+	IcoImage* images	= new IcoImage[header.images];
+	if(header.images != fread(images, sizeof(IcoImage), header.images, m_file)) {
+		delete[] images;
 		fclose(m_file);
 		return false;
 	}
 
-	m_width		= image->width;
-	m_height	= image->height;
+	IcoImage* image	= &images[sub_image];
+	m_width		= image->width == 0 ? 256 : image->width;
+	m_height	= image->height == 0 ? 256 : image->height;
 	m_pitch		= m_width * m_height * 4;
 	m_bpp		= 32;
 	m_bppImage	= image->bits;
-	m_bitmap	= new unsigned char[m_pitch * m_height];
+	m_bitmap	= new uint8[m_pitch * m_height];
 	m_sizeMem	= m_pitch * m_height;
+
+	fseek(m_file, image->offset, SEEK_SET);
+	uint8* p	= new uint8[image->size];
+	if(1 != fread(p, image->size, 1, m_file)) {
+		delete[] p;
+		delete[] images;
+		fclose(m_file);
+		return false;
+	}
+	delete[] p;
+	std::cout << "data size: " << image->size << " bytes." << std::endl;
 
 //	unsigned char* p	= m_bitmap;
 //	while(cinfo.output_scanline < cinfo.output_height) {
@@ -56,7 +68,7 @@ bool CFormatIco::Load(const char* filename, int sub_image) {
 //		progress(percent);
 //	}
 
-	delete[] image;
+	delete[] images;
 	fclose(m_file);
 
 	return true;
