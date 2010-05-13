@@ -9,6 +9,7 @@ SOURCES= \
 	src/formats/formatpsd.cpp \
 	src/formats/formatpng.cpp \
 	src/formats/formatgif.cpp \
+	src/formats/formatico.cpp \
 	src/ftstring.cpp \
 	src/ftsymbol.cpp \
 	src/imageborder.cpp \

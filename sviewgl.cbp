@@ -12,7 +12,7 @@
 				<Option object_output="debug_linux/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="-b particles.png" />
+				<Option parameters="-b img/arkanoidsb.ico" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
@@ -58,6 +58,8 @@
 		<Unit filename="src/formats/formatcommon.h" />
 		<Unit filename="src/formats/formatgif.cpp" />
 		<Unit filename="src/formats/formatgif.h" />
+		<Unit filename="src/formats/formatico.cpp" />
+		<Unit filename="src/formats/formatico.h" />
 		<Unit filename="src/formats/formatjpeg.cpp" />
 		<Unit filename="src/formats/formatjpeg.h" />
 		<Unit filename="src/formats/formatpng.cpp" />

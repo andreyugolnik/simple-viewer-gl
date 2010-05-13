@@ -11,6 +11,7 @@
 #include "formats/formatpsd.h"
 #include "formats/formatpng.h"
 #include "formats/formatgif.h"
+#include "formats/formatico.h"
 #include <iostream>
 #include <algorithm>
 
@@ -43,6 +44,9 @@ bool CImageLoader::LoadImage(const char* path, int sub_image) {
 		}
 		else if(format == FORMAT_GIF) {
 			m_image.reset(new CFormatGif(m_callback));
+		}
+		else if(format == FORMAT_ICO) {
+			m_image.reset(new CFormatIco(m_callback));
 		}
 		else {
 			m_image.reset(new CFormatCommon(m_callback));
@@ -155,6 +159,7 @@ int CImageLoader::getFormat() {
 		{ ".psd",  FORMAT_PSD  },
 		{ ".png",  FORMAT_PNG  },
 		{ ".gif",  FORMAT_GIF  },
+		{ ".ico",  FORMAT_ICO  },
 	};
 
 	for(size_t i = 0; i < sizeof(format) / sizeof(FORMAT); i++) {

@@ -12,6 +12,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 extern std::auto_ptr<CWindow> g_window;
 
@@ -507,6 +508,7 @@ void CWindow::createTextures() {
 
 	int texW, texH;
 	calculateTextureSize(&texW, &texH, width, height);
+	assert(texW != 0 && texH != 0);
 	// texture pitch should be multiple by 4
 	int texPitch	= static_cast<int>(ceilf(texW * bytesPP / 4.0f) * 4);
 
