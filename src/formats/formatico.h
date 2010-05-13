@@ -15,7 +15,7 @@ namespace FORMAT_ICO {
 	typedef struct ICO_HEADER {
 		uint16 reserved;	// Reserved. Should always be 0.
 		uint16 type;		// Specifies image type: 1 for icon (.ICO) image, 2 for cursor (.CUR) image. Other values are invalid.
-		uint16 images;		// Specifies number of images in the file.
+		uint16 count;		// Specifies number of images in the file.
 	} IcoHeader;
 
 	typedef struct ICO_IMAGE {

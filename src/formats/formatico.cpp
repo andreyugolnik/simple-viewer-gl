@@ -28,12 +28,14 @@ bool CFormatIco::Load(const char* filename, int sub_image) {
 		return false;
 	}
 
-	IcoImage* images	= new IcoImage[header.images];
-	if(header.images != fread(images, sizeof(IcoImage), header.images, m_file)) {
+	IcoImage* images	= new IcoImage[header.count];
+	if(header.count != fread(images, sizeof(IcoImage), header.count, m_file)) {
 		delete[] images;
 		fclose(m_file);
 		return false;
 	}
+
+	sub_image	= std::min(sub_image, header.count - 1);
 
 	IcoImage* image	= &images[sub_image];
 	m_width		= image->width == 0 ? 256 : image->width;
