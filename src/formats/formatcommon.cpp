@@ -51,6 +51,7 @@ void CFormatCommon::FreeMemory() {
 	if(m_image != 0) {
 		imlib_free_image();
 		m_image	= 0;
+		m_bitmap	= 0;
 	}
 }
 

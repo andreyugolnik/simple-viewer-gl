@@ -68,6 +68,7 @@ unsigned char* CImageLoader::GetBitmap() const {
 void CImageLoader::FreeMemory() {
 	if(m_image.get() != 0) {
 		m_image->FreeMemory();
+		m_path.clear();
 	}
 }
 
