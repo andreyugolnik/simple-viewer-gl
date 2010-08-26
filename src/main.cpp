@@ -90,8 +90,8 @@ void showHelp(const char* pchArgv0) {
 	printf("  <backspace>   previous image;\n");
 	printf("  <+> / <->     scale image;\n");
 	printf("  <0>           set scale to 100%%;\n");
-//	printf("  <pgdn>        next image in multi-page image;\n");
-//	printf("  <pgup>        previous image in multi-page image;\n");
+	printf("  <pgdn>        next image in multi-page image;\n");
+	printf("  <pgup>        previous image in multi-page image;\n");
 	printf("  <enter>       switch fullscreen / windowed mode;\n");
 //	printf("  <ctrl>+<b>    set as wallpapper;\n");
 	printf("  <ctrl>+<del>  delete image from disk;\n");
