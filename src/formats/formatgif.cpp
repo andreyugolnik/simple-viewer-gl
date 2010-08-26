@@ -31,6 +31,7 @@ bool CFormatGif::Load(const char* filename, int subImage) {
 	int res	= DGifSlurp(file);
 	if(res != GIF_OK || file->ImageCount < 1) {
 		std::cout << "Error Opening GIF image" << std::endl;
+		DGifCloseFile(file);
 		return false;
 	}
 
@@ -38,7 +39,7 @@ bool CFormatGif::Load(const char* filename, int subImage) {
 	m_subImage	= std::min(m_subImage, file->ImageCount - 1);
 	m_subCount	= file->ImageCount;
 
-	const SavedImage* image		= &file->SavedImages[m_subImage];
+	const SavedImage* image	= &file->SavedImages[m_subImage];
 
 	m_width		= file->SWidth;
 	m_height	= file->SHeight;
@@ -66,7 +67,9 @@ bool CFormatGif::Load(const char* filename, int subImage) {
 		cmap	= file->SColorMap;
 	}
 //	if(cmap->ColorCount != (1 << cmap->BitsPerPixel)) {
-//		// error
+//		std::cout << "Invalid ColorMap" << std::endl;
+//		DGifCloseFile(file);
+//		return false;
 //	}
 	const int width		= image->ImageDesc.Width;
 	const int height	= image->ImageDesc.Height;
