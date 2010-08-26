@@ -18,7 +18,7 @@ CFormatIco::~CFormatIco() {
 	FreeMemory();
 }
 
-bool CFormatIco::Load(const char* filename, int sub_image) {
+bool CFormatIco::Load(const char* filename, int subImage) {
 	if(openFile(filename) == false) {
 		return false;
 	}
@@ -36,8 +36,9 @@ bool CFormatIco::Load(const char* filename, int sub_image) {
 		return false;
 	}
 
-	sub_image	= std::min(sub_image, header.count - 1);
-	IcoDirentry* image	= &images[sub_image];
+	subImage	= std::max(subImage, 0);
+	subImage	= std::min(subImage, header.count - 1);
+	IcoDirentry* image	= &images[subImage];
 //	std::cout << std::endl;
 //	std::cout << "--- IcoDirentry ---" << std::endl;
 //	std::cout << "width: " << (int)image->width << "." << std::endl;
@@ -64,6 +65,8 @@ bool CFormatIco::Load(const char* filename, int sub_image) {
 	m_bpp		= 32;
 	m_bppImage	= imgHeader->bits;
 	m_sizeMem	= m_pitch * m_height;
+	m_subImage	= subImage;
+	m_subCount	= header.count;
 	m_bitmap	= new uint8[m_sizeMem];
 
 //	std::cout << std::endl;
@@ -76,6 +79,13 @@ bool CFormatIco::Load(const char* filename, int sub_image) {
 //	std::cout << "imagesize: " << (int)imgHeader->imagesize << "." << std::endl;
 
 	int pitch	= calcIcoPitch();
+	if(pitch == -1) {
+		delete[] p;
+		delete[] images;
+		fclose(m_file);
+		return false;
+	}
+
 	int colors	= image->colors == 0 ? (1 << m_bppImage) : image->colors;
 	uint32* palette	= (uint32*)&p[imgHeader->size];
 	uint8* xorMask	= &p[imgHeader->size + colors * 4];
@@ -228,7 +238,7 @@ int CFormatIco::calcIcoPitch() {
 
 	default:
 		std::cout << "Invalid bits count: " << m_bppImage << std::endl;
-		return m_width * (m_bppImage / 8);
+		return -1;	//m_width * (m_bppImage / 8);
 	}
 }
 

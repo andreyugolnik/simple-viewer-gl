@@ -339,8 +339,12 @@ void CWindow::fnKeyboardSpecial(int key, int x, int y) {
 		}
 		break;
 	case GLUT_KEY_PAGE_UP:
+		loadImage(0, m_il->GetSub() - 1);
+		glutPostRedisplay();
 		break;
 	case GLUT_KEY_PAGE_DOWN:
+		loadImage(0, m_il->GetSub() + 1);
+		glutPostRedisplay();
 		break;
 	}
 }
@@ -427,20 +431,21 @@ void CWindow::updateScale(bool up) {
 //	}
 //}
 //
-bool CWindow::loadImage(int step) {
+bool CWindow::loadImage(int step, int subImage) {
 	bool ret	= false;
+
+	m_na->Enable(false);
 
 	if(step != 0) {
 		m_filesList->ParseDir();
 		m_il->SetAngle(ANGLE_0);
 		m_scale		= 1;
-		m_na->Enable(false);
 	}
 
 	const char* path	= m_filesList->GetName(step);
 	m_progress->Start();
 
-	if(true == m_il->LoadImage(path, 0)) {
+	if(true == m_il->LoadImage(path, subImage)) {
 		createTextures();
 		ret	= true;
 	}
@@ -468,8 +473,8 @@ void CWindow::updateInfobar() {
 	s.height		= m_il->GetHeight();
 	s.bpp			= m_il->GetImageBpp();
 	s.scale			= m_scale;
-	s.sub_image		= 0;//m_il->GetSub();
-	s.sub_count		= 1;//m_il->GetSubCount();
+	s.sub_image		= m_il->GetSub();
+	s.sub_count		= m_il->GetSubCount();
 	s.file_size		= m_il->GetSize();
 	s.mem_size		= m_il->GetSizeMem();
 	s.index			= m_filesList->GetIndex();

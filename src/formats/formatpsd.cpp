@@ -19,7 +19,7 @@ CFormatPsd::~CFormatPsd() {
 	FreeMemory();
 }
 
-bool CFormatPsd::Load(const char* filename, int sub_image) {
+bool CFormatPsd::Load(const char* filename, int subImage) {
 	if(openFile(filename) == false) {
 		return false;
 	}

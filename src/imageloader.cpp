@@ -21,10 +21,10 @@ CImageLoader::CImageLoader(Callback callback) : m_angle(ANGLE_0), m_callback(cal
 CImageLoader::~CImageLoader() {
 }
 
-bool CImageLoader::LoadImage(const char* path, int sub_image) {
+bool CImageLoader::LoadImage(const char* path, int subImage) {
 	if(path != 0) {
 		if(m_path.empty() == false && m_path == path) {
-			if(m_image.get() != 0 && m_image->m_bitmap != 0) {
+			if(m_image.get() != 0 && m_image->m_bitmap != 0 && GetSub() == subImage) {
 				return true;	// image already loaded
 			}
 		}
@@ -52,7 +52,7 @@ bool CImageLoader::LoadImage(const char* path, int sub_image) {
 			m_image.reset(new CFormatCommon(m_callback));
 		}
 
-		return m_image->Load(path);
+		return m_image->Load(path, subImage);
 	}
 
 	return false;
@@ -128,19 +128,19 @@ size_t CImageLoader::GetSizeMem() const {
 	return 0;
 }
 
-//int CImageLoader::GetSub() const {
-////	if(m_image.get() != 0) {
-////		return m_image->m_subImage;
-////	}
-//	return 0;
-//}
-//
-//int CImageLoader::GetSubCount() const {
-////	if(m_image.get() != 0) {
-////		return m_image->m_subCount;
-////	}
-//	return 0;
-//}
+int CImageLoader::GetSub() const {
+	if(m_image.get() != 0) {
+		return m_image->m_subImage;
+	}
+	return 0;
+}
+
+int CImageLoader::GetSubCount() const {
+	if(m_image.get() != 0) {
+		return m_image->m_subCount;
+	}
+	return 0;
+}
 
 int CImageLoader::getFormat() {
 	std::string s(m_path);

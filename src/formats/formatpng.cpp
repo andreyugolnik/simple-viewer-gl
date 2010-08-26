@@ -17,7 +17,7 @@ CFormatPng::~CFormatPng() {
 	FreeMemory();
 }
 
-bool CFormatPng::Load(const char* filename, int sub_image) {
+bool CFormatPng::Load(const char* filename, int subImage) {
 	if(openFile(filename) == false) {
 		return false;
 	}

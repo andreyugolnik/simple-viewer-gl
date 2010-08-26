@@ -15,8 +15,8 @@ public:
 	CFormatJpeg(Callback callback);
 	virtual ~CFormatJpeg();
 
-	bool Load(const char* filename, int sub_image = 0);
-	void FreeMemory();
+	virtual bool Load(const char* filename, int subImage = 0);
+	virtual void FreeMemory();
 
 private:
 };

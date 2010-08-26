@@ -16,11 +16,11 @@ public:
 	CFormatGif(Callback callback);
 	virtual ~CFormatGif();
 
-	bool Load(const char* filename, int sub_image = 0);
-	void FreeMemory();
+	virtual bool Load(const char* filename, int subImage = 0);
+	virtual void FreeMemory();
 
 private:
-	int ReadUntilImage(GifFileType* file);
+	int readUntilImage(GifFileType* file);
 };
 
 #endif // FORMATGIF_H

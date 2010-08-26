@@ -42,8 +42,8 @@ public:
 	CFormatPsd(Callback callback);
 	virtual ~CFormatPsd();
 
-	bool Load(const char* filename, int sub_image = 0);
-	void FreeMemory();
+	virtual bool Load(const char* filename, int subImage = 0);
+	virtual void FreeMemory();
 
 private:
 	uint8* m_buffer;

@@ -19,7 +19,7 @@ public:
 	CImageLoader(Callback callback);
 	virtual ~CImageLoader();
 
-	bool LoadImage(const char* path, int sub_image);
+	bool LoadImage(const char* path, int subImage);
 	void SetAngle(Angle angle) { m_angle = angle; }
 
 	unsigned char* GetBitmap() const;
@@ -31,8 +31,8 @@ public:
 	int GetImageBpp() const;
 	long GetSize() const;
 	size_t GetSizeMem() const;
-//	int GetSub() const;
-//	int GetSubCount() const;
+	int GetSub() const;
+	int GetSubCount() const;
 
 private:
 	Angle m_angle;

@@ -34,7 +34,7 @@ void my_error_exit(j_common_ptr cinfo) {
 	longjmp(myerr->setjmp_buffer, 1);
 }
 
-bool CFormatJpeg::Load(const char* filename, int sub_image) {
+bool CFormatJpeg::Load(const char* filename, int subImage) {
 	if(openFile(filename) == false) {
 		return false;
 	}

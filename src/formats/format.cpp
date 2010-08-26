@@ -12,7 +12,9 @@ CFormat::CFormat(Callback callback) : m_callback(callback),
 	m_bitmap(0), m_width(0), m_height(0), m_pitch(0),
 	m_bpp(0), m_bppImage(0),
 	m_size(-1),	// -1 mean that file can't be opened
-	m_sizeMem(0)
+	m_sizeMem(0),
+	m_subImage(0),
+	m_subCount(0)
 {
 }
 

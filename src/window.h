@@ -59,7 +59,7 @@ private:
 	std::auto_ptr<CImageBorder> m_border;
 
 private:
-	bool loadImage(int step);
+	bool loadImage(int step, int subImage = 0);
 	void showCursor(bool show);
 //	void centerWindow();
 	void calculateScale();

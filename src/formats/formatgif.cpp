@@ -16,7 +16,7 @@ CFormatGif::~CFormatGif() {
 	FreeMemory();
 }
 
-bool CFormatGif::Load(const char* filename, int sub_image) {
+bool CFormatGif::Load(const char* filename, int subImage) {
 	if(openFile(filename) == false) {
 		return false;
 	}
@@ -37,7 +37,7 @@ bool CFormatGif::Load(const char* filename, int sub_image) {
 	m_bitmap	= new unsigned char[m_pitch * m_height];
 	m_sizeMem	= m_pitch * m_height;
 
-	while(ReadUntilImage(file) != GIF_ERROR) {
+	while(readUntilImage(file) != GIF_ERROR) {
 		ColorMapObject* ColorMap	= (file->Image.ColorMap ? file->Image.ColorMap : file->SColorMap);
 		GifRowType GifRow	= new GifPixelType[file->Image.Width];
 
@@ -108,7 +108,7 @@ void CFormatGif::FreeMemory() {
 	m_bitmap	= 0;
 }
 
-int CFormatGif::ReadUntilImage(GifFileType* file) {
+int CFormatGif::readUntilImage(GifFileType* file) {
     int ExtCode;
     GifRecordType RecordType;
     GifByteType* Extension;

@@ -66,10 +66,11 @@ void CInfoBar::Update(const InfoBar* p) {
 		if(p->files_count > 1) {
 			formated << (p->index + 1) << " out " << p->files_count << " | ";
 		}
-		formated  << name << " | " << dim.str() << " | " << size.str();
+		formated << name;
 		if(p->sub_count > 1) {
 			formated << " | " << (p->sub_image + 1) << " (" << p->sub_count << ")";
 		}
+		formated << " | " << dim.str() << " | " << size.str();
 
 		m_bottominfo	= formated.str();
 

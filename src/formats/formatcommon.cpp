@@ -20,7 +20,7 @@ CFormatCommon::~CFormatCommon() {
 	FreeMemory();
 }
 
-bool CFormatCommon::Load(const char* filename, int sub_image) {
+bool CFormatCommon::Load(const char* filename, int subImage) {
 	if(openFile(filename) == false) {
 		return false;
 	}

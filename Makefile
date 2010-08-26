@@ -1,6 +1,6 @@
 CC=g++
 CFLAGS=-O2 -c -Wall -I/usr/include -I/usr/include/freetype2
-LDFLAGS=-s -lGL -lglut -lfreetype -ljpeg -lpng -lgif -lImlib2
+LDFLAGS=-s -lGL -lglut -lfreetype -ljpeg `libpng-config --libs` -lgif -lImlib2
 
 SOURCES= \
 	src/formats/format.cpp \

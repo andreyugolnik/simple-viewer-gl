@@ -27,7 +27,7 @@ public:
 	CFormat(Callback callback = 0);
 	virtual ~CFormat();
 
-	virtual bool Load(const char* filename, int sub_image = 0) = 0;
+	virtual bool Load(const char* filename, int subImage = 0) = 0;
 	virtual void FreeMemory() = 0;
 
 private:
@@ -42,6 +42,8 @@ protected:
 	int m_bppImage;					// bit per pixel of original image
 	long m_size;					// file size on disk
 	size_t m_sizeMem;				// used memory
+	int m_subImage;
+	int m_subCount;
 	std::string m_info;				// additional info, such as EXIF
 
 protected:
