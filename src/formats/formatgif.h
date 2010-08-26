@@ -20,7 +20,6 @@ public:
 	virtual void FreeMemory();
 
 private:
-	int readUntilImage(GifFileType* file);
 };
 
 #endif // FORMATGIF_H
