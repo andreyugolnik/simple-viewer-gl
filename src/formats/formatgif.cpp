@@ -28,60 +28,90 @@ bool CFormatGif::Load(const char* filename, int subImage) {
 		return false;
 	}
 
+	int res	= DGifSlurp(file);
+	if(res != GIF_OK || file->ImageCount < 1) {
+		std::cout << "Error Opening GIF image" << std::endl;
+		return false;
+	}
+
+	subImage	= std::max(subImage, 0);
+	subImage	= std::min(subImage, file->ImageCount - 1);
+	m_subImage	= subImage;
+	m_subCount	= file->ImageCount;
+
 	m_width		= file->SWidth;		//file->Image.Width;
 	m_height	= file->SHeight;	//file->Image.Height;
-	m_pitch		= file->SWidth * 3;
-	m_bpp		= 24;
-//	m_images	= file->ImageCount;
+	m_pitch		= file->SWidth * 4;
+	m_bpp		= 32;
 	m_bppImage	= 8;//file->Image.ColorMap->BitsPerPixel;
 	m_bitmap	= new unsigned char[m_pitch * m_height];
+	memset(m_bitmap, 0, m_pitch * m_height);
 	m_sizeMem	= m_pitch * m_height;
 
-	while(readUntilImage(file) != GIF_ERROR) {
-		ColorMapObject* ColorMap	= (file->Image.ColorMap ? file->Image.ColorMap : file->SColorMap);
-		GifRowType GifRow	= new GifPixelType[file->Image.Width];
 
-		if(file->Image.Interlace) {
-			// Need to perform 4 passes on the images:
-			int interlacedOffset[]	= { 0, 4, 2, 1 };	// The way Interlaced image should
-			int interlacedJumps[]	= { 8, 8, 4, 2 };	// be read - offsets and jumps...
+	const SavedImage* image		= &file->SavedImages[subImage];
 
-			for(int i = 0; i < 4; i++) {
-				for(int y = interlacedOffset[i]; y < file->Image.Height; y += interlacedJumps[i]) {
-					if(DGifGetLine(file, GifRow, file->Image.Width) == GIF_ERROR) {
-					}
-
-					for(int x = 0; x < file->Image.Width; x++) {
-						GifColorType* ColorMapEntry	= &ColorMap->Colors[GifRow[x]];
-						int pos	= (y + file->Image.Top) * m_pitch + (x + file->Image.Left) * 3;
-						m_bitmap[pos + 0]	= ColorMapEntry->Red;
-						m_bitmap[pos + 1]	= ColorMapEntry->Green;
-						m_bitmap[pos + 2]	= ColorMapEntry->Blue;
-					}
-
-					int percent	= (int)(100.0f * y / file->Image.Height);
-					progress(percent);
-				}
+	// look for the transparent color extension
+	int	transparent	= -1;
+	for(int i = 0; i < image->ExtensionBlockCount; i++) {
+		ExtensionBlock* eb	= image->ExtensionBlocks + i;
+		if(eb->Function == 0xF9 && eb->ByteCount == 4) {
+			bool has_transparency	= ((eb->Bytes[0] & 1) == 1);
+			if(has_transparency) {
+				transparent	= eb->Bytes[3];
 			}
 		}
-		else {
-			for(int y = 0; y < file->Image.Height; y++) {
-				if(DGifGetLine(file, GifRow, file->Image.Width) == GIF_ERROR) {
+	}
+
+	const ColorMapObject* cmap	= image->ImageDesc.ColorMap;
+	if(cmap == 0) {
+		cmap	= file->SColorMap;
+	}
+//	if(cmap->ColorCount != (1 << cmap->BitsPerPixel)) {
+//		// error
+//	}
+	const int width	= image->ImageDesc.Width;
+	const int height	= image->ImageDesc.Height;
+
+	if(image->ImageDesc.Interlace) {
+		// Need to perform 4 passes on the images:
+		int interlacedOffset[]	= { 0, 4, 2, 1 };	// The way Interlaced image should
+		int interlacedJumps[]	= { 8, 8, 4, 2 };	// be read - offsets and jumps...
+		int interlaced_y	= 0;
+
+		for(int i = 0; i < 4; i++) {
+			for(int y = interlacedOffset[i]; y < height; y += interlacedJumps[i]) {
+
+				for(int x = 0; x < width; x++) {
+					int index	= image->RasterBits[interlaced_y * width + x];
+					int pos	= (y + image->ImageDesc.Top) * m_pitch + (x + image->ImageDesc.Left) * 4;
+					m_bitmap[pos + 0]	= cmap->Colors[index].Red;
+					m_bitmap[pos + 1]	= cmap->Colors[index].Green;
+					m_bitmap[pos + 2]	= cmap->Colors[index].Blue;
+					m_bitmap[pos + 3]	= (transparent == index ? 0 : 255);
 				}
 
-				for(int x = 0; x < file->Image.Width; x++) {
-					GifColorType* ColorMapEntry	= &ColorMap->Colors[GifRow[x]];
-					int pos	= (y + file->Image.Top) * m_pitch + (x + file->Image.Left) * 3;
-					m_bitmap[pos + 0]	= ColorMapEntry->Red;
-					m_bitmap[pos + 1]	= ColorMapEntry->Green;
-					m_bitmap[pos + 2]	= ColorMapEntry->Blue;
-				}
-
-				int percent	= (int)(100.0f * y / file->Image.Height);
+				int percent	= (int)(100.0f * interlaced_y / height);
 				progress(percent);
+
+				interlaced_y++;
 			}
 		}
-		delete[] GifRow;
+	}
+	else {
+		for(int y = 0; y < height; y++) {
+			for(int x = 0; x < width; x++) {
+				int index	= image->RasterBits[y * width + x];
+				int pos	= (y + image->ImageDesc.Top) * m_pitch + (x + image->ImageDesc.Left) * 4;
+				m_bitmap[pos + 0]	= cmap->Colors[index].Red;
+				m_bitmap[pos + 1]	= cmap->Colors[index].Green;
+				m_bitmap[pos + 2]	= cmap->Colors[index].Blue;
+				m_bitmap[pos + 3]	= (transparent == index ? 0 : 255);
+			}
+
+			int percent	= (int)(100.0f * y / height);
+			progress(percent);
+		}
 	}
 
 	// UndefinedRecordType		- something is wrong!
