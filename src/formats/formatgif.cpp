@@ -68,7 +68,7 @@ bool CFormatGif::Load(const char* filename, int subImage) {
 //	if(cmap->ColorCount != (1 << cmap->BitsPerPixel)) {
 //		// error
 //	}
-	const int width	= image->ImageDesc.Width;
+	const int width		= image->ImageDesc.Width;
 	const int height	= image->ImageDesc.Height;
 
 	if(image->ImageDesc.Interlace) {
