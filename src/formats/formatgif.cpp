@@ -34,22 +34,20 @@ bool CFormatGif::Load(const char* filename, int subImage) {
 		return false;
 	}
 
-	subImage	= std::max(subImage, 0);
-	subImage	= std::min(subImage, file->ImageCount - 1);
-	m_subImage	= subImage;
+	m_subImage	= std::max(subImage, 0);
+	m_subImage	= std::min(m_subImage, file->ImageCount - 1);
 	m_subCount	= file->ImageCount;
 
-	m_width		= file->SWidth;		//file->Image.Width;
-	m_height	= file->SHeight;	//file->Image.Height;
+	const SavedImage* image		= &file->SavedImages[m_subImage];
+
+	m_width		= file->SWidth;
+	m_height	= file->SHeight;
 	m_pitch		= file->SWidth * 4;
 	m_bpp		= 32;
 	m_bppImage	= 8;//file->Image.ColorMap->BitsPerPixel;
 	m_bitmap	= new unsigned char[m_pitch * m_height];
 	memset(m_bitmap, 0, m_pitch * m_height);
 	m_sizeMem	= m_pitch * m_height;
-
-
-	const SavedImage* image		= &file->SavedImages[subImage];
 
 	// look for the transparent color extension
 	int	transparent	= -1;
