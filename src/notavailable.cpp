@@ -16,7 +16,8 @@ CNotAvailable::~CNotAvailable() {
 }
 
 void CNotAvailable::Init() {
-	m_na.reset(new CQuad(imgNa.width, imgNa.height, imgNa.pixel_data, imgNa.bytes_per_pixel * 8));
+	int format	= (imgNa.bytes_per_pixel == 3 ? GL_RGB : GL_RGBA);
+	m_na.reset(new CQuad(imgNa.width, imgNa.height, imgNa.pixel_data, format));
 }
 
 bool CNotAvailable::Render() {

@@ -43,6 +43,7 @@ bool CFormatCommon::Load(const char* filename, int subImage) {
 	m_bppImage	= (imlib_image_has_alpha() == 1 ? 32 : 24);
 	m_bitmap	= (unsigned char*)imlib_image_get_data_for_reading_only();
 	m_sizeMem	= m_pitch * m_height;
+	m_format	= GL_BGRA;
 
 	return true;
 }

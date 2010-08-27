@@ -46,9 +46,10 @@ bool CFormatGif::Load(const char* filename, int subImage) {
 	m_pitch		= file->SWidth * 4;
 	m_bpp		= 32;
 	m_bppImage	= 8;//file->Image.ColorMap->BitsPerPixel;
-	m_bitmap	= new unsigned char[m_pitch * m_height];
-	memset(m_bitmap, 0, m_pitch * m_height);
 	m_sizeMem	= m_pitch * m_height;
+	m_bitmap	= new unsigned char[m_sizeMem];
+	memset(m_bitmap, 0, m_pitch * m_height);
+	m_format	= GL_RGBA;
 
 	// look for the transparent color extension
 	int	transparent	= -1;

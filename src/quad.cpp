@@ -6,10 +6,11 @@
 /////////////////////////////////////////////////
 
 #include "quad.h"
+
 #include <iostream>
 #include <math.h>
 
-CQuad::CQuad(int tw, int th, const unsigned char* data, int bpp) :
+CQuad::CQuad(int tw, int th, const unsigned char* data, GLenum bitmapFormat) :
 	m_tw(tw), m_th(th), m_tex(0), m_w(0) {
 
 	if(data != 0) {
@@ -22,7 +23,8 @@ CQuad::CQuad(int tw, int th, const unsigned char* data, int bpp) :
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 
 //		std::cout << "creating " << tw << " x " << th << " texture" << std::endl;
-		glTexImage2D(GL_TEXTURE_2D, 0, bpp / 8, tw, th, 0, bpp == 32 ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, data);
+		GLint bytes	= ((bitmapFormat == GL_RGBA || bitmapFormat == GL_BGRA) ? 4 : 3);
+		glTexImage2D(GL_TEXTURE_2D, 0, bytes, tw, th, 0, bitmapFormat, GL_UNSIGNED_BYTE, data);
 		int e	= glGetError();
 		if(GL_NO_ERROR != e) {
 	//		const GLubyte* s   = gluErrorString(e);

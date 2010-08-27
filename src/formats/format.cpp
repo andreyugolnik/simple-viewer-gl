@@ -9,7 +9,8 @@
 
 CFormat::CFormat(Callback callback) : m_callback(callback),
 	m_percent(-1), m_file(0),
-	m_bitmap(0), m_width(0), m_height(0), m_pitch(0),
+	m_bitmap(0), m_format(GL_RGB),
+	m_width(0), m_height(0), m_pitch(0),
 	m_bpp(0), m_bppImage(0),
 	m_size(-1),	// -1 mean that file can't be opened
 	m_sizeMem(0),
@@ -33,17 +34,6 @@ bool CFormat::openFile(const char* path) {
 	fseek(m_file, 0, SEEK_SET);
 
 	return true;
-}
-
-void CFormat::convertBGR2RGB() {
-	int bytes	= m_bpp / 8;
-	int size	= m_width * m_height * bytes;
-
-	for(int i = 0; i < size; i += bytes) {
-		unsigned char b	= m_bitmap[i];
-		m_bitmap[i]		= m_bitmap[i + 2];
-		m_bitmap[i + 2]	= b;
-	}
 }
 
 void CFormat::progress(int percent) {

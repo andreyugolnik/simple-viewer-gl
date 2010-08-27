@@ -107,6 +107,7 @@ bool CFormatPng::Load(const char* filename, int subImage) {
 	m_bitmap	= new unsigned char[m_sizeMem];
 
 	if(info->color_type == PNG_COLOR_TYPE_RGB) {
+		m_format	= GL_RGB;
 		for(int y = 0; y < m_height; y++) {
 			int dst	= y * m_pitch;
 			for(int x = 0; x < m_width; x++) {
@@ -123,6 +124,7 @@ bool CFormatPng::Load(const char* filename, int subImage) {
 		}
 	}
 	else if(info->color_type == PNG_COLOR_TYPE_RGB_ALPHA) {
+		m_format	= GL_RGBA;
 		for(int y = 0; y < m_height; y++) {
 			int dst	= y * m_pitch;
 			for(int x = 0; x < m_width; x++) {

@@ -85,8 +85,9 @@ bool CFormatJpeg::Load(const char* filename, int subImage) {
 	m_pitch		= cinfo.output_width * cinfo.output_components;
 	m_bpp		= cinfo.output_components * 8;
 	m_bppImage	= cinfo.num_components * 8;
-	m_bitmap	= new unsigned char[m_pitch * m_height];
 	m_sizeMem	= m_pitch * m_height;
+	m_bitmap	= new unsigned char[m_sizeMem];
+	m_format	= GL_RGB;
 
 	/* Step 6: while (scan lines remain to be read) */
 	/*           jpeg_read_scanlines(...); */

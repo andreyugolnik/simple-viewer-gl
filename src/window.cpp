@@ -505,9 +505,9 @@ void CWindow::createTextures() {
 	unsigned char* bitmap	= m_il->GetBitmap();
 	int width	= m_il->GetWidth();
 	int height	= m_il->GetHeight();
-	int bpp		= m_il->GetBpp();
+	int format	= m_il->GetBitmapFormat();
 	int pitch	= m_il->GetPitch();
-	int bytesPP	= (bpp / 8);
+	int bytesPP	= (m_il->GetBpp() / 8);
 
 	std::cout << " " << width << " x " << height << ", ";
 
@@ -544,7 +544,7 @@ void CWindow::createTextures() {
 				memcpy(&buffer[dst], &bitmap[src], count);
 			}
 
-			CQuadImage* quad	= new CQuadImage(texW, texH, buffer, bpp);
+			CQuadImage* quad	= new CQuadImage(texW, texH, buffer, format);
 			quad->SetCell(col, row);
 			quad->SetSpriteSize(w, h);
 

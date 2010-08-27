@@ -176,6 +176,7 @@ bool CFormatPsd::Load(const char* filename, int subImage) {
 
 	if(color_mode == PSD_MODE_RGB) {
 		if(channels == 3) {
+			m_format	= GL_RGB;
 			for(int y = 0; y < m_height; y++) {
 				for(int x = 0; x < m_width; x++) {
 					bitmap[0]	= *(m_chBufs[0] + m_width * y + x);
@@ -186,6 +187,7 @@ bool CFormatPsd::Load(const char* filename, int subImage) {
 			}
 		}
 		else if(channels == 4) {
+			m_format	= GL_RGBA;
 			for(int y = 0; y < m_height; y++) {
 				for(int x = 0; x < m_width; x++) {
 					bitmap[0]	= *(m_chBufs[0] + m_width * y + x);
@@ -201,6 +203,7 @@ bool CFormatPsd::Load(const char* filename, int subImage) {
 		}
 	}
 	else if(color_mode == PSD_MODE_CMYK) {
+		m_format	= GL_RGB;
 		for(int y = 0; y < m_height; y++) {
 			for(int x = 0; x < m_width; x++) {
 				double C	= 1.0 - *(m_chBufs[0] + m_width * y + x) / 255.0;	// C

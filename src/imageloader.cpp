@@ -99,6 +99,13 @@ int CImageLoader::GetPitch() const {
 	return 0;
 }
 
+int CImageLoader::GetBitmapFormat() const {
+	if(m_image.get() != 0) {
+		return m_image->m_format;
+	}
+	return 0;
+}
+
 int CImageLoader::GetBpp() const {
 	if(m_image.get() != 0) {
 		return m_image->m_bpp;

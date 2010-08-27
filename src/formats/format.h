@@ -11,6 +11,7 @@
 #include <string>
 #include <iostream>
 #include <stdio.h>
+#include <GL/gl.h>
 
 //#define WIDTHBYTES(bits) ((((bits) + 31) / 32) * 4)
 
@@ -37,6 +38,7 @@ private:
 protected:
 	FILE* m_file;
 	unsigned char* m_bitmap;
+	GLenum m_format;
 	int m_width, m_height, m_pitch;	// width, height, row pitch of image in buffer
 	int m_bpp;						// bit per pixel of image in buffer
 	int m_bppImage;					// bit per pixel of original image
@@ -48,7 +50,6 @@ protected:
 
 protected:
 	bool openFile(const char* path);
-	void convertBGR2RGB();
 	void progress(int percent);
 	uint16 read_uint16(uint8* p);
 	uint32 read_uint32(uint8* p);

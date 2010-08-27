@@ -12,7 +12,7 @@
 
 class CQuadImage : public CQuad {
 public:
-	CQuadImage(int tw, int th, const unsigned char* data, int bpp);
+	CQuadImage(int tw, int th, const unsigned char* data, GLenum bitmapFormat);
 	virtual ~CQuadImage();
 
 	void SetCell(int col, int row) { m_col = col; m_row = row; }

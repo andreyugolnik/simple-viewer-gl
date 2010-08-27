@@ -27,6 +27,7 @@ public:
 	int GetWidth() const;
 	int GetHeight() const;
 	int GetPitch() const;
+	int GetBitmapFormat() const;
 	int GetBpp() const;
 	int GetImageBpp() const;
 	long GetSize() const;

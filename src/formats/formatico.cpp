@@ -68,6 +68,7 @@ bool CFormatIco::Load(const char* filename, int subImage) {
 	m_subImage	= subImage;
 	m_subCount	= header.count;
 	m_bitmap	= new uint8[m_sizeMem];
+	m_format	= GL_RGBA;
 
 //	std::cout << std::endl;
 //	std::cout << "--- IcoBmpInfoHeader ---" << std::endl;

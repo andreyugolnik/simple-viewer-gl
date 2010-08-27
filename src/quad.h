@@ -13,7 +13,7 @@
 
 class CQuad {
 public:
-	CQuad(int tw, int th, const unsigned char* data = 0, int bpp = 0);
+	CQuad(int tw, int th, const unsigned char* data = 0, GLenum bitmapFormat = GL_RGB);
 	virtual ~CQuad();
 
 	virtual void SetSpriteSize(float w, float h);
