@@ -9,6 +9,7 @@
 #define FORMATICO_H
 
 #include "format.h"
+#include <png.h>
 
 namespace FORMAT_ICO {
 	#pragma pack(push, 1)
@@ -61,6 +62,12 @@ namespace FORMAT_ICO {
 //		uint8 xormask;	// DIB bits for XOR mask
 //		uint8 andmask;	// DIB bits for AND mask
 	#pragma pack(pop)
+
+	typedef struct PNG_RAW {
+		uint8* data;
+		size_t size;	// size of raw data
+		size_t pos;	// current pos
+	} PngRaw;
 };
 
 class CFormatIco : public CFormat {
@@ -72,6 +79,12 @@ public:
 	virtual void FreeMemory();
 
 private:
+	static FORMAT_ICO::PngRaw m_pngRaw;
+
+private:
+	bool loadOrdinaryFrame(const FORMAT_ICO::IcoDirentry* image);
+	static void readPngData(png_structp png, png_bytep out, png_size_t count);
+	bool loadPngFrame(const FORMAT_ICO::IcoDirentry* image);
 	int calcIcoPitch();
 	int getBit(const uint8* data, int bit);
 	int getNibble(const uint8* data, int nibble);
