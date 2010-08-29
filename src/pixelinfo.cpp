@@ -13,7 +13,7 @@
 
 const int border	= 4;
 const int alpha		= 200;
-const int fontHeight	= 14;
+const int fontHeight	= 13;
 const int frameDelta	= 10;
 
 CPixelInfo::CPixelInfo() : m_visible(false), m_windowWidth(0), m_windowHeight(0) {
@@ -44,7 +44,7 @@ void CPixelInfo::Update(const PixelInfo* p) {
 		int g	= color[1];
 		int b	= color[2];
 
-		info << "x: " << p->x << "\ny: " << p->y;
+		info << "pos: " << p->x << " x " << p->y;
 		info << "\nargb: " << std::hex << std::uppercase;
 		info << std::setw(2) << std::setfill('0') << a;
 		info << std::setw(2) << std::setfill('0') << r;
@@ -61,7 +61,7 @@ void CPixelInfo::Render() {
 
 		if(checkBoundary() == true) {
 			int frameWidth	= m_ft->GetStringWidth() + 2 * border;
-			int frameHeight	= fontHeight * 3 + 2 * border;
+			int frameHeight	= fontHeight * 2 + 2 * border;
 
 			int cursorx	= m_pixelInfo.cursorx + frameDelta;
 			int cursory	= m_pixelInfo.cursory + frameDelta;
@@ -90,7 +90,7 @@ void CPixelInfo::SetWindowSize(int w, int h) {
 }
 
 bool CPixelInfo::checkBoundary() const {
-	if(m_pixelInfo.scale == 1 &&
+	if(m_pixelInfo.bitmap != 0 && m_pixelInfo.scale == 1 &&
 		m_pixelInfo.x >= 0 && m_pixelInfo.x < m_pixelInfo.w &&
 		m_pixelInfo.y >= 0 && m_pixelInfo.y < m_pixelInfo.h) {
 

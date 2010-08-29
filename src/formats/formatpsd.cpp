@@ -28,34 +28,34 @@ bool CFormatPsd::Load(const char* filename, int subImage) {
 
 	if(sizeof(PSD_HEADER) != fread(&header, 1, sizeof(PSD_HEADER), m_file)) {
 		std::cout << "Can't read PSD header" << std::endl;
-		cleanup();
+		reset();
 		return false;
 	}
 
 	if(header.signature[0] != '8' || header.signature[1] != 'B' || header.signature[2] != 'P' || header.signature[3] != 'S') {
 		std::cout << "Not valid PSD file" << std::endl;
-		cleanup();
+		reset();
 		return false;
 	}
 
 	int color_mode	= read_uint16((uint8*)&header.color_mode);
 	if(color_mode != PSD_MODE_RGB && color_mode != PSD_MODE_CMYK) {
 		std::cout << "Unsupported color mode: " << color_mode << std::endl;
-		cleanup();
+		reset();
 		return false;
 	}
 
 	int depth	= read_uint16((uint8*)&header.depth);
 	if(depth != 8) {
 		std::cout << "Unsupported depth: " << depth << std::endl;
-		cleanup();
+		reset();
 		return false;
 	}
 
 	int channels	= read_uint16((uint8*)&header.channels);
 	if(channels != 3 && channels != 4) {
 //		std::cout << "Unsupported cannels count: " << channels << std::endl;
-//		cleanup();
+//		reset();
 //		return false;
 	}
 	int extraChannels	= channels - std::min(channels, 4);
@@ -64,21 +64,21 @@ bool CFormatPsd::Load(const char* filename, int subImage) {
 	// skip Color Mode Data Block
 	if(false == skipNextBlock()) {
 		std::cout << "Can't read Color Mode Data Block" << std::endl;
-		cleanup();
+		reset();
 		return false;
 	}
 
 	// skip Image Resources Block
 	if(false == skipNextBlock()) {
 		std::cout << "Can't read Image Resources Block" << std::endl;
-		cleanup();
+		reset();
 		return false;
 	}
 
 	// Layer and Mask Information Block
 	if(false == skipNextBlock()) {
 		std::cout << "Can't read Layer and Mask Information Block" << std::endl;
-		cleanup();
+		reset();
 		return false;
 	}
 
@@ -86,7 +86,7 @@ bool CFormatPsd::Load(const char* filename, int subImage) {
 	uint16 compression;
 	if(sizeof(uint16) != fread(&compression, 1, sizeof(uint16), m_file)) {
 		std::cout << "Can't read compression info" << std::endl;
-		cleanup();
+		reset();
 		return false;
 	}
 	compression	= read_uint16((uint8*)&compression);

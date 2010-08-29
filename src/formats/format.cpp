@@ -45,6 +45,26 @@ void CFormat::progress(int percent) {
 	}
 }
 
+void CFormat::reset() {
+	if(m_file != 0) {
+		fclose(m_file);
+		m_file	= 0;
+	}
+	delete[] m_bitmap;
+	m_bitmap	= 0;
+	m_format	= GL_RGB;
+	m_width		= 0;
+	m_height	= 0;
+	m_pitch		= 0;
+	m_bpp		= 0;
+	m_bppImage	= 0;
+	m_size		= -1;
+	m_sizeMem	= 0;
+	m_subImage	= 0;
+	m_subCount	= 0;
+	m_info.clear();
+}
+
 uint16 CFormat::read_uint16(uint8* p) {
     return (p[0] << 8) | p[1];
 }

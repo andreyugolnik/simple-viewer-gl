@@ -24,13 +24,14 @@ bool CFormatCommon::Load(const char* filename, int subImage) {
 	if(openFile(filename) == false) {
 		return false;
 	}
-	fclose(m_file);
+	reset();
 
 	// try to load image from disk
 	Imlib_Load_Error error_return;
 	m_image	= imlib_load_image_with_error_return(filename, &error_return);
 	if(m_image == 0) {
 		std::cout << ": error loading file '" << filename << "' (" << error_return << ")" << std::endl;
+		reset();
 		return false;
 	}
 

@@ -25,14 +25,14 @@ bool CFormatIco::Load(const char* filename, int subImage) {
 
 	IcoHeader header;
 	if(1 != fread(&header, sizeof(IcoHeader), 1, m_file)) {
-		fclose(m_file);
+		reset();
 		return false;
 	}
 
 	IcoDirentry* images	= new IcoDirentry[header.count];
 	if(header.count != fread(images, sizeof(IcoDirentry), header.count, m_file)) {
 		delete[] images;
-		fclose(m_file);
+		reset();
 		return false;
 	}
 
@@ -54,7 +54,7 @@ bool CFormatIco::Load(const char* filename, int subImage) {
 	if(1 != fread(p, image->size, 1, m_file)) {
 		delete[] p;
 		delete[] images;
-		fclose(m_file);
+		reset();
 		return false;
 	}
 
@@ -67,8 +67,19 @@ bool CFormatIco::Load(const char* filename, int subImage) {
 	m_sizeMem	= m_pitch * m_height;
 	m_subImage	= subImage;
 	m_subCount	= header.count;
-	m_bitmap	= new uint8[m_sizeMem];
 	m_format	= GL_RGBA;
+
+	int pitch	= calcIcoPitch();
+	if(pitch == -1) {
+		delete[] p;
+		delete[] images;
+		reset();
+		m_subImage	= subImage;
+		m_subCount	= header.count;
+		return false;
+	}
+
+	m_bitmap	= new uint8[m_sizeMem];
 
 //	std::cout << std::endl;
 //	std::cout << "--- IcoBmpInfoHeader ---" << std::endl;
@@ -79,13 +90,6 @@ bool CFormatIco::Load(const char* filename, int subImage) {
 //	std::cout << "bits: " << (int)imgHeader->bits << "." << std::endl;
 //	std::cout << "imagesize: " << (int)imgHeader->imagesize << "." << std::endl;
 
-	int pitch	= calcIcoPitch();
-	if(pitch == -1) {
-		delete[] p;
-		delete[] images;
-		fclose(m_file);
-		return false;
-	}
 
 	int colors	= image->colors == 0 ? (1 << m_bppImage) : image->colors;
 	uint32* palette	= (uint32*)&p[imgHeader->size];
