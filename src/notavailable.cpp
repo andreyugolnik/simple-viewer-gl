@@ -27,7 +27,7 @@ bool CNotAvailable::Render() {
 		float x	= ceil((w - imgNa.width) / 2);
 		float y	= ceil((h - imgNa.height) / 2);
 
-		glColor3f(1, 1, 1);
+		glColor3ub(255, 255, 255);
 		m_na->Render(x, y);
 	}
 

@@ -12,7 +12,7 @@
 				<Option object_output="debug_linux/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="-b img/arkanoidsb.ico" />
+				<Option parameters="-b img/304034_1210620753_submedium.jpg" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
@@ -82,6 +82,8 @@
 		<Unit filename="src/main.h" />
 		<Unit filename="src/notavailable.cpp" />
 		<Unit filename="src/notavailable.h" />
+		<Unit filename="src/pixelinfo.cpp" />
+		<Unit filename="src/pixelinfo.h" />
 		<Unit filename="src/progress.cpp" />
 		<Unit filename="src/progress.h" />
 		<Unit filename="src/quad.cpp" />

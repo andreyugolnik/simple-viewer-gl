@@ -22,6 +22,7 @@ SOURCES= \
 	src/fileslist.cpp \
 	src/imageloader.cpp \
 	src/infobar.cpp \
+	src/pixelinfo.cpp \
 	src/main.cpp \
 	src/window.cpp
 

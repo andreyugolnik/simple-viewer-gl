@@ -51,25 +51,65 @@ void CFTString::Update(const char* utf8) {
 
 void CFTString::Render(int x, int y) {
 	wchar_t* string	= m_unicode;
+	if(string != 0) {
+		int xStart	= x;
 
-	glBindTexture(GL_TEXTURE_2D, m_tex);
+		glBindTexture(GL_TEXTURE_2D, m_tex);
 
-    SymbolsIc it, itEnd = m_mapSymbol.end();
-    while(*string) {
-		const wchar_t i	= *string;
-		it	= m_mapSymbol.find(i);
-		if(it == itEnd) {
-			generateNewSymbol(string);
-			itEnd	= m_mapSymbol.end();
-			continue;
+		SymbolsIc it, itEnd = m_mapSymbol.end();
+		while(*string) {
+			const wchar_t i	= *string;
+			if(i == L'\n') {
+				x	= xStart;
+				y	+= m_height;
+			}
+			else {
+				it	= m_mapSymbol.find(i);
+				if(it == itEnd) {
+					generateNewSymbol(string);
+					itEnd	= m_mapSymbol.end();
+					continue;
+				}
+				if(it->second.p) {
+					it->second.p->Render(x + it->second.l, y - it->second.t);
+					x  += it->second.ax;
+				}
+			}
+
+			string++;
 		}
-		if(it->second.p) {
-			it->second.p->Render(x + it->second.l, y - it->second.t);
-			x  += it->second.ax;
-		}
+	}
+}
 
-        string++;
-    }
+int CFTString::GetStringWidth() {
+	int width		= 0;
+	int widthMax	= 0;
+	wchar_t* string	= m_unicode;
+	if(string != 0) {
+		SymbolsIc it, itEnd = m_mapSymbol.end();
+		while(*string) {
+			const wchar_t i	= *string;
+			if(i == L'\n') {
+				width	= 0;
+			}
+			else {
+				it	= m_mapSymbol.find(i);
+				if(it == itEnd) {
+					generateNewSymbol(string);
+					itEnd	= m_mapSymbol.end();
+					continue;
+				}
+				if(it->second.p) {
+					width  += it->second.ax;
+					widthMax	= std::max(widthMax, width);
+				}
+			}
+
+			string++;
+		}
+	}
+
+    return widthMax;
 }
 
 void CFTString::generateNewSymbol(const wchar_t* string) {

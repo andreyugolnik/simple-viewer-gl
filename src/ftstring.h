@@ -26,6 +26,7 @@ public:
 
 	void Update(const char* utf8);
 	void Render(int x, int y);
+	int GetStringWidth();
 
 private:
 	std::string m_ttf;

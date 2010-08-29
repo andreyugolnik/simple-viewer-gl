@@ -30,6 +30,7 @@ CWindow::CWindow() : m_initialImageLoading(true),
 		m_cb.reset(new CCheckerboard());
 		m_na.reset(new CNotAvailable());
 		m_ib.reset(new CInfoBar());
+		m_pixelInfo.reset(new CPixelInfo());
 		m_progress.reset(new CProgress());
 		m_border.reset(new CImageBorder());
 }
@@ -76,6 +77,8 @@ bool CWindow::Init(int argc, char *argv[], const char* path) {
 
 		m_cb->Init();
 		m_na->Init();
+		m_pixelInfo->Init();
+		updatePixelInfo(DEF_WINDOW_W, DEF_WINDOW_H);
 		m_progress->Init();
 
 		m_initialImageLoading	= true;
@@ -91,6 +94,9 @@ void CWindow::SetProp(Property prop) {
 	switch(prop) {
 	case PROP_INFOBAR:
 		m_ib->Show(false);
+		break;
+	case PROP_PIXELINFO:
+		m_pixelInfo->Show(true);
 		break;
 	case PROP_CHECKERS:
 		m_cb->Enable(false);
@@ -155,11 +161,13 @@ void CWindow::fnRender() {
 		}
 
 		if(m_showBorder == true) {
-			m_border->Render((float)m_imageDx, (float)m_imageDy, img_w, img_h);
+			m_border->Render(m_imageDx, m_imageDy, img_w, img_h);
 		}
 	}
 
 	m_ib->Render();
+
+	m_pixelInfo->Render();
 
 	glutSwapBuffers();
 }
@@ -188,11 +196,11 @@ void CWindow::fnResize(int width, int height) {
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
+
+	m_pixelInfo->SetWindowSize(m_curWinW, m_curWinH);
 }
 
 void CWindow::fnMouse(int x, int y) {
-	showCursor(true);
-
 	int diffx	= x - m_lastMouseX;
 	int diffy	= y - m_lastMouseY;
 	m_lastMouseX	= x;
@@ -203,6 +211,14 @@ void CWindow::fnMouse(int x, int y) {
 			m_imageDy	+= diffy;
 			glutPostRedisplay();
 		}
+	}
+
+	if(m_pixelInfo->IsVisible() == true) {
+		updatePixelInfo(x, y);
+		glutPostRedisplay();
+	}
+	else {
+		showCursor(true);
 	}
 }
 
@@ -241,6 +257,12 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y) {
 	case 'I':
 		m_ib->Show(!m_ib->Visible());
 		fnResize(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
+		glutPostRedisplay();
+		break;
+	case 'p':
+	case 'P':
+		m_pixelInfo->Show(!m_pixelInfo->IsVisible());
+		showCursor(!m_pixelInfo->IsVisible());
 		glutPostRedisplay();
 		break;
 	case 's':
@@ -455,10 +477,12 @@ bool CWindow::loadImage(int step, int subImage) {
 
 	updateInfobar();
 
-	m_il->FreeMemory();
-
 	fnResize(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
 //	centerWindow();
+
+	updatePixelInfo(m_lastMouseX, m_lastMouseY);
+
+//	m_il->FreeMemory();
 
 	return ret;
 }
@@ -479,7 +503,6 @@ void CWindow::updateInfobar() {
 	s.mem_size		= m_il->GetSizeMem();
 	s.index			= m_filesList->GetIndex();
 	s.files_count	= m_filesList->GetCount();
-
 	m_ib->Update(&s);
 }
 
@@ -499,6 +522,22 @@ void CWindow::calculateTextureSize(int* texW, int* texH, int imgW, int imgH) {
 //	std::cout << "  select texture size: " << tw << " x " << th << std::endl;
 	*texW	= tw;
 	*texH	= th;
+}
+
+void CWindow::updatePixelInfo(int x, int y) {
+	PixelInfo pixelInfo;
+	pixelInfo.cursorx	= x;
+	pixelInfo.cursory	= y;
+	pixelInfo.x			= x - m_imageDx;
+	pixelInfo.y			= y - m_imageDy;
+	pixelInfo.bitmap	= m_il->GetBitmap();
+	pixelInfo.w			= m_il->GetWidth();
+	pixelInfo.h			= m_il->GetHeight();
+	pixelInfo.pitch		= m_il->GetPitch();
+	pixelInfo.bpp		= m_il->GetBpp();
+	pixelInfo.format	= m_il->GetBitmapFormat();
+	pixelInfo.scale		= m_scale;
+	m_pixelInfo->Update(&pixelInfo);
 }
 
 void CWindow::createTextures() {

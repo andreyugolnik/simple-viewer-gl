@@ -12,6 +12,7 @@
 #include "fileslist.h"
 #include "imageloader.h"
 #include "infobar.h"
+#include "pixelinfo.h"
 #include "checkerboard.h"
 #include "progress.h"
 #include "notavailable.h"
@@ -19,7 +20,7 @@
 
 #include <vector>
 
-typedef enum { PROP_INFOBAR, PROP_CHECKERS, PROP_FITIMAGE, PROP_FULLSCREEN, PROP_BORDER, PROP_RECURSIVE } Property;
+typedef enum { PROP_INFOBAR, PROP_PIXELINFO, PROP_CHECKERS, PROP_FITIMAGE, PROP_FULLSCREEN, PROP_BORDER, PROP_RECURSIVE } Property;
 
 class CWindow {
 public:
@@ -53,6 +54,7 @@ private:
 	std::auto_ptr<CFilesList> m_filesList;
 	std::auto_ptr<CImageLoader> m_il;
 	std::auto_ptr<CInfoBar> m_ib;
+	std::auto_ptr<CPixelInfo> m_pixelInfo;
 	std::auto_ptr<CCheckerboard> m_cb;
 	std::auto_ptr<CNotAvailable> m_na;
 	std::auto_ptr<CProgress> m_progress;
@@ -68,6 +70,7 @@ private:
 	void createTextures();
 	void deleteTextures();
 	void calculateTextureSize(int* texW, int* texH, int imgW, int imgH);
+	void updatePixelInfo(int x, int y);
 
 	void fnProgressLoading(int percent);
 	static void callbackProgressLoading(int percent);

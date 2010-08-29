@@ -41,6 +41,8 @@ int main(int argc, char *argv[]) {
 		}
 		if(strncmp(argv[i], "-i", 2) == 0)
 			g_window->SetProp(PROP_INFOBAR);
+		else if(strncmp(argv[i], "-p", 2) == 0)
+			g_window->SetProp(PROP_PIXELINFO);
 		else if(strncmp(argv[i], "-c", 2) == 0)
 			g_window->SetProp(PROP_CHECKERS);
 		else if(strncmp(argv[i], "-s", 2) == 0)
@@ -79,6 +81,7 @@ void showHelp(const char* pchArgv0) {
 	printf("  -s            enable scale to window;\n");
 	printf("  -c            disable chequerboard;\n");
 	printf("  -i            disable on screen info;\n");
+	printf("  -p            show pixel info (pixel color and coordinates);\n");
 	printf("  -b            show border around image;\n");
 	printf("  -f            start in fullscreen mode;\n");
 	printf("  -r            recursive directory scan;\n");
@@ -102,6 +105,7 @@ void showHelp(const char* pchArgv0) {
 //	printf("  <l>           rotate counter clockwise;\n");
 	printf("  <c>           hide / show chequerboard;\n");
 	printf("  <i>           hide / show on screen info;\n");
+	printf("  <p>           show pixel info;\n");
 	printf("  <b>           hide / show border around image;\n");
 	printf("\n");
 }
