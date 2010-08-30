@@ -83,17 +83,16 @@ void CFormatIco::FreeMemory() {
 PngRaw CFormatIco::m_pngRaw;
 void CFormatIco::readPngData(png_structp png, png_bytep out, png_size_t count) {
 //	PngRaw& pngRaw	= *(PngRaw*)png->io_ptr;
-
-	memcpy((uint8*)out, &m_pngRaw.data[m_pngRaw.pos], count);
-	m_pngRaw.pos	+= count;
-	if(m_pngRaw.pos >= m_pngRaw.size) {
-		std::cout << "out of png raw buffer" << std::endl;
+	if(m_pngRaw.pos + count <= m_pngRaw.size) {
+		memcpy((uint8*)out, &m_pngRaw.data[m_pngRaw.pos], count);
 	}
+	m_pngRaw.pos	+= count;
 }
 
 bool CFormatIco::loadPngFrame(const IcoDirentry* image) {
-	fseek(m_file, image->offset, SEEK_SET);
 	uint8* p	= new uint8[image->size];
+
+	fseek(m_file, image->offset, SEEK_SET);
 	if(1 != fread(p, image->size, 1, m_file)) {
 		delete[] p;
 		return false;
@@ -114,7 +113,9 @@ bool CFormatIco::loadPngFrame(const IcoDirentry* image) {
 	}
 
 //	PngRaw pngRaw	= { p, image->size, 8 };
-	m_pngRaw	= { p, image->size, 8 };
+	m_pngRaw.data	= p;
+	m_pngRaw.size	= image->size;
+	m_pngRaw.pos	= 8;
 	png_set_read_fn(png, &m_pngRaw, readPngData);
 
 	png_infop info	= png_create_info_struct(png);
@@ -170,6 +171,7 @@ bool CFormatIco::loadPngFrame(const IcoDirentry* image) {
 	// read file
 	if(setjmp(png_jmpbuf(png)) != 0) {
 		std::cout << "Error during read_image" << std::endl;
+		delete[] p;
 		return false;
 	}
 
