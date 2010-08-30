@@ -66,6 +66,8 @@
 		<Unit filename="src/formats/formatpng.h" />
 		<Unit filename="src/formats/formatpsd.cpp" />
 		<Unit filename="src/formats/formatpsd.h" />
+		<Unit filename="src/formats/formattiff.cpp" />
+		<Unit filename="src/formats/formattiff.h" />
 		<Unit filename="src/ftstring.cpp" />
 		<Unit filename="src/ftstring.h" />
 		<Unit filename="src/ftsymbol.cpp" />

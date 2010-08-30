@@ -12,6 +12,7 @@
 #include "formats/formatpng.h"
 #include "formats/formatgif.h"
 #include "formats/formatico.h"
+#include "formats/formattiff.h"
 #include <iostream>
 #include <algorithm>
 
@@ -47,6 +48,9 @@ bool CImageLoader::LoadImage(const char* path, int subImage) {
 		}
 		else if(format == FORMAT_ICO) {
 			m_image.reset(new CFormatIco(m_callback));
+		}
+		else if(format == FORMAT_TIFF) {
+			m_image.reset(new CFormatTiff(m_callback));
 		}
 		else {
 			m_image.reset(new CFormatCommon(m_callback));
@@ -168,6 +172,8 @@ int CImageLoader::getFormat() {
 		{ ".png",  FORMAT_PNG  },
 		{ ".gif",  FORMAT_GIF  },
 		{ ".ico",  FORMAT_ICO  },
+		{ ".tiff", FORMAT_TIFF },
+		{ ".tif",  FORMAT_TIFF },
 	};
 
 	for(size_t i = 0; i < sizeof(format) / sizeof(FORMAT); i++) {

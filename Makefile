@@ -1,6 +1,6 @@
 CC=g++
 CFLAGS=-O2 -c -Wall -I/usr/include -I/usr/include/freetype2
-LDFLAGS=-s -lGL -lglut -lfreetype -ljpeg `libpng-config --libs` -lgif -lImlib2
+LDFLAGS=-s -lGL -lglut -lfreetype -ljpeg `libpng-config --libs` -lgif -ltiff -lImlib2
 
 SOURCES= \
 	src/formats/format.cpp \
@@ -10,6 +10,7 @@ SOURCES= \
 	src/formats/formatpng.cpp \
 	src/formats/formatgif.cpp \
 	src/formats/formatico.cpp \
+	src/formats/formattiff.cpp \
 	src/ftstring.cpp \
 	src/ftsymbol.cpp \
 	src/imageborder.cpp \
