@@ -83,7 +83,6 @@ void CFormatIco::FreeMemory() {
 PngRaw CFormatIco::m_pngRaw;
 void CFormatIco::readPngData(png_structp png, png_bytep out, png_size_t count) {
 //	PngRaw& pngRaw	= *(PngRaw*)png->io_ptr;
-	PngRaw& pngRaw	= m_pngRaw;
 
 	memcpy((uint8*)out, &m_pngRaw.data[m_pngRaw.pos], count);
 	m_pngRaw.pos	+= count;
