@@ -26,8 +26,11 @@ bool CFormatTiff::Load(const char* filename, int subImage) {
 
 	TIFF* tif	= TIFFOpen(filename, "r");
     if(tif != 0) {
+		// read count of pages in image
 		m_subCount	= TIFFNumberOfDirectories(tif);
 		m_subImage	= std::min(subImage, m_subCount - 1);
+
+		// set desired page
 		if(TIFFSetDirectory(tif, m_subImage) != 0) {
 			TIFFRGBAImage img;
 			if(TIFFRGBAImageBegin(&img, tif, 0, NULL) != 0) {
@@ -40,10 +43,8 @@ bool CFormatTiff::Load(const char* filename, int subImage) {
 				m_bppImage	= img.bitspersample * img.samplesperpixel;
 				m_format	= GL_RGBA;
 
-				// left-to-right? top-to-bottom
+				// set desired orientation
 				img.req_orientation	= ORIENTATION_TOPLEFT;
-				std::cout << " row: " << img.row_offset;
-				std::cout << " col: " << img.col_offset;
 
 				if(TIFFRGBAImageGet(&img, (uint32*)m_bitmap, m_width, m_height) != 0) {
 					ret	= true;
@@ -51,14 +52,14 @@ bool CFormatTiff::Load(const char* filename, int subImage) {
 				TIFFRGBAImageEnd(&img);
 			}
 		}
-        TIFFClose(tif);
     }
+
+	if(tif != 0) {
+		TIFFClose(tif);
+	}
 
 	// clean if error
 	if(ret == false) {
-		if(tif != 0) {
-			TIFFClose(tif);
-		}
 		reset();
 	}
 
