@@ -42,7 +42,7 @@ private:
 	bool m_recursiveDir;
 	bool m_cusorVisible;
 	int m_lastMouseX, m_lastMouseY;
-	bool m_mouseLB, m_keyPressed;
+	bool m_mouseLB, m_mouseMB, m_mouseRB, m_keyPressed;
 	int m_imageDx, m_imageDy;
 
 	bool m_pow2;

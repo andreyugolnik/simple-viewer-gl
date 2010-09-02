@@ -45,6 +45,7 @@
 			<Add library="jpeg" />
 			<Add library="png" />
 			<Add library="gif" />
+			<Add library="tiff" />
 			<Add directory="$(#gfl.lib)" />
 			<Add directory="$(#freetype2.lib)" />
 		</Linker>

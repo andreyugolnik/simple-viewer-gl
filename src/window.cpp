@@ -23,7 +23,7 @@ extern std::auto_ptr<CWindow> g_window;
 CWindow::CWindow() : m_initialImageLoading(true),
 	m_prevWinX(0), m_prevWinY(0), m_prevWinW(DEF_WINDOW_W), m_prevWinH(DEF_WINDOW_H),
 	m_curWinW(0), m_curWinH(0), m_scale(1), m_windowed(true), m_fitImage(false), m_showBorder(false), m_recursiveDir(false), m_cusorVisible(true),
-	m_lastMouseX(-1), m_lastMouseY(-1), m_mouseLB(false), m_keyPressed(false), m_imageDx(0), m_imageDy(0),
+	m_lastMouseX(-1), m_lastMouseY(-1), m_mouseLB(false), m_mouseMB(false), m_mouseRB(false), m_keyPressed(false), m_imageDx(0), m_imageDy(0),
 	m_pow2(false), m_textureSize(256) {
 
 		m_il.reset(new CImageLoader(callbackProgressLoading));
@@ -136,15 +136,11 @@ void CWindow::fnRender() {
 		float img_w	= m_il->GetWidth() * m_scale;
 		float img_h	= m_il->GetHeight() * m_scale;
 
-		if(m_mouseLB == true || m_keyPressed == true) {
-			m_keyPressed	= false;
-
-			const int delta	= 20;
-			m_imageDx	= std::max(m_imageDx, delta - (int)img_w);
-			m_imageDx	= std::min(m_imageDx, m_curWinW - delta);
-			m_imageDy	= std::max(m_imageDy, delta - (int)img_h);
-			m_imageDy	= std::min(m_imageDy, m_curWinH - delta);
-		}
+		const int delta	= 20;
+		m_imageDx	= std::max(m_imageDx, delta - (int)img_w);
+		m_imageDx	= std::min(m_imageDx, m_curWinW - delta);
+		m_imageDy	= std::max(m_imageDy, delta - (int)img_h);
+		m_imageDy	= std::min(m_imageDy, m_curWinH - delta);
 
 		QuadsIc it = m_quads.begin(), itEnd = m_quads.end();
 		for( ; it != itEnd; ++it) {
@@ -205,7 +201,7 @@ void CWindow::fnMouse(int x, int y) {
 	int diffy	= y - m_lastMouseY;
 	m_lastMouseX	= x;
 	m_lastMouseY	= y;
-	if(m_fitImage == false && m_mouseLB == true) {
+	if(m_fitImage == false && m_mouseMB == true) {
 		if(diffx != 0 || diffy != 0) {
 			m_imageDx	+= diffx;
 			m_imageDy	+= diffy;
@@ -232,8 +228,16 @@ void CWindow::fnMouseWheel(int wheel, int direction, int x, int y) {
 }
 
 void CWindow::fnMouseButtons(int button, int state, int x, int y) {
-	if(button == GLUT_LEFT_BUTTON) {
+	switch(button) {
+	case GLUT_LEFT_BUTTON:
 		m_mouseLB	= (state == GLUT_DOWN);
+		break;
+	case GLUT_MIDDLE_BUTTON:
+		m_mouseMB	= (state == GLUT_DOWN);
+		break;
+	case GLUT_RIGHT_BUTTON:
+		m_mouseRB	= (state == GLUT_DOWN);
+		break;
 	}
 }
 
