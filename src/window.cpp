@@ -33,6 +33,7 @@ CWindow::CWindow() : m_initialImageLoading(true),
 		m_pixelInfo.reset(new CPixelInfo());
 		m_progress.reset(new CProgress());
 		m_border.reset(new CImageBorder());
+		m_selection.reset(new CSelection());
 }
 
 CWindow::~CWindow() {
@@ -159,6 +160,8 @@ void CWindow::fnRender() {
 		if(m_showBorder == true) {
 			m_border->Render(m_imageDx, m_imageDy, img_w, img_h);
 		}
+
+		m_selection->Render(m_imageDx, m_imageDy);
 	}
 
 	m_ib->Render();
@@ -209,6 +212,10 @@ void CWindow::fnMouse(int x, int y) {
 		}
 	}
 
+	if(m_mouseLB == true) {
+		m_selection->EndPoint(x - m_imageDx, y - m_imageDy);
+	}
+
 	if(m_pixelInfo->IsVisible() == true) {
 		updatePixelInfo(x, y);
 		glutPostRedisplay();
@@ -230,6 +237,14 @@ void CWindow::fnMouseWheel(int wheel, int direction, int x, int y) {
 void CWindow::fnMouseButtons(int button, int state, int x, int y) {
 	switch(button) {
 	case GLUT_LEFT_BUTTON:
+		if(state == GLUT_DOWN) {
+			m_selection->StartPoint(x - m_imageDx, y - m_imageDy);
+			glutPostRedisplay();
+		}
+		else if(state == GLUT_UP) {
+			m_selection->EndPoint(x - m_imageDx, y - m_imageDy);
+			glutPostRedisplay();
+		}
 		m_mouseLB	= (state == GLUT_DOWN);
 		break;
 	case GLUT_MIDDLE_BUTTON:
@@ -479,6 +494,7 @@ bool CWindow::loadImage(int step, int subImage) {
 		m_na->Enable(true);
 	}
 
+//	m_selection->SetImageDimension(m_il->GetWidth(), m_il->GetHeight());
 	updateInfobar();
 
 	fnResize(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));

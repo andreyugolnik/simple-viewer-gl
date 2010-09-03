@@ -17,6 +17,7 @@
 #include "progress.h"
 #include "notavailable.h"
 #include "imageborder.h"
+#include "selection.h"
 
 #include <vector>
 
@@ -59,6 +60,7 @@ private:
 	std::auto_ptr<CNotAvailable> m_na;
 	std::auto_ptr<CProgress> m_progress;
 	std::auto_ptr<CImageBorder> m_border;
+	std::auto_ptr<CSelection> m_selection;
 
 private:
 	bool loadImage(int step, int subImage = 0);

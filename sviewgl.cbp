@@ -12,7 +12,7 @@
 				<Option object_output="debug_linux/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="-b img/ico-windows.ico" />
+				<Option parameters="-b img/persons.png -p" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
@@ -95,6 +95,8 @@
 		<Unit filename="src/quadimage.h" />
 		<Unit filename="src/rect.cpp" />
 		<Unit filename="src/rect.h" />
+		<Unit filename="src/selection.cpp" />
+		<Unit filename="src/selection.h" />
 		<Unit filename="src/version.h" />
 		<Unit filename="src/window.cpp" />
 		<Unit filename="src/window.h" />

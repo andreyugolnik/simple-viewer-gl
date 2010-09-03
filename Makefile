@@ -25,6 +25,7 @@ SOURCES= \
 	src/infobar.cpp \
 	src/pixelinfo.cpp \
 	src/main.cpp \
+	src/selection.cpp \
 	src/window.cpp
 
 OBJECTS=$(SOURCES:.cpp=.o)
