@@ -554,6 +554,7 @@ void CWindow::updatePixelInfo(int x, int y) {
 	pixelInfo.pitch		= m_il->GetPitch();
 	pixelInfo.bpp		= m_il->GetBpp();
 	pixelInfo.format	= m_il->GetBitmapFormat();
+	pixelInfo.rc		= m_selection->GetRect();
 	pixelInfo.scale		= m_scale;
 	m_pixelInfo->Update(&pixelInfo);
 }

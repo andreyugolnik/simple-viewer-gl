@@ -13,7 +13,7 @@
 #include <GL/gl.h>
 #include <algorithm>
 
-CSelection::CSelection() : m_visible(false), m_imageWidth(0), m_imageHeight(0) {
+CSelection::CSelection() : m_enabled(true), m_imageWidth(0), m_imageHeight(0) {
 }
 
 CSelection::~CSelection() {
@@ -22,24 +22,22 @@ CSelection::~CSelection() {
 void CSelection::SetImageDimension(int w, int h) {
 	m_imageWidth	= w;
 	m_imageHeight	= h;
+	m_rc.Clear();
 }
 
 void CSelection::StartPoint(int x, int y) {
-	m_visible	= false;
-
 	clampPoint(x, y);
 	m_rc.SetLeftTop(x, y);
+	m_rc.Clear();
 }
 
 void CSelection::EndPoint(int x, int y) {
 	clampPoint(x, y);
 	m_rc.SetRightBottom(x, y);
-
-	m_visible	= !(m_rc.GetWidth() == 0 || m_rc.GetHeight() == 0);
 }
 
 void CSelection::Render(int dx, int dy) {
-	if(m_visible == true) {
+	if(m_enabled == true && m_rc.IsSet() == true) {
 		glColor4ub(0, 255, 0, 255);
 		glLineWidth(1);
 		glBindTexture(GL_TEXTURE_2D, 0);
@@ -54,9 +52,8 @@ void CSelection::Render(int dx, int dy) {
 	}
 }
 
-bool CSelection::GetRect(CRect<int>& rc) {
-	rc.Set(&m_rc);
-	return m_visible;
+CRect<int> CSelection::GetRect() const {
+	return m_rc;
 }
 
 void CSelection::renderLine(int x1, int y1, int x2, int y2) {

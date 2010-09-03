@@ -11,10 +11,11 @@
 #include <sstream>
 #include <iomanip>
 
-const int border	= 4;
-const int alpha		= 200;
-const int fontHeight	= 13;
-const int frameDelta	= 10;
+const int BORDER	= 4;
+const int ALPHA		= 200;
+const int FONT_HEIGHT	= 13;
+const int FRAME_DELTA	= 10;
+const int LINES_COUNT	= 4;
 
 CPixelInfo::CPixelInfo() : m_visible(false), m_windowWidth(0), m_windowHeight(0) {
 	memset(&m_pixelInfo, 0, sizeof(m_pixelInfo));
@@ -27,7 +28,7 @@ void CPixelInfo::Init() {
 	m_bg.reset(new CQuad(0, 0));
 	int format	= (imgPointerCross.bytes_per_pixel == 3 ? GL_RGB : GL_RGBA);
 	m_pointer.reset(new CQuad(imgPointerCross.width, imgPointerCross.height, imgPointerCross.pixel_data, format));
-	m_ft.reset(new CFTString(fontHeight));
+	m_ft.reset(new CFTString(FONT_HEIGHT));
 }
 
 void CPixelInfo::Update(const PixelInfo* p) {
@@ -50,6 +51,13 @@ void CPixelInfo::Update(const PixelInfo* p) {
 		info << std::setw(2) << std::setfill('0') << r;
 		info << std::setw(2) << std::setfill('0') << g;
 		info << std::setw(2) << std::setfill('0') << b;
+
+		info << "\nrect: " << std::dec;
+
+		if(p->rc.IsSet() == true) {
+			info << p->rc.m_x1 << ", " << p->rc.m_y1 << " -> " << p->rc.m_x2 << ", " << p->rc.m_y2;
+			info << "\nsize: " << p->rc.GetWidth() << " x " << p->rc.GetHeight();
+		}
 	}
 
 	m_ft->Update(info.str().c_str());
@@ -60,26 +68,26 @@ void CPixelInfo::Render() {
 		m_pointer->Render(m_pixelInfo.cursorx - 10, m_pixelInfo.cursory - 10);
 
 		if(checkBoundary() == true) {
-			int frameWidth	= m_ft->GetStringWidth() + 2 * border;
-			int frameHeight	= fontHeight * 2 + 2 * border;
+			int frameWidth	= m_ft->GetStringWidth() + 2 * BORDER;
+			int frameHeight	= FONT_HEIGHT * LINES_COUNT + 2 * BORDER;
 
-			int cursorx	= m_pixelInfo.cursorx + frameDelta;
-			int cursory	= m_pixelInfo.cursory + frameDelta;
+			int cursorx	= m_pixelInfo.cursorx + FRAME_DELTA;
+			int cursory	= m_pixelInfo.cursory + FRAME_DELTA;
 			if(cursorx > m_windowWidth - frameWidth) {
 //				cursorx	= m_windowWidth - frameWidth;
-				cursorx	= m_pixelInfo.cursorx - frameDelta - frameWidth;
+				cursorx	= m_pixelInfo.cursorx - FRAME_DELTA - frameWidth;
 			}
 			if(cursory > m_windowHeight - frameHeight) {
 //				cursory	= m_windowHeight - frameHeight;
-				cursory	= m_pixelInfo.cursory - frameDelta - frameHeight;
+				cursory	= m_pixelInfo.cursory - FRAME_DELTA - frameHeight;
 			}
 
-			glColor4ub(0, 0, 0, alpha);
+			glColor4ub(0, 0, 0, ALPHA);
 			m_bg->SetSpriteSize(frameWidth, frameHeight);
 			m_bg->Render(cursorx, cursory);
 
-			glColor4ub(255, 255, 255, alpha);
-			m_ft->Render(cursorx + border, cursory + fontHeight);
+			glColor4ub(255, 255, 255, ALPHA);
+			m_ft->Render(cursorx + BORDER, cursory + FONT_HEIGHT);
 		}
 	}
 }

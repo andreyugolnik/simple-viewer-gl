@@ -22,10 +22,10 @@ public:
 	void StartPoint(int x, int y);
 	void EndPoint(int x, int y);
 	void Render(int dx, int dy);
-	bool GetRect(CRect<int>& rc);
+	CRect<int> GetRect() const;
 
 private:
-	bool m_visible;
+	bool m_enabled;
 	int m_imageWidth, m_imageHeight;
 	CRect<int> m_rc;
 

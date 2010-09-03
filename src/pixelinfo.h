@@ -18,6 +18,7 @@ typedef struct PIXELINFO {
 	unsigned char* bitmap;
 	int w, h, pitch;
 	int bpp, format;
+	CRect<int> rc;
 	float scale;
 } PixelInfo;
 
