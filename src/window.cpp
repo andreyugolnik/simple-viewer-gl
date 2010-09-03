@@ -240,9 +240,7 @@ void CWindow::fnMouseButtons(int button, int state, int x, int y) {
 		if(state == GLUT_DOWN) {
 			m_selection->StartPoint(x - m_imageDx, y - m_imageDy);
 		}
-		else if(state == GLUT_UP) {
-			glutPostRedisplay();
-		}
+		glutPostRedisplay();
 		m_mouseLB	= (state == GLUT_DOWN);
 		break;
 	case GLUT_MIDDLE_BUTTON:

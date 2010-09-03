@@ -17,7 +17,6 @@ SOURCES= \
 	src/checkerboard.cpp \
 	src/notavailable.cpp \
 	src/progress.cpp \
-	src/rect.cpp \
 	src/quad.cpp \
 	src/quadimage.cpp \
 	src/fileslist.cpp \

@@ -6,7 +6,7 @@
 /////////////////////////////////////////////////
 
 #include "ftstring.h"
-#include "arial.hpp"
+#include "DroidSans.hpp"
 #include <iostream>
 
 CFTString::CFTString(int size) : m_height(size),
@@ -153,7 +153,7 @@ void CFTString::generate() {
 
 	FT_Error err	= 0;
 	if(m_ttf.empty() == true) {
-		err	= FT_New_Memory_Face(m_ft, arial_ttf, arial_ttf_size, 0, &face);
+		err	= FT_New_Memory_Face(m_ft, droidsans_ttf, droidsans_ttf_size, 0, &face);
 	}
 	else {
 		err	= FT_New_Face(m_ft, m_ttf.c_str(), 0, &face);
