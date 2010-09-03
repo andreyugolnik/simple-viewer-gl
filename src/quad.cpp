@@ -78,13 +78,13 @@ void CQuad::RenderEx(float x, float y, float w, float h, int angle) {
 		m_v[3].x = x;		m_v[3].y = y + h;
     }
 
-	CRect rc;
+	CRect<float> rc;
 	rc.Encapsulate(m_v[0].x, m_v[0].y);
 	rc.Encapsulate(m_v[1].x, m_v[1].y);
 	rc.Encapsulate(m_v[2].x, m_v[2].y);
 	rc.Encapsulate(m_v[3].x, m_v[3].y);
 
-	if(rc.IsSet() == false || rc.Intersect(&m_rcWindow) == true) {
+	if(rc.IsSet() == false || m_rcWindow.IsSet() == false || rc.Intersect(&m_rcWindow) == true) {
 		glBindTexture(GL_TEXTURE_2D, m_tex);
 		glBegin(GL_QUADS);
 			glTexCoord2fv(&m_v[0].tx);	glVertex2fv(&m_v[0].x);

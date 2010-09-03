@@ -22,16 +22,17 @@ public:
 	void StartPoint(int x, int y);
 	void EndPoint(int x, int y);
 	void Render(int dx, int dy);
-	bool GetRect(CRect& rc);
+	bool GetRect(CRect<int>& rc);
 
 private:
 	bool m_visible;
 	int m_imageWidth, m_imageHeight;
-	CRect m_rc;
+	CRect<int> m_rc;
 
 private:
-	void renderLine(float x1, float y1, float x2, float y2);
-	void shiftRect(CRect& rc, int dx, int dy);
+	void renderLine(int x1, int y1, int x2, int y2);
+	void shiftRect(CRect<int>& rc, int dx, int dy);
+	void clampPoint(int& x, int& y);
 };
 
 #endif // SELECTION_H

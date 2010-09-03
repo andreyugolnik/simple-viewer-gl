@@ -29,7 +29,7 @@ protected:
 	GLfloat m_tw, m_th;	// texture width / height
 	GLuint m_tex;
 	GLfloat m_w, m_h;	// sprite width / height
-	CRect m_rcWindow;	// current window size
+	CRect<float> m_rcWindow;	// current window size
 	struct VERTEX {
 		GLfloat x, y;	// vertex screen coordinates
 		GLfloat tx, ty;	// vertex texture coordinates
