@@ -1,6 +1,6 @@
 CC=g++
 CFLAGS=-O2 -c -Wall -I/usr/include -I/usr/include/freetype2
-LDFLAGS=-s -lGL -lglut -lfreetype -ljpeg `libpng-config --libs` -lgif -ltiff -lImlib2
+LDFLAGS=-s -lconfig++ -lGL -lglut -lfreetype -ljpeg `libpng-config --libs` -lgif -ltiff -lImlib2
 
 SOURCES= \
 	src/formats/format.cpp \
@@ -25,6 +25,7 @@ SOURCES= \
 	src/pixelinfo.cpp \
 	src/main.cpp \
 	src/selection.cpp \
+	src/config.cpp \
 	src/window.cpp
 
 OBJECTS=$(SOURCES:.cpp=.o)

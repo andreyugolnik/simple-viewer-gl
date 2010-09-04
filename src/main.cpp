@@ -5,13 +5,12 @@
 
 #include "main.h"
 #include "window.h"
+#include "config.h"
 #include "version.h"
 
 #include <locale.h>
 #include <string.h>
 #include <stdio.h>
-
-std::auto_ptr<CWindow> g_window;
 
 void showHelp(const char* pchArgv0);
 
@@ -31,8 +30,13 @@ int main(int argc, char *argv[]) {
 		return 0;
 	}
 
-	g_window.reset(new CWindow());
+	CWindow window;
 	const char* path	= 0;
+
+	CConfig config(&window);
+	if(config.Open() == true) {
+		config.Read();
+	}
 
 	for(int i = 1; i < argc; i++) {
 		if(strncmp(argv[i], "-h", 2) == 0 || strncmp(argv[i], "--help", 6) == 0) {
@@ -40,23 +44,23 @@ int main(int argc, char *argv[]) {
 			return 0;
 		}
 		if(strncmp(argv[i], "-i", 2) == 0)
-			g_window->SetProp(PROP_INFOBAR);
+			window.SetProp(PROP_INFOBAR);
 		else if(strncmp(argv[i], "-p", 2) == 0)
-			g_window->SetProp(PROP_PIXELINFO);
+			window.SetProp(PROP_PIXELINFO);
 		else if(strncmp(argv[i], "-c", 2) == 0)
-			g_window->SetProp(PROP_CHECKERS);
+			window.SetProp(PROP_CHECKERS);
 		else if(strncmp(argv[i], "-s", 2) == 0)
-			g_window->SetProp(PROP_FITIMAGE);
+			window.SetProp(PROP_FITIMAGE);
 		else if(strncmp(argv[i], "-f", 2) == 0)
-			g_window->SetProp(PROP_FULLSCREEN);
+			window.SetProp(PROP_FULLSCREEN);
 		else if(strncmp(argv[i], "-b", 2) == 0)
-			g_window->SetProp(PROP_BORDER);
+			window.SetProp(PROP_BORDER);
 		else if(strncmp(argv[i], "-r", 2) == 0)
-			g_window->SetProp(PROP_RECURSIVE);
+			window.SetProp(PROP_RECURSIVE);
 		else if(strncmp(argv[i], "-C", 2) == 0) {
 			int r, g, b;
 			if(3 == sscanf(argv[i + 1], "%2x%2x%2x", &r, &g, &b)) {
-				g_window->SetProp(r, g, b);
+				window.SetProp(r, g, b);
 				i++;
 			}
 		}
@@ -65,7 +69,7 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
-	if(g_window->Init(argc, argv, path) == true) {
+	if(window.Init(argc, argv, path) == true) {
 		glutMainLoop();
 	}
 

@@ -14,17 +14,23 @@
 #include <string.h>
 #include <assert.h>
 
-extern std::auto_ptr<CWindow> g_window;
-
 //void closeWindow() {
 //	printf("done\n");
 //}
 
+// static members of CWindow class
+CWindow* CWindow::m_window	= 0;
+
 CWindow::CWindow() : m_initialImageLoading(true),
 	m_prevWinX(0), m_prevWinY(0), m_prevWinW(DEF_WINDOW_W), m_prevWinH(DEF_WINDOW_H),
-	m_curWinW(0), m_curWinH(0), m_scale(1), m_windowed(true), m_fitImage(false), m_showBorder(false), m_recursiveDir(false), m_cusorVisible(true),
-	m_lastMouseX(-1), m_lastMouseY(-1), m_mouseLB(false), m_mouseMB(false), m_mouseRB(false), m_keyPressed(false), m_imageDx(0), m_imageDy(0),
+	m_curWinW(0), m_curWinH(0), m_scale(1), m_windowed(true), m_fitImage(false),
+	m_showBorder(false), m_recursiveDir(false), m_cusorVisible(true),
+	m_lastMouseX(-1), m_lastMouseY(-1),
+	m_mouseLB(false), m_mouseMB(false), m_mouseRB(false),
+	m_keyPressed(false), m_imageDx(0), m_imageDy(0),
 	m_pow2(false), m_textureSize(256) {
+
+		m_window	= this;
 
 		m_il.reset(new CImageLoader(callbackProgressLoading));
 		m_cb.reset(new CCheckerboard());
@@ -161,7 +167,9 @@ void CWindow::fnRender() {
 			m_border->Render(m_imageDx, m_imageDy, img_w, img_h);
 		}
 
-		m_selection->Render(m_imageDx, m_imageDy);
+		if(m_scale == 1) {
+			m_selection->Render(m_imageDx, m_imageDy);
+		}
 	}
 
 	m_ib->Render();
@@ -237,11 +245,11 @@ void CWindow::fnMouseWheel(int wheel, int direction, int x, int y) {
 void CWindow::fnMouseButtons(int button, int state, int x, int y) {
 	switch(button) {
 	case GLUT_LEFT_BUTTON:
+		m_mouseLB	= (state == GLUT_DOWN);
 		if(state == GLUT_DOWN) {
 			m_selection->StartPoint(x - m_imageDx, y - m_imageDy);
 		}
 		glutPostRedisplay();
-		m_mouseLB	= (state == GLUT_DOWN);
 		break;
 	case GLUT_MIDDLE_BUTTON:
 		m_mouseMB	= (state == GLUT_DOWN);
@@ -636,36 +644,36 @@ void CWindow::deleteTextures() {
 
 
 void CWindow::callbackResize(int width, int height) {
-	g_window->updateInfobar();
-	g_window->fnResize(width, height);
+	m_window->updateInfobar();
+	m_window->fnResize(width, height);
 }
 
 void CWindow::callbackRender() {
-	g_window->fnRender();
+	m_window->fnRender();
 }
 
 void CWindow::callbackTimerCursor(int value) {
-	g_window->showCursor(false);
+	m_window->showCursor(false);
 }
 
 void CWindow::callbackMouse(int x, int y) {
-	g_window->fnMouse(x, y);
+	m_window->fnMouse(x, y);
 }
 
 void CWindow::callbackMouseButtons(int button, int state, int x, int y) {
-	g_window->fnMouseButtons(button, state, x, y);
+	m_window->fnMouseButtons(button, state, x, y);
 }
 
 void CWindow::callbackMouseWheel(int wheel, int direction, int x, int y) {
-	g_window->fnMouseWheel(wheel, direction, x, y);
+	m_window->fnMouseWheel(wheel, direction, x, y);
 }
 
 void CWindow::callbackKeyboardSpecial(int key, int x, int y) {
-	g_window->fnKeyboardSpecial(key, x, y);
+	m_window->fnKeyboardSpecial(key, x, y);
 }
 
 void CWindow::callbackKeyboard(unsigned char key, int x, int y) {
-	g_window->fnKeyboard(key, x, y);
+	m_window->fnKeyboard(key, x, y);
 }
 
 
@@ -674,5 +682,5 @@ void CWindow::fnProgressLoading(int percent) {
 }
 
 void CWindow::callbackProgressLoading(int percent) {
-	g_window->fnProgressLoading(percent);
+	m_window->fnProgressLoading(percent);
 }

@@ -33,6 +33,7 @@ public:
 	void SetProp(unsigned char r, unsigned char g, unsigned char b);
 
 private:
+	static CWindow* m_window;
 	bool m_initialImageLoading;
 	int m_prevWinX, m_prevWinY, m_prevWinW, m_prevWinH;
 	int m_curWinW, m_curWinH;

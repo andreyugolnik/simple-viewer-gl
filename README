@@ -20,9 +20,11 @@ Default keybindings:
  <v>           flip vertical;
  <c>           hide / show chequerboard;
  <i>           hide / show on screen info;
+ <p>           hide / show pixel info;
  <b>           hide / show border around image;
 
 Library requirements:
+ - libconfig++
  - OpenGL
  - freeGLUT 2.6.0
  - freetype2

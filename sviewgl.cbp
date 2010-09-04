@@ -38,6 +38,7 @@
 			<Add directory="$(#freetype2.include)" />
 		</Compiler>
 		<Linker>
+			<Add library="config++" />
 			<Add library="GL" />
 			<Add library="glut" />
 			<Add library="freetype" />
@@ -51,6 +52,8 @@
 		</Linker>
 		<Unit filename="src/checkerboard.cpp" />
 		<Unit filename="src/checkerboard.h" />
+		<Unit filename="src/config.cpp" />
+		<Unit filename="src/config.h" />
 		<Unit filename="src/fileslist.cpp" />
 		<Unit filename="src/fileslist.h" />
 		<Unit filename="src/formats/format.cpp" />
