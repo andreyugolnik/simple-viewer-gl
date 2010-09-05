@@ -32,10 +32,10 @@ CWindow::CWindow() : m_initialImageLoading(true),
 
 		m_window	= this;
 
-		m_il.reset(new CImageLoader(callbackProgressLoading));
-		m_cb.reset(new CCheckerboard());
+		m_imageList.reset(new CImageLoader(callbackProgressLoading));
+		m_checkerBoard.reset(new CCheckerboard());
 		m_na.reset(new CNotAvailable());
-		m_ib.reset(new CInfoBar());
+		m_infoBar.reset(new CInfoBar());
 		m_pixelInfo.reset(new CPixelInfo());
 		m_progress.reset(new CProgress());
 		m_border.reset(new CImageBorder());
@@ -82,11 +82,13 @@ bool CWindow::Init(int argc, char *argv[], const char* path) {
 		m_pow2	= glutExtensionSupported("GL_ARB_texture_non_power_of_two");
 		std::cout << "Non Power of Two extension " << (m_pow2 ? "available." : "not available.") << std::endl;
 
-		m_cb->Init();
+		m_checkerBoard->Init();
 		m_na->Init();
+		m_infoBar->Init();
 		m_pixelInfo->Init();
 		updatePixelInfo(DEF_WINDOW_W, DEF_WINDOW_H);
 		m_progress->Init();
+		m_selection->Init();
 
 		m_initialImageLoading	= true;
 
@@ -100,13 +102,13 @@ bool CWindow::Init(int argc, char *argv[], const char* path) {
 void CWindow::SetProp(Property prop) {
 	switch(prop) {
 	case PROP_INFOBAR:
-		m_ib->Show(false);
+		m_infoBar->Show(false);
 		break;
 	case PROP_PIXELINFO:
 		m_pixelInfo->Show(true);
 		break;
 	case PROP_CHECKERS:
-		m_cb->Enable(false);
+		m_checkerBoard->Enable(false);
 		break;
 	case PROP_FITIMAGE:
 		m_fitImage	= true;
@@ -124,7 +126,7 @@ void CWindow::SetProp(Property prop) {
 }
 
 void CWindow::SetProp(unsigned char r, unsigned char g, unsigned char b) {
-	m_cb->SetColor(r, g, b);
+	m_checkerBoard->SetColor(r, g, b);
 }
 
 void CWindow::fnRender() {
@@ -133,15 +135,15 @@ void CWindow::fnRender() {
 		loadImage(0);
 	}
 
-	m_cb->Render();
+	m_checkerBoard->Render();
 
 	glColor3f(1, 1, 1);
 
 	if(m_na->Render() == false) {
 		calculateScale();
 
-		float img_w	= m_il->GetWidth() * m_scale;
-		float img_h	= m_il->GetHeight() * m_scale;
+		float img_w	= m_imageList->GetWidth() * m_scale;
+		float img_h	= m_imageList->GetHeight() * m_scale;
 
 		const int delta	= 20;
 		m_imageDx	= std::max(m_imageDx, delta - (int)img_w);
@@ -172,7 +174,7 @@ void CWindow::fnRender() {
 		}
 	}
 
-	m_ib->Render();
+	m_infoBar->Render();
 
 	m_pixelInfo->Render();
 
@@ -181,7 +183,7 @@ void CWindow::fnRender() {
 
 void CWindow::fnResize(int width, int height) {
 	m_curWinW	= width;
-	m_curWinH	= height - m_ib->GetHeight();
+	m_curWinH	= height - m_infoBar->GetHeight();
 
 //	if(m_curWinW < DEF_WINDOW_W || m_curWinH < DEF_WINDOW_H) {
 //		m_curWinW	= std::max(m_curWinW, DEF_WINDOW_W);
@@ -190,16 +192,16 @@ void CWindow::fnResize(int width, int height) {
 //	}
 
 	calculateScale();
-	int w	= (int)(m_il->GetWidth() * m_scale);
-	int h	= (int)(m_il->GetHeight() * m_scale);
+	int w	= (int)(m_imageList->GetWidth() * m_scale);
+	int h	= (int)(m_imageList->GetHeight() * m_scale);
 	m_imageDx	= (m_curWinW - w) / 2;
 	m_imageDy	= (m_curWinH - h) / 2;
 
-	glViewport(0, 0, m_curWinW, m_curWinH + m_ib->GetHeight());
+	glViewport(0, 0, m_curWinW, m_curWinH + m_infoBar->GetHeight());
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glOrtho(0, m_curWinW, m_curWinH + m_ib->GetHeight(), 0, -1, 1);
+	glOrtho(0, m_curWinW, m_curWinH + m_infoBar->GetHeight(), 0, -1, 1);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -278,7 +280,7 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y) {
 		break;
 	case 'i':
 	case 'I':
-		m_ib->Show(!m_ib->Visible());
+		m_infoBar->Show(!m_infoBar->Visible());
 		fnResize(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
 		glutPostRedisplay();
 		break;
@@ -320,7 +322,7 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y) {
 		break;
 	case 'c':
 	case 'C':
-		m_cb->Enable(!m_cb->IsEnabled());
+		m_checkerBoard->Enable(!m_checkerBoard->IsEnabled());
 		glutPostRedisplay();
 		break;
 	case '0':
@@ -384,11 +386,11 @@ void CWindow::fnKeyboardSpecial(int key, int x, int y) {
 		}
 		break;
 	case GLUT_KEY_PAGE_UP:
-		loadImage(0, m_il->GetSub() - 1);
+		loadImage(0, m_imageList->GetSub() - 1);
 		glutPostRedisplay();
 		break;
 	case GLUT_KEY_PAGE_DOWN:
-		loadImage(0, m_il->GetSub() + 1);
+		loadImage(0, m_imageList->GetSub() + 1);
 		glutPostRedisplay();
 		break;
 	}
@@ -399,8 +401,8 @@ void CWindow::fnKeyboardSpecial(int key, int x, int y) {
 
 void CWindow::calculateScale() {
 	if(m_fitImage == true) {
-		int w	= m_il->GetWidth();
-		int h	= m_il->GetHeight();
+		int w	= m_imageList->GetWidth();
+		int h	= m_imageList->GetHeight();
 
         // scale only large images
         if(w >= m_curWinW || h >= m_curWinH) {
@@ -436,8 +438,8 @@ void CWindow::calculateScale() {
 void CWindow::updateScale(bool up) {
 	m_fitImage	= false;
 
-	int w	= m_il->GetWidth();
-	int h	= m_il->GetHeight();
+	int w	= m_imageList->GetWidth();
+	int h	= m_imageList->GetHeight();
 
 	float oldw	= w * m_scale;
 	float oldh	= h * m_scale;
@@ -462,8 +464,8 @@ void CWindow::updateScale(bool up) {
 //void CWindow::centerWindow() {
 //	if(m_windowed == true) {
 //		calculateScale();
-//		int w	= m_il->GetWidth() * m_scale;
-//		int h	= m_il->GetHeight() * m_scale;
+//		int w	= m_imageList->GetWidth() * m_scale;
+//		int h	= m_imageList->GetHeight() * m_scale;
 //		int scrw	= glutGet(GLUT_SCREEN_WIDTH);
 //		int scrh	= glutGet(GLUT_SCREEN_HEIGHT);
 //		int winw	= std::min(w != 0 ? w : DEF_WINDOW_W, scrw);
@@ -483,14 +485,14 @@ bool CWindow::loadImage(int step, int subImage) {
 
 	if(step != 0) {
 		m_filesList->ParseDir();
-		m_il->SetAngle(ANGLE_0);
+		m_imageList->SetAngle(ANGLE_0);
 		m_scale		= 1;
 	}
 
 	const char* path	= m_filesList->GetName(step);
 	m_progress->Start();
 
-	if(true == m_il->LoadImage(path, subImage)) {
+	if(true == m_imageList->LoadImage(path, subImage)) {
 		createTextures();
 		ret	= true;
 	}
@@ -498,7 +500,7 @@ bool CWindow::loadImage(int step, int subImage) {
 		m_na->Enable(true);
 	}
 
-	m_selection->SetImageDimension(m_il->GetWidth(), m_il->GetHeight());
+	m_selection->SetImageDimension(m_imageList->GetWidth(), m_imageList->GetHeight());
 	updateInfobar();
 
 	fnResize(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
@@ -506,7 +508,7 @@ bool CWindow::loadImage(int step, int subImage) {
 
 	updatePixelInfo(m_lastMouseX, m_lastMouseY);
 
-//	m_il->FreeMemory();
+//	m_imageList->FreeMemory();
 
 	return ret;
 }
@@ -517,17 +519,17 @@ void CWindow::updateInfobar() {
 	INFO_BAR s;
 	const char* path	= m_filesList->GetName(0);
 	s.path			= path;
-	s.width			= m_il->GetWidth();
-	s.height		= m_il->GetHeight();
-	s.bpp			= m_il->GetImageBpp();
+	s.width			= m_imageList->GetWidth();
+	s.height		= m_imageList->GetHeight();
+	s.bpp			= m_imageList->GetImageBpp();
 	s.scale			= m_scale;
-	s.sub_image		= m_il->GetSub();
-	s.sub_count		= m_il->GetSubCount();
-	s.file_size		= m_il->GetSize();
-	s.mem_size		= m_il->GetSizeMem();
+	s.sub_image		= m_imageList->GetSub();
+	s.sub_count		= m_imageList->GetSubCount();
+	s.file_size		= m_imageList->GetSize();
+	s.mem_size		= m_imageList->GetSizeMem();
 	s.index			= m_filesList->GetIndex();
 	s.files_count	= m_filesList->GetCount();
-	m_ib->Update(&s);
+	m_infoBar->Update(&s);
 }
 
 void CWindow::calculateTextureSize(int* texW, int* texH, int imgW, int imgH) {
@@ -554,24 +556,24 @@ void CWindow::updatePixelInfo(int x, int y) {
 	pixelInfo.cursory	= y;
 	pixelInfo.x			= x - m_imageDx;
 	pixelInfo.y			= y - m_imageDy;
-	pixelInfo.bitmap	= m_il->GetBitmap();
-	pixelInfo.w			= m_il->GetWidth();
-	pixelInfo.h			= m_il->GetHeight();
-	pixelInfo.pitch		= m_il->GetPitch();
-	pixelInfo.bpp		= m_il->GetBpp();
-	pixelInfo.format	= m_il->GetBitmapFormat();
+	pixelInfo.bitmap	= m_imageList->GetBitmap();
+	pixelInfo.w			= m_imageList->GetWidth();
+	pixelInfo.h			= m_imageList->GetHeight();
+	pixelInfo.pitch		= m_imageList->GetPitch();
+	pixelInfo.bpp		= m_imageList->GetBpp();
+	pixelInfo.format	= m_imageList->GetBitmapFormat();
 	pixelInfo.rc		= m_selection->GetRect();
 	pixelInfo.scale		= m_scale;
 	m_pixelInfo->Update(&pixelInfo);
 }
 
 void CWindow::createTextures() {
-	unsigned char* bitmap	= m_il->GetBitmap();
-	int width	= m_il->GetWidth();
-	int height	= m_il->GetHeight();
-	int format	= m_il->GetBitmapFormat();
-	int pitch	= m_il->GetPitch();
-	int bytesPP	= (m_il->GetBpp() / 8);
+	unsigned char* bitmap	= m_imageList->GetBitmap();
+	int width	= m_imageList->GetWidth();
+	int height	= m_imageList->GetHeight();
+	int format	= m_imageList->GetBitmapFormat();
+	int pitch	= m_imageList->GetPitch();
+	int bytesPP	= (m_imageList->GetBpp() / 8);
 
 	std::cout << " " << width << " x " << height << ", ";
 

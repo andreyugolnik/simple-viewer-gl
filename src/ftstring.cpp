@@ -16,6 +16,8 @@ CFTString::CFTString(int size) : m_height(size),
 	if(FT_Init_FreeType(&m_ft) != 0) {
 		std::cout << "(EE) Error initiation FreeType2" << std::endl;
 	}
+
+	SetColor(255, 255, 255, 255);
 }
 
 CFTString::CFTString(const char* ttf, int size) : m_ttf(ttf), m_height(size),
@@ -25,6 +27,8 @@ CFTString::CFTString(const char* ttf, int size) : m_ttf(ttf), m_height(size),
 	if(FT_Init_FreeType(&m_ft) != 0) {
 		std::cout << "(EE) Error initiation FreeType2" << std::endl;
 	}
+
+	SetColor(255, 255, 255, 255);
 }
 
 CFTString::~CFTString() {
@@ -37,6 +41,13 @@ CFTString::~CFTString() {
 	if(m_ft != 0) {
 		FT_Done_FreeType(m_ft);
 	}
+}
+
+void CFTString::SetColor(int r, int g, int b, int a) {
+	m_r	= r;
+	m_g	= g;
+	m_b	= b;
+	m_a	= a;
 }
 
 void CFTString::Update(const char* utf8) {
@@ -52,6 +63,8 @@ void CFTString::Update(const char* utf8) {
 void CFTString::Render(int x, int y) {
 	wchar_t* string	= m_unicode;
 	if(string != 0) {
+		glColor4ub(m_r, m_g, m_b, m_a);
+
 		int xStart	= x;
 
 		glBindTexture(GL_TEXTURE_2D, m_tex);

@@ -54,10 +54,10 @@ private:
 	Quads m_quads;
 
 	std::auto_ptr<CFilesList> m_filesList;
-	std::auto_ptr<CImageLoader> m_il;
-	std::auto_ptr<CInfoBar> m_ib;
+	std::auto_ptr<CImageLoader> m_imageList;
+	std::auto_ptr<CInfoBar> m_infoBar;
 	std::auto_ptr<CPixelInfo> m_pixelInfo;
-	std::auto_ptr<CCheckerboard> m_cb;
+	std::auto_ptr<CCheckerboard> m_checkerBoard;
 	std::auto_ptr<CNotAvailable> m_na;
 	std::auto_ptr<CProgress> m_progress;
 	std::auto_ptr<CImageBorder> m_border;

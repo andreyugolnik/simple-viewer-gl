@@ -26,9 +26,11 @@ CPixelInfo::~CPixelInfo() {
 
 void CPixelInfo::Init() {
 	m_bg.reset(new CQuad(0, 0));
+	m_bg->SetColor(0, 0, 0, ALPHA);
 	int format	= (imgPointerCross.bytes_per_pixel == 3 ? GL_RGB : GL_RGBA);
 	m_pointer.reset(new CQuad(imgPointerCross.width, imgPointerCross.height, imgPointerCross.pixel_data, format));
 	m_ft.reset(new CFTString(FONT_HEIGHT));
+	m_ft->SetColor(255, 255, 255, ALPHA);
 }
 
 void CPixelInfo::Update(const PixelInfo* p) {
@@ -82,11 +84,9 @@ void CPixelInfo::Render() {
 				cursory	= m_pixelInfo.cursory - FRAME_DELTA - frameHeight;
 			}
 
-			glColor4ub(0, 0, 0, ALPHA);
 			m_bg->SetSpriteSize(frameWidth, frameHeight);
 			m_bg->Render(cursorx, cursory);
 
-			glColor4ub(255, 255, 255, ALPHA);
 			m_ft->Render(cursorx + BORDER, cursory + FONT_HEIGHT);
 		}
 	}

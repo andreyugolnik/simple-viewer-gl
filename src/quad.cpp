@@ -11,7 +11,7 @@
 #include <math.h>
 
 CQuad::CQuad(int tw, int th, const unsigned char* data, GLenum bitmapFormat) :
-	m_tw(tw), m_th(th), m_tex(0), m_w(0) {
+	m_tw(tw), m_th(th), m_tex(0), m_w(0), m_r(255), m_g(255), m_b(255), m_a(255) {
 
 	if(data != 0) {
 		glGenTextures(1, &m_tex);
@@ -40,6 +40,13 @@ CQuad::~CQuad() {
 	if(m_tex != 0) {
 		glDeleteTextures(1, &m_tex);
 	}
+}
+
+void CQuad::SetColor(int r, int g, int b, int a) {
+	m_r	= r;
+	m_g	= g;
+	m_b	= b;
+	m_a	= a;
 }
 
 void CQuad::SetSpriteSize(float w, float h) {
@@ -85,6 +92,7 @@ void CQuad::RenderEx(float x, float y, float w, float h, int angle) {
 	rc.Encapsulate(m_v[3].x, m_v[3].y);
 
 	if(rc.IsSet() == false || m_rcWindow.IsSet() == false || rc.Intersect(&m_rcWindow) == true) {
+		glColor4ub(m_r, m_g, m_b, m_a);
 		glBindTexture(GL_TEXTURE_2D, m_tex);
 		glBegin(GL_QUADS);
 			glTexCoord2fv(&m_v[0].tx);	glVertex2fv(&m_v[0].x);

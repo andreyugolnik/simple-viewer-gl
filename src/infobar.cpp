@@ -13,12 +13,16 @@
 #include <GL/glut.h>
 
 CInfoBar::CInfoBar() : m_visible(true), m_height(18), m_fntSize(12) {
-	m_bg.reset(new CQuad(0, 0));
-	m_ft.reset(new CFTString(m_fntSize));
-//	m_ft.reset(new CFTString("arial.ttf", m_fntSize));
 }
 
 CInfoBar::~CInfoBar() {
+}
+
+void CInfoBar::Init() {
+	m_bg.reset(new CQuad(0, 0));
+	m_bg->SetColor(0, 0, 25, 255);
+	m_ft.reset(new CFTString(m_fntSize));
+	m_ft->SetColor(255, 255, 127, 255);
 }
 
 void CInfoBar::Render() {
@@ -26,11 +30,9 @@ void CInfoBar::Render() {
 		int w	= glutGet(GLUT_WINDOW_WIDTH);
 		int h	= glutGet(GLUT_WINDOW_HEIGHT);
 
-		glColor3f(0, 0, 0.1f);
 		m_bg->SetSpriteSize(w, m_height);
 		m_bg->Render(0, h - m_height);
 
-		glColor3f(1, 1, 0.5f);
 		m_ft->Render(2, h - (m_height - m_fntSize));
 	}
 }

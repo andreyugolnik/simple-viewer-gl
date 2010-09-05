@@ -20,7 +20,7 @@ public:
 	void Render();
 	void Enable(bool enable = true) { m_enabled = enable; }
 	bool IsEnabled() const { return m_enabled; }
-	void SetColor(unsigned char r, unsigned char g, unsigned char b);
+	void SetColor(int r, int g, int b);
 
 private:
 	bool m_enabled;

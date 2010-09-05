@@ -24,6 +24,7 @@ public:
 	CFTString(const char* ttf, int size);
 	virtual ~CFTString();
 
+	void SetColor(int r, int g, int b, int a);
 	void Update(const char* utf8);
 	void Render(int x, int y);
 	int GetStringWidth();
@@ -37,6 +38,7 @@ private:
 	int m_unicodeSize;
 	GLuint m_tex;
 	int m_texW, m_texH;
+	int m_r, m_g, m_b, m_a;
 
 	typedef struct SYMBOL {
 		CFTSymbol* p;

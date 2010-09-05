@@ -45,7 +45,7 @@ void CCheckerboard::Init() {
 	delete[] buffer;
 }
 
-void CCheckerboard::SetColor(unsigned char r, unsigned char g, unsigned char b) {
+void CCheckerboard::SetColor(int r, int g, int b) {
 	m_r	= r / 255.0f;
 	m_g	= g / 255.0f;
 	m_b	= b / 255.0f;
@@ -59,7 +59,6 @@ void CCheckerboard::Render() {
 		float h	= (float)glutGet(GLUT_WINDOW_HEIGHT);
 		m_cb->SetSpriteSize(w, h);
 		m_cb->Render(0, 0);
-
 	}
 	else {
 		glClearColor(m_r, m_g, m_b, 1);

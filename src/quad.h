@@ -16,6 +16,7 @@ public:
 	CQuad(int tw, int th, const unsigned char* data = 0, GLenum bitmapFormat = GL_RGB);
 	virtual ~CQuad();
 
+	virtual void SetColor(int r, int g, int b, int a);
 	virtual void SetSpriteSize(float w, float h);
 	virtual void SetWindowSize(float w, float h);
 	virtual void Render(float x, float y);
@@ -29,6 +30,7 @@ protected:
 	GLfloat m_tw, m_th;	// texture width / height
 	GLuint m_tex;
 	GLfloat m_w, m_h;	// sprite width / height
+	GLint m_r, m_g, m_b, m_a;
 	CRect<float> m_rcWindow;	// current window size
 	struct VERTEX {
 		GLfloat x, y;	// vertex screen coordinates

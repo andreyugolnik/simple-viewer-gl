@@ -29,6 +29,7 @@ public:
 	CInfoBar();
 	virtual ~CInfoBar();
 
+	void Init();
 	void Render();
 	bool Visible() { return m_visible; }
 	void Show(bool show = true) { m_visible = show; }
