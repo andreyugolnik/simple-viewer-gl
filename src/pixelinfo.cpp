@@ -57,8 +57,8 @@ void CPixelInfo::Update(const PixelInfo* p) {
 		info << "\nrect: " << std::dec;
 
 		if(p->rc.IsSet() == true) {
-			int x	= std::min(p->rc.m_x1, p->rc.m_x2);
-			int y	= std::min(p->rc.m_y1, p->rc.m_y2);
+			int x	= std::min(p->rc.x1, p->rc.x2);
+			int y	= std::min(p->rc.y1, p->rc.y2);
 			int w	= p->rc.GetWidth();
 			int h	= p->rc.GetHeight();
 

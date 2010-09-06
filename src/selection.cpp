@@ -14,7 +14,7 @@
 
 const int TEX_SIZE	= 16;
 
-CSelection::CSelection() : m_enabled(true), m_imageWidth(0), m_imageHeight(0) {
+CSelection::CSelection() : m_enabled(true), m_imageWidth(0), m_imageHeight(0), m_mouseInside(false), m_mouseMode(MODE_MOVE) {
 }
 
 CSelection::~CSelection() {
@@ -43,7 +43,6 @@ void CSelection::Init() {
 	}
 
 	m_selection.reset(new CQuad(TEX_SIZE, TEX_SIZE, buffer, GL_RGB));
-	m_selection->SetColor(200, 255, 200, 150);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
@@ -53,18 +52,89 @@ void CSelection::Init() {
 void CSelection::SetImageDimension(int w, int h) {
 	m_imageWidth	= w;
 	m_imageHeight	= h;
+	m_mouseInside	= false;
 	m_rc.Clear();
 }
 
-void CSelection::StartPoint(int x, int y) {
-	clampPoint(x, y);
-	m_rc.SetLeftTop(x, y);
-	m_rc.Clear();
+void CSelection::MouseDown(int x, int y) {
+	m_rc.Normalize();
+	m_mouseInside	= m_rc.TestPoint(x, y);
+	if(m_mouseInside == false) {
+		clampPoint(x, y);
+		m_rc.SetLeftTop(x, y);
+		m_rc.Clear();
+	}
+	else {
+		// calculate mouse mode
+		const int delta	= 10;
+
+		CRect<int> rcLe(m_rc.x1, m_rc.y1 + delta, m_rc.x1 + delta, m_rc.y2 - delta);
+		if(rcLe.TestPoint(x, y) == true) {
+			m_mouseMode	= MODE_LEFT;
+		}
+		else {
+			CRect<int> rcRi(m_rc.x2 - delta, m_rc.y1 + delta, m_rc.x2, m_rc.y2 - delta);
+			if(rcRi.TestPoint(x, y) == true) {
+				m_mouseMode	= MODE_RIGHT;
+			}
+			else {
+				CRect<int> rcUp(m_rc.x1 + delta, m_rc.y1, m_rc.x2 - delta, m_rc.y1 + delta);
+				if(rcUp.TestPoint(x, y) == true) {
+					m_mouseMode	= MODE_UP;
+				}
+				else {
+					CRect<int> rcDn(m_rc.x1 + delta, m_rc.y2 - delta, m_rc.x2 - delta, m_rc.y2);
+					if(rcDn.TestPoint(x, y) == true) {
+						m_mouseMode	= MODE_DOWN;
+					}
+					else {
+						m_mouseMode	= MODE_MOVE;
+					}
+				}
+			}
+		}
+
+		m_mouseX	= x;
+		m_mouseY	= y;
+	}
 }
 
-void CSelection::EndPoint(int x, int y) {
-	clampPoint(x, y);
-	m_rc.SetRightBottom(x, y);
+void CSelection::MouseMove(int x, int y) {
+	if(m_mouseInside == true) {
+		int dx	= x - m_mouseX;
+		int dy	= y - m_mouseY;
+
+		// correct selection position
+		dx	= std::max(dx, 0 - m_rc.x1);
+		dx	= std::min(dx, m_imageWidth - (m_rc.x1 + m_rc.GetWidth()) - 1);
+		dy	= std::max(dy, 0 - m_rc.y1);
+		dy	= std::min(dy, m_imageHeight - (m_rc.y1 + m_rc.GetHeight()) - 1);
+
+		switch(m_mouseMode) {
+		case MODE_MOVE:
+			m_rc.ShiftRect(dx, dy);
+			break;
+		case MODE_LEFT:
+			m_rc.x1	+= dx;
+			break;
+		case MODE_RIGHT:
+			m_rc.x2	+= dx;
+			break;
+		case MODE_UP:
+			m_rc.y1	+= dy;
+			break;
+		case MODE_DOWN:
+			m_rc.y2	+= dy;
+			break;
+		}
+
+		m_mouseX	= x;
+		m_mouseY	= y;
+	}
+	else {
+		clampPoint(x, y);
+		m_rc.SetRightBottom(x, y);
+	}
 }
 
 void CSelection::Render(int dx, int dy) {
@@ -72,10 +142,14 @@ void CSelection::Render(int dx, int dy) {
 		CRect<int> rc;
 		setImagePos(rc, dx, dy);
 
-		renderLine(rc.m_x1, rc.m_y1, rc.m_x2, rc.m_y1);	// top line
-		renderLine(rc.m_x1, rc.m_y2, rc.m_x2, rc.m_y2);	// bottom line
-		renderLine(rc.m_x1, rc.m_y1, rc.m_x1, rc.m_y2);	// left line
-		renderLine(rc.m_x2, rc.m_y1, rc.m_x2, rc.m_y2);	// right line
+		setColor(m_mouseMode != MODE_UP);
+		renderLine(rc.x1, rc.y1, rc.x2, rc.y1);	// top line
+		setColor(m_mouseMode != MODE_DOWN);
+		renderLine(rc.x1, rc.y2, rc.x2, rc.y2);	// bottom line
+		setColor(m_mouseMode != MODE_LEFT);
+		renderLine(rc.x1, rc.y1, rc.x1, rc.y2);	// left line
+		setColor(m_mouseMode != MODE_RIGHT);
+		renderLine(rc.x2, rc.y1, rc.x2, rc.y2);	// right line
 	}
 }
 
@@ -94,10 +168,10 @@ void CSelection::renderLine(int x1, int y1, int x2, int y2) {
 }
 
 void CSelection::setImagePos(CRect<int>& rc, int dx, int dy) {
-	rc.m_x1	= m_rc.m_x1 + dx;
-	rc.m_x2	= m_rc.m_x2 + dx;
-	rc.m_y1	= m_rc.m_y1 + dy;
-	rc.m_y2	= m_rc.m_y2 + dy;
+	rc.x1	= m_rc.x1 + dx;
+	rc.x2	= m_rc.x2 + dx;
+	rc.y1	= m_rc.y1 + dy;
+	rc.y2	= m_rc.y2 + dy;
 }
 
 void CSelection::clampPoint(int& x, int& y) {
@@ -105,4 +179,13 @@ void CSelection::clampPoint(int& x, int& y) {
 	x	= std::min(x, m_imageWidth - 1);
 	y	= std::max(y, 0);
 	y	= std::min(y, m_imageHeight - 1);
+}
+
+void CSelection::setColor(bool std) {
+	if(std == true) {
+		m_selection->SetColor(200, 255, 200, 150);
+	}
+	else {
+		m_selection->SetColor(255, 255, 0, 255);
+	}
 }

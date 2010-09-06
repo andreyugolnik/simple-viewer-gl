@@ -169,7 +169,7 @@ void CWindow::fnRender() {
 			m_border->Render(m_imageDx, m_imageDy, img_w, img_h);
 		}
 
-		if(m_scale == 1) {
+		if(m_pixelInfo->IsVisible() == true && m_scale == 1) {
 			m_selection->Render(m_imageDx, m_imageDy);
 		}
 	}
@@ -222,11 +222,11 @@ void CWindow::fnMouse(int x, int y) {
 		}
 	}
 
-	if(m_mouseLB == true) {
-		m_selection->EndPoint(x - m_imageDx, y - m_imageDy);
-	}
-
 	if(m_pixelInfo->IsVisible() == true) {
+		if(m_mouseLB == true) {
+			m_selection->MouseMove(x - m_imageDx, y - m_imageDy);
+		}
+
 		updatePixelInfo(x, y);
 		glutPostRedisplay();
 	}
@@ -248,10 +248,12 @@ void CWindow::fnMouseButtons(int button, int state, int x, int y) {
 	switch(button) {
 	case GLUT_LEFT_BUTTON:
 		m_mouseLB	= (state == GLUT_DOWN);
-		if(state == GLUT_DOWN) {
-			m_selection->StartPoint(x - m_imageDx, y - m_imageDy);
+		if(m_pixelInfo->IsVisible() == true && m_scale == 1) {
+			if(state == GLUT_DOWN) {
+				m_selection->MouseDown(x - m_imageDx, y - m_imageDy);
+			}
+			glutPostRedisplay();
 		}
-		glutPostRedisplay();
 		break;
 	case GLUT_MIDDLE_BUTTON:
 		m_mouseMB	= (state == GLUT_DOWN);
