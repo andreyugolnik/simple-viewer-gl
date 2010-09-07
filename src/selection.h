@@ -33,7 +33,7 @@ private:
 	int m_imageWidth, m_imageHeight;
 	int m_mouseX, m_mouseY;
 	bool m_mouseInside;
-	typedef enum { MODE_MOVE, MODE_LEFT, MODE_RIGHT, MODE_UP, MODE_DOWN } MouseMode;
+	typedef enum { MODE_MOVE, MODE_LEFT, MODE_RIGHT, MODE_UP, MODE_DOWN, MODE_LEUP, MODE_RIUP, MODE_LEDN, MODE_RIDN } MouseMode;
 	MouseMode m_mouseMode;
 
 	std::auto_ptr<CQuad> m_selection;

@@ -35,7 +35,7 @@ void CSelection::Init() {
 				checker_width_odd	= !checker_width_odd;
 			}
 
-			const unsigned char color	= (checker_width_odd == true ? 0x00 : 0xff);
+			const unsigned char color	= (checker_width_odd == true ? 0x20 : 0xff);
 			*p++	= color;
 			*p++	= color;
 			*p++	= color;
@@ -68,30 +68,41 @@ void CSelection::MouseDown(int x, int y) {
 		// calculate mouse mode
 		const int delta	= 10;
 
-		CRect<int> rcLe(m_rc.x1, m_rc.y1 + delta, m_rc.x1 + delta, m_rc.y2 - delta);
+		CRect<int> rcLe(m_rc.x1, m_rc.y1, m_rc.x1 + delta, m_rc.y2);
+		CRect<int> rcRi(m_rc.x2 - delta, m_rc.y1, m_rc.x2, m_rc.y2);
+		CRect<int> rcUp(m_rc.x1, m_rc.y1, m_rc.x2, m_rc.y1 + delta);
+		CRect<int> rcDn(m_rc.x1, m_rc.y2 - delta, m_rc.x2, m_rc.y2);
+
 		if(rcLe.TestPoint(x, y) == true) {
-			m_mouseMode	= MODE_LEFT;
-		}
-		else {
-			CRect<int> rcRi(m_rc.x2 - delta, m_rc.y1 + delta, m_rc.x2, m_rc.y2 - delta);
-			if(rcRi.TestPoint(x, y) == true) {
-				m_mouseMode	= MODE_RIGHT;
+			if(rcUp.TestPoint(x, y) == true) {
+				m_mouseMode	= MODE_LEUP;
+			}
+			else if(rcDn.TestPoint(x, y) == true) {
+				m_mouseMode	= MODE_LEDN;
 			}
 			else {
-				CRect<int> rcUp(m_rc.x1 + delta, m_rc.y1, m_rc.x2 - delta, m_rc.y1 + delta);
-				if(rcUp.TestPoint(x, y) == true) {
-					m_mouseMode	= MODE_UP;
-				}
-				else {
-					CRect<int> rcDn(m_rc.x1 + delta, m_rc.y2 - delta, m_rc.x2 - delta, m_rc.y2);
-					if(rcDn.TestPoint(x, y) == true) {
-						m_mouseMode	= MODE_DOWN;
-					}
-					else {
-						m_mouseMode	= MODE_MOVE;
-					}
-				}
+				m_mouseMode	= MODE_LEFT;
 			}
+		}
+		else if(rcRi.TestPoint(x, y) == true) {
+			if(rcUp.TestPoint(x, y) == true) {
+				m_mouseMode	= MODE_RIUP;
+			}
+			else if(rcDn.TestPoint(x, y) == true) {
+				m_mouseMode	= MODE_RIDN;
+			}
+			else {
+				m_mouseMode	= MODE_RIGHT;
+			}
+		}
+		else if(rcUp.TestPoint(x, y) == true) {
+			m_mouseMode	= MODE_UP;
+		}
+		else if(rcDn.TestPoint(x, y) == true) {
+			m_mouseMode	= MODE_DOWN;
+		}
+		else {
+			m_mouseMode	= MODE_MOVE;
 		}
 
 		m_mouseX	= x;
@@ -124,6 +135,22 @@ void CSelection::MouseMove(int x, int y) {
 			m_rc.y1	+= dy;
 			break;
 		case MODE_DOWN:
+			m_rc.y2	+= dy;
+			break;
+		case MODE_LEUP:
+			m_rc.x1	+= dx;
+			m_rc.y1	+= dy;
+			break;
+		case MODE_RIUP:
+			m_rc.x2	+= dx;
+			m_rc.y1	+= dy;
+			break;
+		case MODE_LEDN:
+			m_rc.x1	+= dx;
+			m_rc.y2	+= dy;
+			break;
+		case MODE_RIDN:
+			m_rc.x2	+= dx;
 			m_rc.y2	+= dy;
 			break;
 		}
