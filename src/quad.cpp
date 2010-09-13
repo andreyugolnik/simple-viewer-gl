@@ -11,7 +11,7 @@
 #include <math.h>
 
 CQuad::CQuad(int tw, int th, const unsigned char* data, GLenum bitmapFormat) :
-	m_tw(tw), m_th(th), m_tex(0), m_w(0), m_r(255), m_g(255), m_b(255), m_a(255) {
+	m_tw(tw), m_th(th), m_tex(0), m_w(tw), m_h(th), m_r(255), m_g(255), m_b(255), m_a(255) {
 
 	if(data != 0) {
 		glGenTextures(1, &m_tex);

@@ -63,6 +63,7 @@ void CSelection::MouseDown(int x, int y) {
 		clampPoint(x, y);
 		m_rc.SetLeftTop(x, y);
 		m_rc.Clear();
+		m_mouseMode	= MODE_CROSS;
 	}
 	else {
 		// calculate mouse mode
@@ -182,6 +183,10 @@ void CSelection::Render(int dx, int dy) {
 
 CRect<int> CSelection::GetRect() const {
 	return m_rc;
+}
+
+int CSelection::GetCursor() const {
+	return m_mouseMode;
 }
 
 void CSelection::renderLine(int x1, int y1, int x2, int y2) {

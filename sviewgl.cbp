@@ -96,6 +96,8 @@
 		<Unit filename="src/quad.h" />
 		<Unit filename="src/quadimage.cpp" />
 		<Unit filename="src/quadimage.h" />
+		<Unit filename="src/quadseries.cpp" />
+		<Unit filename="src/quadseries.h" />
 		<Unit filename="src/rect.h" />
 		<Unit filename="src/selection.cpp" />
 		<Unit filename="src/selection.h" />

@@ -27,8 +27,12 @@ CPixelInfo::~CPixelInfo() {
 void CPixelInfo::Init() {
 	m_bg.reset(new CQuad(0, 0));
 	m_bg->SetColor(0, 0, 0, ALPHA);
+
 	int format	= (imgPointerCross.bytes_per_pixel == 3 ? GL_RGB : GL_RGBA);
-	m_pointer.reset(new CQuad(imgPointerCross.width, imgPointerCross.height, imgPointerCross.pixel_data, format));
+	m_pointer.reset(new CQuadSeries(imgPointerCross.width, imgPointerCross.height, imgPointerCross.pixel_data, format));
+	m_pointer->Setup(21, 21, 10);
+	SetCursor(0);
+
 	m_ft.reset(new CFTString(FONT_HEIGHT));
 	m_ft->SetColor(255, 255, 255, ALPHA);
 }
@@ -111,4 +115,8 @@ bool CPixelInfo::checkBoundary() const {
 	}
 
 	return false;
+}
+
+void CPixelInfo::SetCursor(int cursor) {
+	m_pointer->SetFrame(cursor);
 }

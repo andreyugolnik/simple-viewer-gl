@@ -9,7 +9,7 @@
 #define PIXELINFO_H
 
 #include "ftstring.h"
-#include "quad.h"
+#include "quadseries.h"
 #include <memory>
 
 typedef struct PIXELINFO {
@@ -33,13 +33,14 @@ public:
 	void Show(bool show = true) { m_visible = show; }
 	bool IsVisible() const { return m_visible; }
 	void SetWindowSize(int w, int h);
+	void SetCursor(int cursor);
 
 private:
 	bool m_visible;
 	int m_windowWidth, m_windowHeight;
 	PixelInfo m_pixelInfo;
 	std::auto_ptr<CQuad> m_bg;
-	std::auto_ptr<CQuad> m_pointer;
+	std::auto_ptr<CQuadSeries> m_pointer;
 	std::auto_ptr<CFTString> m_ft;
 
 private:

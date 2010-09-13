@@ -223,8 +223,10 @@ void CWindow::fnMouse(int x, int y) {
 	}
 
 	if(m_pixelInfo->IsVisible() == true) {
-		if(m_mouseLB == true) {
+		if(m_mouseLB == true && m_scale == 1) {
 			m_selection->MouseMove(x - m_imageDx, y - m_imageDy);
+			int cursor	= m_selection->GetCursor();
+			m_pixelInfo->SetCursor(cursor);
 		}
 
 		updatePixelInfo(x, y);
