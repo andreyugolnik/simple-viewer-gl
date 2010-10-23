@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
 		else if(strncmp(argv[i], "-r", 2) == 0)
 			window.SetProp(PROP_RECURSIVE);
 		else if(strncmp(argv[i], "-C", 2) == 0) {
-			int r, g, b;
+			unsigned int r, g, b;
 			if(3 == sscanf(argv[i + 1], "%2x%2x%2x", &r, &g, &b)) {
 				window.SetProp(r, g, b);
 				i++;

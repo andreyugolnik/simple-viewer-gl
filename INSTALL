@@ -1,3 +1,12 @@
-Just copy sviewgl to any directory you like.
+Build with cmake:
+
+$ mkdir build
+$ cd build
+$ cmake ../
+$ make
+
+Optional copy executable in to /usr/bin:
+
+$ cp sviewgl /usr/bin
 
 Example of config in config.example file.
