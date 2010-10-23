@@ -10,3 +10,5 @@ Optional copy executable in to /usr/bin:
 $ cp sviewgl /usr/bin
 
 Example of config in config.example file.
+Copy it to $XDG_CONFIG_HOME/sviewgl/config
+If $XDG_CONFIG_HOME is not set $HOME/.config/sviewgl/config will be used.
