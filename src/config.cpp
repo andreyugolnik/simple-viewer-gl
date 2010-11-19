@@ -24,7 +24,11 @@ bool CConfig::Open() {
 	// make config path according XDG spec
 	std::stringstream path;
 	if(getenv("XDG_CONFIG_HOME")) {
-		path << getenv("XDG_CONFIG_HOME") << "/sviewgl/config";
+		path << getenv("XDG_CONFIG_HOME");
+		if(path.str()[path.str().length() - 1] != '/') {
+			path << "/";
+		}
+		path << "sviewgl/config";
 	}
 	else {
 		path << getenv("HOME") <<"/.config/sviewgl/config";

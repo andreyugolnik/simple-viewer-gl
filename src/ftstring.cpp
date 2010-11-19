@@ -324,3 +324,4 @@ void CFTString::clearSymbols() {
         delete it->second.p;
     }
 }
+
