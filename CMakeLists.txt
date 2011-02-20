@@ -29,7 +29,7 @@ INCLUDE_DIRECTORIES(
 #	${FREETYPE_LIBRARY_DIRS}
 #	)
 
-ADD_EXECUTABLE(sviewgl
+ADD_EXECUTABLE(../sviewgl
 	src/checkerboard.cpp
 	src/ftsymbol.cpp
 	src/main.cpp
@@ -53,11 +53,12 @@ ADD_EXECUTABLE(sviewgl
 	src/formats/format.cpp
 	src/formats/formatjpeg.cpp
 	src/formats/formattiff.cpp
+	src/formats/formatdds.cpp
 	src/formats/formatgif.cpp
 	src/formats/formatpng.cpp
 	)
 
-TARGET_LINK_LIBRARIES(sviewgl
+TARGET_LINK_LIBRARIES(../sviewgl
 	${FREETYPE_LIBRARY}
 	${OPENGL_LIBRARY}
 	${GLUT_LIBRARY}

@@ -13,6 +13,7 @@
 #include "formats/formatgif.h"
 #include "formats/formatico.h"
 #include "formats/formattiff.h"
+#include "formats/formatdds.h"
 #include <iostream>
 #include <algorithm>
 
@@ -51,6 +52,9 @@ bool CImageLoader::LoadImage(const char* path, int subImage) {
 		}
 		else if(format == FORMAT_TIFF) {
 			m_image.reset(new CFormatTiff(m_callback));
+		}
+		else if(format == FORMAT_DDS) {
+			m_image.reset(new CFormatDds(m_callback));
 		}
 		else {
 			m_image.reset(new CFormatCommon(m_callback));
@@ -174,6 +178,7 @@ int CImageLoader::getFormat() {
 		{ ".ico",  FORMAT_ICO  },
 		{ ".tiff", FORMAT_TIFF },
 		{ ".tif",  FORMAT_TIFF },
+		{ ".dds",  FORMAT_DDS  },
 	};
 
 	for(size_t i = 0; i < sizeof(format) / sizeof(FORMAT); i++) {

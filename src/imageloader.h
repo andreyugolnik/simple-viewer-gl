@@ -42,7 +42,7 @@ private:
 	std::auto_ptr<CFormat> m_image;
 
 private:
-	enum FILE_FORMAT { FORMAT_JPEG, FORMAT_PSD, FORMAT_PNG, FORMAT_GIF, FORMAT_ICO, FORMAT_TIFF, FORMAT_COMMON };
+	enum FILE_FORMAT { FORMAT_JPEG, FORMAT_PSD, FORMAT_PNG, FORMAT_GIF, FORMAT_ICO, FORMAT_TIFF, FORMAT_DDS, FORMAT_COMMON };
 	struct FORMAT {
 		const char* ext;
 		int format;

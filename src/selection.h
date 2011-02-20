@@ -16,35 +16,38 @@
 
 #include <memory>
 
-class CSelection {
+class CSelection
+{
 public:
-	CSelection();
-	virtual ~CSelection();
+    CSelection();
+    virtual ~CSelection();
 
-	void Init();
-	void SetImageDimension(int w, int h);
-	void MouseDown(int x, int y);
-	void MouseMove(int x, int y);
-	void Render(int dx, int dy);
-	CRect<int> GetRect() const;
-	int GetCursor() const;
-
-private:
-	bool m_enabled;
-	int m_imageWidth, m_imageHeight;
-	int m_mouseX, m_mouseY;
-	bool m_mouseInside;
-	typedef enum { MODE_CROSS, MODE_MOVE, MODE_LEFT, MODE_RIGHT, MODE_UP, MODE_DOWN, MODE_LEUP, MODE_RIUP, MODE_LEDN, MODE_RIDN } MouseMode;
-	MouseMode m_mouseMode;
-
-	std::auto_ptr<CQuad> m_selection;
-	CRect<int> m_rc;
+    void Init();
+    void SetImageDimension(int w, int h);
+    void MouseButton(int x, int y, bool pressed);
+    void MouseMove(int x, int y);
+    void Render(int dx, int dy);
+    CRect<int> GetRect() const;
+    int GetCursor() const;
 
 private:
-	void renderLine(int x1, int y1, int x2, int y2);
-	void setImagePos(CRect<int>& rc, int dx, int dy);
-	void clampPoint(int& x, int& y);
-	void setColor(bool std = true);
+    bool m_enabled;
+    int m_imageWidth, m_imageHeight;
+    int m_mouseX, m_mouseY;
+    typedef enum { MODE_NONE, MODE_SELECT, MODE_MOVE, MODE_RESIZE } MouseMode;
+    MouseMode m_mode;
+    typedef enum { CORNER_NONE, CORNER_CENTER, CORNER_LEFT, CORNER_RIGHT, CORNER_UP, CORNER_DOWN, CORNER_LEUP, CORNER_RIUP, CORNER_LEDN, CORNER_RIDN } CornerType;
+    CornerType m_corner;
+
+    std::auto_ptr<CQuad> m_selection;
+    CRect<int> m_rc;
+
+private:
+    void updateCorner(int x, int y);
+    void renderLine(int x1, int y1, int x2, int y2);
+    void setImagePos(CRect<int>& rc, int dx, int dy);
+    void clampPoint(int& x, int& y);
+    void setColor(bool std = true);
 };
 
 #endif // SELECTION_H
