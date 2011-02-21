@@ -153,13 +153,12 @@ void CWindow::fnRender()
         int a_height = glutGet(GLUT_WINDOW_HEIGHT);
         int scrw = glutGet(GLUT_SCREEN_WIDTH);
         int scrh = glutGet(GLUT_SCREEN_HEIGHT);
-        printf("fullscreen desired: %d x %d, actual: %d x %d\n", scrw, scrh, a_width, a_height);
+        //printf("fullscreen desired: %d x %d, actual: %d x %d\n", scrw, scrh, a_width, a_height);
         if(scrw != a_width || scrh != a_height)
         {
             //printf("can't set fullscreen mode. scr: %d x %d, win: %d x %d\n", scrw, scrh, width, height);
             m_windowed = true;
-            glutPositionWindow(m_prevWinX, m_prevWinY);
-            glutReshapeWindow(m_prevWinW, m_prevWinH);
+            centerWindow();
             return;
         }
     }
@@ -254,15 +253,16 @@ void CWindow::fnMouse(int x, int y)
     {
         if(diffx != 0 || diffy != 0)
         {
+            forceUpdate = true;
             m_imageDx += diffx;
             m_imageDy += diffy;
-            forceUpdate = true;
         }
     }
 
     if(m_pixelInfo->IsVisible() == true)
     {
-        if(/*m_mouseLB == true && */m_scale == 1)
+        forceUpdate = true;
+        if(m_scale == 1)
         {
             m_selection->MouseMove(x - m_imageDx, y - m_imageDy);
             int cursor = m_selection->GetCursor();
@@ -270,7 +270,6 @@ void CWindow::fnMouse(int x, int y)
         }
 
         updatePixelInfo(x, y);
-        forceUpdate = true;
     }
     else
     {
@@ -397,16 +396,11 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y)
         {
             m_testFullscreen = true;
 
-            m_prevWinX = glutGet(GLUT_WINDOW_X);
-            m_prevWinY = glutGet(GLUT_WINDOW_Y);
-            m_prevWinW = glutGet(GLUT_WINDOW_WIDTH);
-            m_prevWinH = glutGet(GLUT_WINDOW_HEIGHT);
             glutFullScreen();
         }
         else
         {
-            glutPositionWindow(m_prevWinX, m_prevWinY);
-            glutReshapeWindow(m_prevWinW, m_prevWinH);
+            centerWindow();
         }
         //glutPostRedisplay();
         break;
