@@ -11,12 +11,13 @@
 #include "selection.h"
 
 #include <algorithm>
-
-const int TEX_SIZE = 16;
+#include <time.h>
+#include <stdio.h>
 
 CSelection::CSelection() :
     m_enabled(true),
     m_imageWidth(0), m_imageHeight(0),
+    m_timeDelta(0), 
     m_mode(MODE_NONE),
     m_corner(CORNER_NONE)
 {
@@ -28,10 +29,10 @@ CSelection::~CSelection()
 
 void CSelection::Init()
 {
-    unsigned char* buffer = new unsigned char[TEX_SIZE * TEX_SIZE * 3];
+    unsigned char* buffer = new unsigned char[m_selectionTexSize * m_selectionTexSize * 3];
     unsigned char* p = buffer;
     bool checker_height_odd = true;
-    for(int y = 0; y < TEX_SIZE; y++)
+    for(int y = 0; y < m_selectionTexSize; y++)
     {
         if(y % 4 == 0)
         {
@@ -39,7 +40,7 @@ void CSelection::Init()
         }
 
         bool checker_width_odd = checker_height_odd;
-        for(int x = 0; x < TEX_SIZE; x++)
+        for(int x = 0; x < m_selectionTexSize; x++)
         {
             if(x % 4 == 0)
             {
@@ -53,9 +54,20 @@ void CSelection::Init()
         }
     }
 
-    m_selection.reset(new CQuad(TEX_SIZE, TEX_SIZE, buffer, GL_RGB));
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    for(int i = 0; i < m_selectionTexCount; i++)
+    {
+        m_selection[i].reset(new CQuad(m_selectionTexSize, m_selectionTexSize, buffer, GL_RGB));
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+        // shift texture
+        for(int y = 0; y < m_selectionTexSize; y++)
+        {
+            for(int x = 0; x < m_selectionTexSize; x++)
+            {
+            }
+        }
+    }
 
     delete[] buffer;
 }
@@ -65,6 +77,7 @@ void CSelection::SetImageDimension(int w, int h)
     m_imageWidth = w;
     m_imageHeight = h;
     m_rc.Clear();
+    getTime();
 }
 
 void CSelection::MouseButton(int x, int y, bool pressed)
@@ -177,19 +190,24 @@ void CSelection::MouseMove(int x, int y)
 
 void CSelection::Render(int dx, int dy)
 {
+    float dt = getTime();
+
+    m_timeDelta += dt * 10;
+    int frame = (int)m_timeDelta;
+
     if(m_enabled == true && m_rc.IsSet() == true)
     {
         CRect<int> rc;
         setImagePos(rc, dx, dy);
 
-        setColor(m_corner != CORNER_UP);
-        renderLine(rc.x1, rc.y1, rc.x2, rc.y1);	// top line
-        setColor(m_corner != CORNER_DOWN);
-        renderLine(rc.x1, rc.y2, rc.x2, rc.y2);	// bottom line
-        setColor(m_corner != CORNER_LEFT);
-        renderLine(rc.x1, rc.y1, rc.x1, rc.y2);	// left line
-        setColor(m_corner != CORNER_RIGHT);
-        renderLine(rc.x2, rc.y1, rc.x2, rc.y2);	// right line
+        setColor(frame, m_corner != CORNER_UP);
+        renderLine(rc.x1, rc.y1, rc.x2, rc.y1, frame);	// top line
+        setColor(frame, m_corner != CORNER_DOWN);
+        renderLine(rc.x1, rc.y2, rc.x2, rc.y2, frame);	// bottom line
+        setColor(frame, m_corner != CORNER_LEFT);
+        renderLine(rc.x1, rc.y1, rc.x1, rc.y2, frame);	// left line
+        setColor(frame, m_corner != CORNER_RIGHT);
+        renderLine(rc.x2, rc.y1, rc.x2, rc.y2, frame);	// right line
     }
 }
 
@@ -270,15 +288,17 @@ void CSelection::updateCorner(int x, int y)
     }
 }
 
-void CSelection::renderLine(int x1, int y1, int x2, int y2)
+void CSelection::renderLine(int x1, int y1, int x2, int y2, int frame)
 {
+    frame %= m_selectionTexCount;
+
     int x = std::min(x1, x2);
     int y = std::min(y1, y2);
     int w = (x1 == x2 ? 1 : m_rc.GetWidth());
     int h = (y1 == y2 ? 1 : m_rc.GetHeight());
 
-    m_selection->SetSpriteSize(w, h);
-    m_selection->Render(x, y);
+    m_selection[frame]->SetSpriteSize(w, h);
+    m_selection[frame]->Render(x, y);
 }
 
 void CSelection::setImagePos(CRect<int>& rc, int dx, int dy)
@@ -297,15 +317,29 @@ void CSelection::clampPoint(int& x, int& y)
     y = std::min<int>(y, m_imageHeight - 1);
 }
 
-void CSelection::setColor(bool std)
+void CSelection::setColor(int frame, bool std)
 {
+    frame %= m_selectionTexCount;
+
     if(std == true)
     {
-        m_selection->SetColor(200, 255, 200, 150);
+        m_selection[frame]->SetColor(200, 255, 200, 150);
     }
     else
     {
-        m_selection->SetColor(255, 255, 0, 255);
+        m_selection[frame]->SetColor(255, 255, 0, 255);
     }
+}
+
+float CSelection::getTime()
+{
+    struct timespec now;
+    clock_gettime(CLOCK_REALTIME, &now);
+
+    float dt = ((now.tv_sec - m_timeLast.tv_sec) + (now.tv_nsec - m_timeLast.tv_nsec) / 1000000000.0f);
+
+    m_timeLast = now;
+
+    return dt;
 }
 

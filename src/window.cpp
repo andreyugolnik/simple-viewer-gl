@@ -61,7 +61,7 @@ bool CWindow::Init(int argc, char* argv[], const char* path)
 
         glutReshapeFunc(callbackResize);
         glutDisplayFunc(callbackRender);
-        glutTimerFunc(100, callbackTimerUpdate, 1);
+        glutTimerFunc(100, callbackTimerUpdate, 100);
         glutTimerFunc(2000, callbackTimerCursor, 1);
         glutKeyboardFunc(callbackKeyboard);
         glutMouseFunc(callbackMouseButtons);
@@ -69,7 +69,7 @@ bool CWindow::Init(int argc, char* argv[], const char* path)
         //glutEntryFunc();
         glutMotionFunc(callbackMouse);
         glutPassiveMotionFunc(callbackMouse);
-        glutMouseWheelFunc(callbackMouseWheel);
+        //glutMouseWheelFunc(callbackMouseWheel);
         //glutWMCloseFunc(closeWindow);
 
         glEnable(GL_BLEND);
@@ -287,7 +287,7 @@ void CWindow::fnMouseButtons(int button, int state, int x, int y)
         if(m_pixelInfo->IsVisible() == true && m_scale == 1)
         {
             m_selection->MouseButton(x - m_imageDx, y - m_imageDy, m_mouseLB);
-            glutPostRedisplay();
+            //glutPostRedisplay();
         }
         break;
     case GLUT_MIDDLE_BUTTON:
@@ -309,8 +309,8 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y)
     switch(key)
     {
     case 27: // ESC
-        // exit(0);
-        glutLeaveMainLoop();
+        exit(0);
+        //glutLeaveMainLoop();
         break;
     case 127:	// Delete
         if(mod == GLUT_ACTIVE_CTRL)
@@ -322,13 +322,13 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y)
     case 'I':
         m_infoBar->Show(!m_infoBar->Visible());
         fnResize(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
-        glutPostRedisplay();
+        //glutPostRedisplay();
         break;
     case 'p':
     case 'P':
         m_pixelInfo->Show(!m_pixelInfo->IsVisible());
         showCursor(!m_pixelInfo->IsVisible());
-        glutPostRedisplay();
+        //glutPostRedisplay();
         break;
     case 's':
     case 'S':
@@ -339,20 +339,21 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y)
         }
         fnResize(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
         updateInfobar();
-        glutPostRedisplay();
+        //glutPostRedisplay();
         break;
     case ' ':
         loadImage(1);
-        glutPostRedisplay();
+        //glutPostRedisplay();
         break;
+    // TODO add Mac OS X support: Delete key instesd Backspace
     case 8:	// backspace
         loadImage(-1);
-        glutPostRedisplay();
+        //glutPostRedisplay();
         break;
     case 'b':
     case 'B':
         m_showBorder = !m_showBorder;
-        glutPostRedisplay();
+        //glutPostRedisplay();
         break;
     case '+':
     case '=':
@@ -364,14 +365,14 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y)
     case 'c':
     case 'C':
         m_checkerBoard->Enable(!m_checkerBoard->IsEnabled());
-        glutPostRedisplay();
+        //glutPostRedisplay();
         break;
     case '0':
         m_scale = 1;
         m_fitImage = false;
         fnResize(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
         updateInfobar();
-        glutPostRedisplay();
+        //glutPostRedisplay();
         break;
     case 13:
         m_windowed = !m_windowed;
@@ -383,14 +384,23 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y)
             m_prevWinH = glutGet(GLUT_WINDOW_HEIGHT);
             glutPositionWindow(0, 0);
             glutReshapeWindow(glutGet(GLUT_SCREEN_WIDTH), glutGet(GLUT_SCREEN_HEIGHT));
-            //			glutFullScreen();
+            //glutFullScreen();
+
+            // if window can't be resized (due WM restriction or limitation) then set size to current window size
+            // useful in tiled WM
+            if(glutGet(GLUT_SCREEN_WIDTH) != glutGet(GLUT_WINDOW_WIDTH) || glutGet(GLUT_SCREEN_HEIGHT) != glutGet(GLUT_WINDOW_HEIGHT))
+            {
+                m_windowed = true;
+                glutPositionWindow(m_prevWinX, m_prevWinY);
+                glutReshapeWindow(m_prevWinW, m_prevWinH);
+            }
         }
         else
         {
             glutPositionWindow(m_prevWinX, m_prevWinY);
             glutReshapeWindow(m_prevWinW, m_prevWinH);
         }
-        glutPostRedisplay();
+        //glutPostRedisplay();
         break;
     //default:
     //      std::cout << key << std::endl;
@@ -407,7 +417,7 @@ void CWindow::fnKeyboardSpecial(int key, int x, int y)
         {
             m_keyPressed = true;
             m_imageDx += 10;
-            glutPostRedisplay();
+            //glutPostRedisplay();
         }
         break;
     case GLUT_KEY_RIGHT:
@@ -415,7 +425,7 @@ void CWindow::fnKeyboardSpecial(int key, int x, int y)
         {
             m_keyPressed = true;
             m_imageDx -= 10;
-            glutPostRedisplay();
+            //glutPostRedisplay();
         }
         break;
     case GLUT_KEY_UP:
@@ -423,7 +433,7 @@ void CWindow::fnKeyboardSpecial(int key, int x, int y)
         {
             m_keyPressed = true;
             m_imageDy += 10;
-            glutPostRedisplay();
+            //glutPostRedisplay();
         }
         break;
     case GLUT_KEY_DOWN:
@@ -431,16 +441,16 @@ void CWindow::fnKeyboardSpecial(int key, int x, int y)
         {
             m_keyPressed = true;
             m_imageDy -= 10;
-            glutPostRedisplay();
+            //glutPostRedisplay();
         }
         break;
     case GLUT_KEY_PAGE_UP:
         loadImage(0, m_imageList->GetSub() - 1);
-        glutPostRedisplay();
+        //glutPostRedisplay();
         break;
     case GLUT_KEY_PAGE_DOWN:
         loadImage(0, m_imageList->GetSub() + 1);
-        glutPostRedisplay();
+        //glutPostRedisplay();
         break;
     }
 }
@@ -519,27 +529,40 @@ void CWindow::updateScale(bool up)
     m_imageDy += (oldh - newh) / 2;
 
     updateInfobar();
-    glutPostRedisplay();
+    //glutPostRedisplay();
 }
 
-//void CWindow::centerWindow()
-//{
-    //if(m_windowed == true)
-    //{
-        //calculateScale();
-        //int w = m_imageList->GetWidth() * m_scale;
-        //int h = m_imageList->GetHeight() * m_scale;
-        //int scrw = glutGet(GLUT_SCREEN_WIDTH);
-        //int scrh = glutGet(GLUT_SCREEN_HEIGHT);
-        //int winw = std::min(w != 0 ? w : DEF_WINDOW_W, scrw);
-        //int winh = std::min(h != 0 ? h : DEF_WINDOW_H, scrh);
-        //glutReshapeWindow(winw, winh);
-        //int posx = (scrw - winw) / 2;
-        //int posy = (scrh - winh) / 2;
-        //glutPositionWindow(posx, posy);
-        //printf("%d x %d | %d x %d | %d, %d\n", scrw, scrh, winw, winh, posx, posy);
-    //}
-//}
+void CWindow::centerWindow()
+{
+    if(m_windowed == true)
+    {
+        calculateScale();
+        int w = m_imageList->GetWidth() * m_scale;
+        int h = m_imageList->GetHeight() * m_scale;
+        int scrw = glutGet(GLUT_SCREEN_WIDTH);
+        int scrh = glutGet(GLUT_SCREEN_HEIGHT);
+        int imgw = std::max<int>(w + (m_showBorder ? m_border->GetBorderWidth() * 2 : 0), DEF_WINDOW_W);
+        int imgh = std::max<int>(h + (m_showBorder ? m_border->GetBorderWidth() * 2 : 0) + m_infoBar->GetHeight(), DEF_WINDOW_H);
+        int winw = std::min<int>(imgw, scrw);
+        int winh = std::min<int>(imgh, scrh);
+        glutReshapeWindow(winw, winh);
+
+        // if window can't be resized (due WM restriction or limitation) then set size to current window size
+        // useful in tiled WM
+        if(winw != glutGet(GLUT_WINDOW_WIDTH) || winh != glutGet(GLUT_WINDOW_HEIGHT))
+        {
+            winw = glutGet(GLUT_WINDOW_WIDTH);
+            winh = glutGet(GLUT_WINDOW_HEIGHT);
+            glutReshapeWindow(winw, winh);
+        }
+
+        int posx = (scrw - winw) / 2;
+        int posy = (scrh - winh) / 2;
+        glutPositionWindow(posx, posy);
+
+        //printf("screen: %d x %d, window %d x %d, pos: %d, %d\n", scrw, scrh, winw, winh, posx, posy);
+    }
+}
 
 bool CWindow::loadImage(int step, int subImage)
 {
@@ -570,8 +593,8 @@ bool CWindow::loadImage(int step, int subImage)
     m_selection->SetImageDimension(m_imageList->GetWidth(), m_imageList->GetHeight());
     updateInfobar();
 
-    fnResize(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
-    //centerWindow();
+    //fnResize(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
+    centerWindow();
 
     updatePixelInfo(m_lastMouseX, m_lastMouseY);
 
@@ -741,6 +764,7 @@ void CWindow::callbackRender()
 void CWindow::callbackTimerUpdate(int value)
 {
     glutPostRedisplay();
+    glutTimerFunc(100, callbackTimerUpdate, value);
 }
 
 void CWindow::callbackTimerCursor(int value)
@@ -772,7 +796,6 @@ void CWindow::callbackKeyboard(unsigned char key, int x, int y)
 {
     m_window->fnKeyboard(key, x, y);
 }
-
 
 void CWindow::fnProgressLoading(int percent)
 {

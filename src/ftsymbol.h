@@ -8,7 +8,7 @@
 #ifndef FTSYMBOL_H
 #define FTSYMBOL_H
 
-#include <GL/freeglut.h>
+#include <GL/glut.h>
 
 class CFTSymbol {
 public:

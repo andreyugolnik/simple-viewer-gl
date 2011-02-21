@@ -54,15 +54,15 @@ void CQuad::SetColor(int r, int g, int b, int a)
     m_a = a;
 }
 
-void CQuad::SetSpriteSize(float w, float h, float sx, float sy)
+void CQuad::SetSpriteSize(float w, float h)
 {
     m_w = w;
     m_h = h;
 
-    m_v[0].tx = sx;             m_v[0].ty = sy;
-    m_v[1].tx = w / m_tw;       m_v[1].ty = sy;
+    m_v[0].tx = 0;              m_v[0].ty = 0;
+    m_v[1].tx = w / m_tw;       m_v[1].ty = 0;
     m_v[2].tx = w / m_tw;       m_v[2].ty = h / m_th;
-    m_v[3].tx = sx;             m_v[3].ty = h / m_th;
+    m_v[3].tx = 0;              m_v[3].ty = h / m_th;
 }
 
 void CQuad::SetWindowSize(float w, float h)

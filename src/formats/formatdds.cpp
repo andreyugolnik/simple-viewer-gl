@@ -56,7 +56,11 @@ bool CFormatDds::Load(const char* filename, int subImage) {
 
 	DDS_header header;
 	//  DDS is so simple to read, too
-	fread(&header, sizeof(header), 1, m_file);
+	if(sizeof(header) != fread(&header, 1, sizeof(header), m_file))
+    {
+		fclose(m_file);
+		return false;
+    }
 
 	if(header.dwMagic != DDS_MAGIC || header.dwSize != 124 || !(header.dwFlags & DDSD_PIXELFORMAT) || !(header.dwFlags & DDSD_CAPS)) {
 		fclose(m_file);
@@ -80,7 +84,7 @@ bool CFormatDds::Load(const char* filename, int subImage) {
 		//li	= &loadInfoDXT5;
 	//}
 	//else
-		if(PF_IS_BGRA8(header.sPixelFormat)) {
+    if(PF_IS_BGRA8(header.sPixelFormat)) {
 		li	= &loadInfoBGRA8;
 	}
 	else if(PF_IS_BGR8(header.sPixelFormat)) {

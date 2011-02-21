@@ -67,7 +67,7 @@ private:
 private:
     bool loadImage(int step, int subImage = 0);
     void showCursor(bool show);
-    //void centerWindow();
+    void centerWindow();
     void calculateScale();
     void updateScale(bool up);
     void updateInfobar();

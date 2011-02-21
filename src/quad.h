@@ -9,7 +9,7 @@
 #define QUAD_H
 
 #include "rect.h"
-#include <GL/freeglut.h>
+#include <GL/glut.h>
 
 class CQuad
 {
@@ -18,7 +18,7 @@ public:
     virtual ~CQuad();
 
     virtual void SetColor(int r, int g, int b, int a);
-    virtual void SetSpriteSize(float w, float h, float sx = 0, float sy = 0);
+    virtual void SetSpriteSize(float w, float h);
     virtual void SetWindowSize(float w, float h);
     virtual void Render(float x, float y);
     virtual void RenderEx(float x, float y, float w, float h, int rot = 0);
