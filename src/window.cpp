@@ -26,7 +26,6 @@ CWindow::CWindow() :
     m_prevWinX(0), m_prevWinY(0), m_prevWinW(DEF_WINDOW_W), m_prevWinH(DEF_WINDOW_H),
     m_curWinW(0), m_curWinH(0), m_scale(1),
     m_windowed(true), m_testFullscreen(false),
-    m_testResize(false),
     m_fitImage(false),
     m_showBorder(false), m_recursiveDir(false), m_cursorVisible(true),
     m_lastMouseX(-1), m_lastMouseY(-1),
@@ -159,6 +158,7 @@ void CWindow::fnRender()
         {
             //printf("can't set fullscreen mode. scr: %d x %d, win: %d x %d\n", scrw, scrh, width, height);
             m_windowed = true;
+            glutPositionWindow(m_prevWinX, m_prevWinY);
             glutReshapeWindow(m_prevWinW, m_prevWinH);
             return;
         }
@@ -174,10 +174,10 @@ void CWindow::fnRender()
 
     glColor3f(1, 1, 1);
 
+    updateViewportSize();
+
     if(m_na->Render() == false)
     {
-        calculateScale();
-
         float img_w = m_imageList->GetWidth() * m_scale;
         float img_h = m_imageList->GetHeight() * m_scale;
 
@@ -222,31 +222,7 @@ void CWindow::fnRender()
 
 void CWindow::fnResize(int width, int height)
 {
-    if(m_testResize == true)
-    {
-        m_testResize = false;
-
-        int a_width = glutGet(GLUT_WINDOW_WIDTH);
-        int a_height = glutGet(GLUT_WINDOW_HEIGHT);
-        //printf("resize desired: %d x %d, actual: %d x %d\n", width, height, a_width, a_height);
-        // if window can't be resized (due WM restriction or limitation) then set size to current window size
-        // useful in tiled WM
-        if(width != a_width || height != a_height)
-        {
-            //printf("can't resize window\n");
-            width = a_width;
-            height = a_height;
-        }
-    }
-
-    m_curWinW = width;
-    m_curWinH = height - m_infoBar->GetHeight();
-
-    //if(m_curWinW < DEF_WINDOW_W || m_curWinH < DEF_WINDOW_H) {
-    //	m_curWinW	= std::max(m_curWinW, DEF_WINDOW_W);
-    //	m_curWinH	= std::max(m_curWinH, DEF_WINDOW_H);
-    //	glutReshapeWindow(m_curWinW, m_curWinH);
-    //}
+    updateViewportSize();
 
     calculateScale();
     int w = (int)(m_imageList->GetWidth() * m_scale);
@@ -568,8 +544,6 @@ void CWindow::centerWindow()
 {
     if(m_windowed == true)
     {
-        m_testResize = true;
-
         calculateScale();
         int w = m_imageList->GetWidth() * m_scale;
         int h = m_imageList->GetHeight() * m_scale;
@@ -618,7 +592,7 @@ bool CWindow::loadImage(int step, int subImage)
     m_selection->SetImageDimension(m_imageList->GetWidth(), m_imageList->GetHeight());
     updateInfobar();
 
-    //fnResize(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
+    fnResize(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
     centerWindow();
 
     updatePixelInfo(m_lastMouseX, m_lastMouseY);
@@ -773,6 +747,11 @@ void CWindow::deleteTextures()
     m_quads.clear();
 }
 
+void CWindow::updateViewportSize()
+{
+    m_curWinW = glutGet(GLUT_WINDOW_WIDTH);
+    m_curWinH = glutGet(GLUT_WINDOW_HEIGHT) - m_infoBar->GetHeight();
+}
 
 
 void CWindow::callbackResize(int width, int height)

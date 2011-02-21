@@ -41,7 +41,6 @@ private:
     float m_scale;
     bool m_windowed;
     bool m_testFullscreen;
-    bool m_testResize;
     bool m_fitImage;
     bool m_showBorder;
     bool m_recursiveDir;
@@ -77,6 +76,7 @@ private:
     void deleteTextures();
     void calculateTextureSize(int* texW, int* texH, int imgW, int imgH);
     void updatePixelInfo(int x, int y);
+    void updateViewportSize();
 
     void fnProgressLoading(int percent);
     static void callbackProgressLoading(int percent);
