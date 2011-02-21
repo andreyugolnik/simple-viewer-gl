@@ -382,18 +382,24 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y)
             m_prevWinY = glutGet(GLUT_WINDOW_Y);
             m_prevWinW = glutGet(GLUT_WINDOW_WIDTH);
             m_prevWinH = glutGet(GLUT_WINDOW_HEIGHT);
-            glutPositionWindow(0, 0);
-            glutReshapeWindow(glutGet(GLUT_SCREEN_WIDTH), glutGet(GLUT_SCREEN_HEIGHT));
-            //glutFullScreen();
+            int scrw = glutGet(GLUT_SCREEN_WIDTH);
+            int scrh = glutGet(GLUT_SCREEN_HEIGHT);
+            /*glutReshapeWindow(scrw, scrh);
+            */glutFullScreen();
 
             // if window can't be resized (due WM restriction or limitation) then set size to current window size
             // useful in tiled WM
-            if(glutGet(GLUT_SCREEN_WIDTH) != glutGet(GLUT_WINDOW_WIDTH) || glutGet(GLUT_SCREEN_HEIGHT) != glutGet(GLUT_WINDOW_HEIGHT))
+            if(scrw != glutGet(GLUT_WINDOW_WIDTH) || scrh != glutGet(GLUT_WINDOW_HEIGHT))
             {
+		printf("can't set fullscreen mode. scr: %d x %d, win: %d x %d\n", scrw, scrh, glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
                 m_windowed = true;
-                glutPositionWindow(m_prevWinX, m_prevWinY);
                 glutReshapeWindow(m_prevWinW, m_prevWinH);
+            glutPositionWindow(m_prevWinX, m_prevWinY);
             }
+            /*else
+            {
+                glutPositionWindow(0, 0);
+            }*/
         }
         else
         {

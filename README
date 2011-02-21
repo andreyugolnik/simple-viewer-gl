@@ -24,11 +24,13 @@ Default keybindings:
  <b>           hide / show border around image;
 
 Library requirements:
- - libconfig++
  - OpenGL
- - freeGLUT 2.6.0
- - freetype2
- - Imlib2
+ - glut - is a window system independent toolkit for writing OpenGL programs.
+ - libXi - provides an X Window System client interface to the XINPUT extension to the X protocol.
+ - libXmu - provides a set of miscellaneous utility convenience functions for X libraries to use.
+ - libconfig++ - parsing and manipulation of structured configuration files.
+ - freetype2 - FreeType 2 font engine, shared library files.
+ - Imlib2 - is an advanced replacement for libraries like libXpm.
  - libjpeg
  - libpng
  - giflib
@@ -36,7 +38,7 @@ Library requirements:
 
 
 --
-Copyright © 2008-2010 Andrey A. Ugolnik. All Rights Reserved.
+Copyright © 2008-2011 Andrey A. Ugolnik. All Rights Reserved.
 
 http://www.wegroup.org
 http://www.ugolnik.info
