@@ -70,51 +70,61 @@ bool CFilesList::ParseDir() {
 	return false;
 }
 
-bool CFilesList::scanDirectory(const std::string& dir) {
-	struct dirent** namelist;
-	int n = scandir(dir.c_str(), &namelist, filter, alphasort);
-	if(n < 0) {
-		std::cout << "Can't scan \"" << dir << "\" " << n << "." << std::endl;
-		return false;
-	}
-	else {
-		int count	= 0;
-		while(n--) {
-			std::string path(dir);
-			path	+= "/";
-			path	+= namelist[n]->d_name;
+bool CFilesList::scanDirectory(const std::string& dir)
+{
+    struct dirent** namelist;
+    int n = scandir(dir.c_str(), &namelist, filter, alphasort);
+    if(n < 0)
+    {
+        std::cout << "Can't scan \"" << dir << "\" " << n << "." << std::endl;
+        return false;
+    }
+    else
+    {
+        int count = 0;
+        while(n--)
+        {
+            std::string path(dir);
+            path += "/";
+            path += namelist[n]->d_name;
 
-			// skip non non readable files/dirs
-			DIR* d	= opendir(path.c_str());
-			if(d != 0) {
-				closedir(d);
-				if(m_recursive == true) {
-					scanDirectory(path);
-				}
-			}
-			else if(isValidExt(path) == true) {
-				m_files.push_back(path);
-				count++;
-			}
-			free(namelist[n]);
-		}
-		if(count > 0) {
-			std::cout << "Scaning \"" << dir << "\" directory... " << count << " images found." << std::endl;
-		}
-		free(namelist);
-	}
+            // skip non non readable files/dirs
+            DIR* d = opendir(path.c_str());
+            if(d != 0)
+            {
+                closedir(d);
+                if(m_recursive == true)
+                {
+                    scanDirectory(path);
+                }
+            }
+            else if(isValidExt(path) == true)
+            {
+                m_files.push_back(path);
+                count++;
+            }
+            free(namelist[n]);
+        }
+        if(count > 0)
+        {
+            std::cout << "Scaning \"" << dir << "\" directory... " << count << " images found." << std::endl;
+        }
+        free(namelist);
+    }
 
-	return true;
+    return true;
 }
 
-int CFilesList::filter(const struct dirent* p) {
-	// skip . and ..
+int CFilesList::filter(const struct dirent* p)
+{
+    // skip . and ..
 #define DOT_OR_DOTDOT(base)	(base[0] == '.' && (base[1] == '\0' || (base[1] == '.' && base[2] == '\0')))
-	if(DOT_OR_DOTDOT(p->d_name)) {
-		return 0;
-	}
+    if(DOT_OR_DOTDOT(p->d_name))
+    {
+        return 0;
+    }
 
-	return 1;
+    return 1;
 }
 
 bool CFilesList::isValidExt(const std::string& path) {
