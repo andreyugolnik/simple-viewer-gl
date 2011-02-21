@@ -224,10 +224,6 @@ void CWindow::fnResize(int width, int height)
     updateViewportSize();
 
     calculateScale();
-    int w = (int)(m_imageList->GetWidth() * m_scale);
-    int h = (int)(m_imageList->GetHeight() * m_scale);
-    m_imageDx = (m_curWinW - w) / 2;
-    m_imageDy = (m_curWinH - h) / 2;
 
     glViewport(0, 0, m_curWinW, m_curWinH + m_infoBar->GetHeight());
 
@@ -337,14 +333,13 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y)
     case 'i':
     case 'I':
         m_infoBar->Show(!m_infoBar->Visible());
-        fnResize(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
-        //glutPostRedisplay();
+        calculateScale();
+        //fnResize(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
         break;
     case 'p':
     case 'P':
         m_pixelInfo->Show(!m_pixelInfo->IsVisible());
         showCursor(!m_pixelInfo->IsVisible());
-        //glutPostRedisplay();
         break;
     case 's':
     case 'S':
@@ -353,23 +348,20 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y)
         {
             m_scale = 1;
         }
-        fnResize(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
+        centerWindow();
+        //fnResize(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
         updateInfobar();
-        //glutPostRedisplay();
         break;
     case ' ':
         loadImage(1);
-        //glutPostRedisplay();
         break;
     // TODO add Mac OS X support: Delete key instesd Backspace
     case 8:	// backspace
         loadImage(-1);
-        //glutPostRedisplay();
         break;
     case 'b':
     case 'B':
         m_showBorder = !m_showBorder;
-        //glutPostRedisplay();
         break;
     case '+':
     case '=':
@@ -381,14 +373,13 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y)
     case 'c':
     case 'C':
         m_checkerBoard->Enable(!m_checkerBoard->IsEnabled());
-        //glutPostRedisplay();
         break;
     case '0':
         m_scale = 1;
         m_fitImage = false;
-        fnResize(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
+        centerWindow();
+        //fnResize(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
         updateInfobar();
-        //glutPostRedisplay();
         break;
     case 13:
         m_windowed = !m_windowed;
@@ -402,7 +393,6 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y)
         {
             centerWindow();
         }
-        //glutPostRedisplay();
         break;
     //default:
     //      std::cout << key << std::endl;
@@ -502,6 +492,11 @@ void CWindow::calculateScale()
             m_scale = 1;
         }
     }
+
+    int w = static_cast<int>(m_imageList->GetWidth() * m_scale);
+    int h = static_cast<int>(m_imageList->GetHeight() * m_scale);
+    m_imageDx = (m_curWinW - w) / 2;
+    m_imageDy = (m_curWinH - h) / 2;
 }
 
 // TODO update m_imageDx / m_imageDy according current mouse position
@@ -586,8 +581,8 @@ bool CWindow::loadImage(int step, int subImage)
     m_selection->SetImageDimension(m_imageList->GetWidth(), m_imageList->GetHeight());
     updateInfobar();
 
-    fnResize(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
     centerWindow();
+    //fnResize(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
 
     updatePixelInfo(m_lastMouseX, m_lastMouseY);
 
