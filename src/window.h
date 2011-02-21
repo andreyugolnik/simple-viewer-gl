@@ -40,6 +40,9 @@ private:
     int m_curWinW, m_curWinH;
     float m_scale;
     bool m_windowed;
+    bool m_testFullscreen;
+    bool m_testResize;
+    int m_resizeWinW, m_resizeWinH;
     bool m_fitImage;
     bool m_showBorder;
     bool m_recursiveDir;

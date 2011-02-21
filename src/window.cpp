@@ -24,7 +24,10 @@ CWindow* CWindow::m_window = 0;
 CWindow::CWindow() :
     m_initialImageLoading(true),
     m_prevWinX(0), m_prevWinY(0), m_prevWinW(DEF_WINDOW_W), m_prevWinH(DEF_WINDOW_H),
-    m_curWinW(0), m_curWinH(0), m_scale(1), m_windowed(true), m_fitImage(false),
+    m_curWinW(0), m_curWinH(0), m_scale(1),
+    m_windowed(true), m_testFullscreen(false),
+    m_testResize(false), m_resizeWinW(0), m_resizeWinH(0),
+    m_fitImage(false),
     m_showBorder(false), m_recursiveDir(false), m_cursorVisible(true),
     m_lastMouseX(-1), m_lastMouseY(-1),
     m_mouseLB(false), m_mouseMB(false), m_mouseRB(false),
@@ -198,6 +201,37 @@ void CWindow::fnRender()
 
 void CWindow::fnResize(int width, int height)
 {
+    if(m_testFullscreen == true)
+    {
+        m_testFullscreen = false;
+
+        // if window can't be resized (due WM restriction or limitation) then set size to current window size
+        // useful in tiled WM
+        int scrw = glutGet(GLUT_SCREEN_WIDTH);
+        int scrh = glutGet(GLUT_SCREEN_HEIGHT);
+        if(scrw != width || scrh != height)
+        {
+            printf("can't set fullscreen mode. scr: %d x %d, win: %d x %d\n", scrw, scrh, width, height);
+            m_windowed = true;
+            glutReshapeWindow(m_prevWinW, m_prevWinH);
+            return;
+        }
+    }
+
+    if(m_testResize == true)
+    {
+        m_testResize = false;
+
+        // if window can't be resized (due WM restriction or limitation) then set size to current window size
+        // useful in tiled WM
+        if(m_resizeWinW != width || m_resizeWinH != height)
+        {
+            printf("can't resize window\n");
+            glutReshapeWindow(width, height);
+            return;
+        }
+    }
+
     m_curWinW = width;
     m_curWinH = height - m_infoBar->GetHeight();
 
@@ -382,24 +416,8 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y)
             m_prevWinY = glutGet(GLUT_WINDOW_Y);
             m_prevWinW = glutGet(GLUT_WINDOW_WIDTH);
             m_prevWinH = glutGet(GLUT_WINDOW_HEIGHT);
-            int scrw = glutGet(GLUT_SCREEN_WIDTH);
-            int scrh = glutGet(GLUT_SCREEN_HEIGHT);
-            /*glutReshapeWindow(scrw, scrh);
-            */glutFullScreen();
-
-            // if window can't be resized (due WM restriction or limitation) then set size to current window size
-            // useful in tiled WM
-            if(scrw != glutGet(GLUT_WINDOW_WIDTH) || scrh != glutGet(GLUT_WINDOW_HEIGHT))
-            {
-		printf("can't set fullscreen mode. scr: %d x %d, win: %d x %d\n", scrw, scrh, glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
-                m_windowed = true;
-                glutReshapeWindow(m_prevWinW, m_prevWinH);
-            glutPositionWindow(m_prevWinX, m_prevWinY);
-            }
-            /*else
-            {
-                glutPositionWindow(0, 0);
-            }*/
+            glutFullScreen();
+            m_testFullscreen = true;
         }
         else
         {
@@ -542,6 +560,8 @@ void CWindow::centerWindow()
 {
     if(m_windowed == true)
     {
+        m_testResize = true;
+
         calculateScale();
         int w = m_imageList->GetWidth() * m_scale;
         int h = m_imageList->GetHeight() * m_scale;
@@ -549,21 +569,12 @@ void CWindow::centerWindow()
         int scrh = glutGet(GLUT_SCREEN_HEIGHT);
         int imgw = std::max<int>(w + (m_showBorder ? m_border->GetBorderWidth() * 2 : 0), DEF_WINDOW_W);
         int imgh = std::max<int>(h + (m_showBorder ? m_border->GetBorderWidth() * 2 : 0) + m_infoBar->GetHeight(), DEF_WINDOW_H);
-        int winw = std::min<int>(imgw, scrw);
-        int winh = std::min<int>(imgh, scrh);
-        glutReshapeWindow(winw, winh);
+        m_resizeWinW = std::min<int>(imgw, scrw);
+        m_resizeWinH = std::min<int>(imgh, scrh);
+        glutReshapeWindow(m_resizeWinW, m_resizeWinH);
 
-        // if window can't be resized (due WM restriction or limitation) then set size to current window size
-        // useful in tiled WM
-        if(winw != glutGet(GLUT_WINDOW_WIDTH) || winh != glutGet(GLUT_WINDOW_HEIGHT))
-        {
-            winw = glutGet(GLUT_WINDOW_WIDTH);
-            winh = glutGet(GLUT_WINDOW_HEIGHT);
-            glutReshapeWindow(winw, winh);
-        }
-
-        int posx = (scrw - winw) / 2;
-        int posy = (scrh - winh) / 2;
+        int posx = (scrw - m_resizeWinW) / 2;
+        int posy = (scrh - m_resizeWinH) / 2;
         glutPositionWindow(posx, posy);
 
         //printf("screen: %d x %d, window %d x %d, pos: %d, %d\n", scrw, scrh, winw, winh, posx, posy);
