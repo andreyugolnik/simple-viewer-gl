@@ -334,7 +334,6 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y)
     case 'I':
         m_infoBar->Show(!m_infoBar->Visible());
         calculateScale();
-        //fnResize(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
         break;
     case 'p':
     case 'P':
@@ -349,7 +348,6 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y)
             m_scale = 1;
         }
         centerWindow();
-        //fnResize(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
         updateInfobar();
         break;
     case ' ':
@@ -378,7 +376,6 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y)
         m_scale = 1;
         m_fitImage = false;
         centerWindow();
-        //fnResize(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
         updateInfobar();
         break;
     case 13:
@@ -582,7 +579,6 @@ bool CWindow::loadImage(int step, int subImage)
     updateInfobar();
 
     centerWindow();
-    //fnResize(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
 
     updatePixelInfo(m_lastMouseX, m_lastMouseY);
 
