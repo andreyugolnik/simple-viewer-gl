@@ -21,8 +21,12 @@ CConfig::~CConfig() {
 bool CConfig::Open() {
 	m_opened	= false;
 
-	// make config path according XDG spec
 	std::stringstream path;
+
+#if defined(__APPLE__)
+    path << getenv("HOME") <<"/Library/sviewgl/config";
+#else
+	// make config path according XDG spec
 	if(getenv("XDG_CONFIG_HOME")) {
 		path << getenv("XDG_CONFIG_HOME");
 		if(path.str()[path.str().length() - 1] != '/') {
@@ -33,6 +37,8 @@ bool CConfig::Open() {
 	else {
 		path << getenv("HOME") <<"/.config/sviewgl/config";
 	}
+#endif
+
 	std::cout << "Using config file: '" << path.str() << "'" << std::endl;
 
 	// try to read config

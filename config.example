@@ -1,6 +1,11 @@
 // Example Configuration File of SimpleViewer GL
+//
+// Linux:
 // Copy it to $XDG_CONFIG_HOME/sviewgl/config
 // If $XDG_CONFIG_HOME is not set $HOME/.config/sviewgl/config will be used
+//
+// Mac OS X:
+// Copy it to ~/Library/sviewgl/config
 //
 
 // show or hide bottom infobar (default FALSE)
