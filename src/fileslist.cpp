@@ -9,17 +9,26 @@
 #include <iostream>
 #include <dirent.h>
 
-CFilesList::CFilesList(const char* file, bool recursive) : m_listCreated(false), m_recursive(recursive), m_position(0), m_removeCurrent(false) {
-	if(file != 0) {
+CFilesList::CFilesList(const char* file, bool recursive) :
+    m_listCreated(false),
+    m_recursive(recursive),
+    m_position(0),
+    m_removeCurrent(false)
+{
+	if(file != 0)
+	{
 		m_files.push_back(file);
 	}
 }
 
-CFilesList::~CFilesList() {
+CFilesList::~CFilesList()
+{
 }
 
-bool CFilesList::ParseDir() {
-	if(m_listCreated == true) {
+bool CFilesList::ParseDir()
+{
+	if(m_listCreated == true)
+	{
 		return true;
 	}
 
@@ -28,41 +37,47 @@ bool CFilesList::ParseDir() {
 	// get base directory
 	std::string dir, name;
 	size_t pos	= m_files[0].find_last_of('/');
-	if(std::string::npos != pos) {
-		dir		= m_files[0].substr(0, pos);
-		if(pos + 1 != std::string::npos) {
-			name	= m_files[0].substr(pos + 1);
+	if(std::string::npos != pos)
+	{
+		dir = m_files[0].substr(0, pos);
+		if(pos + 1 != std::string::npos)
+		{
+			name = m_files[0].substr(pos + 1);
 		}
 	}
 	else {
-		dir	= ".";
-		name	= m_files[0];
+		dir = ".";
+		name = m_files[0];
 	}
 
 	// remove initial image from list (it will be added again below)
 	m_files.clear();
 
-	if(true == scanDirectory(dir)) {
+	if(true == scanDirectory(dir))
+	{
 		// sorting images by names
 		std::sort(m_files.begin(), m_files.end(), CComparator());
 
 		// search startup image index in sorted list
-		size_t len		= name.length();
-		size_t count	= m_files.size();
-		for(size_t i = 0; i < count; i++) {
+		size_t len = name.length();
+		size_t count = m_files.size();
+		for(size_t i = 0; i < count; i++)
+		{
 			size_t slen	= m_files[i].length();
-			if(slen >= len && m_files[i].substr(slen - len, len) == name) {
-				m_position	= i;
+			if(slen >= len && m_files[i].substr(slen - len, len) == name)
+			{
+				m_position = i;
 				break;
 			}
 		}
 
 		// push back initial file
-		if(count == 0) {
+		if(count == 0)
+		{
 			m_files.push_back(initial_file);
 		}
 
-		m_listCreated	= true;
+		m_listCreated = true;
 
 		return true;
 	}

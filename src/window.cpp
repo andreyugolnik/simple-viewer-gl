@@ -324,12 +324,6 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y)
         exit(0);
         //glutLeaveMainLoop();
         break;
-    case 127:	// Delete
-        if(mod == GLUT_ACTIVE_CTRL)
-        {
-            m_filesList->RemoveFromDisk();
-        }
-        break;
     case 'i':
     case 'I':
         m_infoBar->Show(!m_infoBar->Visible());
@@ -353,9 +347,24 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y)
     case ' ':
         loadImage(1);
         break;
-    // TODO add Mac OS X support: Delete key instesd Backspace
-    case 8:	// backspace
+        // backspace
+#if defined(__APPLE__)
+    case 127:
+#else
+    case 8:
+#endif
         loadImage(-1);
+        break;
+        // Delete
+#if defined(__APPLE__)
+    case 8:
+#else
+    case 127:
+#endif
+        if(mod == GLUT_ACTIVE_CTRL)
+        {
+            m_filesList->RemoveFromDisk();
+        }
         break;
     case 'b':
     case 'B':
@@ -392,13 +401,14 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y)
         }
         break;
     //default:
-    //      std::cout << key << std::endl;
-    //      break;
+         //std::cout << key << std::endl;
+         //break;
     }
 }
 
 void CWindow::fnKeyboardSpecial(int key, int x, int y)
 {
+     std::cout << key << std::endl;
     switch(key)
     {
     case GLUT_KEY_LEFT:
@@ -441,6 +451,9 @@ void CWindow::fnKeyboardSpecial(int key, int x, int y)
         loadImage(0, m_imageList->GetSub() + 1);
         //glutPostRedisplay();
         break;
+    //default:
+         //std::cout << key << std::endl;
+         //break;
     }
 }
 
