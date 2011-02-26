@@ -341,7 +341,7 @@ float CSelection::getTime()
     struct timespec now;
     clock_gettime(CLOCK_REALTIME, &now);
 
-    float dt = ((now.tv_sec - m_timeLast.tv_sec) + (now.tv_nsec - m_timeLast.tv_nsec) / 1000000000.0f);
+    dt = ((now.tv_sec - m_timeLast.tv_sec) + (now.tv_nsec - m_timeLast.tv_nsec) / 1000000000.0f);
 
     m_timeLast = now;
 #endif
