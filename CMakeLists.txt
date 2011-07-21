@@ -61,7 +61,7 @@ ADD_EXECUTABLE(../sviewgl
 	)
 
 TARGET_LINK_LIBRARIES(../sviewgl
-	"rt"
+	#"rt"
 	${FREETYPE_LIBRARY}
 	${OPENGL_LIBRARY}
 	${GLUT_LIBRARY}
