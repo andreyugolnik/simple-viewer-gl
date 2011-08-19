@@ -33,7 +33,6 @@ CWindow::CWindow() :
     m_keyPressed(false), m_imageDx(0), m_imageDy(0),
     m_pow2(false), m_textureSize(256)
 {
-
     m_window = this;
 
     m_imageList.reset(new CImageLoader(callbackProgressLoading));
@@ -243,7 +242,7 @@ void CWindow::fnMouse(int x, int y)
     int diffy = y - m_lastMouseY;
     m_lastMouseX = x;
     m_lastMouseY = y;
-    if(m_fitImage == false && m_mouseMB == true)
+    if(m_fitImage == false && (m_mouseMB == true || m_mouseRB))
     {
         if(diffx != 0 || diffy != 0)
         {
@@ -325,7 +324,8 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y)
     case 'i':
     case 'I':
         m_infoBar->Show(!m_infoBar->Visible());
-        calculateScale();
+        centerWindow();
+        //calculateScale();
         break;
     case 'p':
     case 'P':
