@@ -8,21 +8,21 @@
 #ifndef FTSYMBOL_H
 #define FTSYMBOL_H
 
-#include <GL/glut.h>
+#include "renderer.h"
 
-class CFTSymbol {
+class CFTSymbol
+{
 public:
-	CFTSymbol(int tw, int th, float tx, float ty, int w, int h);
-	virtual ~CFTSymbol();
+    CFTSymbol(sQuad& _quad, int tw, int th, float tx, float ty, int w, int h);
+    virtual ~CFTSymbol();
 
-	void Render(int x, int y);
+    void Render(int x, int y);
 
 private:
-	int m_w, m_h;
-	struct VERTEX {
-		GLint x, y;	// vertex screen coordinates
-		GLfloat tx, ty;	// vertex texture coordinates
-	} m_v[4];
+    int m_w;
+    int m_h;
+    sQuad m_quad;
 };
 
 #endif // FTSYMBOL_H
+

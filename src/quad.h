@@ -9,7 +9,7 @@
 #define QUAD_H
 
 #include "rect.h"
-#include <GL/glut.h>
+#include "renderer.h"
 
 class CQuad
 {
@@ -29,15 +29,9 @@ public:
 
 protected:
     GLfloat m_tw, m_th;	// texture width / height
-    GLuint m_tex;
     GLfloat m_w, m_h;	// sprite width / height
-    GLint m_r, m_g, m_b, m_a;
     CRect<float> m_rcWindow;	// current window size
-    struct VERTEX {
-        GLfloat x, y;	// vertex screen coordinates
-        GLfloat tx, ty;	// vertex texture coordinates
-    } m_v[4];
-
+    sQuad m_quad;
 
 private:
     CQuad();

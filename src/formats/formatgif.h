@@ -11,15 +11,17 @@
 #include "format.h"
 #include <gif_lib.h>
 
-class CFormatGif : public CFormat {
+class CFormatGif : public CFormat
+{
 public:
-	CFormatGif(Callback callback);
-	virtual ~CFormatGif();
+    CFormatGif(Callback callback);
+    virtual ~CFormatGif();
 
-	virtual bool Load(const char* filename, int subImage = 0);
-	virtual void FreeMemory();
+    virtual bool Load(const char* filename, int subImage = 0);
 
 private:
+    void putPixel(int _pos, const GifColorType* _color, bool _transparent);
 };
 
 #endif // FORMATGIF_H
+

@@ -10,15 +10,16 @@
 
 #include "format.h"
 
-class CFormatTiff : public CFormat {
+class CFormatTiff : public CFormat
+{
 public:
-	CFormatTiff(Callback callback);
-	virtual ~CFormatTiff();
+    CFormatTiff(Callback callback);
+    virtual ~CFormatTiff();
 
-	virtual bool Load(const char* filename, int subImage = 0);
-	virtual void FreeMemory();
+    virtual bool Load(const char* filename, int subImage = 0);
 
 private:
 };
 
 #endif // FORMATTIFF_H
+

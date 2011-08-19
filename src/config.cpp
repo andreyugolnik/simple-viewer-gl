@@ -11,15 +11,20 @@
 #include <stdlib.h>
 #include <sstream>
 
-CConfig::CConfig(CWindow* window) : m_window(window), m_opened(false) {
+CConfig::CConfig(CWindow* window)
+    : m_window(window)
+    , m_opened(false)
+{
 	m_config.reset(new libconfig::Config());
 }
 
-CConfig::~CConfig() {
+CConfig::~CConfig()
+{
 }
 
-bool CConfig::Open() {
-	m_opened	= false;
+bool CConfig::Open()
+{
+	m_opened = false;
 
 	std::stringstream path;
 
@@ -27,14 +32,17 @@ bool CConfig::Open() {
     path << getenv("HOME") <<"/Library/sviewgl/config";
 #else
 	// make config path according XDG spec
-	if(getenv("XDG_CONFIG_HOME")) {
+	if(getenv("XDG_CONFIG_HOME"))
+	{
 		path << getenv("XDG_CONFIG_HOME");
-		if(path.str()[path.str().length() - 1] != '/') {
+		if(path.str()[path.str().length() - 1] != '/')
+		{
 			path << "/";
 		}
 		path << "sviewgl/config";
 	}
-	else {
+	else
+	{
 		path << getenv("HOME") <<"/.config/sviewgl/config";
 	}
 #endif
@@ -42,14 +50,17 @@ bool CConfig::Open() {
 	std::cout << "Using config file: '" << path.str() << "'" << std::endl;
 
 	// try to read config
-	try {
+	try
+	{
 		m_config->readFile(path.str().c_str());
 	}
-	catch(libconfig::FileIOException e) {
+	catch(libconfig::FileIOException e)
+	{
 		std::cout << "Can't open config: " << std::endl;
 		return false;
 	}
-	catch(libconfig::ParseException e) {
+	catch(libconfig::ParseException e)
+	{
 		std::cout << "Can't parse config: " << e.getError() << " in line " << e.getLine() << std::endl;
 		return false;
 	}
@@ -59,8 +70,10 @@ bool CConfig::Open() {
 	return true;
 }
 
-void CConfig::Read() {
-	if(m_opened == true) {
+void CConfig::Read()
+{
+	if(m_opened == true)
+	{
 		bool value;
 
 		if(true == m_config->lookupValue("hide_infobar", value) && value == true) {
@@ -92,10 +105,12 @@ void CConfig::Read() {
 		}
 
 		int r, g, b;
-		if(true == m_config->lookupValue("background_r", r) &&
-			true == m_config->lookupValue("background_g", g) &&
-			true == m_config->lookupValue("background_b", b)) {
+		if(m_config->lookupValue("background_r", r)
+		        && m_config->lookupValue("background_g", g)
+		        && m_config->lookupValue("background_b", b))
+		{
 			m_window->SetProp(r, g, b);
 		}
 	}
 }
+

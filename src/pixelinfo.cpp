@@ -17,7 +17,10 @@ const int FONT_HEIGHT	= 13;
 const int FRAME_DELTA	= 10;
 const int LINES_COUNT	= 4;
 
-CPixelInfo::CPixelInfo() : m_visible(false), m_windowWidth(0), m_windowHeight(0)
+CPixelInfo::CPixelInfo()
+    : m_visible(false)
+    , m_windowWidth(0)
+    , m_windowHeight(0)
 {
     memset(&m_pixelInfo, 0, sizeof(m_pixelInfo));
 }
@@ -119,9 +122,12 @@ void CPixelInfo::SetWindowSize(int w, int h)
 
 bool CPixelInfo::checkBoundary() const
 {
-    if(m_pixelInfo.bitmap != 0 && m_pixelInfo.scale == 1 &&
-            m_pixelInfo.x >= 0 && m_pixelInfo.x < m_pixelInfo.w &&
-            m_pixelInfo.y >= 0 && m_pixelInfo.y < m_pixelInfo.h)
+    if(m_pixelInfo.bitmap != 0
+            && m_pixelInfo.scale == 1
+            && m_pixelInfo.x >= 0
+            && m_pixelInfo.x < m_pixelInfo.w
+            && m_pixelInfo.y >= 0
+            && m_pixelInfo.y < m_pixelInfo.h)
     {
 
         return true;

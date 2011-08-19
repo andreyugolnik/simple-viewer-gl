@@ -74,13 +74,6 @@ bool CWindow::Init(int argc, char* argv[], const char* path)
         //glutMouseWheelFunc(callbackMouseWheel);
         //glutWMCloseFunc(closeWindow);
 
-        glEnable(GL_BLEND);
-        glEnable(GL_TEXTURE_2D);
-        glDisable(GL_DEPTH_TEST);
-        glDisable(GL_CULL_FACE);
-
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
         //int version = glutGet(GLUT_VERSION);
         //std::cout << "GLUT v" << version << std::endl;
         glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_textureSize);
@@ -89,6 +82,8 @@ bool CWindow::Init(int argc, char* argv[], const char* path)
 
         m_pow2 = glutExtensionSupported("GL_ARB_texture_non_power_of_two");
         std::cout << "Non Power of Two extension " << (m_pow2 ? "available." : "not available.") << std::endl;
+
+        cRenderer::init();
 
         m_checkerBoard->Init();
         m_na->Init();
@@ -171,12 +166,13 @@ void CWindow::fnRender()
 
     m_checkerBoard->Render();
 
-    glColor3f(1, 1, 1);
-
     updateViewportSize();
 
     if(m_na->Render() == false)
     {
+        //glPushMatrix();
+        //glRotatef(90, 0, 0, -1);
+
         float img_w = m_imageList->GetWidth() * m_scale;
         float img_h = m_imageList->GetHeight() * m_scale;
 
@@ -205,6 +201,8 @@ void CWindow::fnRender()
         {
             m_border->Render(m_imageDx, m_imageDy, img_w, img_h);
         }
+
+        //glPopMatrix();
 
         if(m_pixelInfo->IsVisible() == true && m_scale == 1)
         {
@@ -408,7 +406,7 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y)
 
 void CWindow::fnKeyboardSpecial(int key, int x, int y)
 {
-     std::cout << key << std::endl;
+    std::cout << key << std::endl;
     switch(key)
     {
     case GLUT_KEY_LEFT:
@@ -672,52 +670,54 @@ void CWindow::createTextures()
 
     int texW, texH;
     calculateTextureSize(&texW, &texH, width, height);
-    assert(texW != 0 && texH != 0);
-    // texture pitch should be multiple by 4
-    int texPitch = static_cast<int>(ceilf(texW * bytesPP / 4.0f) * 4);
-
-    int cols = static_cast<int>(ceilf(static_cast<float>(width) / texW));
-    int rows = static_cast<int>(ceilf(static_cast<float>(height) / texH));
-    size_t quadsCount = cols * rows;
-    std::cout << "textures: " << quadsCount << " (" << cols << " x " << rows << ") required" << std::endl;
-
-    deleteTextures();
-
-    unsigned char* buffer = new unsigned char[texPitch * texH];
-
-    int idx = 0;
-    int height2 = height;
-    for(int row = 0; row < rows; row++)
+    if(texW > 0 && texH > 0)
     {
-        int width2 = width;
-        int h = (height2 > texH ? texH : height2);
-        for(int col = 0; col < cols; col++)
+        // texture pitch should be multiple by 4
+        int texPitch = static_cast<int>(ceilf(texW * bytesPP / 4.0f) * 4);
+
+        int cols = static_cast<int>(ceilf(static_cast<float>(width) / texW));
+        int rows = static_cast<int>(ceilf(static_cast<float>(height) / texH));
+        size_t quadsCount = cols * rows;
+        std::cout << "textures: " << quadsCount << " (" << cols << " x " << rows << ") required" << std::endl;
+
+        deleteTextures();
+
+        unsigned char* buffer = new unsigned char[texPitch * texH];
+
+        int idx = 0;
+        int height2 = height;
+        for(int row = 0; row < rows; row++)
         {
-            int w = (width2 > texW ? texW : width2);
-            width2 -= w;
-
-            int dx = col * texPitch;
-            int dy = row * texH;
-            int count = w * bytesPP;
-            for(int line = 0; line < h; line++)
+            int width2 = width;
+            int h = (height2 > texH ? texH : height2);
+            for(int col = 0; col < cols; col++)
             {
-                int src	= dx + (dy + line) * pitch;
-                int dst	= line * texPitch;
-                memcpy(&buffer[dst], &bitmap[src], count);
+                int w = (width2 > texW ? texW : width2);
+                width2 -= w;
+
+                int dx = col * texPitch;
+                int dy = row * texH;
+                int count = w * bytesPP;
+                for(int line = 0; line < h; line++)
+                {
+                    int src	= dx + (dy + line) * pitch;
+                    int dst	= line * texPitch;
+                    memcpy(&buffer[dst], &bitmap[src], count);
+                }
+
+                CQuadImage* quad = new CQuadImage(texW, texH, buffer, format);
+                quad->SetCell(col, row);
+                quad->SetSpriteSize(w, h);
+
+                m_quads.push_back(quad);
+
+                idx++;
             }
-
-            CQuadImage* quad = new CQuadImage(texW, texH, buffer, format);
-            quad->SetCell(col, row);
-            quad->SetSpriteSize(w, h);
-
-            m_quads.push_back(quad);
-
-            idx++;
+            height2 -= h;
         }
-        height2 -= h;
-    }
 
-    delete[] buffer;
+        delete[] buffer;
+    }
 }
 
 void CWindow::showCursor(bool show)
@@ -736,7 +736,7 @@ void CWindow::showCursor(bool show)
 
 void CWindow::deleteTextures()
 {
-    glBindTexture(GL_TEXTURE_2D, 0);
+    //glBindTexture(GL_TEXTURE_2D, 0);
     QuadsIc it = m_quads.begin(), itEnd = m_quads.end();
     for( ; it != itEnd; ++it)
     {

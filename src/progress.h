@@ -11,7 +11,8 @@
 #include "quad.h"
 #include <memory>
 
-class CProgress {
+class CProgress
+{
 public:
 	CProgress();
 	virtual ~CProgress();
@@ -27,3 +28,4 @@ private:
 };
 
 #endif // PROGRESS_H
+

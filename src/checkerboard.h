@@ -11,7 +11,8 @@
 #include "quad.h"
 #include <memory>
 
-class CCheckerboard {
+class CCheckerboard
+{
 public:
 	CCheckerboard();
 	virtual ~CCheckerboard();
@@ -29,3 +30,4 @@ private:
 };
 
 #endif // CHECKERBOARD_H
+

@@ -7,8 +7,6 @@
 
 #include "imageborder.h"
 
-#include <GL/gl.h>
-
 CImageBorder::CImageBorder()
 {
     SetColor(255, 25, 25, 255);
@@ -20,17 +18,15 @@ CImageBorder::~CImageBorder()
 
 void CImageBorder::SetColor(int r, int g, int b, int a)
 {
-    m_r = r;
-    m_g = g;
-    m_b = b;
-    m_a = a;
+    m_line.v[0].a = m_line.v[1].a = a;
+    m_line.v[0].r = m_line.v[1].r = r;
+    m_line.v[0].g = m_line.v[1].g = g;
+    m_line.v[0].b = m_line.v[1].b = b;
 }
 
 void CImageBorder::Render(int x, int y, int w, int h)
 {
-    glColor4ub(m_r, m_g, m_b, m_a);
     glLineWidth(GetBorderWidth());
-    glBindTexture(GL_TEXTURE_2D, 0);
 
     renderLine(x - GetBorderWidth(), y - GetBorderWidth(), x + w + GetBorderWidth(), y - GetBorderWidth());	// up
     renderLine(x - GetBorderWidth(), y + h, x + w + GetBorderWidth(), y + h);	// down
@@ -40,9 +36,11 @@ void CImageBorder::Render(int x, int y, int w, int h)
 
 void CImageBorder::renderLine(float x1, float y1, float x2, float y2)
 {
-    glBegin(GL_LINES);
-        glVertex2f(x1 + 0.5f, y1 + 0.5f); glVertex2f(x2 + 0.5f, y2 + 0.5f);
-    glEnd();
+    m_line.v[0].x = x1 + 0.5f;
+    m_line.v[0].y = y1 + 0.5f;
+    m_line.v[1].x = x2 + 0.5f;
+    m_line.v[1].y = y2 + 0.5f;
+    cRenderer::render(&m_line);
 }
 
 int CImageBorder::GetBorderWidth() const

@@ -49,12 +49,14 @@ bool CFormatCommon::Load(const char* filename, int subImage) {
 	return true;
 }
 
-void CFormatCommon::FreeMemory() {
-	if(m_image != 0) {
-		imlib_free_image();
-		m_image	= 0;
-		m_bitmap	= 0;
-	}
+void CFormatCommon::FreeMemory()
+{
+    if(m_image != 0)
+    {
+        imlib_free_image();
+        m_image = 0;
+        m_bitmap = 0;
+    }
 }
 
 int CFormatCommon::callbackProgress(void* p, char percent, int a, int b, int c, int d) {

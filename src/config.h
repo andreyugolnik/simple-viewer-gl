@@ -13,7 +13,8 @@
 
 class CWindow;
 
-class CConfig {
+class CConfig
+{
 public:
 	CConfig(CWindow* window);
 	virtual ~CConfig();
@@ -28,3 +29,4 @@ private:
 };
 
 #endif // CONFIG_H
+

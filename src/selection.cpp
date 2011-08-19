@@ -14,12 +14,13 @@
 #include <time.h>
 #include <stdio.h>
 
-CSelection::CSelection() :
-    m_enabled(true),
-    m_imageWidth(0), m_imageHeight(0),
-    m_timeDelta(0), 
-    m_mode(MODE_NONE),
-    m_corner(CORNER_NONE)
+CSelection::CSelection()
+    : m_enabled(true)
+    , m_imageWidth(0)
+    , m_imageHeight(0)
+    , m_timeDelta(0)
+    , m_mode(MODE_NONE)
+    , m_corner(CORNER_NONE)
 {
 }
 

@@ -58,111 +58,116 @@
 #define D3DFMT_DXT5     '5TXD'    //  DXT5 compression texture format 
 
 /*#define PF_IS_DXT1(pf) \
-	((pf.dwFlags & DDPF_FOURCC) && \
-	 (pf.dwFourCC == D3DFMT_DXT1))
+  ((pf.dwFlags & DDPF_FOURCC) && \
+  (pf.dwFourCC == D3DFMT_DXT1))
 
 #define PF_IS_DXT3(pf) \
-	((pf.dwFlags & DDPF_FOURCC) && \
-	 (pf.dwFourCC == D3DFMT_DXT3))
+((pf.dwFlags & DDPF_FOURCC) && \
+(pf.dwFourCC == D3DFMT_DXT3))
 
 #define PF_IS_DXT5(pf) \
-	((pf.dwFlags & DDPF_FOURCC) && \
-	 (pf.dwFourCC == D3DFMT_DXT5))
+((pf.dwFlags & DDPF_FOURCC) && \
+(pf.dwFourCC == D3DFMT_DXT5))
 */
 #define PF_IS_BGRA8(pf) \
-	((pf.dwFlags & DDPF_RGB) && \
-	 (pf.dwFlags & DDPF_ALPHAPIXELS) && \
-	 (pf.dwRGBBitCount == 32) && \
-	 (pf.dwRBitMask == 0xff0000) && \
-	 (pf.dwGBitMask == 0xff00) && \
-	 (pf.dwBBitMask == 0xff) && \
-	 (pf.dwAlphaBitMask == 0xff000000U))
+    ((pf.dwFlags & DDPF_RGB) && \
+     (pf.dwFlags & DDPF_ALPHAPIXELS) && \
+     (pf.dwRGBBitCount == 32) && \
+     (pf.dwRBitMask == 0xff0000) && \
+     (pf.dwGBitMask == 0xff00) && \
+     (pf.dwBBitMask == 0xff) && \
+     (pf.dwAlphaBitMask == 0xff000000U))
 
 #define PF_IS_BGR8(pf) \
-	((pf.dwFlags & DDPF_ALPHAPIXELS) && \
-	 !(pf.dwFlags & DDPF_ALPHAPIXELS) && \
-	 (pf.dwRGBBitCount == 24) && \
-	 (pf.dwRBitMask == 0xff0000) && \
-	 (pf.dwGBitMask == 0xff00) && \
-	 (pf.dwBBitMask == 0xff))
+    ((pf.dwFlags & DDPF_ALPHAPIXELS) && \
+     !(pf.dwFlags & DDPF_ALPHAPIXELS) && \
+     (pf.dwRGBBitCount == 24) && \
+     (pf.dwRBitMask == 0xff0000) && \
+     (pf.dwGBitMask == 0xff00) && \
+     (pf.dwBBitMask == 0xff))
 
 #define PF_IS_BGR5A1(pf) \
-	((pf.dwFlags & DDPF_RGB) && \
-	 (pf.dwFlags & DDPF_ALPHAPIXELS) && \
-	 (pf.dwRGBBitCount == 16) && \
-	 (pf.dwRBitMask == 0x00007c00) && \
-	 (pf.dwGBitMask == 0x000003e0) && \
-	 (pf.dwBBitMask == 0x0000001f) && \
-	 (pf.dwAlphaBitMask == 0x00008000))
+    ((pf.dwFlags & DDPF_RGB) && \
+     (pf.dwFlags & DDPF_ALPHAPIXELS) && \
+     (pf.dwRGBBitCount == 16) && \
+     (pf.dwRBitMask == 0x00007c00) && \
+     (pf.dwGBitMask == 0x000003e0) && \
+     (pf.dwBBitMask == 0x0000001f) && \
+     (pf.dwAlphaBitMask == 0x00008000))
 
 #define PF_IS_BGR565(pf) \
-	((pf.dwFlags & DDPF_RGB) && \
-	 !(pf.dwFlags & DDPF_ALPHAPIXELS) && \
-	 (pf.dwRGBBitCount == 16) && \
-	 (pf.dwRBitMask == 0x0000f800) && \
-	 (pf.dwGBitMask == 0x000007e0) && \
-	 (pf.dwBBitMask == 0x0000001f))
+    ((pf.dwFlags & DDPF_RGB) && \
+     !(pf.dwFlags & DDPF_ALPHAPIXELS) && \
+     (pf.dwRGBBitCount == 16) && \
+     (pf.dwRBitMask == 0x0000f800) && \
+     (pf.dwGBitMask == 0x000007e0) && \
+     (pf.dwBBitMask == 0x0000001f))
 
 #define PF_IS_INDEX8(pf) \
-	((pf.dwFlags & DDPF_INDEXED) && \
-	 (pf.dwRGBBitCount == 8))
+    ((pf.dwFlags & DDPF_INDEXED) && \
+     (pf.dwRGBBitCount == 8))
 
 
-struct DdsLoadInfo {
-	bool compressed;
-	bool swap;
-	bool palette;
-	unsigned int divSize;
-	unsigned int blockBytes;
-	GLenum internalFormat;
-	GLenum externalFormat;
-	GLenum type;
+struct DdsLoadInfo
+{
+    bool compressed;
+    bool swap;
+    bool palette;
+    uint32_t divSize;
+    uint32_t blockBytes;
+    GLenum internalFormat;
+    GLenum externalFormat;
+    GLenum type;
 };
 
-union DDS_header {
-	struct {
-		unsigned int    dwMagic;
-		unsigned int    dwSize;
-		unsigned int    dwFlags;
-		unsigned int    dwHeight;
-		unsigned int    dwWidth;
-		unsigned int    dwPitchOrLinearSize;
-		unsigned int    dwDepth;
-		unsigned int    dwMipMapCount;
-		unsigned int    dwReserved1[ 11 ];
+union DDS_header
+{
+    struct
+    {
+        uint32_t    dwMagic;
+        uint32_t    dwSize;
+        uint32_t    dwFlags;
+        uint32_t    dwHeight;
+        uint32_t    dwWidth;
+        uint32_t    dwPitchOrLinearSize;
+        uint32_t    dwDepth;
+        uint32_t    dwMipMapCount;
+        uint32_t    dwReserved1[ 11 ];
 
-		//  DDPIXELFORMAT
-		struct {
-			unsigned int    dwSize;
-			unsigned int    dwFlags;
-			unsigned int    dwFourCC;
-			unsigned int    dwRGBBitCount;
-			unsigned int    dwRBitMask;
-			unsigned int    dwGBitMask;
-			unsigned int    dwBBitMask;
-			unsigned int    dwAlphaBitMask;
-		}               sPixelFormat;
+        //  DDPIXELFORMAT
+        struct
+        {
+            uint32_t    dwSize;
+            uint32_t    dwFlags;
+            uint32_t    dwFourCC;
+            uint32_t    dwRGBBitCount;
+            uint32_t    dwRBitMask;
+            uint32_t    dwGBitMask;
+            uint32_t    dwBBitMask;
+            uint32_t    dwAlphaBitMask;
+        }               sPixelFormat;
 
-		//  DDCAPS2
-		struct {
-			unsigned int    dwCaps1;
-			unsigned int    dwCaps2;
-			unsigned int    dwDDSX;
-			unsigned int    dwReserved;
-		}               sCaps;
-		unsigned int    dwReserved2;
-	};
-	char data[ 128 ];
+        //  DDCAPS2
+        struct
+        {
+            uint32_t    dwCaps1;
+            uint32_t    dwCaps2;
+            uint32_t    dwDDSX;
+            uint32_t    dwReserved;
+        }               sCaps;
+        uint32_t    dwReserved2;
+    };
+    char data[ 128 ];
 };
 
 
-class CFormatDds : public CFormat {
+class CFormatDds : public CFormat
+{
 public:
-	CFormatDds(Callback callback);
-	virtual ~CFormatDds();
+    CFormatDds(Callback callback);
+    virtual ~CFormatDds();
 
-	virtual bool Load(const char* filename, int subImage = 0);
-	virtual void FreeMemory();
+    virtual bool Load(const char* filename, int subImage = 0);
 
 private:
 };

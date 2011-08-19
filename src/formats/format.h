@@ -15,45 +15,44 @@
 
 //#define WIDTHBYTES(bits) ((((bits) + 31) / 32) * 4)
 
-typedef unsigned char uint8;
-typedef unsigned short uint16;
-typedef unsigned int uint32;
-
 typedef void (*Callback)(int);
 
-class CFormat {
-	friend class CImageLoader;
+class CFormat
+{
+    friend class CImageLoader;
 
 public:
-	CFormat(Callback callback = 0);
-	virtual ~CFormat();
+    CFormat(Callback callback = 0);
+    virtual ~CFormat();
 
-	virtual bool Load(const char* filename, int subImage = 0) = 0;
-	virtual void FreeMemory() = 0;
+    virtual bool Load(const char* filename, int subImage = 0) = 0;
+    virtual void FreeMemory();
 
 private:
-	Callback m_callback;
-	int m_percent;
+    Callback m_callback;
+    int m_percent;
 
 protected:
-	FILE* m_file;
-	unsigned char* m_bitmap;
-	GLenum m_format;
-	int m_width, m_height, m_pitch;	// width, height, row pitch of image in buffer
-	int m_bpp;						// bit per pixel of image in buffer
-	int m_bppImage;					// bit per pixel of original image
-	long m_size;					// file size on disk
-	size_t m_sizeMem;				// used memory
-	int m_subImage;
-	int m_subCount;
-	std::string m_info;				// additional info, such as EXIF
+    FILE* m_file;
+    unsigned char* m_bitmap;
+    GLenum m_format;
+    int m_width, m_height, m_pitch;	// width, height, row pitch of image in buffer
+    int m_bpp;						// bit per pixel of image in buffer
+    int m_bppImage;					// bit per pixel of original image
+    long m_size;					// file size on disk
+    size_t m_sizeMem;				// used memory
+    int m_subImage;
+    int m_subCount;
+    std::string m_info;				// additional info, such as EXIF
 
 protected:
-	bool openFile(const char* path);
-	void progress(int percent);
-	void reset();
-	uint16 read_uint16(uint8* p);
-	uint32 read_uint32(uint8* p);
+    bool openFile(const char* path);
+    void progress(int percent);
+    void reset();
+    uint16_t read_uint16(uint8_t* p);
+    uint32_t read_uint32(uint8_t* p);
+    void swap_long(uint8_t* bp, uint32_t n);
 };
 
 #endif // FORMAT_H
+

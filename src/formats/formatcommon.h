@@ -11,20 +11,21 @@
 #include <Imlib2.h>
 #include "format.h"
 
-class CFormatCommon : public CFormat {
+class CFormatCommon : public CFormat
+{
 public:
-	CFormatCommon(Callback callback);
-	virtual ~CFormatCommon();
+    CFormatCommon(Callback callback);
+    virtual ~CFormatCommon();
 
-	virtual bool Load(const char* filename, int subImage = 0);
-	virtual void FreeMemory();
-
-protected:
-private:
-	Imlib_Image m_image;
+    virtual bool Load(const char* filename, int subImage = 0);
+    virtual void FreeMemory();
 
 private:
-	static int callbackProgress(void*, char percent, int, int, int, int);
+    Imlib_Image m_image;
+
+private:
+    static int callbackProgress(void*, char percent, int, int, int, int);
 };
 
 #endif // FORMATCOMMON_H
+

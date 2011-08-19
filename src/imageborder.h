@@ -8,6 +8,8 @@
 #ifndef IMAGEBORDER_H
 #define IMAGEBORDER_H
 
+#include "renderer.h"
+
 class CImageBorder
 {
 public:
@@ -19,7 +21,7 @@ public:
     int GetBorderWidth() const;
 
 private:
-    int m_r, m_g, m_b, m_a;
+    sLine m_line;
 
 private:
     void renderLine(float x1, float y1, float x2, float y2);

@@ -37,9 +37,8 @@ private:
     wchar_t* m_symbols;	// all symbols placed on texture
     wchar_t* m_unicode;
     int m_unicodeSize;
-    GLuint m_tex;
     int m_texW, m_texH;
-    int m_r, m_g, m_b, m_a;
+    sQuad m_quad;
 
     typedef struct SYMBOL
     {

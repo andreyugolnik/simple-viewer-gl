@@ -10,13 +10,13 @@
 
 #include "format.h"
 
-class CFormatJpeg : public CFormat {
+class CFormatJpeg : public CFormat
+{
 public:
-	CFormatJpeg(Callback callback);
-	virtual ~CFormatJpeg();
+    CFormatJpeg(Callback callback);
+    virtual ~CFormatJpeg();
 
-	virtual bool Load(const char* filename, int subImage = 0);
-	virtual void FreeMemory();
+    virtual bool Load(const char* filename, int subImage = 0);
 
 private:
 };
