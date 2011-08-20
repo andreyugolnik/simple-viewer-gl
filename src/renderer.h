@@ -7,7 +7,7 @@
 //
 // created: 19-Aug-2011
 // changed: 20-Aug-2011
-// version: 0.0.0.29
+// version: 0.0.0.39
 //
 ////////////////////////////////////////////////
 
@@ -26,15 +26,6 @@ struct sVertex
     GLubyte r, g, b, a;
 };
 
-struct sQuad
-{
-    sQuad()
-        : tex(0)
-    { }
-    GLuint tex;
-    sVertex v[4];
-};
-
 struct sLine
 {
     sLine()
@@ -42,6 +33,15 @@ struct sLine
     { }
     GLuint tex;
     sVertex v[2];
+};
+
+struct sQuad
+{
+    sQuad()
+        : tex(0)
+    { }
+    GLuint tex;
+    sVertex v[4];
 };
 
 class cRenderer
@@ -52,15 +52,19 @@ public:
     static GLuint createTexture(const unsigned char* _data, int _w, int _h, GLenum _format);
     static void deleteTexture(GLuint _tex);
     static void bindTexture(GLuint _tex);
+    static void calculateTextureSize(int* _tex_w, int* _tex_h, int _img_w, int _img_h);
+    static void setColor(sLine* _line, int _r, int _g, int _b, int _a);
     static void setColor(sQuad* _quad, int _r, int _g, int _b, int _a);
-    static void render(sQuad* _quad);
     static void render(sLine* _quad);
+    static void render(sQuad* _quad);
 
 private:
     static bool m_inited;
-    static GLuint m_tex;
+    static unsigned m_tex;
     static sVertex m_vb[4];
     static unsigned short m_ib[6];
+    static bool m_pow2;
+    static int m_texture_max_size;
 };
 
 #endif /* end of include guard: RENDERER_H_E44EFE71C29EF8 */

@@ -10,6 +10,7 @@
 
 #include <string>
 #include <iostream>
+#include <vector>
 #include <stdio.h>
 #include <GL/gl.h>
 
@@ -34,13 +35,12 @@ private:
 
 protected:
     FILE* m_file;
-    unsigned char* m_bitmap;
+    std::vector<unsigned char> m_bitmap;
     GLenum m_format;
     int m_width, m_height, m_pitch;	// width, height, row pitch of image in buffer
     int m_bpp;						// bit per pixel of image in buffer
     int m_bppImage;					// bit per pixel of original image
     long m_size;					// file size on disk
-    size_t m_sizeMem;				// used memory
     int m_subImage;
     int m_subCount;
     std::string m_info;				// additional info, such as EXIF

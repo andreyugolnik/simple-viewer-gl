@@ -34,7 +34,7 @@ bool CImageLoader::LoadImage(const char* path, int subImage)
     {
         if(m_path.empty() == false && m_path == path)
         {
-            if(m_image.get() != 0 && m_image->m_bitmap != 0 && GetSub() == subImage)
+            if(m_image.get() && !m_image->m_bitmap.empty() && GetSub() == subImage)
             {
                 return true;	// image already loaded
             }
@@ -89,9 +89,9 @@ bool CImageLoader::LoadImage(const char* path, int subImage)
 
 unsigned char* CImageLoader::GetBitmap() const
 {
-    if(m_image.get() != 0)
+    if(m_image.get() && !m_image->m_bitmap.empty())
     {
-        return (unsigned char*)m_image->m_bitmap;
+        return (unsigned char*)&m_image->m_bitmap[0];
     }
     return 0;
 }
@@ -180,7 +180,7 @@ size_t CImageLoader::GetSizeMem() const
 {
     if(m_image.get() != 0)
     {
-        return m_image->m_sizeMem;
+        return m_image->m_bitmap.size();
     }
     return 0;
 }

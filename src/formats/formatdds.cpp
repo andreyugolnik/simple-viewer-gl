@@ -49,7 +49,6 @@ CFormatDds::CFormatDds(Callback callback)
 
 CFormatDds::~CFormatDds()
 {
-    FreeMemory();
 }
 
 bool CFormatDds::Load(const char* filename, int subImage)
@@ -161,17 +160,18 @@ bool CFormatDds::Load(const char* filename, int subImage)
         m_format	= li->externalFormat;
         //cFormat	= li->internalFormat;
 
-        uint8_t* data	= new uint8_t[size];
-        m_sizeMem	= size * sizeof(uint32_t);
-        m_bitmap	= new uint8_t[m_sizeMem];
+        uint8_t* data = new uint8_t[size];
+        m_bitmap.resize(size * sizeof(uint32_t));
 
         uint32_t palette[256];
         fread(palette, 4, 256, m_file);
 
-        for(uint32_t ix = 0; ix < mipMapCount; ++ix) {
+        for(uint32_t ix = 0; ix < mipMapCount; ++ix)
+        {
             fread(data, 1, size, m_file);
-            for(uint32_t zz = 0; zz < size; ++zz) {
-                m_bitmap[zz]	= palette[data[zz]];
+            for(uint32_t zz = 0; zz < size; ++zz)
+            {
+                m_bitmap[zz] = palette[data[zz]];
             }
             //glPixelStorei( GL_UNPACK_ROW_LENGTH, y );
             //glTexImage2D( GL_TEXTURE_2D, ix, li->internalFormat, x, y, 0, li->externalFormat, li->type, m_bitmap);
@@ -192,12 +192,12 @@ bool CFormatDds::Load(const char* filename, int subImage)
 
         m_pitch		= m_width * 4;
         size_t size = x * y * li->blockBytes;
-        m_sizeMem	= size;
-        m_bitmap	= new uint8_t[m_sizeMem];
+        m_bitmap.resize(size);
 
         // FIXME: how are MIP maps stored for 24-bit if pitch != m_height*3 ?
-        for(uint32_t ix = 0; ix < mipMapCount; ++ix) {
-            fread(m_bitmap, 1, size, m_file);
+        for(uint32_t ix = 0; ix < mipMapCount; ++ix)
+        {
+            fread(&m_bitmap[0], 1, m_bitmap.size(), m_file);
             //glPixelStorei( GL_UNPACK_ROW_LENGTH, y );
             //glTexImage2D( GL_TEXTURE_2D, ix, li->internalFormat, x, y, 0, li->externalFormat, li->type, m_bitmap);
             //gl->updateError();

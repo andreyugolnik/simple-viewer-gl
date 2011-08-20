@@ -8,6 +8,7 @@
 #include "ftstring.h"
 #include "DroidSans.hpp"
 #include <iostream>
+#include <vector>
 
 CFTString::CFTString(int size)
     : m_height(size)
@@ -36,7 +37,6 @@ CFTString::CFTString(const char* ttf, int size)
     , m_texW(256)
     , m_texH(256)
 {
-
     if(FT_Init_FreeType(&m_ft) != 0)
     {
         std::cout << "(EE) Error initiation FreeType2" << std::endl;
@@ -233,7 +233,7 @@ void CFTString::generate()
             FT_Bitmap bmp = slot->bitmap;
             const int size = bmp.pitch * bmp.rows;
 
-            //          str.p	= 0;
+            //str.p	= 0;
             str.bmp = new unsigned char[size];
             str.w = bmp.width;
             str.h = bmp.rows;
@@ -241,8 +241,8 @@ void CFTString::generate()
             str.l = slot->bitmap_left;
             str.t = slot->bitmap_top;
             str.ax = slot->advance.x >> 6;
-            //          str.px	= 0;
-            //          str.py	= 0;
+            //str.px	= 0;
+            //str.py	= 0;
             memcpy(str.bmp, bmp.buffer, size);
         }
         m_mapSymbol[charcode] = str;
@@ -258,8 +258,9 @@ void CFTString::generate()
 
 #define PX(a)	(((unsigned int)(a)<<24) + (unsigned int)0x00ffffff)
 
-    unsigned int* buffer = new unsigned int[m_texW * m_texH];
-    memset(buffer, 0, m_texW * m_texH * 4);
+    std::vector<unsigned> buffer;
+    buffer.resize(m_texW * m_texH);
+    memset(&buffer[0], 0, m_texW * m_texH * 4);
 
     // regenerate texture
     SymbolsIc it = m_mapSymbol.begin();
@@ -286,29 +287,15 @@ void CFTString::generate()
         }
     }
 
-    //if(m_quad.tex)
-    //{
-        //cRenderer::deleteTexture(m_quad.tex);
-    //}
-    //m_quad.tex = cRenderer::createTexture((unsigned char*)buffer, m_texW, m_texH, GL_RGBA);
-
     if(m_quad.tex == 0)
     {
-        m_quad.tex = cRenderer::createTexture((unsigned char*)buffer, m_texW, m_texH, GL_RGBA);
-        //glGenTextures(1, &m_quad.tex);
-        //cRenderer::bindTexture(m_quad.tex);
-        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+        m_quad.tex = cRenderer::createTexture((unsigned char*)&buffer[0], m_texW, m_texH, GL_RGBA);
     }
     else
     {
         cRenderer::bindTexture(m_quad.tex);
-        glTexImage2D(GL_TEXTURE_2D, 0, 4, m_texW, m_texH, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+        glTexImage2D(GL_TEXTURE_2D, 0, 4, m_texW, m_texH, 0, GL_RGBA, GL_UNSIGNED_BYTE, &buffer[0]);
     }
-
-    delete[] buffer;
 
     SymbolsIt it2 = m_mapSymbol.begin();
     for( ; it2 != m_mapSymbol.end(); ++it2)

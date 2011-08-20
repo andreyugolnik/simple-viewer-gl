@@ -49,8 +49,6 @@ private:
     bool m_mouseLB, m_mouseMB, m_mouseRB, m_keyPressed;
     int m_imageDx, m_imageDy;
 
-    bool m_pow2;
-    GLint m_textureSize;
     typedef std::vector<CQuadImage*> Quads;
     typedef Quads::const_iterator QuadsIc;
     Quads m_quads;

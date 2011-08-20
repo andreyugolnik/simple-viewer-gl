@@ -5,9 +5,9 @@
 // http://www.ugolnik.info
 // andrey@ugolnik.info
 //
-// date: 24-Apr-2011
-// changed: 24-Apr-2011
-// version: 0.0.0.4
+// date: 20-Aug-2011
+// changed: 20-Aug-2011
+// version: 0.0.0.7
 //
 ////////////////////////////////////////////////
 
@@ -21,7 +21,6 @@ CFormatXwd::CFormatXwd(Callback callback)
 
 CFormatXwd::~CFormatXwd()
 {
-    FreeMemory();
 }
 
 bool CFormatXwd::Load(const char* filename, int subImage)
@@ -57,8 +56,7 @@ bool CFormatXwd::Load(const char* filename, int subImage)
     m_bpp		= header.BitsPerPixel;
     m_bppImage	= header.BitsPerPixel;
     m_pitch		= header.BytesPerLine;
-    m_sizeMem	= m_pitch * m_height;
-    m_bitmap	= new unsigned char[m_sizeMem];
+    m_bitmap.resize(m_pitch * m_height);
     m_format	= GL_RGB;
 
     //uint8_t* p = m_bitmap;

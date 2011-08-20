@@ -16,7 +16,6 @@ CFormatGif::CFormatGif(Callback callback)
 
 CFormatGif::~CFormatGif()
 {
-    FreeMemory();
 }
 
 bool CFormatGif::Load(const char* filename, int subImage)
@@ -49,16 +48,15 @@ bool CFormatGif::Load(const char* filename, int subImage)
     const SavedImage* image = &file->SavedImages[m_subImage];
 
     // place next frame abov previous
-    if(!m_subImage || !m_bitmap)
+    if(!m_subImage || m_bitmap.empty())
     {
         m_width = file->SWidth;
         m_height = file->SHeight;
         m_pitch = file->SWidth * 4;
         m_bpp = 32;
         m_bppImage = 8;//file->Image.ColorMap->BitsPerPixel;
-        m_sizeMem = m_pitch * m_height;
-        m_bitmap = new unsigned char[m_sizeMem];
-        memset(m_bitmap, 0, m_sizeMem);
+        m_bitmap.resize(m_pitch * m_height);
+        memset(&m_bitmap[0], 0, m_bitmap.size());
         m_format = GL_RGBA;
     }
 

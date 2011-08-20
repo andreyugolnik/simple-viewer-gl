@@ -33,10 +33,10 @@ public:
 
     void Init();
     void Render();
-    bool Visible() { return m_visible; }
+    bool Visible() const { return m_visible; }
     void Show(bool show = true) { m_visible = show; }
     void Update(const InfoBar* p);
-    float GetHeight() { return (m_visible == true ? m_height : 0); }
+    float GetHeight() const { return (m_visible == true ? m_height : 0); }
 
 private:
     bool m_visible;

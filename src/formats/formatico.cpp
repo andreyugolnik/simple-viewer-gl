@@ -18,7 +18,6 @@ CFormatIco::CFormatIco(Callback callback)
 
 CFormatIco::~CFormatIco()
 {
-    FreeMemory();
 }
 
 bool CFormatIco::Load(const char* filename, int subImage)
@@ -206,8 +205,7 @@ bool CFormatIco::loadPngFrame(const IcoDirentry* image)
     png_read_image(png, row_pointers);
 
     // create BGRA buffer and decode image data
-    m_sizeMem = m_pitch * m_height;
-    m_bitmap = new unsigned char[m_sizeMem];
+    m_bitmap.resize(m_pitch * m_height);
 
     color_type = png_get_color_type(png, info);
     if(color_type == PNG_COLOR_TYPE_RGB)
@@ -285,7 +283,6 @@ bool CFormatIco::loadOrdinaryFrame(const IcoDirentry* image)
     m_pitch = m_width * 4;
     m_bpp = 32;
     m_bppImage = imgHeader->bits;
-    m_sizeMem = m_pitch * m_height;
     m_format = GL_RGBA;
 
     int pitch = calcIcoPitch();
@@ -296,7 +293,7 @@ bool CFormatIco::loadOrdinaryFrame(const IcoDirentry* image)
         return false;
     }
 
-    m_bitmap = new uint8_t[m_sizeMem];
+    m_bitmap.resize(m_pitch * m_height);
 
     //	std::cout << std::endl;
     //	std::cout << "--- IcoBmpInfoHeader ---" << std::endl;

@@ -6,8 +6,8 @@
 // andrey@ugolnik.info
 //
 // created: 26-Aug-2010
-// changed: 20-Jun-2011
-// version: 0.0.0.11
+// changed: 20-Aug-2011
+// version: 0.0.0.14
 //
 ////////////////////////////////////////////////
 
@@ -23,7 +23,6 @@ CFormatPng::CFormatPng(Callback callback)
 
 CFormatPng::~CFormatPng()
 {
-    FreeMemory();
 }
 
 bool CFormatPng::Load(const char* filename, int subImage)
@@ -118,8 +117,7 @@ bool CFormatPng::Load(const char* filename, int subImage)
     png_read_image(png, row_pointers);
 
     // create BGRA buffer and decode image data
-    m_sizeMem = m_pitch * m_height;
-    m_bitmap = new unsigned char[m_sizeMem];
+    m_bitmap.resize(m_pitch * m_height);
 
     color_type = png_get_color_type(png, info);
     if(color_type == PNG_COLOR_TYPE_RGB)

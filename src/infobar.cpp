@@ -35,8 +35,8 @@ void CInfoBar::Render()
 {
     if(m_visible == true)
     {
-        int w	= glutGet(GLUT_WINDOW_WIDTH);
-        int h	= glutGet(GLUT_WINDOW_HEIGHT);
+        int w = glutGet(GLUT_WINDOW_WIDTH);
+        int h = glutGet(GLUT_WINDOW_HEIGHT);
 
         m_bg->SetSpriteSize(w, m_height);
         m_bg->Render(0, h - m_height);
@@ -51,11 +51,11 @@ void CInfoBar::Update(const InfoBar* p)
 
     if(p != 0)
     {
-        std::string name	= p->path;
-        size_t pos	= name.find_last_of('/');
+        std::string name = p->path;
+        size_t pos = name.find_last_of('/');
         if(std::string::npos != pos)
         {
-            name	= name.substr(pos + 1);
+            name = name.substr(pos + 1);
         }
 
         std::stringstream dim;
@@ -66,12 +66,12 @@ void CInfoBar::Update(const InfoBar* p)
             dim << " (" << (int)(100 * p->scale) << "%)";
         }
 
-        long file_size	= p->file_size;
+        long file_size = p->file_size;
         std::string file_s;
-        int file_precision	= getHumanSize(&file_size, file_s);
-        long mem_size	= p->mem_size;
+        int file_precision = getHumanSize(&file_size, file_s);
+        long mem_size = p->mem_size;
         std::string mem_s;
-        int mem_precision	= getHumanSize(&mem_size, mem_s);
+        int mem_precision = getHumanSize(&mem_size, mem_s);
         std::stringstream size;
         size << std::fixed << std::setprecision(file_precision) << file_size << " " << file_s;
         size << " | mem: " << std::setprecision(mem_precision) << mem_size << " " << mem_s;
@@ -88,7 +88,7 @@ void CInfoBar::Update(const InfoBar* p)
         }
         formated << " | " << dim.str() << " | " << size.str();
 
-        m_bottominfo	= formated.str();
+        m_bottominfo = formated.str();
 
         // set window title
         if(p->files_count > 1)
@@ -102,7 +102,7 @@ void CInfoBar::Update(const InfoBar* p)
     }
     else
     {
-        m_bottominfo	= "";
+        m_bottominfo = "";
         title << TITLE;
     }
 
@@ -113,17 +113,17 @@ void CInfoBar::Update(const InfoBar* p)
 
 int CInfoBar::getHumanSize(long* size, std::string& suffix)
 {
-    const char* s[]	= { "B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB" };
+    const char* s[] = { "B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB" };
     int i = 0;
-    float file_size	= *size;
+    float file_size = *size;
     while(file_size > 1024)
     {
-        file_size	/= 1024;
+        file_size /= 1024;
         i++;
     }
 
-    *size	= (long)file_size;
-    suffix	= s[i];
+    *size = (long)file_size;
+    suffix = s[i];
     return i;
 }
 

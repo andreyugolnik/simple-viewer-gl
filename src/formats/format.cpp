@@ -11,7 +11,6 @@ CFormat::CFormat(Callback callback)
     : m_callback(callback)
     , m_percent(-1)
     , m_file(0)
-    , m_bitmap(0)
     , m_format(GL_RGB)
     , m_width(0)
     , m_height(0)
@@ -19,7 +18,6 @@ CFormat::CFormat(Callback callback)
     , m_bpp(0)
     , m_bppImage(0)
     , m_size(-1) // -1 mean that file can't be opened
-    , m_sizeMem(0)
     , m_subImage(0)
     , m_subCount(0)
 {
@@ -27,12 +25,12 @@ CFormat::CFormat(Callback callback)
 
 CFormat::~CFormat()
 {
+    FreeMemory();
 }
 
 void CFormat::FreeMemory()
 {
-    delete[] m_bitmap;
-    m_bitmap = 0;
+    m_bitmap.clear();
 }
 
 bool CFormat::openFile(const char* path)
@@ -71,8 +69,6 @@ void CFormat::reset()
 		m_file = 0;
 	}
 
-	delete[] m_bitmap;
-	m_bitmap	= 0;
 	m_format	= GL_RGB;
 	m_width		= 0;
 	m_height	= 0;
@@ -80,10 +76,11 @@ void CFormat::reset()
 	m_bpp		= 0;
 	m_bppImage	= 0;
 	m_size		= -1;
-	m_sizeMem	= 0;
 	m_subImage	= 0;
 	m_subCount	= 0;
 	m_info.clear();
+
+	FreeMemory();
 }
 
 uint16_t CFormat::read_uint16(uint8_t* p)

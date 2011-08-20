@@ -17,7 +17,6 @@ CFormatJpeg::CFormatJpeg(Callback callback)
 
 CFormatJpeg::~CFormatJpeg()
 {
-    FreeMemory();
 }
 
 typedef struct my_error_mgr
@@ -93,8 +92,7 @@ bool CFormatJpeg::Load(const char* filename, int subImage)
     m_pitch = cinfo.output_width * cinfo.output_components;
     m_bpp = cinfo.output_components * 8;
     m_bppImage = cinfo.num_components * 8;
-    m_sizeMem = m_pitch * m_height;
-    m_bitmap = new unsigned char[m_sizeMem];
+    m_bitmap.resize(m_pitch * m_height);
     m_format = GL_RGB;
 
     /* Step 6: while (scan lines remain to be read) */
@@ -104,7 +102,7 @@ bool CFormatJpeg::Load(const char* filename, int subImage)
      * loop counter, so that we don't have to keep track ourselves.
      */
     int row_stride = cinfo.output_width * cinfo.output_components;
-    unsigned char* p = m_bitmap;
+    unsigned char* p = &m_bitmap[0];
     while(cinfo.output_scanline < cinfo.output_height)
     {
         /* jpeg_read_scanlines expects an array of pointers to scanlines.

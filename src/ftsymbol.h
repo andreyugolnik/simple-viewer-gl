@@ -13,10 +13,10 @@
 class CFTSymbol
 {
 public:
-    CFTSymbol(sQuad& _quad, int tw, int th, float tx, float ty, int w, int h);
+    CFTSymbol(sQuad& _quad, int _tw, int _th, float _tx, float _ty, int _w, int _h);
     virtual ~CFTSymbol();
 
-    void Render(int x, int y);
+    void Render(int _x, int _y);
 
 private:
     int m_w;

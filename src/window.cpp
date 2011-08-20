@@ -30,8 +30,7 @@ CWindow::CWindow() :
     m_showBorder(false), m_recursiveDir(false), m_cursorVisible(true),
     m_lastMouseX(-1), m_lastMouseY(-1),
     m_mouseLB(false), m_mouseMB(false), m_mouseRB(false),
-    m_keyPressed(false), m_imageDx(0), m_imageDy(0),
-    m_pow2(false), m_textureSize(256)
+    m_keyPressed(false), m_imageDx(0), m_imageDy(0)
 {
     m_window = this;
 
@@ -60,6 +59,19 @@ bool CWindow::Init(int argc, char* argv[], const char* path)
 
         glutCreateWindow(TITLE);
 
+        //int version = glutGet(GLUT_VERSION);
+        //std::cout << "GLUT v" << version << std::endl;
+
+        cRenderer::init();
+
+        m_checkerBoard->Init();
+        m_na->Init();
+        m_infoBar->Init();
+        m_pixelInfo->Init();
+        updatePixelInfo(DEF_WINDOW_W, DEF_WINDOW_H);
+        m_progress->Init();
+        m_selection->Init();
+
         glutReshapeFunc(callbackResize);
         glutDisplayFunc(callbackRender);
         glutTimerFunc(100, callbackTimerUpdate, 100);
@@ -72,25 +84,6 @@ bool CWindow::Init(int argc, char* argv[], const char* path)
         glutPassiveMotionFunc(callbackMouse);
         //glutMouseWheelFunc(callbackMouseWheel);
         //glutWMCloseFunc(closeWindow);
-
-        //int version = glutGet(GLUT_VERSION);
-        //std::cout << "GLUT v" << version << std::endl;
-        glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_textureSize);
-        m_textureSize = std::min(512, m_textureSize);
-        std::cout << "Using texture size: " << m_textureSize << "." << std::endl;
-
-        m_pow2 = glutExtensionSupported("GL_ARB_texture_non_power_of_two");
-        std::cout << "Non Power of Two extension " << (m_pow2 ? "available." : "not available.") << std::endl;
-
-        cRenderer::init();
-
-        m_checkerBoard->Init();
-        m_na->Init();
-        m_infoBar->Init();
-        m_pixelInfo->Init();
-        updatePixelInfo(DEF_WINDOW_W, DEF_WINDOW_H);
-        m_progress->Init();
-        m_selection->Init();
 
         m_initialImageLoading = true;
 
@@ -618,27 +611,6 @@ void CWindow::updateInfobar()
     m_infoBar->Update(&s);
 }
 
-void CWindow::calculateTextureSize(int* texW, int* texH, int imgW, int imgH)
-{
-    int tw = std::min<int>(m_textureSize, imgW);
-    int th = std::min<int>(m_textureSize, imgH);
-
-    // correct texture size
-    if(m_pow2 == false)
-    {
-        float power_w = logf((float)tw) / logf(2.0f);
-        float power_h = logf((float)th) / logf(2.0f);
-        if(static_cast<int>(power_w) != power_w || static_cast<int>(power_h) != power_h)
-        {
-            tw = static_cast<int>(powf(2.0f, static_cast<int>(ceilf(power_w))));
-            th = static_cast<int>(powf(2.0f, static_cast<int>(ceilf(power_h))));
-        }
-    }
-    //std::cout << "  select texture size: " << tw << " x " << th << std::endl;
-    *texW = tw;
-    *texH = th;
-}
-
 void CWindow::updatePixelInfo(int x, int y)
 {
     PixelInfo pixelInfo;
@@ -660,63 +632,66 @@ void CWindow::updatePixelInfo(int x, int y)
 void CWindow::createTextures()
 {
     unsigned char* bitmap = m_imageList->GetBitmap();
-    int width   = m_imageList->GetWidth();
-    int height  = m_imageList->GetHeight();
-    int format  = m_imageList->GetBitmapFormat();
-    int pitch   = m_imageList->GetPitch();
-    int bytesPP = (m_imageList->GetBpp() / 8);
-
-    std::cout << " " << width << " x " << height << ", ";
-
-    int texW, texH;
-    calculateTextureSize(&texW, &texH, width, height);
-    if(texW > 0 && texH > 0)
+    if(bitmap)
     {
-        // texture pitch should be multiple by 4
-        int texPitch = static_cast<int>(ceilf(texW * bytesPP / 4.0f) * 4);
+        int width   = m_imageList->GetWidth();
+        int height  = m_imageList->GetHeight();
+        int format  = m_imageList->GetBitmapFormat();
+        int pitch   = m_imageList->GetPitch();
+        int bytesPP = (m_imageList->GetBpp() / 8);
 
-        int cols = static_cast<int>(ceilf(static_cast<float>(width) / texW));
-        int rows = static_cast<int>(ceilf(static_cast<float>(height) / texH));
-        size_t quadsCount = cols * rows;
-        std::cout << "textures: " << quadsCount << " (" << cols << " x " << rows << ") required" << std::endl;
+        std::cout << " " << width << " x " << height << ", ";
 
-        deleteTextures();
-
-        unsigned char* buffer = new unsigned char[texPitch * texH];
-
-        int idx = 0;
-        int height2 = height;
-        for(int row = 0; row < rows; row++)
+        int texW, texH;
+        cRenderer::calculateTextureSize(&texW, &texH, width, height);
+        if(texW > 0 && texH > 0)
         {
-            int width2 = width;
-            int h = (height2 > texH ? texH : height2);
-            for(int col = 0; col < cols; col++)
+            // texture pitch should be multiple by 4
+            int texPitch = static_cast<int>(ceilf(texW * bytesPP / 4.0f) * 4);
+
+            int cols = static_cast<int>(ceilf(static_cast<float>(width) / texW));
+            int rows = static_cast<int>(ceilf(static_cast<float>(height) / texH));
+            size_t quadsCount = cols * rows;
+            std::cout << "textures: " << quadsCount << " (" << cols << " x " << rows << ") required" << std::endl;
+
+            deleteTextures();
+
+            unsigned char* buffer = new unsigned char[texPitch * texH];
+
+            int idx = 0;
+            int height2 = height;
+            for(int row = 0; row < rows; row++)
             {
-                int w = (width2 > texW ? texW : width2);
-                width2 -= w;
-
-                int dx = col * texPitch;
-                int dy = row * texH;
-                int count = w * bytesPP;
-                for(int line = 0; line < h; line++)
+                int width2 = width;
+                int h = (height2 > texH ? texH : height2);
+                for(int col = 0; col < cols; col++)
                 {
-                    int src	= dx + (dy + line) * pitch;
-                    int dst	= line * texPitch;
-                    memcpy(&buffer[dst], &bitmap[src], count);
+                    int w = (width2 > texW ? texW : width2);
+                    width2 -= w;
+
+                    int dx = col * texPitch;
+                    int dy = row * texH;
+                    int count = w * bytesPP;
+                    for(int line = 0; line < h; line++)
+                    {
+                        int src	= dx + (dy + line) * pitch;
+                        int dst	= line * texPitch;
+                        memcpy(&buffer[dst], &bitmap[src], count);
+                    }
+
+                    CQuadImage* quad = new CQuadImage(texW, texH, buffer, format);
+                    quad->SetCell(col, row);
+                    quad->SetSpriteSize(w, h);
+
+                    m_quads.push_back(quad);
+
+                    idx++;
                 }
-
-                CQuadImage* quad = new CQuadImage(texW, texH, buffer, format);
-                quad->SetCell(col, row);
-                quad->SetSpriteSize(w, h);
-
-                m_quads.push_back(quad);
-
-                idx++;
+                height2 -= h;
             }
-            height2 -= h;
-        }
 
-        delete[] buffer;
+            delete[] buffer;
+        }
     }
 }
 

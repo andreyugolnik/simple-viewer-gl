@@ -16,7 +16,6 @@ CFormatTiff::CFormatTiff(Callback callback)
 
 CFormatTiff::~CFormatTiff()
 {
-    FreeMemory();
 }
 
 bool CFormatTiff::Load(const char* filename, int subImage)
@@ -45,8 +44,7 @@ bool CFormatTiff::Load(const char* filename, int subImage)
                 m_width = img.width;
                 m_height = img.height;
                 m_pitch = m_width * sizeof(uint32);
-                m_sizeMem = m_pitch * m_height;
-                m_bitmap = new unsigned char[m_sizeMem];
+                m_bitmap.resize(m_pitch * m_height);
                 m_bpp = 32;
                 m_bppImage = img.bitspersample * img.samplesperpixel;
                 m_format = GL_RGBA;
@@ -54,7 +52,7 @@ bool CFormatTiff::Load(const char* filename, int subImage)
                 // set desired orientation
                 img.req_orientation = ORIENTATION_TOPLEFT;
 
-                if(TIFFRGBAImageGet(&img, (uint32*)m_bitmap, m_width, m_height) != 0)
+                if(TIFFRGBAImageGet(&img, (uint32*)&m_bitmap[0], m_width, m_height) != 0)
                 {
                     ret = true;
                 }

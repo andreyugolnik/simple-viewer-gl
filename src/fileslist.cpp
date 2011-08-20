@@ -32,7 +32,7 @@ bool CFilesList::ParseDir()
         return true;
     }
 
-    std::string initial_file	= m_files[0];
+    std::string initial_file = m_files[0];
 
     // get base directory
     std::string dir, name;
