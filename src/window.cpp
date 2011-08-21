@@ -333,8 +333,8 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y)
     case 'i':
     case 'I':
         m_infoBar->Show(!m_infoBar->Visible());
-        centerWindow();
         //calculateScale();
+        centerWindow();
         break;
     case 'p':
     case 'P':
