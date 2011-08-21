@@ -73,11 +73,8 @@ bool CImageLoader::LoadImage(const char* path, int subImage)
         case FORMAT_DDS:
             m_image.reset(new CFormatDds(m_callback));
             break;
-        case FORMAT_COMMON:
+        default: //FORMAT_COMMON:
             m_image.reset(new CFormatCommon(m_callback));
-            break;
-        default:
-            std::cout << "Uncnown file format" << std::endl;
             break;
         }
 

@@ -6,8 +6,8 @@ INCLUDE(FindPkgConfig)
 SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
 # additional compiler flags
-ADD_DEFINITIONS(-Wall -O0 -g)
-#ADD_DEFINITIONS(-Wall -O2)
+#ADD_DEFINITIONS(-Wall -O0 -g)
+ADD_DEFINITIONS(-Wall -O2)
 
 FIND_PACKAGE(GLUT)
 FIND_PACKAGE(OpenGL)

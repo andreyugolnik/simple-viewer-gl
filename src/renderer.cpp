@@ -6,8 +6,8 @@
 // andrey@ugolnik.info
 //
 // created: 19-Aug-2011
-// changed: 20-Aug-2011
-// version: 0.0.0.62
+// changed: 21-Aug-2011
+// version: 0.0.0.69
 //
 ////////////////////////////////////////////////
 
@@ -26,8 +26,6 @@ void cRenderer::init()
 {
     if(!m_inited)
     {
-        m_inited = true;
-
         glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_texture_max_size);
         m_texture_max_size = std::min<int>(512, m_texture_max_size);
         std::cout << "Using texture size: " << m_texture_max_size << "x"  << m_texture_max_size << "." << std::endl;
@@ -52,35 +50,46 @@ void cRenderer::init()
         glVertexPointer(2, GL_FLOAT, sizeof(sVertex), &m_vb->x);
         glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(sVertex), &m_vb->r);
         glTexCoordPointer(2, GL_FLOAT, sizeof(sVertex), &m_vb->tx);
+
+        disable(false);
     }
+}
+
+void cRenderer::disable(bool _disable)
+{
+    m_inited = !_disable;
+
+    //std::cout << "Renderer " << (m_inited ? "inited" : "disabled") << std::endl;
 }
 
 GLuint cRenderer::createTexture(const unsigned char* _data, int _w, int _h, GLenum _format)
 {
     GLuint tex = 0;
-
-    if(_data)
+    if(m_inited)
     {
-        glGenTextures(1, &tex);
-    }
-
-    bindTexture(tex);
-
-    if(_data)
-    {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-
-        //std::cout << "creating " << tw << " x " << th << " texture" << std::endl;
-        GLint bytes = ((_format == GL_RGBA || _format == GL_BGRA) ? 4 : 3);
-        glTexImage2D(GL_TEXTURE_2D, 0, bytes, _w, _h, 0, _format, GL_UNSIGNED_BYTE, _data);
-        GLenum e = glGetError();
-        if(GL_NO_ERROR != e)
+        if(_data)
         {
-            //const GLubyte* s   = gluErrorString(e);
-            std::cout << "can't update texture " << tex << ": " << e << std::endl;
+            glGenTextures(1, &tex);
+        }
+
+        bindTexture(tex);
+
+        if(_data)
+        {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+
+            //std::cout << "creating " << tw << " x " << th << " texture" << std::endl;
+            GLint bytes = ((_format == GL_RGBA || _format == GL_BGRA) ? 4 : 3);
+            glTexImage2D(GL_TEXTURE_2D, 0, bytes, _w, _h, 0, _format, GL_UNSIGNED_BYTE, _data);
+            GLenum e = glGetError();
+            if(GL_NO_ERROR != e)
+            {
+                //const GLubyte* s   = gluErrorString(e);
+                std::cout << "can't update texture " << tex << ": " << e << std::endl;
+            }
         }
     }
 
@@ -89,19 +98,25 @@ GLuint cRenderer::createTexture(const unsigned char* _data, int _w, int _h, GLen
 
 void cRenderer::deleteTexture(GLuint _tex)
 {
-    bindTexture(0);
-    if(_tex != 0)
+    if(m_inited)
     {
-        glDeleteTextures(1, &_tex);
+        bindTexture(0);
+        if(_tex != 0)
+        {
+            glDeleteTextures(1, &_tex);
+        }
     }
 }
 
 void cRenderer::bindTexture(GLuint _tex)
 {
-    if(m_tex != _tex)
+    if(m_inited)
     {
-        m_tex = _tex;
-        glBindTexture(GL_TEXTURE_2D, m_tex);
+        if(m_tex != _tex)
+        {
+            m_tex = _tex;
+            glBindTexture(GL_TEXTURE_2D, m_tex);
+        }
     }
 }
 
@@ -144,23 +159,29 @@ void cRenderer::setColor(sQuad* _quad, int _r, int _g, int _b, int _a)
 
 void cRenderer::render(sLine* _line)
 {
-    bindTexture(_line->tex);
+    if(m_inited)
+    {
+        bindTexture(_line->tex);
 
-    m_vb[0] = _line->v[0];
-    m_vb[1] = _line->v[1];
+        m_vb[0] = _line->v[0];
+        m_vb[1] = _line->v[1];
 
-    glDrawElements(GL_LINES, 2, GL_UNSIGNED_SHORT, m_ib);
+        glDrawElements(GL_LINES, 2, GL_UNSIGNED_SHORT, m_ib);
+    }
 }
 
 void cRenderer::render(sQuad* _quad)
 {
-    bindTexture(_quad->tex);
+    if(m_inited)
+    {
+        bindTexture(_quad->tex);
 
-    m_vb[0] = _quad->v[0];
-    m_vb[1] = _quad->v[1];
-    m_vb[2] = _quad->v[2];
-    m_vb[3] = _quad->v[3];
+        m_vb[0] = _quad->v[0];
+        m_vb[1] = _quad->v[1];
+        m_vb[2] = _quad->v[2];
+        m_vb[3] = _quad->v[3];
 
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, m_ib);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, m_ib);
+    }
 }
 

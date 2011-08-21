@@ -18,7 +18,8 @@ void showHelp(const char* pchArgv0);
 
 
 // Program entry point
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
     setlocale(LC_ALL, "");
 
     printf("%s v2.1\n\n", TITLE);
@@ -27,7 +28,8 @@ int main(int argc, char* argv[]) {
     printf("http://www.ugolnik.info\n");
     printf("andrey@ugolnik.info\n\n");
 
-    if(argc < 2) {
+    if(argc < 2)
+    {
         showHelp(argv[0]);
         return 0;
     }
@@ -36,12 +38,15 @@ int main(int argc, char* argv[]) {
     const char* path = 0;
 
     CConfig config(&window);
-    if(config.Open() == true) {
+    if(config.Open() == true)
+    {
         config.Read();
     }
 
-    for(int i = 1; i < argc; i++) {
-        if(strncmp(argv[i], "-h", 2) == 0 || strncmp(argv[i], "--help", 6) == 0) {
+    for(int i = 1; i < argc; i++)
+    {
+        if(!strncmp(argv[i], "-h", 2) || !strncmp(argv[i], "--help", 6))
+        {
             showHelp(argv[0]);
             return 0;
         }
@@ -59,26 +64,33 @@ int main(int argc, char* argv[]) {
             window.SetProp(PROP_BORDER);
         else if(strncmp(argv[i], "-r", 2) == 0)
             window.SetProp(PROP_RECURSIVE);
-        else if(strncmp(argv[i], "-C", 2) == 0) {
+        else if(strncmp(argv[i], "-C", 2) == 0)
+        {
             unsigned int r, g, b;
-            if(3 == sscanf(argv[i + 1], "%2x%2x%2x", &r, &g, &b)) {
+            if(3 == sscanf(argv[i + 1], "%2x%2x%2x", &r, &g, &b))
+            {
                 window.SetProp(r, g, b);
                 i++;
             }
         }
-        else {
+        else
+        {
             path = argv[i];
         }
     }
 
-    if(window.Init(argc, argv, path) == true) {
+    if(window.Init(argc, argv, path) == true)
+    {
         glutMainLoop();
+        std::cout << "here 1" << std::endl;
     }
+    std::cout << "here 2" << std::endl;
 
     return 0;
 }
 
-void showHelp(const char* pchArgv0) {
+void showHelp(const char* pchArgv0)
+{
     const char* p = strrchr(pchArgv0, '/');
 
     printf("\nUsage:\n");

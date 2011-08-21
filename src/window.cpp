@@ -21,16 +21,29 @@
 // static members of CWindow class
 CWindow* CWindow::m_window = 0;
 
-CWindow::CWindow() :
-    m_initialImageLoading(true),
-    m_prevWinX(0), m_prevWinY(0), m_prevWinW(DEF_WINDOW_W), m_prevWinH(DEF_WINDOW_H),
-    m_curWinW(0), m_curWinH(0), m_scale(1),
-    m_windowed(true), m_testFullscreen(false),
-    m_fitImage(false),
-    m_showBorder(false), m_recursiveDir(false), m_cursorVisible(true),
-    m_lastMouseX(-1), m_lastMouseY(-1),
-    m_mouseLB(false), m_mouseMB(false), m_mouseRB(false),
-    m_keyPressed(false), m_imageDx(0), m_imageDy(0)
+CWindow::CWindow()
+    : m_initialImageLoading(true)
+    , m_prevWinX(0)
+    , m_prevWinY(0)
+    , m_prevWinW(DEF_WINDOW_W)
+    , m_prevWinH(DEF_WINDOW_H)
+    , m_curWinW(0)
+    , m_curWinH(0)
+    , m_scale(1)
+    , m_windowed(true)
+    , m_testFullscreen(false)
+    , m_fitImage(false)
+    , m_showBorder(false)
+    , m_recursiveDir(false)
+    , m_cursorVisible(true)
+    , m_lastMouseX(-1)
+    , m_lastMouseY(-1)
+    , m_mouseLB(false)
+    , m_mouseMB(false)
+    , m_mouseRB(false)
+    , m_keyPressed(false)
+    , m_imageDx(0)
+    , m_imageDy(0)
 {
     m_window = this;
 
@@ -292,9 +305,11 @@ void CWindow::fnMouseButtons(int button, int state, int x, int y)
             //glutPostRedisplay();
         }
         break;
+
     case GLUT_MIDDLE_BUTTON:
         m_mouseMB = (state == GLUT_DOWN);
         break;
+
     case GLUT_RIGHT_BUTTON:
         m_mouseRB = (state == GLUT_DOWN);
         break;
@@ -311,9 +326,10 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y)
     switch(key)
     {
     case 27: // ESC
+        cRenderer::disable(true);
         exit(0);
-        //glutLeaveMainLoop();
         break;
+
     case 'i':
     case 'I':
         m_infoBar->Show(!m_infoBar->Visible());
@@ -711,7 +727,6 @@ void CWindow::showCursor(bool show)
 
 void CWindow::deleteTextures()
 {
-    //glBindTexture(GL_TEXTURE_2D, 0);
     QuadsIc it = m_quads.begin(), itEnd = m_quads.end();
     for( ; it != itEnd; ++it)
     {

@@ -10,7 +10,6 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
-#include <GL/glut.h>
 
 CInfoBar::CInfoBar()
     : m_visible(true)

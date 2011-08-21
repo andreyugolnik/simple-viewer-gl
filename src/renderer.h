@@ -6,8 +6,8 @@
 // andrey@ugolnik.info
 //
 // created: 19-Aug-2011
-// changed: 20-Aug-2011
-// version: 0.0.0.39
+// changed: 21-Aug-2011
+// version: 0.0.0.43
 //
 ////////////////////////////////////////////////
 
@@ -49,6 +49,7 @@ class cRenderer
 public:
     static void init();
 
+    static void disable(bool _disable);
     static GLuint createTexture(const unsigned char* _data, int _w, int _h, GLenum _format);
     static void deleteTexture(GLuint _tex);
     static void bindTexture(GLuint _tex);
