@@ -7,7 +7,7 @@
 //
 // created: 19-Aug-2011
 // changed: 21-Aug-2011
-// version: 0.0.0.69
+// version: 0.0.0.71
 //
 ////////////////////////////////////////////////
 
@@ -78,8 +78,8 @@ GLuint cRenderer::createTexture(const unsigned char* _data, int _w, int _h, GLen
         {
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
             //std::cout << "creating " << tw << " x " << th << " texture" << std::endl;
             GLint bytes = ((_format == GL_RGBA || _format == GL_BGRA) ? 4 : 3);
