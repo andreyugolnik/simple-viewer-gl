@@ -26,12 +26,14 @@ public:
     virtual float GetHeight() const { return m_h; }
     virtual float GetTexWidth() const { return m_tw; }
     virtual float GetTexHeight() const { return m_th; }
+    virtual void useFilter(bool _filter);
 
 protected:
     GLfloat m_tw, m_th;	// texture width / height
     GLfloat m_w, m_h;	// sprite width / height
     CRect<float> m_rcWindow;	// current window size
     sQuad m_quad;
+    bool m_filter;
 
 private:
     CQuad();

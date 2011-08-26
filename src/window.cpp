@@ -529,11 +529,32 @@ void CWindow::updateScale(bool up)
 
     if(up == true)
     {
-        m_scale /= 0.95f;
+        //m_scale /= 0.95f;
+        m_scale += 0.2f;
     }
     else
     {
-        m_scale *= 0.95f;
+        //m_scale *= 0.95f;
+        if(m_scale > 0.2f)
+        {
+            m_scale -= 0.2f;
+        }
+    }
+
+    int scale = static_cast<int>(100 * m_scale);
+    if(scale % 100 == 0)
+    {
+        for(QuadsIc it = m_quads.begin(), itEnd = m_quads.end(); it != itEnd; ++it)
+        {
+            (*it)->useFilter(false);
+        }
+    }
+    else
+    {
+        for(QuadsIc it = m_quads.begin(), itEnd = m_quads.end(); it != itEnd; ++it)
+        {
+            (*it)->useFilter(true);
+        }
     }
 
     float neww = w * m_scale;
@@ -727,8 +748,7 @@ void CWindow::showCursor(bool show)
 
 void CWindow::deleteTextures()
 {
-    QuadsIc it = m_quads.begin(), itEnd = m_quads.end();
-    for( ; it != itEnd; ++it)
+    for(QuadsIc it = m_quads.begin(), itEnd = m_quads.end(); it != itEnd; ++it)
     {
         delete (*it);
     }

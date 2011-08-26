@@ -16,6 +16,7 @@ CQuad::CQuad(int tw, int th, const unsigned char* data, GLenum bitmapFormat)
     , m_th(th)
     , m_w(tw)
     , m_h(th)
+    , m_filter(true)
 {
     m_quad.tex = cRenderer::createTexture(data, m_w, m_h, bitmapFormat);
 
@@ -99,6 +100,18 @@ void CQuad::RenderEx(float x, float y, float w, float h, int angle)
     if(rc.IsSet() == false || m_rcWindow.IsSet() == false || rc.Intersect(&m_rcWindow) == true)
     {
         cRenderer::render(&m_quad);
+    }
+}
+
+void CQuad::useFilter(bool _filter)
+{
+    if(m_filter != _filter)
+    {
+        m_filter = _filter;
+
+        cRenderer::bindTexture(m_quad.tex);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, _filter ? GL_LINEAR : GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, _filter ? GL_LINEAR : GL_NEAREST);
     }
 }
 
