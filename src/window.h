@@ -69,6 +69,7 @@ private:
     void centerWindow();
     void calculateScale();
     void updateScale(bool up);
+    void updateFiltering();
     void updateInfobar();
     void createTextures();
     void deleteTextures();

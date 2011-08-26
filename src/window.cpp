@@ -514,6 +514,8 @@ void CWindow::calculateScale()
     int h = static_cast<int>(m_imageList->GetHeight() * m_scale);
     m_imageDx = (m_curWinW - w) / 2;
     m_imageDy = (m_curWinH - h) / 2;
+
+    updateFiltering();
 }
 
 // TODO update m_imageDx / m_imageDy according current mouse position
@@ -529,20 +531,31 @@ void CWindow::updateScale(bool up)
 
     if(up == true)
     {
-        //m_scale /= 0.95f;
         m_scale += 0.2f;
     }
     else
     {
-        //m_scale *= 0.95f;
         if(m_scale > 0.2f)
         {
             m_scale -= 0.2f;
         }
     }
 
-    int scale = static_cast<int>(100 * m_scale);
-    if(scale % 100 == 0)
+    float neww = w * m_scale;
+    float newh = h * m_scale;
+
+    m_imageDx += (oldw - neww) / 2;
+    m_imageDy += (oldh - newh) / 2;
+
+    updateFiltering();
+    updateInfobar();
+    //glutPostRedisplay();
+}
+
+void CWindow::updateFiltering()
+{
+    int scale = static_cast<int>(m_scale * 100);
+    if(scale % 100 == 0 && m_scale >= 1.0f)
     {
         for(QuadsIc it = m_quads.begin(), itEnd = m_quads.end(); it != itEnd; ++it)
         {
@@ -556,15 +569,6 @@ void CWindow::updateScale(bool up)
             (*it)->useFilter(true);
         }
     }
-
-    float neww = w * m_scale;
-    float newh = h * m_scale;
-
-    m_imageDx += (oldw - neww) / 2;
-    m_imageDy += (oldh - newh) / 2;
-
-    updateInfobar();
-    //glutPostRedisplay();
 }
 
 void CWindow::centerWindow()
@@ -719,6 +723,7 @@ void CWindow::createTextures()
                     CQuadImage* quad = new CQuadImage(texW, texH, buffer, format);
                     quad->SetCell(col, row);
                     quad->SetSpriteSize(w, h);
+                    quad->useFilter(false);
 
                     m_quads.push_back(quad);
 
