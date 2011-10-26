@@ -34,7 +34,7 @@ void CPixelInfo::Init()
     m_bg.reset(new CQuad(0, 0));
     m_bg->SetColor(0, 0, 0, ALPHA);
 
-    int format	= (imgPointerCross.bytes_per_pixel == 3 ? GL_RGB : GL_RGBA);
+    int format = (imgPointerCross.bytes_per_pixel == 3 ? GL_RGB : GL_RGBA);
     m_pointer.reset(new CQuadSeries(imgPointerCross.width, imgPointerCross.height, imgPointerCross.pixel_data, format));
     m_pointer->Setup(21, 21, 10);
     SetCursor(0);
@@ -53,13 +53,13 @@ void CPixelInfo::Update(const PixelInfo* p)
     if(checkBoundary() == true)
     {
         // TODO check pixel format (RGB or BGR)
-        unsigned char* color	= p->bitmap + p->x * p->bpp / 8 + p->y * p->pitch;
-        int a	= p->bpp == 32 ? color[3] : 255;
-        int r	= color[0];
-        int g	= color[1];
-        int b	= color[2];
+        unsigned char* color = p->bitmap + static_cast<int>(p->x / p->scale) * p->bpp / 8 + static_cast<int>(p->y / p->scale) * p->pitch;
+        int a = p->bpp == 32 ? color[3] : 255;
+        int r = color[0];
+        int g = color[1];
+        int b = color[2];
 
-        info << "pos: " << p->x << " x " << p->y;
+        info << "pos: " << static_cast<int>(p->x / p->scale) << " x " << static_cast<int>(p->y / p->scale);
         info << "\nargb: " << std::hex << std::uppercase;
         info << std::setw(2) << std::setfill('0') << a;
         info << std::setw(2) << std::setfill('0') << r;
@@ -68,11 +68,12 @@ void CPixelInfo::Update(const PixelInfo* p)
 
         info << "\nrect: " << std::dec;
 
-        if(p->rc.IsSet() == true) {
-            int x	= std::min(p->rc.x1, p->rc.x2);
-            int y	= std::min(p->rc.y1, p->rc.y2);
-            int w	= p->rc.GetWidth();
-            int h	= p->rc.GetHeight();
+        if(p->rc.IsSet() == true)
+        {
+            int x = static_cast<int>(std::min(p->rc.x1, p->rc.x2) / p->scale);
+            int y = static_cast<int>(std::min(p->rc.y1, p->rc.y2) / p->scale);
+            int w = p->rc.GetWidth();
+            int h = p->rc.GetHeight();
 
             info << x << ", " << y << " -> " << x + w << ", " << y + h;
             info << "\nsize: " << (w + 1) << " x " << (h + 1);
@@ -123,11 +124,11 @@ void CPixelInfo::SetWindowSize(int w, int h)
 bool CPixelInfo::checkBoundary() const
 {
     if(m_pixelInfo.bitmap != 0
-            && m_pixelInfo.scale == 1
+            //&& m_pixelInfo.scale == 1
             && m_pixelInfo.x >= 0
-            && m_pixelInfo.x < m_pixelInfo.w
+            && m_pixelInfo.x < m_pixelInfo.w * m_pixelInfo.scale
             && m_pixelInfo.y >= 0
-            && m_pixelInfo.y < m_pixelInfo.h)
+            && m_pixelInfo.y < m_pixelInfo.h * m_pixelInfo.scale)
     {
 
         return true;

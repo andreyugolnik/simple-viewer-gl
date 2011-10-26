@@ -209,7 +209,7 @@ void CWindow::fnRender()
 
         //glPopMatrix();
 
-        if(m_pixelInfo->IsVisible() == true && m_scale == 1)
+        if(m_pixelInfo->IsVisible())// && m_scale == 1)
         {
             m_selection->Render(m_imageDx, m_imageDy);
         }
@@ -258,10 +258,10 @@ void CWindow::fnMouse(int x, int y)
         }
     }
 
-    if(m_pixelInfo->IsVisible() == true)
+    if(m_pixelInfo->IsVisible())
     {
         forceUpdate = true;
-        if(m_scale == 1)
+        //if(m_scale == 1)
         {
             m_selection->MouseMove(x - m_imageDx, y - m_imageDy);
             int cursor = m_selection->GetCursor();
@@ -299,7 +299,7 @@ void CWindow::fnMouseButtons(int button, int state, int x, int y)
     {
     case GLUT_LEFT_BUTTON:
         m_mouseLB = (state == GLUT_DOWN);
-        if(m_pixelInfo->IsVisible() == true && m_scale == 1)
+        if(m_pixelInfo->IsVisible())// && m_scale == 1)
         {
             m_selection->MouseButton(x - m_imageDx, y - m_imageDy, m_mouseLB);
             //glutPostRedisplay();
@@ -415,7 +415,7 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y)
 
 void CWindow::fnKeyboardSpecial(int key, int x, int y)
 {
-    std::cout << key << std::endl;
+    //std::cout << key << std::endl;
     switch(key)
     {
     case GLUT_KEY_LEFT:
