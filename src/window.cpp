@@ -407,6 +407,18 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y)
             centerWindow();
         }
         break;
+    case 'h':
+        keyLeft();
+        break;
+    case 'l':
+        keyRight();
+        break;
+    case 'k':
+        keyUp();
+        break;
+    case 'j':
+        keyDown();
+        break;
     //default:
          //std::cout << key << std::endl;
          //break;
@@ -419,36 +431,16 @@ void CWindow::fnKeyboardSpecial(int key, int x, int y)
     switch(key)
     {
     case GLUT_KEY_LEFT:
-        if(m_fitImage == false)
-        {
-            m_keyPressed = true;
-            m_imageDx += 10;
-            //glutPostRedisplay();
-        }
+        keyLeft();
         break;
     case GLUT_KEY_RIGHT:
-        if(m_fitImage == false)
-        {
-            m_keyPressed = true;
-            m_imageDx -= 10;
-            //glutPostRedisplay();
-        }
+        keyRight();
         break;
     case GLUT_KEY_UP:
-        if(m_fitImage == false)
-        {
-            m_keyPressed = true;
-            m_imageDy += 10;
-            //glutPostRedisplay();
-        }
+        keyUp();
         break;
     case GLUT_KEY_DOWN:
-        if(m_fitImage == false)
-        {
-            m_keyPressed = true;
-            m_imageDy -= 10;
-            //glutPostRedisplay();
-        }
+        keyDown();
         break;
     case GLUT_KEY_PAGE_UP:
         loadImage(0, m_imageList->GetSub() - 1);
@@ -464,6 +456,45 @@ void CWindow::fnKeyboardSpecial(int key, int x, int y)
     }
 }
 
+void CWindow::keyUp()
+{
+    if(m_fitImage == false)
+    {
+        m_keyPressed = true;
+        m_imageDy += 10;
+        //glutPostRedisplay();
+    }
+}
+
+void CWindow::keyDown()
+{
+    if(m_fitImage == false)
+    {
+        m_keyPressed = true;
+        m_imageDy -= 10;
+        //glutPostRedisplay();
+    }
+}
+
+void CWindow::keyLeft()
+{
+    if(m_fitImage == false)
+    {
+        m_keyPressed = true;
+        m_imageDx += 10;
+        //glutPostRedisplay();
+    }
+}
+
+void CWindow::keyRight()
+{
+    if(m_fitImage == false)
+    {
+        m_keyPressed = true;
+        m_imageDx -= 10;
+        //glutPostRedisplay();
+    }
+}
 
 
 

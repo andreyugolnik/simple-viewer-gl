@@ -77,6 +77,11 @@ private:
     void updatePixelInfo(int x, int y);
     void updateViewportSize();
 
+    void keyUp();
+    void keyDown();
+    void keyLeft();
+    void keyRight();
+
     void fnProgressLoading(int percent);
     static void callbackProgressLoading(int percent);
 
