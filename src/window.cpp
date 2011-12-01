@@ -202,8 +202,21 @@ void CWindow::fnRender()
 
         if(m_showBorder == true)
         {
-            m_border->Render(m_camera_x, m_camera_y, img_w, img_h, m_scale);
-            //m_border->Render(img_w, img_h);
+            switch(m_angle)
+            {
+            case 0:
+                m_border->Render(m_camera_x, m_camera_y, img_w, img_h, m_scale);
+                break;
+            case 90:
+                m_border->Render(m_camera_x, m_camera_y, img_h, -img_w, m_scale);
+                break;
+            case 180:
+                m_border->Render(m_camera_x, m_camera_y, -img_w, -img_h, m_scale);
+                break;
+            case 270:
+                m_border->Render(m_camera_x, m_camera_y, -img_h, img_w, m_scale);
+                break;
+            }
         }
 
         if(m_pixelInfo->IsVisible())// && m_scale == 1)
