@@ -6,8 +6,8 @@
 // andrey@ugolnik.info
 //
 // created: 19-Aug-2011
-// changed: 21-Aug-2011
-// version: 0.0.0.71
+// changed: 01-Dec-2011
+// version: 0.0.0.97
 //
 ////////////////////////////////////////////////
 
@@ -15,7 +15,7 @@
 #include <iostream>
 #include <cmath>
 
-bool cRenderer::m_inited = false;
+//bool cRenderer::m_inited = false;
 unsigned cRenderer::m_tex = 0;
 sVertex cRenderer::m_vb[4];
 unsigned short cRenderer::m_ib[6] = { 0, 1, 2, 0, 2, 3 };
@@ -24,7 +24,7 @@ int cRenderer::m_texture_max_size = 256;
 
 void cRenderer::init()
 {
-    if(!m_inited)
+    //if(!m_inited)
     {
         glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_texture_max_size);
         m_texture_max_size = std::min<int>(512, m_texture_max_size);
@@ -51,21 +51,21 @@ void cRenderer::init()
         glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(sVertex), &m_vb->r);
         glTexCoordPointer(2, GL_FLOAT, sizeof(sVertex), &m_vb->tx);
 
-        disable(false);
+        //disable(false);
     }
 }
 
-void cRenderer::disable(bool _disable)
-{
-    m_inited = !_disable;
+//void cRenderer::disable(bool _disable)
+//{
+    //m_inited = !_disable;
 
-    //std::cout << "Renderer " << (m_inited ? "inited" : "disabled") << std::endl;
-}
+    ////std::cout << "Renderer " << (m_inited ? "inited" : "disabled") << std::endl;
+//}
 
 GLuint cRenderer::createTexture(const unsigned char* _data, int _w, int _h, GLenum _format)
 {
     GLuint tex = 0;
-    if(m_inited)
+    //if(m_inited)
     {
         if(_data)
         {
@@ -98,7 +98,7 @@ GLuint cRenderer::createTexture(const unsigned char* _data, int _w, int _h, GLen
 
 void cRenderer::deleteTexture(GLuint _tex)
 {
-    if(m_inited)
+    //if(m_inited)
     {
         bindTexture(0);
         if(_tex != 0)
@@ -110,7 +110,7 @@ void cRenderer::deleteTexture(GLuint _tex)
 
 void cRenderer::bindTexture(GLuint _tex)
 {
-    if(m_inited)
+    //if(m_inited)
     {
         if(m_tex != _tex)
         {
@@ -159,7 +159,7 @@ void cRenderer::setColor(sQuad* _quad, int _r, int _g, int _b, int _a)
 
 void cRenderer::render(sLine* _line)
 {
-    if(m_inited)
+    //if(m_inited)
     {
         bindTexture(_line->tex);
 
@@ -172,7 +172,7 @@ void cRenderer::render(sLine* _line)
 
 void cRenderer::render(sQuad* _quad)
 {
-    if(m_inited)
+    //if(m_inited)
     {
         bindTexture(_quad->tex);
 
@@ -183,5 +183,23 @@ void cRenderer::render(sQuad* _quad)
 
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, m_ib);
     }
+}
+
+void cRenderer::setGlobals(float _x, float _y, float _angle, float _zoom)
+{
+    int w = glutGet(GLUT_WINDOW_WIDTH);
+    int h = glutGet(GLUT_WINDOW_HEIGHT);
+
+    float zoom = 1.0f / _zoom;
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(
+            _x,
+            _x + w * zoom,
+            _y + h * zoom,
+            _y,
+            -1.0, 1.0);
+    glRotatef(_angle, 0, 0, -1);
 }
 

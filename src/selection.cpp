@@ -60,6 +60,7 @@ void CSelection::Init()
         m_selection[i].reset(new CQuad(m_selectionTexSize, m_selectionTexSize, buffer, GL_RGB));
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        m_selection[i]->useFilter(false);
 
         // shift texture
         for(int y = 0; y < m_selectionTexSize; y++)

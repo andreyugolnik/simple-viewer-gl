@@ -19,8 +19,7 @@
 #include <algorithm>
 
 CImageLoader::CImageLoader(Callback callback)
-    : m_angle(ANGLE_0)
-    , m_callback(callback)
+    : m_callback(callback)
 {
 }
 
@@ -40,7 +39,6 @@ bool CImageLoader::LoadImage(const char* path, int subImage)
             }
         }
 
-        m_angle = ANGLE_0;
         m_path = path;
 
         int format = getFormat();
@@ -106,10 +104,6 @@ int CImageLoader::GetWidth() const
 {
     if(m_image.get() != 0)
     {
-        if(m_angle == ANGLE_90 || m_angle == ANGLE_270)
-        {
-            return m_image->m_height;
-        }
         return m_image->m_width;
     }
     return 0;
@@ -119,10 +113,6 @@ int CImageLoader::GetHeight() const
 {
     if(m_image.get() != 0)
     {
-        if(m_angle == ANGLE_90 || m_angle == ANGLE_270)
-        {
-            return m_image->m_width;
-        }
         return m_image->m_height;
     }
     return 0;

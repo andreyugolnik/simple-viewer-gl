@@ -37,7 +37,7 @@ private:
     static CWindow* m_window;
     bool m_initialImageLoading;
     int m_prevWinX, m_prevWinY, m_prevWinW, m_prevWinH;
-    int m_curWinW, m_curWinH;
+    float m_viewport_w, m_viewport_h;
     float m_scale;
     bool m_windowed;
     bool m_testFullscreen;
@@ -47,7 +47,8 @@ private:
     bool m_cursorVisible;
     int m_lastMouseX, m_lastMouseY;
     bool m_mouseLB, m_mouseMB, m_mouseRB, m_keyPressed;
-    int m_imageDx, m_imageDy;
+    float m_camera_x, m_camera_y;
+    int m_angle;
 
     typedef std::vector<CQuadImage*> Quads;
     typedef Quads::const_iterator QuadsIc;
@@ -66,7 +67,7 @@ private:
 private:
     bool loadImage(int step, int subImage = 0);
     void showCursor(bool show);
-    void centerWindow();
+    //void centerWindow();
     void calculateScale();
     void updateScale(bool up);
     void updateFiltering();
@@ -75,12 +76,13 @@ private:
     void deleteTextures();
     void calculateTextureSize(int* texW, int* texH, int imgW, int imgH);
     void updatePixelInfo(int x, int y);
-    void updateViewportSize();
+    //void updateViewportSize();
 
     void keyUp();
     void keyDown();
     void keyLeft();
     void keyRight();
+    void updatePosition(int _diffx, int _diffy);
 
     void fnProgressLoading(int percent);
     static void callbackProgressLoading(int percent);

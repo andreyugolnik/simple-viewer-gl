@@ -5,8 +5,8 @@
 //
 /////////////////////////////////////////////////
 
-#ifndef IMAGEBORDER_H
-#define IMAGEBORDER_H
+#ifndef IMAGEBORDER_H_7978ADDAEE195E
+#define IMAGEBORDER_H_7978ADDAEE195E
 
 #include "renderer.h"
 
@@ -16,16 +16,16 @@ public:
     CImageBorder();
     virtual ~CImageBorder();
 
-    void SetColor(int r, int g, int b, int a);
-    void Render(int x, int y, int w, int h);
+    void SetColor(int _r, int _g, int _b, int _a);
+    void Render(int _w, int _h);
     int GetBorderWidth() const;
 
 private:
     sLine m_line;
 
 private:
-    void renderLine(float x1, float y1, float x2, float y2);
+    void renderLine(float _x1, float _y1, float _x2, float _y2);
 };
 
-#endif // IMAGEBORDER_H
+#endif /* end of include guard: IMAGEBORDER_H_7978ADDAEE195E */
 

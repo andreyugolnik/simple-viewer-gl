@@ -27,8 +27,8 @@ CWindow::CWindow()
     , m_prevWinY(0)
     , m_prevWinW(DEF_WINDOW_W)
     , m_prevWinH(DEF_WINDOW_H)
-    , m_curWinW(0)
-    , m_curWinH(0)
+    , m_viewport_w(0)
+    , m_viewport_h(0)
     , m_scale(1)
     , m_windowed(true)
     , m_testFullscreen(false)
@@ -42,8 +42,9 @@ CWindow::CWindow()
     , m_mouseMB(false)
     , m_mouseRB(false)
     , m_keyPressed(false)
-    , m_imageDx(0)
-    , m_imageDy(0)
+    , m_camera_x(0)
+    , m_camera_y(0)
+    , m_angle(0)
 {
     m_window = this;
 
@@ -158,7 +159,7 @@ void CWindow::fnRender()
         {
             //printf("can't set fullscreen mode. scr: %d x %d, win: %d x %d\n", scrw, scrh, width, height);
             m_windowed = true;
-            centerWindow();
+            //centerWindow();
             return;
         }
     }
@@ -171,47 +172,44 @@ void CWindow::fnRender()
 
     m_checkerBoard->Render();
 
-    updateViewportSize();
+    //updateViewportSize();
 
     if(m_na->Render() == false)
     {
-        //glPushMatrix();
-        //glRotatef(90, 0, 0, -1);
+        float img_w = m_imageList->GetWidth();
+        float img_h = m_imageList->GetHeight();
 
-        float img_w = m_imageList->GetWidth() * m_scale;
-        float img_h = m_imageList->GetHeight() * m_scale;
+        const float delta = 20.0f / m_scale;
+        m_camera_x = std::max<int>(m_camera_x, delta - img_w);
+        m_camera_x = std::min<int>(m_camera_x, m_viewport_w / m_scale - delta);
+        m_camera_y = std::max<int>(m_camera_y, delta - img_h);
+        m_camera_y = std::min<int>(m_camera_y, m_viewport_h / m_scale - delta);
 
-        const int delta	= 20;
-        m_imageDx = std::max(m_imageDx, delta - (int)img_w);
-        m_imageDx = std::min(m_imageDx, m_curWinW - delta);
-        m_imageDy = std::max(m_imageDy, delta - (int)img_h);
-        m_imageDy = std::min(m_imageDy, m_curWinH - delta);
+        cRenderer::setGlobals(-m_camera_x, -m_camera_y, m_angle, m_scale);
 
         QuadsIc it = m_quads.begin(), itEnd = m_quads.end();
         for( ; it != itEnd; ++it)
         {
             CQuadImage* quad = *it;
 
-            float x = m_imageDx + quad->GetCol() * quad->GetTexWidth() * m_scale;
-            float y = m_imageDy + quad->GetRow() * quad->GetTexHeight() * m_scale;
+            float x = quad->GetCol() * quad->GetTexWidth();
+            float y = quad->GetRow() * quad->GetTexHeight();
 
-            float w = quad->GetWidth() * m_scale;
-            float h = quad->GetHeight() * m_scale;
-            quad->SetWindowSize(m_curWinW, m_curWinH);
-            quad->RenderEx(x, y, w, h);
-            //quad->RenderEx(x, y, w, h, 180);
+            quad->Render(x, y);
         }
 
         if(m_showBorder == true)
         {
-            m_border->Render(m_imageDx, m_imageDy, img_w, img_h);
+            //m_border->Render(m_camera_x, m_camera_y, img_w, img_h);
+            m_border->Render(img_w, img_h);
         }
 
-        //glPopMatrix();
+        cRenderer::setGlobals();
 
         if(m_pixelInfo->IsVisible())// && m_scale == 1)
         {
-            m_selection->Render(m_imageDx, m_imageDy);
+            //m_selection->Render(m_camera_x, m_camera_y);
+            m_selection->Render(0, 0);
         }
     }
 
@@ -224,20 +222,27 @@ void CWindow::fnRender()
 
 void CWindow::fnResize(int width, int height)
 {
-    updateViewportSize();
+    //m_viewport_w = glutGet(GLUT_WINDOW_WIDTH);
+    //m_viewport_h = glutGet(GLUT_WINDOW_HEIGHT) - m_infoBar->GetHeight();
+    m_viewport_w = static_cast<float>(width);
+    m_viewport_h = static_cast<float>(height - m_infoBar->GetHeight());
 
-    calculateScale();
+    updateInfobar();
 
-    glViewport(0, 0, m_curWinW, m_curWinH + m_infoBar->GetHeight());
+    //updateViewportSize();
 
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(0, m_curWinW, m_curWinH + m_infoBar->GetHeight(), 0, -1, 1);
+    glViewport(0, 0, width, height);
+
+    //glMatrixMode(GL_PROJECTION);
+    //glLoadIdentity();
+    //glOrtho(0, m_viewport_w, m_viewport_h + m_infoBar->GetHeight(), 0, -1, 1);
+    cRenderer::setGlobals();
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
-    m_pixelInfo->SetWindowSize(m_curWinW, m_curWinH);
+    m_pixelInfo->SetWindowSize(m_viewport_w, m_viewport_h);
+    //printf("%d x %d -> %.2f x %.2f\n", width, height, m_viewport_w, m_viewport_h);
 }
 
 void CWindow::fnMouse(int x, int y)
@@ -248,13 +253,13 @@ void CWindow::fnMouse(int x, int y)
     int diffy = y - m_lastMouseY;
     m_lastMouseX = x;
     m_lastMouseY = y;
-    if(m_fitImage == false && (m_mouseMB == true || m_mouseRB))
+    //if(!m_fitImage && (m_mouseMB || m_mouseRB))
+    if(m_mouseMB || m_mouseRB)
     {
         if(diffx != 0 || diffy != 0)
         {
             forceUpdate = true;
-            m_imageDx += diffx;
-            m_imageDy += diffy;
+            updatePosition(diffx, diffy);
         }
     }
 
@@ -263,7 +268,7 @@ void CWindow::fnMouse(int x, int y)
         forceUpdate = true;
         //if(m_scale == 1)
         {
-            m_selection->MouseMove(x - m_imageDx, y - m_imageDy);
+            m_selection->MouseMove(x - m_camera_x, y - m_camera_y);
             int cursor = m_selection->GetCursor();
             m_pixelInfo->SetCursor(cursor);
         }
@@ -301,7 +306,7 @@ void CWindow::fnMouseButtons(int button, int state, int x, int y)
         m_mouseLB = (state == GLUT_DOWN);
         if(m_pixelInfo->IsVisible())// && m_scale == 1)
         {
-            m_selection->MouseButton(x - m_imageDx, y - m_imageDy, m_mouseLB);
+            m_selection->MouseButton(x - m_camera_x, y - m_camera_y, m_mouseLB);
             //glutPostRedisplay();
         }
         break;
@@ -326,7 +331,7 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y)
     switch(key)
     {
     case 27: // ESC
-        cRenderer::disable(true);
+        //cRenderer::disable(true);
         exit(0);
         break;
 
@@ -334,7 +339,7 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y)
     case 'I':
         m_infoBar->Show(!m_infoBar->Visible());
         //calculateScale();
-        centerWindow();
+        //centerWindow();
         break;
     case 'p':
     case 'P':
@@ -348,7 +353,7 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y)
         {
             m_scale = 1;
         }
-        centerWindow();
+        //centerWindow();
         updateInfobar();
         break;
     case ' ':
@@ -391,7 +396,7 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y)
     case '0':
         m_scale = 1;
         m_fitImage = false;
-        centerWindow();
+        //centerWindow();
         updateInfobar();
         break;
     case 13:
@@ -404,7 +409,7 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y)
         }
         else
         {
-            centerWindow();
+            //centerWindow();
         }
         break;
     case 'h':
@@ -418,6 +423,14 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y)
         break;
     case 'j':
         keyDown();
+        break;
+    case 'L':
+        m_angle += 360 - 90;
+        m_angle %= 360;
+        break;
+    case 'R':
+        m_angle += 90;
+        m_angle %= 360;
         break;
     //default:
          //std::cout << key << std::endl;
@@ -458,81 +471,91 @@ void CWindow::fnKeyboardSpecial(int key, int x, int y)
 
 void CWindow::keyUp()
 {
-    if(m_fitImage == false)
+    //if(m_fitImage == false)
     {
         m_keyPressed = true;
-        m_imageDy += 10;
+        //m_camera_y -= 10;
+        updatePosition(0, -10);
         //glutPostRedisplay();
     }
 }
 
 void CWindow::keyDown()
 {
-    if(m_fitImage == false)
+    //if(m_fitImage == false)
     {
         m_keyPressed = true;
-        m_imageDy -= 10;
+        //m_camera_y += 10;
+        updatePosition(0, 10);
         //glutPostRedisplay();
     }
 }
 
 void CWindow::keyLeft()
 {
-    if(m_fitImage == false)
+    //if(m_fitImage == false)
     {
         m_keyPressed = true;
-        m_imageDx += 10;
+        //m_camera_x -= 10;
+        updatePosition(-10, 0);
         //glutPostRedisplay();
     }
 }
 
 void CWindow::keyRight()
 {
-    if(m_fitImage == false)
+    //if(m_fitImage == false)
     {
         m_keyPressed = true;
-        m_imageDx -= 10;
+        //m_camera_x += 10;
+        updatePosition(10, 0);
         //glutPostRedisplay();
     }
 }
 
+void CWindow::updatePosition(int _diffx, int _diffy)
+{
+    float scale = 1.0f / m_scale;
+    m_camera_x += _diffx * scale;
+    m_camera_y += _diffy * scale;
+}
 
 
 void CWindow::calculateScale()
 {
     if(m_fitImage == true)
     {
-        int w = m_imageList->GetWidth();
-        int h = m_imageList->GetHeight();
+        float w = static_cast<float>(m_imageList->GetWidth());
+        float h = static_cast<float>(m_imageList->GetHeight());
 
         // scale only large images
-        if(w >= m_curWinW || h >= m_curWinH)
+        if(w >= m_viewport_w || h >= m_viewport_h)
         {
-            float aspect = (float)w / h;
-            float nW = 0;
-            float nH = 0;
-            float dx = (float)w / m_curWinW;
-            float dy = (float)h / m_curWinH;
+            float aspect = w / h;
+            float new_w = 0;
+            float new_h = 0;
+            float dx = w / m_viewport_w;
+            float dy = h / m_viewport_h;
             if(dx > dy)
             {
-                if(w > m_curWinW)
+                if(w > m_viewport_w)
                 {
-                    nW = m_curWinW;
-                    nH = nW / aspect;
+                    new_w = m_viewport_w;
+                    new_h = new_w / aspect;
                 }
             }
             else
             {
-                if(h > m_curWinH)
+                if(h > m_viewport_h)
                 {
-                    nH = m_curWinH;
-                    nW = nH * aspect;
+                    new_h = m_viewport_h;
+                    new_w = new_h * aspect;
                 }
             }
-            if(nW != 0 && nH != 0)
+            if(new_w != 0 && new_h != 0)
             {
-                //m_scale = (float)((g_nAngle == 0 || g_nAngle == 180) ? nW : nH) / w;
-                m_scale = nW / w;
+                //m_scale = static_cast<float>((angle == 0 || angle == 180) ? new_w : new_h) / w;
+                m_scale = new_w / w;
             }
         }
         else
@@ -541,24 +564,34 @@ void CWindow::calculateScale()
         }
     }
 
-    int w = static_cast<int>(m_imageList->GetWidth() * m_scale);
-    int h = static_cast<int>(m_imageList->GetHeight() * m_scale);
-    m_imageDx = (m_curWinW - w) / 2;
-    m_imageDy = (m_curWinH - h) / 2;
+    float w = m_imageList->GetWidth();
+    float h = m_imageList->GetHeight();
+    if(m_scale >= 1)
+    {
+        if(m_fitImage == true)
+        {
+            m_camera_x = ceilf((m_viewport_w * m_scale - w) / 2);
+            m_camera_y = ceilf((m_viewport_h * m_scale - h) / 2);
+        }
+        else
+        {
+            m_camera_x = ceilf((m_viewport_w / m_scale - w) / 2);
+            m_camera_y = ceilf((m_viewport_h / m_scale - h) / 2);
+        }
+    }
+    else
+    {
+        m_camera_x = ceilf((m_viewport_w / m_scale - w) / 2);
+        m_camera_y = ceilf((m_viewport_h / m_scale - h) / 2);
+    }
 
     updateFiltering();
 }
 
-// TODO update m_imageDx / m_imageDy according current mouse position
+// TODO update m_camera_x / m_camera_y according current mouse position
 void CWindow::updateScale(bool up)
 {
     m_fitImage = false;
-
-    int w = m_imageList->GetWidth();
-    int h = m_imageList->GetHeight();
-
-    float oldw = w * m_scale;
-    float oldh = h * m_scale;
 
     if(up == true)
     {
@@ -572,15 +605,8 @@ void CWindow::updateScale(bool up)
         }
     }
 
-    float neww = w * m_scale;
-    float newh = h * m_scale;
-
-    m_imageDx += (oldw - neww) / 2;
-    m_imageDy += (oldh - newh) / 2;
-
     updateFiltering();
     updateInfobar();
-    //glutPostRedisplay();
 }
 
 void CWindow::updateFiltering()
@@ -602,28 +628,28 @@ void CWindow::updateFiltering()
     }
 }
 
-void CWindow::centerWindow()
-{
-    if(m_windowed == true)
-    {
-        calculateScale();
-        int w = m_imageList->GetWidth() * m_scale;
-        int h = m_imageList->GetHeight() * m_scale;
-        int scrw = glutGet(GLUT_SCREEN_WIDTH);
-        int scrh = glutGet(GLUT_SCREEN_HEIGHT);
-        int imgw = std::max<int>(w + (m_showBorder ? m_border->GetBorderWidth() * 2 : 0), DEF_WINDOW_W);
-        int imgh = std::max<int>(h + (m_showBorder ? m_border->GetBorderWidth() * 2 : 0) + m_infoBar->GetHeight(), DEF_WINDOW_H);
-        int winw = std::min<int>(imgw, scrw);
-        int winh = std::min<int>(imgh, scrh);
-        glutReshapeWindow(winw, winh);
+//void CWindow::centerWindow()
+//{
+    //if(m_windowed == true)
+    //{
+        //calculateScale();
+        //int w = m_imageList->GetWidth();// * m_scale;
+        //int h = m_imageList->GetHeight();// * m_scale;
+        //int scrw = glutGet(GLUT_SCREEN_WIDTH);
+        //int scrh = glutGet(GLUT_SCREEN_HEIGHT);
+        //int imgw = std::max<int>(w + (m_showBorder ? m_border->GetBorderWidth() * 2 : 0), DEF_WINDOW_W);
+        //int imgh = std::max<int>(h + (m_showBorder ? m_border->GetBorderWidth() * 2 : 0) + m_infoBar->GetHeight(), DEF_WINDOW_H);
+        //int winw = std::min<int>(imgw, scrw);
+        //int winh = std::min<int>(imgh, scrh);
+        //glutReshapeWindow(winw, winh);
 
-        int posx = (scrw - winw) / 2;
-        int posy = (scrh - winh) / 2;
-        glutPositionWindow(posx, posy);
+        //int posx = (scrw - winw) / 2;
+        //int posy = (scrh - winh) / 2;
+        //glutPositionWindow(posx, posy);
 
-        //printf("screen: %d x %d, window %d x %d, pos: %d, %d\n", scrw, scrh, winw, winh, posx, posy);
-    }
-}
+        ////printf("screen: %d x %d, window %d x %d, pos: %d, %d\n", scrw, scrh, winw, winh, posx, posy);
+    //}
+//}
 
 bool CWindow::loadImage(int step, int subImage)
 {
@@ -633,9 +659,9 @@ bool CWindow::loadImage(int step, int subImage)
 
     if(step != 0)
     {
+        m_scale = 1;
+        m_angle = 0;
         m_filesList->ParseDir();
-        m_imageList->SetAngle(ANGLE_0);
-        m_scale	 = 1;
     }
 
     const char* path = m_filesList->GetName(step);
@@ -654,7 +680,7 @@ bool CWindow::loadImage(int step, int subImage)
     m_selection->SetImageDimension(m_imageList->GetWidth(), m_imageList->GetHeight());
     updateInfobar();
 
-    centerWindow();
+    //centerWindow();
 
     updatePixelInfo(m_lastMouseX, m_lastMouseY);
 
@@ -688,8 +714,8 @@ void CWindow::updatePixelInfo(int x, int y)
     PixelInfo pixelInfo;
     pixelInfo.cursorx   = x;
     pixelInfo.cursory   = y;
-    pixelInfo.x         = x - m_imageDx;
-    pixelInfo.y         = y - m_imageDy;
+    pixelInfo.x         = x - m_camera_x;
+    pixelInfo.y         = y - m_camera_y;
     pixelInfo.bitmap    = m_imageList->GetBitmap();
     pixelInfo.w         = m_imageList->GetWidth();
     pixelInfo.h         = m_imageList->GetHeight();
@@ -791,16 +817,15 @@ void CWindow::deleteTextures()
     m_quads.clear();
 }
 
-void CWindow::updateViewportSize()
-{
-    m_curWinW = glutGet(GLUT_WINDOW_WIDTH);
-    m_curWinH = glutGet(GLUT_WINDOW_HEIGHT) - m_infoBar->GetHeight();
-}
+//void CWindow::updateViewportSize()
+//{
+    //m_viewport_w = glutGet(GLUT_WINDOW_WIDTH);
+    //m_viewport_h = glutGet(GLUT_WINDOW_HEIGHT) - m_infoBar->GetHeight();
+//}
 
 
 void CWindow::callbackResize(int width, int height)
 {
-    m_window->updateInfobar();
     m_window->fnResize(width, height);
 }
 

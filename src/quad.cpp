@@ -52,10 +52,10 @@ void CQuad::SetSpriteSize(float w, float h)
     m_quad.v[3].ty = h / m_th;
 }
 
-void CQuad::SetWindowSize(float w, float h)
-{
-    m_rcWindow.Set(0, 0, w, h);
-}
+//void CQuad::SetWindowSize(float w, float h)
+//{
+    //m_rcWindow.Set(0, 0, w, h);
+//}
 
 void CQuad::Render(float x, float y)
 {
@@ -91,13 +91,13 @@ void CQuad::RenderEx(float x, float y, float w, float h, int angle)
         m_quad.v[3].y = y + h;
     }
 
-    CRect<float> rc;
-    rc.Encapsulate(m_quad.v[0].x, m_quad.v[0].y);
-    rc.Encapsulate(m_quad.v[1].x, m_quad.v[1].y);
-    rc.Encapsulate(m_quad.v[2].x, m_quad.v[2].y);
-    rc.Encapsulate(m_quad.v[3].x, m_quad.v[3].y);
+    //CRect<float> rc;
+    //rc.Encapsulate(m_quad.v[0].x, m_quad.v[0].y);
+    //rc.Encapsulate(m_quad.v[1].x, m_quad.v[1].y);
+    //rc.Encapsulate(m_quad.v[2].x, m_quad.v[2].y);
+    //rc.Encapsulate(m_quad.v[3].x, m_quad.v[3].y);
 
-    if(rc.IsSet() == false || m_rcWindow.IsSet() == false || rc.Intersect(&m_rcWindow) == true)
+    //if(rc.IsSet() == false || m_rcWindow.IsSet() == false || rc.Intersect(&m_rcWindow) == true)
     {
         cRenderer::render(&m_quad);
     }

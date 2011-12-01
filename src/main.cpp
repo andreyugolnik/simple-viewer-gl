@@ -119,8 +119,8 @@ void showHelp(const char* pchArgv0)
     printf("  <s>           fit image to window (quick algorithm);\n");
     //printf("  <v>           flip vertical;\n");
     //printf("  <h>           flip horizontal;\n");
-    //printf("  <r>           rotate clockwice;\n");
-    //printf("  <l>           rotate counter clockwise;\n");
+    printf("  <R>           rotate clockwice;\n");
+    printf("  <L>           rotate counter clockwise;\n");
     printf("  <c>           hide / show chequerboard;\n");
     printf("  <i>           hide / show on screen info;\n");
     printf("  <p>           hide / show pixel info;\n");

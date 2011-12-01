@@ -16,30 +16,30 @@ CImageBorder::~CImageBorder()
 {
 }
 
-void CImageBorder::SetColor(int r, int g, int b, int a)
+void CImageBorder::SetColor(int _r, int _g, int _b, int _a)
 {
-    m_line.v[0].a = m_line.v[1].a = a;
-    m_line.v[0].r = m_line.v[1].r = r;
-    m_line.v[0].g = m_line.v[1].g = g;
-    m_line.v[0].b = m_line.v[1].b = b;
+    m_line.v[0].a = m_line.v[1].a = _a;
+    m_line.v[0].r = m_line.v[1].r = _r;
+    m_line.v[0].g = m_line.v[1].g = _g;
+    m_line.v[0].b = m_line.v[1].b = _b;
 }
 
-void CImageBorder::Render(int x, int y, int w, int h)
+void CImageBorder::Render(int _w, int _h)
 {
     glLineWidth(GetBorderWidth());
 
-    renderLine(x - GetBorderWidth(), y - GetBorderWidth(), x + w + GetBorderWidth(), y - GetBorderWidth());	// up
-    renderLine(x - GetBorderWidth(), y + h, x + w + GetBorderWidth(), y + h);	// down
-    renderLine(x - GetBorderWidth(), y, x - GetBorderWidth(), y + h);	// left
-    renderLine(x + w, y, x + w, y + h);	// right
+    renderLine(-GetBorderWidth(), -GetBorderWidth(), _w + GetBorderWidth(), -GetBorderWidth());	// up
+    renderLine(-GetBorderWidth(), _h, _w + GetBorderWidth(), _h);	// down
+    renderLine(-GetBorderWidth(), 0, -GetBorderWidth(), _h);	// left
+    renderLine(_w, 0, _w, _h);	// right
 }
 
-void CImageBorder::renderLine(float x1, float y1, float x2, float y2)
+void CImageBorder::renderLine(float _x1, float _y1, float _x2, float _y2)
 {
-    m_line.v[0].x = x1 + 0.5f;
-    m_line.v[0].y = y1 + 0.5f;
-    m_line.v[1].x = x2 + 0.5f;
-    m_line.v[1].y = y2 + 0.5f;
+    m_line.v[0].x = _x1 + 0.5f;
+    m_line.v[0].y = _y1 + 0.5f;
+    m_line.v[1].x = _x2 + 0.5f;
+    m_line.v[1].y = _y2 + 0.5f;
     cRenderer::render(&m_line);
 }
 

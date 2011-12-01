@@ -6,14 +6,15 @@
 // andrey@ugolnik.info
 //
 // created: 19-Aug-2011
-// changed: 21-Aug-2011
-// version: 0.0.0.43
+// changed: 01-Dec-2011
+// version: 0.0.0.54
 //
 ////////////////////////////////////////////////
 
 #ifndef RENDERER_H_E44EFE71C29EF8
 #define RENDERER_H_E44EFE71C29EF8
 
+#define GL_GLEXT_PROTOTYPES
 #include <GL/glut.h>
 
 struct sVertex
@@ -49,7 +50,7 @@ class cRenderer
 public:
     static void init();
 
-    static void disable(bool _disable);
+    //static void disable(bool _disable);
     static GLuint createTexture(const unsigned char* _data, int _w, int _h, GLenum _format);
     static void deleteTexture(GLuint _tex);
     static void bindTexture(GLuint _tex);
@@ -58,9 +59,10 @@ public:
     static void setColor(sQuad* _quad, int _r, int _g, int _b, int _a);
     static void render(sLine* _quad);
     static void render(sQuad* _quad);
+    static void setGlobals(float _x = 0, float _y = 0, float _angle = 0, float _zoom = 1);
 
 private:
-    static bool m_inited;
+    //static bool m_inited;
     static unsigned m_tex;
     static sVertex m_vb[4];
     static unsigned short m_ib[6];
