@@ -74,10 +74,10 @@ void CSelection::Init()
     delete[] buffer;
 }
 
-void CSelection::SetImageDimension(int w, int h)
+void CSelection::SetImageDimension(float _w, float _h)
 {
-    m_imageWidth = w;
-    m_imageHeight = h;
+    m_imageWidth = _w;
+    m_imageHeight = _h;
     m_rc.Clear();
     getTime();
 }
@@ -190,7 +190,7 @@ void CSelection::MouseMove(int x, int y)
     }
 }
 
-void CSelection::Render(int dx, int dy)
+void CSelection::Render(float _dx, float _dy, float _scale)
 {
     float dt = getTime();
 
@@ -200,7 +200,7 @@ void CSelection::Render(int dx, int dy)
     if(m_enabled == true && m_rc.IsSet() == true)
     {
         CRect<int> rc;
-        setImagePos(rc, dx, dy);
+        setImagePos(rc, _dx * _scale, _dy * _scale);
 
         setColor(frame, m_corner != CORNER_UP);
         renderLine(rc.x1, rc.y1, rc.x2, rc.y1, frame);	// top line
@@ -213,7 +213,7 @@ void CSelection::Render(int dx, int dy)
     }
 }
 
-CRect<int> CSelection::GetRect() const
+CRect<float> CSelection::GetRect() const
 {
     return m_rc;
 }

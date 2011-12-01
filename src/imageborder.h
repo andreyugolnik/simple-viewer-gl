@@ -17,14 +17,14 @@ public:
     virtual ~CImageBorder();
 
     void SetColor(int _r, int _g, int _b, int _a);
-    void Render(int _w, int _h);
+    void Render(float _x, float _y, float _w, float _h, float _scale);
     int GetBorderWidth() const;
 
 private:
-    sLine m_line;
+    sQuad m_line;
 
 private:
-    void renderLine(float _x1, float _y1, float _x2, float _y2);
+    void renderLine(float _x, float _y, float _w, float _h);
 };
 
 #endif /* end of include guard: IMAGEBORDER_H_7978ADDAEE195E */

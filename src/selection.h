@@ -26,17 +26,17 @@ public:
     virtual ~CSelection();
 
     void Init();
-    void SetImageDimension(int w, int h);
+    void SetImageDimension(float _w, float _h);
     void MouseButton(int x, int y, bool pressed);
     void MouseMove(int x, int y);
-    void Render(int dx, int dy);
-    CRect<int> GetRect() const;
+    void Render(float _dx, float _dy, float _scale);
+    CRect<float> GetRect() const;
     int GetCursor() const;
 
 private:
     bool m_enabled;
-    int m_imageWidth, m_imageHeight;
-    int m_mouseX, m_mouseY;
+    float m_imageWidth, m_imageHeight;
+    float m_mouseX, m_mouseY;
     struct timespec m_timeLast;
     float m_timeDelta;
     typedef enum { MODE_NONE, MODE_SELECT, MODE_MOVE, MODE_RESIZE } MouseMode;
@@ -45,7 +45,7 @@ private:
     CornerType m_corner;
 
     std::auto_ptr<CQuad> m_selection[m_selectionTexCount];
-    CRect<int> m_rc;
+    CRect<float> m_rc;
 
 private:
     void updateCorner(int x, int y);

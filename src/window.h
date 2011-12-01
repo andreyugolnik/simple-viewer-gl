@@ -46,7 +46,7 @@ private:
     bool m_recursiveDir;
     bool m_cursorVisible;
     int m_lastMouseX, m_lastMouseY;
-    bool m_mouseLB, m_mouseMB, m_mouseRB, m_keyPressed;
+    bool m_mouseLB, m_mouseMB, m_mouseRB;//, m_keyPressed;
     float m_camera_x, m_camera_y;
     int m_angle;
 

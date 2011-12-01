@@ -41,7 +41,7 @@ CWindow::CWindow()
     , m_mouseLB(false)
     , m_mouseMB(false)
     , m_mouseRB(false)
-    , m_keyPressed(false)
+    //, m_keyPressed(false)
     , m_camera_x(0)
     , m_camera_y(0)
     , m_angle(0)
@@ -198,18 +198,18 @@ void CWindow::fnRender()
             quad->Render(x, y);
         }
 
+        cRenderer::setGlobals();
+
         if(m_showBorder == true)
         {
-            //m_border->Render(m_camera_x, m_camera_y, img_w, img_h);
-            m_border->Render(img_w, img_h);
+            m_border->Render(m_camera_x, m_camera_y, img_w, img_h, m_scale);
+            //m_border->Render(img_w, img_h);
         }
-
-        cRenderer::setGlobals();
 
         if(m_pixelInfo->IsVisible())// && m_scale == 1)
         {
-            //m_selection->Render(m_camera_x, m_camera_y);
-            m_selection->Render(0, 0);
+            m_selection->Render(m_camera_x, m_camera_y, m_scale);
+            //m_selection->Render(0, 0);
         }
     }
 
@@ -473,7 +473,7 @@ void CWindow::keyUp()
 {
     //if(m_fitImage == false)
     {
-        m_keyPressed = true;
+        //m_keyPressed = true;
         //m_camera_y -= 10;
         updatePosition(0, -10);
         //glutPostRedisplay();
@@ -484,7 +484,7 @@ void CWindow::keyDown()
 {
     //if(m_fitImage == false)
     {
-        m_keyPressed = true;
+        //m_keyPressed = true;
         //m_camera_y += 10;
         updatePosition(0, 10);
         //glutPostRedisplay();
@@ -495,7 +495,7 @@ void CWindow::keyLeft()
 {
     //if(m_fitImage == false)
     {
-        m_keyPressed = true;
+        //m_keyPressed = true;
         //m_camera_x -= 10;
         updatePosition(-10, 0);
         //glutPostRedisplay();
@@ -506,7 +506,7 @@ void CWindow::keyRight()
 {
     //if(m_fitImage == false)
     {
-        m_keyPressed = true;
+        //m_keyPressed = true;
         //m_camera_x += 10;
         updatePosition(10, 0);
         //glutPostRedisplay();
@@ -593,17 +593,20 @@ void CWindow::updateScale(bool up)
 {
     m_fitImage = false;
 
+    int scale = ceilf(m_scale * 10) * 10;
+
     if(up == true)
     {
-        m_scale += 0.2f;
+        scale += 20;
     }
     else
     {
-        if(m_scale > 0.2f)
+        if(scale > 20)
         {
-            m_scale -= 0.2f;
+            scale -= 20;
         }
     }
+    m_scale = scale / 100.0f;
 
     updateFiltering();
     updateInfobar();
