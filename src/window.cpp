@@ -219,7 +219,7 @@ void CWindow::fnRender()
             }
         }
 
-        if(m_pixelInfo->IsVisible())// && m_scale == 1)
+        if(m_pixelInfo->IsVisible())
         {
             m_selection->Render(m_camera_x, m_camera_y, m_scale);
             //m_selection->Render(0, 0);
@@ -317,7 +317,7 @@ void CWindow::fnMouseButtons(int button, int state, int x, int y)
     {
     case GLUT_LEFT_BUTTON:
         m_mouseLB = (state == GLUT_DOWN);
-        if(m_pixelInfo->IsVisible())// && m_scale == 1)
+        if(m_pixelInfo->IsVisible())
         {
             m_selection->MouseButton(x - m_camera_x, y - m_camera_y, m_mouseLB);
             //glutPostRedisplay();
@@ -727,20 +727,33 @@ void CWindow::updateInfobar()
 
 void CWindow::updatePixelInfo(int x, int y)
 {
-    PixelInfo pixelInfo;
-    pixelInfo.cursorx   = x;
-    pixelInfo.cursory   = y;
-    pixelInfo.x         = x - m_camera_x;
-    pixelInfo.y         = y - m_camera_y;
-    pixelInfo.bitmap    = m_imageList->GetBitmap();
-    pixelInfo.w         = m_imageList->GetWidth();
-    pixelInfo.h         = m_imageList->GetHeight();
-    pixelInfo.pitch     = m_imageList->GetPitch();
-    pixelInfo.bpp       = m_imageList->GetBpp();
-    pixelInfo.format    = m_imageList->GetBitmapFormat();
-    pixelInfo.rc        = m_selection->GetRect();
-    pixelInfo.scale     = m_scale;
-    m_pixelInfo->Update(&pixelInfo);
+    if(m_imageList->GetBitmap())
+    {
+        PixelInfo pixelInfo;
+        pixelInfo.cursor_x = x;
+        pixelInfo.cursor_y = y;
+        pixelInfo.img_x = (x / m_scale - m_camera_x);
+        pixelInfo.img_y = (y / m_scale - m_camera_y);
+
+        // TODO check pixel format (RGB or BGR)
+        unsigned char* color = m_imageList->GetBitmap() + pixelInfo.img_x * m_imageList->GetBpp() / 8 + pixelInfo.img_y * m_imageList->GetPitch();
+        pixelInfo.r = color[0];
+        pixelInfo.g = color[1];
+        pixelInfo.b = color[2];
+        pixelInfo.a = m_imageList->GetBpp() == 32 ? color[3] : 255;
+
+        //pixelInfo.x         = x - m_camera_x;
+        //pixelInfo.y         = y - m_camera_y;
+        //pixelInfo.bitmap    = m_imageList->GetBitmap();
+        pixelInfo.w         = m_imageList->GetWidth();
+        pixelInfo.h         = m_imageList->GetHeight();
+        //pixelInfo.pitch     = m_imageList->GetPitch();
+        //pixelInfo.bpp       = m_imageList->GetBpp();
+        //pixelInfo.format    = m_imageList->GetBitmapFormat();
+        //pixelInfo.rc        = m_selection->GetRect();
+        //pixelInfo.scale     = m_scale;
+        m_pixelInfo->Update(&pixelInfo);
+    }
 }
 
 void CWindow::createTextures()

@@ -14,13 +14,15 @@
 
 typedef struct PIXELINFO
 {
-    int cursorx, cursory;
-    int x, y;	// pixel position
-    unsigned char* bitmap;
-    int w, h, pitch;
-    int bpp, format;
+    int img_x, img_y;
+    int cursor_x, cursor_y;
+    int r, g, b, a;
+    //int x, y;	// pixel position
+    //unsigned char* bitmap;
+    int w, h;//, pitch;
+    //int bpp, format;
     CRect<float> rc;
-    float scale;
+    //float scale;
 } PixelInfo;
 
 class CPixelInfo
@@ -30,7 +32,7 @@ public:
     virtual ~CPixelInfo();
 
     void Init();
-    void Update(const PixelInfo* p);
+    void Update(const PixelInfo* _p);
     void Render();
     void Show(bool show = true) { m_visible = show; }
     bool IsVisible() const { return m_visible; }
