@@ -54,6 +54,8 @@ int main(int argc, char* argv[])
             window.SetProp(PROP_INFOBAR);
         else if(strncmp(argv[i], "-p", 2) == 0)
             window.SetProp(PROP_PIXELINFO);
+        else if(strncmp(argv[i], "-cw", 3) == 0)
+            window.SetProp(PROP_CENTER_WINDOW);
         else if(strncmp(argv[i], "-c", 2) == 0)
             window.SetProp(PROP_CHECKERS);
         else if(strncmp(argv[i], "-s", 2) == 0)
@@ -97,6 +99,7 @@ void showHelp(const char* pchArgv0)
     printf("  %s [OPTION]... FILE\n", (p ? p + 1 : pchArgv0));
     printf("  -h, --help    show this help;\n");
     printf("  -s            enable scale to window;\n");
+    printf("  -cw           center window;\n");
     printf("  -c            disable chequerboard;\n");
     printf("  -i            disable on screen info;\n");
     printf("  -p            show pixel info (pixel color and coordinates);\n");

@@ -21,7 +21,17 @@
 
 #include <vector>
 
-typedef enum { PROP_INFOBAR, PROP_PIXELINFO, PROP_CHECKERS, PROP_FITIMAGE, PROP_FULLSCREEN, PROP_BORDER, PROP_RECURSIVE } Property;
+typedef enum
+{
+    PROP_INFOBAR,
+    PROP_PIXELINFO,
+    PROP_CHECKERS,
+    PROP_FITIMAGE,
+    PROP_FULLSCREEN,
+    PROP_BORDER,
+    PROP_RECURSIVE,
+    PROP_CENTER_WINDOW
+} Property;
 
 class CWindow
 {
@@ -40,6 +50,7 @@ private:
     float m_viewport_w, m_viewport_h;
     float m_scale;
     bool m_windowed;
+    bool m_center_window;
     bool m_testFullscreen;
     bool m_fitImage;
     bool m_showBorder;
@@ -67,7 +78,7 @@ private:
 private:
     bool loadImage(int step, int subImage = 0);
     void showCursor(bool show);
-    //void centerWindow();
+    void centerWindow();
     void calculateScale();
     void updateScale(bool up);
     void updateFiltering();

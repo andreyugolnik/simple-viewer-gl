@@ -31,6 +31,7 @@ CWindow::CWindow()
     , m_viewport_h(0)
     , m_scale(1)
     , m_windowed(true)
+    , m_center_window(true)
     , m_testFullscreen(false)
     , m_fitImage(false)
     , m_showBorder(false)
@@ -133,6 +134,9 @@ void CWindow::SetProp(Property prop)
     case PROP_RECURSIVE:
         m_recursiveDir = true;
         break;
+    case PROP_CENTER_WINDOW:
+        m_center_window = true;
+        break;
     }
 }
 
@@ -159,7 +163,7 @@ void CWindow::fnRender()
         {
             //printf("can't set fullscreen mode. scr: %d x %d, win: %d x %d\n", scrw, scrh, width, height);
             m_windowed = true;
-            //centerWindow();
+            centerWindow();
             return;
         }
     }
@@ -352,7 +356,7 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y)
     case 'I':
         m_infoBar->Show(!m_infoBar->Visible());
         //calculateScale();
-        //centerWindow();
+        centerWindow();
         break;
     case 'p':
     case 'P':
@@ -366,7 +370,7 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y)
         {
             m_scale = 1;
         }
-        //centerWindow();
+        centerWindow();
         updateInfobar();
         break;
     case ' ':
@@ -409,7 +413,7 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y)
     case '0':
         m_scale = 1;
         m_fitImage = false;
-        //centerWindow();
+        centerWindow();
         updateInfobar();
         break;
     case 13:
@@ -422,7 +426,7 @@ void CWindow::fnKeyboard(unsigned char key, int x, int y)
         }
         else
         {
-            //centerWindow();
+            centerWindow();
         }
         break;
     case 'h':
@@ -644,28 +648,28 @@ void CWindow::updateFiltering()
     }
 }
 
-//void CWindow::centerWindow()
-//{
-    //if(m_windowed == true)
-    //{
-        //calculateScale();
-        //int w = m_imageList->GetWidth();// * m_scale;
-        //int h = m_imageList->GetHeight();// * m_scale;
-        //int scrw = glutGet(GLUT_SCREEN_WIDTH);
-        //int scrh = glutGet(GLUT_SCREEN_HEIGHT);
-        //int imgw = std::max<int>(w + (m_showBorder ? m_border->GetBorderWidth() * 2 : 0), DEF_WINDOW_W);
-        //int imgh = std::max<int>(h + (m_showBorder ? m_border->GetBorderWidth() * 2 : 0) + m_infoBar->GetHeight(), DEF_WINDOW_H);
-        //int winw = std::min<int>(imgw, scrw);
-        //int winh = std::min<int>(imgh, scrh);
-        //glutReshapeWindow(winw, winh);
+void CWindow::centerWindow()
+{
+    if(m_windowed && m_center_window)
+    {
+        calculateScale();
+        int w = m_imageList->GetWidth();// * m_scale;
+        int h = m_imageList->GetHeight();// * m_scale;
+        int scrw = glutGet(GLUT_SCREEN_WIDTH);
+        int scrh = glutGet(GLUT_SCREEN_HEIGHT);
+        int imgw = std::max<int>(w + (m_showBorder ? m_border->GetBorderWidth() * 2 : 0), DEF_WINDOW_W);
+        int imgh = std::max<int>(h + (m_showBorder ? m_border->GetBorderWidth() * 2 : 0) + m_infoBar->GetHeight(), DEF_WINDOW_H);
+        int winw = std::min<int>(imgw, scrw);
+        int winh = std::min<int>(imgh, scrh);
+        glutReshapeWindow(winw, winh);
 
-        //int posx = (scrw - winw) / 2;
-        //int posy = (scrh - winh) / 2;
-        //glutPositionWindow(posx, posy);
+        int posx = (scrw - winw) / 2;
+        int posy = (scrh - winh) / 2;
+        glutPositionWindow(posx, posy);
 
-        ////printf("screen: %d x %d, window %d x %d, pos: %d, %d\n", scrw, scrh, winw, winh, posx, posy);
-    //}
-//}
+        //printf("screen: %d x %d, window %d x %d, pos: %d, %d\n", scrw, scrh, winw, winh, posx, posy);
+    }
+}
 
 bool CWindow::loadImage(int step, int subImage)
 {
@@ -696,7 +700,7 @@ bool CWindow::loadImage(int step, int subImage)
     m_selection->SetImageDimension(m_imageList->GetWidth(), m_imageList->GetHeight());
     updateInfobar();
 
-    //centerWindow();
+    centerWindow();
 
     updatePixelInfo(m_lastMouseX, m_lastMouseY);
 
