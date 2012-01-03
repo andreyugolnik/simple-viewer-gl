@@ -740,11 +740,17 @@ void CWindow::updatePixelInfo(int x, int y)
         pixelInfo.img_y = (y / m_scale - m_camera_y);
 
         // TODO check pixel format (RGB or BGR)
-        unsigned char* color = m_imageList->GetBitmap() + pixelInfo.img_x * m_imageList->GetBpp() / 8 + pixelInfo.img_y * m_imageList->GetPitch();
-        pixelInfo.r = color[0];
-        pixelInfo.g = color[1];
-        pixelInfo.b = color[2];
-        pixelInfo.a = m_imageList->GetBpp() == 32 ? color[3] : 255;
+        if(pixelInfo.img_x >= 0
+                && pixelInfo.img_y >= 0
+                && pixelInfo.img_x < m_imageList->GetHeight()
+                && pixelInfo.img_y < m_imageList->GetWidth())
+        {
+            unsigned char* color = m_imageList->GetBitmap() + pixelInfo.img_x * m_imageList->GetBpp() / 8 + pixelInfo.img_y * m_imageList->GetPitch();
+            pixelInfo.r = color[0];
+            pixelInfo.g = color[1];
+            pixelInfo.b = color[2];
+            pixelInfo.a = m_imageList->GetBpp() == 32 ? color[3] : 255;
+        }
 
         //pixelInfo.x         = x - m_camera_x;
         //pixelInfo.y         = y - m_camera_y;
