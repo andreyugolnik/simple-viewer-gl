@@ -5,21 +5,13 @@
 //
 /////////////////////////////////////////////////
 
-#ifndef WINDOW_H
-#define WINDOW_H
+#ifndef WINDOW_H_75C5AF4863DEDB
+#define WINDOW_H_75C5AF4863DEDB
 
-#include "quadimage.h"
-#include "fileslist.h"
-#include "imageloader.h"
-#include "infobar.h"
-#include "pixelinfo.h"
-#include "checkerboard.h"
-#include "progress.h"
-#include "notavailable.h"
-#include "imageborder.h"
-#include "selection.h"
+#include "math/vector.h"
 
 #include <vector>
+#include <memory>
 
 typedef enum
 {
@@ -33,21 +25,30 @@ typedef enum
     PROP_CENTER_WINDOW
 } Property;
 
+class CQuadImage;
+class CFilesList;
+class CImageLoader;
+class CInfoBar;
+class CPixelInfo;
+class CCheckerboard;
+class CNotAvailable;
+class CProgress;
+class CImageBorder;
+class CSelection;
+
 class CWindow
 {
 public:
     CWindow();
     virtual ~CWindow();
 
-    bool Init(int argc, char *argv[], const char* path);
+    bool Init(int argc, char* argv[], const char* path);
     void SetProp(Property prop);
     void SetProp(unsigned char r, unsigned char g, unsigned char b);
 
 private:
-    static CWindow* m_window;
     bool m_initialImageLoading;
     int m_prevWinX, m_prevWinY, m_prevWinW, m_prevWinH;
-    float m_viewport_w, m_viewport_h;
     float m_scale;
     bool m_windowed;
     bool m_center_window;
@@ -56,9 +57,10 @@ private:
     bool m_showBorder;
     bool m_recursiveDir;
     bool m_cursorVisible;
-    int m_lastMouseX, m_lastMouseY;
-    bool m_mouseLB, m_mouseMB, m_mouseRB;//, m_keyPressed;
-    float m_camera_x, m_camera_y;
+    bool m_mouseLB, m_mouseMB, m_mouseRB;
+    cVector m_viewport;
+    cVector m_lastMouse;
+    cVector m_camera;
     int m_angle;
 
     typedef std::vector<CQuadImage*> Quads;
@@ -86,14 +88,14 @@ private:
     void createTextures();
     void deleteTextures();
     void calculateTextureSize(int* texW, int* texH, int imgW, int imgH);
-    void updatePixelInfo(int x, int y);
+    void updatePixelInfo(const cVector& _pos);
     //void updateViewportSize();
 
     void keyUp();
     void keyDown();
     void keyLeft();
     void keyRight();
-    void updatePosition(int _diffx, int _diffy);
+    void updatePosition(const cVector& _delta);
 
     void fnProgressLoading(int percent);
     static void callbackProgressLoading(int percent);
@@ -117,5 +119,5 @@ private:
     static void callbackKeyboardSpecial(int key, int x, int y);
 };
 
-#endif // WINDOW_H
+#endif /* end of include guard: WINDOW_H_75C5AF4863DEDB */
 

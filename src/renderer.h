@@ -6,8 +6,8 @@
 // andrey@ugolnik.info
 //
 // created: 19-Aug-2011
-// changed: 01-Dec-2011
-// version: 0.0.0.54
+// changed: 10-Jun-2012
+// version: 0.0.0.56
 //
 ////////////////////////////////////////////////
 
@@ -16,6 +16,8 @@
 
 #define GL_GLEXT_PROTOTYPES
 #include <GL/glut.h>
+
+class cVector;
 
 struct sVertex
 {
@@ -59,7 +61,7 @@ public:
     static void setColor(sQuad* _quad, int _r, int _g, int _b, int _a);
     static void render(sLine* _quad);
     static void render(sQuad* _quad);
-    static void setGlobals(float _x = 0, float _y = 0, float _angle = 0, float _zoom = 1);
+    static void setGlobals(const cVector* _delta = 0, float _angle = 0, float _zoom = 1);
 
 private:
     //static bool m_inited;

@@ -19,8 +19,6 @@ const int LINES_COUNT	= 4;
 
 CPixelInfo::CPixelInfo()
     : m_visible(false)
-    , m_windowWidth(0)
-    , m_windowHeight(0)
 {
     memset(&m_pixelInfo, 0, sizeof(m_pixelInfo));
 }
@@ -45,21 +43,21 @@ void CPixelInfo::Init()
 
 void CPixelInfo::Update(const PixelInfo* _p)
 {
-    memcpy(&m_pixelInfo, _p, sizeof(m_pixelInfo));
+    m_pixelInfo = *_p;
 
     std::stringstream info;
 
     // TODO correct cursor position according scale factor
-    if(checkBoundary() == true)
+    //if(checkBoundary() == true)
     {
-        info << "pos: " << _p->img_x << " x " << _p->img_y;
+        info << "pos: " << _p->img.x << " x " << _p->img.y;
         info << "\nargb: " << std::hex << std::uppercase;
         info << std::setw(2) << std::setfill('0') << _p->a;
         info << std::setw(2) << std::setfill('0') << _p->r;
         info << std::setw(2) << std::setfill('0') << _p->g;
         info << std::setw(2) << std::setfill('0') << _p->b;
 
-        info << "\nrect: " << std::dec;
+        //info << "\nrect: " << std::dec;
 
         if(_p->rc.IsSet() == true)
         {
@@ -71,6 +69,13 @@ void CPixelInfo::Update(const PixelInfo* _p)
             info << x << ", " << y << " -> " << x + w << ", " << y + h;
             info << "\nsize: " << (w + 1) << " x " << (h + 1);
         }
+        //static char info[200];
+        //snprintf(info, sizeof(info), "pos: %d x %d\nargb: 0x%2X%2X%2X%2X\nrect: %d x %d\nsize: %d, %d -> %d, %d"
+                //, (int)_p->img.x, (int)_p->img.y
+                //, _p->a, _p->r, _p->g, _p->b
+                //, w, h
+                //, x, y, x + w, y + h);
+        //m_ft->Update(info);
     }
 
     m_ft->Update(info.str().c_str());
@@ -80,24 +85,24 @@ void CPixelInfo::Render()
 {
     if(m_visible == true)
     {
-        m_pointer->Render(m_pixelInfo.cursor_x - 10, m_pixelInfo.cursor_y - 10);
+        m_pointer->Render(m_pixelInfo.cursor.x - 10, m_pixelInfo.cursor.y - 10);
 
         if(checkBoundary() == true)
         {
             int frameWidth = m_ft->GetStringWidth() + 2 * BORDER;
             int frameHeight = FONT_HEIGHT * LINES_COUNT + 2 * BORDER;
 
-            int cursor_x = m_pixelInfo.cursor_x + FRAME_DELTA;
-            int cursor_y = m_pixelInfo.cursor_y + FRAME_DELTA;
-            if(cursor_x > m_windowWidth - frameWidth)
+            int cursor_x = m_pixelInfo.cursor.x + FRAME_DELTA;
+            int cursor_y = m_pixelInfo.cursor.y + FRAME_DELTA;
+            if(cursor_x > m_window.x - frameWidth)
             {
-                //cursorx = m_windowWidth - frameWidth;
-                cursor_x = m_pixelInfo.cursor_x - FRAME_DELTA - frameWidth;
+                //cursorx = m_window.x - frameWidth;
+                cursor_x = m_pixelInfo.cursor.x - FRAME_DELTA - frameWidth;
             }
-            if(cursor_y > m_windowHeight - frameHeight)
+            if(cursor_y > m_window.y - frameHeight)
             {
-                //cursory = m_windowHeight - frameHeight;
-                cursor_y = m_pixelInfo.cursor_y - FRAME_DELTA - frameHeight;
+                //cursory = m_window.y - frameHeight;
+                cursor_y = m_pixelInfo.cursor.y - FRAME_DELTA - frameHeight;
             }
 
             m_bg->SetSpriteSize(frameWidth, frameHeight);
@@ -108,19 +113,13 @@ void CPixelInfo::Render()
     }
 }
 
-void CPixelInfo::SetWindowSize(int w, int h)
-{
-    m_windowWidth = w;
-    m_windowHeight = h;
-}
-
 bool CPixelInfo::checkBoundary() const
 {
     if(
-            m_pixelInfo.img_x >= 0
-            && m_pixelInfo.img_x < m_pixelInfo.w
-            && m_pixelInfo.img_y >= 0
-            && m_pixelInfo.img_y < m_pixelInfo.h
+            m_pixelInfo.img.x >= 0
+            && m_pixelInfo.img.x < m_pixelInfo.w
+            && m_pixelInfo.img.y >= 0
+            && m_pixelInfo.img.y < m_pixelInfo.h
       )
     {
         return true;

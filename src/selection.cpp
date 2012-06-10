@@ -9,6 +9,7 @@
 ////////////////////////////////////////////////
 
 #include "selection.h"
+#include "vector.h"
 
 #include <algorithm>
 #include <time.h>
@@ -190,7 +191,7 @@ void CSelection::MouseMove(int x, int y)
     }
 }
 
-void CSelection::Render(float _dx, float _dy, float _scale)
+void CSelection::Render(const cVector& _delta, float _scale)
 {
     float dt = getTime();
 
@@ -200,7 +201,7 @@ void CSelection::Render(float _dx, float _dy, float _scale)
     if(m_enabled == true && m_rc.IsSet() == true)
     {
         CRect<int> rc;
-        setImagePos(rc, _dx * _scale, _dy * _scale);
+        setImagePos(rc, _delta.x * _scale, _delta.y * _scale);
 
         setColor(frame, m_corner != CORNER_UP);
         renderLine(rc.x1, rc.y1, rc.x2, rc.y1, frame);	// top line

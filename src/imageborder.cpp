@@ -28,12 +28,12 @@ void CImageBorder::SetColor(int _r, int _g, int _b, int _a)
 
 void CImageBorder::Render(float _x, float _y, float _w, float _h, float _scale)
 {
-    _x *= _scale;
-    _y *= _scale;
-    _w = _w * _scale;
-    _h = _h * _scale;
+    //_x *= _scale;
+    //_y *= _scale;
+    //_w = _w * _scale;
+    //_h = _h * _scale;
 
-    const float delta = GetBorderWidth();
+    const float delta = GetBorderWidth() / _scale;
 
     renderLine(_x - delta, _y - delta, _w + delta*2, delta);	// up
     renderLine(_x - delta, _y + _h,    _w + delta*2, delta);	// down

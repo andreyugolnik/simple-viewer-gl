@@ -11,7 +11,7 @@
 #ifndef SELECTION_H
 #define SELECTION_H
 
-#include "rect.h"
+#include "math/rect.h"
 #include "quad.h"
 
 #include <memory>
@@ -29,7 +29,7 @@ public:
     void SetImageDimension(float _w, float _h);
     void MouseButton(int x, int y, bool pressed);
     void MouseMove(int x, int y);
-    void Render(float _dx, float _dy, float _scale);
+    void Render(const cVector& _delta, float _scale);
     CRect<float> GetRect() const;
     int GetCursor() const;
 

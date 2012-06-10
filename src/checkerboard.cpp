@@ -70,7 +70,7 @@ void CCheckerboard::Render()
         float w	= (float)glutGet(GLUT_WINDOW_WIDTH);
         float h	= (float)glutGet(GLUT_WINDOW_HEIGHT);
         m_cb->SetSpriteSize(w, h);
-        m_cb->Render(0, 0);
+        m_cb->Render(-w/2, -h/2);
     }
     else
     {

@@ -10,6 +10,7 @@
 #include "window.h"
 #include "config.h"
 
+#include <iostream>
 #include <locale.h>
 #include <string.h>
 #include <stdio.h>
@@ -22,8 +23,8 @@ int main(int argc, char* argv[])
 {
     setlocale(LC_ALL, "");
 
-    printf("%s v2.1\n\n", TITLE);
-    printf("Copyright © 2008-2011 Andrey A. Ugolnik. All Rights Reserved.\n");
+    printf("%s v2.1\n\n", DEF_TITLE);
+    printf("Copyright © 2008-2012 Andrey A. Ugolnik. All Rights Reserved.\n");
     printf("http://www.wegroup.org\n");
     printf("http://www.ugolnik.info\n");
     printf("andrey@ugolnik.info\n\n");
@@ -81,12 +82,7 @@ int main(int argc, char* argv[])
         }
     }
 
-    if(window.Init(argc, argv, path) == true)
-    {
-        glutMainLoop();
-        std::cout << "here 1" << std::endl;
-    }
-    std::cout << "here 2" << std::endl;
+    window.Init(argc, argv, path);
 
     return 0;
 }

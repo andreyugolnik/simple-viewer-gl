@@ -25,7 +25,7 @@ CInfoBar::~CInfoBar()
 void CInfoBar::Init()
 {
     m_bg.reset(new CQuad(0, 0));
-    m_bg->SetColor(0, 0, 25, 255);
+    m_bg->SetColor(0, 0, 25, 155);
     m_ft.reset(new CFTString(m_fntSize));
     m_ft->SetColor(255, 255, 127, 255);
 }
@@ -37,10 +37,12 @@ void CInfoBar::Render()
         int w = glutGet(GLUT_WINDOW_WIDTH);
         int h = glutGet(GLUT_WINDOW_HEIGHT);
 
+        float x = -floorf(w / 2);
+        float y = floorf(h / 2);
         m_bg->SetSpriteSize(w, m_height);
-        m_bg->Render(0, h - m_height);
+        m_bg->Render(x, y - m_height);
 
-        m_ft->Render(2, h - (m_height - m_fntSize));
+        m_ft->Render(x, y - (m_height - m_fntSize));
     }
 }
 
@@ -92,17 +94,17 @@ void CInfoBar::Update(const InfoBar* p)
         // set window title
         if(p->files_count > 1)
         {
-            title << (p->index + 1) << " out " << p->files_count << " - " << name << " - " << TITLE;
+            title << (p->index + 1) << " out " << p->files_count << " - " << name << " - " << DEF_TITLE;
         }
         else
         {
-            title << name << " - " << TITLE;
+            title << name << " - " << DEF_TITLE;
         }
     }
     else
     {
         m_bottominfo = "";
-        title << TITLE;
+        title << DEF_TITLE;
     }
 
     m_ft->Update(m_bottominfo.c_str());

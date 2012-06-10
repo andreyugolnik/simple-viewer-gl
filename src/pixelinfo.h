@@ -10,18 +10,21 @@
 
 #include "ftstring.h"
 #include "quadseries.h"
+#include "math/vector.h"
+#include "math/rect.h"
+
 #include <memory>
 
 typedef struct PIXELINFO
 {
-    int img_x, img_y;
-    int cursor_x, cursor_y;
+    cVector img;
+    cVector cursor;
+    CRect<float> rc;
     int r, g, b, a;
+    int w, h;//, pitch;
     //int x, y;	// pixel position
     //unsigned char* bitmap;
-    int w, h;//, pitch;
     //int bpp, format;
-    CRect<float> rc;
     //float scale;
 } PixelInfo;
 
@@ -36,12 +39,12 @@ public:
     void Render();
     void Show(bool show = true) { m_visible = show; }
     bool IsVisible() const { return m_visible; }
-    void SetWindowSize(int w, int h);
+    void SetWindowSize(const cVector& _size) { m_window = _size; }
     void SetCursor(int cursor);
 
 private:
     bool m_visible;
-    int m_windowWidth, m_windowHeight;
+    cVector m_window;
     PixelInfo m_pixelInfo;
     std::auto_ptr<CQuad> m_bg;
     std::auto_ptr<CQuadSeries> m_pointer;

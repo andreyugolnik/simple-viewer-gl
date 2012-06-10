@@ -8,6 +8,7 @@
 #include "config.h"
 #include "window.h"
 
+#include <iostream>
 #include <stdlib.h>
 #include <sstream>
 

@@ -5,10 +5,12 @@ INCLUDE(FindPkgConfig)
 INCLUDE(CheckLibraryExists)
 
 SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+#SET( CMAKE_CXX_COMPILER "clang++" )
+#SET( CMAKE_C_COMPILER "clang" )
 
 # additional compiler flags
 #ADD_DEFINITIONS(-Wall -O0 -g)
-ADD_DEFINITIONS(-Wall -O2)
+ADD_DEFINITIONS(-Wall -Wextra -O2)
 
 FIND_PACKAGE(GLUT)
 FIND_PACKAGE(OpenGL)
@@ -67,6 +69,7 @@ ADD_EXECUTABLE(../sviewgl
     src/formats/formatdds.cpp
     src/formats/formatgif.cpp
     src/formats/formatpng.cpp
+    src/math/vector.cpp
     )
 
 TARGET_LINK_LIBRARIES(../sviewgl

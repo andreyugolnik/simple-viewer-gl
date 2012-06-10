@@ -52,17 +52,12 @@ void CQuad::SetSpriteSize(float w, float h)
     m_quad.v[3].ty = h / m_th;
 }
 
-//void CQuad::SetWindowSize(float w, float h)
-//{
-    //m_rcWindow.Set(0, 0, w, h);
-//}
-
-void CQuad::Render(float x, float y)
+void CQuad::Render(float _x, float _y)
 {
-    RenderEx(x, y, m_w, m_h);
+    RenderEx(_x, _y, m_w, m_h);
 }
 
-void CQuad::RenderEx(float x, float y, float w, float h, int angle)
+void CQuad::RenderEx(float _x, float _y, float w, float h, int angle)
 {
     if(angle != 0)
     {
@@ -70,37 +65,28 @@ void CQuad::RenderEx(float x, float y, float w, float h, int angle)
         float c = cosf(a);
         float s = sinf(a);
 
-        m_quad.v[0].x = x;
-        m_quad.v[0].y = y;
-        m_quad.v[1].x = x + w*c;
-        m_quad.v[1].y = y + w*s;
-        m_quad.v[2].x = x + w*c - h*s;
-        m_quad.v[2].y = y + w*s + h*c;
-        m_quad.v[3].x = x - h*s;
-        m_quad.v[3].y = y + h*c;
+        m_quad.v[0].x = _x;
+        m_quad.v[0].y = _y;
+        m_quad.v[1].x = _x + w*c;
+        m_quad.v[1].y = _y + w*s;
+        m_quad.v[2].x = _x + w*c - h*s;
+        m_quad.v[2].y = _y + w*s + h*c;
+        m_quad.v[3].x = _x - h*s;
+        m_quad.v[3].y = _y + h*c;
     }
     else
     {
-        m_quad.v[0].x = x;
-        m_quad.v[0].y = y;
-        m_quad.v[1].x = x + w;
-        m_quad.v[1].y = y;
-        m_quad.v[2].x = x + w;
-        m_quad.v[2].y = y + h;
-        m_quad.v[3].x = x;
-        m_quad.v[3].y = y + h;
+        m_quad.v[0].x = _x;
+        m_quad.v[0].y = _y;
+        m_quad.v[1].x = _x + w;
+        m_quad.v[1].y = _y;
+        m_quad.v[2].x = _x + w;
+        m_quad.v[2].y = _y + h;
+        m_quad.v[3].x = _x;
+        m_quad.v[3].y = _y + h;
     }
 
-    //CRect<float> rc;
-    //rc.Encapsulate(m_quad.v[0].x, m_quad.v[0].y);
-    //rc.Encapsulate(m_quad.v[1].x, m_quad.v[1].y);
-    //rc.Encapsulate(m_quad.v[2].x, m_quad.v[2].y);
-    //rc.Encapsulate(m_quad.v[3].x, m_quad.v[3].y);
-
-    //if(rc.IsSet() == false || m_rcWindow.IsSet() == false || rc.Intersect(&m_rcWindow) == true)
-    {
-        cRenderer::render(&m_quad);
-    }
+    cRenderer::render(&m_quad);
 }
 
 void CQuad::useFilter(bool _filter)

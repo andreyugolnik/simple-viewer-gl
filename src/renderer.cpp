@@ -6,12 +6,14 @@
 // andrey@ugolnik.info
 //
 // created: 19-Aug-2011
-// changed: 01-Dec-2011
-// version: 0.0.0.97
+// changed: 10-Jun-2012
+// version: 0.0.0.116
 //
 ////////////////////////////////////////////////
 
 #include "renderer.h"
+#include "vector.h"
+
 #include <iostream>
 #include <cmath>
 
@@ -143,18 +145,32 @@ void cRenderer::calculateTextureSize(int* _tex_w, int* _tex_h, int _img_w, int _
 
 void cRenderer::setColor(sLine* _line, int _r, int _g, int _b, int _a)
 {
-    _line->v[0].r = _line->v[1].r = _r;
-    _line->v[0].g = _line->v[1].g = _g;
-    _line->v[0].b = _line->v[1].b = _b;
-    _line->v[0].a = _line->v[1].a = _a;
+    //_line->v[0].r = _line->v[1].r = _r;
+    //_line->v[0].g = _line->v[1].g = _g;
+    //_line->v[0].b = _line->v[1].b = _b;
+    //_line->v[0].a = _line->v[1].a = _a;
+    for(int i = 0; i < 2; i++)
+    {
+        _line->v[i].r = _r;
+        _line->v[i].g = _g;
+        _line->v[i].b = _b;
+        _line->v[i].a = _a;
+    }
 }
 
 void cRenderer::setColor(sQuad* _quad, int _r, int _g, int _b, int _a)
 {
-    _quad->v[0].r = _quad->v[1].r = _quad->v[2].r = _quad->v[3].r = _r;
-    _quad->v[0].g = _quad->v[1].g = _quad->v[2].g = _quad->v[3].g = _g;
-    _quad->v[0].b = _quad->v[1].b = _quad->v[2].b = _quad->v[3].b = _b;
-    _quad->v[0].a = _quad->v[1].a = _quad->v[2].a = _quad->v[3].a = _a;
+    //_quad->v[0].r = _quad->v[1].r = _quad->v[2].r = _quad->v[3].r = _r;
+    //_quad->v[0].g = _quad->v[1].g = _quad->v[2].g = _quad->v[3].g = _g;
+    //_quad->v[0].b = _quad->v[1].b = _quad->v[2].b = _quad->v[3].b = _b;
+    //_quad->v[0].a = _quad->v[1].a = _quad->v[2].a = _quad->v[3].a = _a;
+    for(int i = 0; i < 4; i++)
+    {
+        _quad->v[i].r = _r;
+        _quad->v[i].g = _g;
+        _quad->v[i].b = _b;
+        _quad->v[i].a = _a;
+    }
 }
 
 void cRenderer::render(sLine* _line)
@@ -185,21 +201,24 @@ void cRenderer::render(sQuad* _quad)
     }
 }
 
-void cRenderer::setGlobals(float _x, float _y, float _angle, float _zoom)
+void cRenderer::setGlobals(const cVector* _delta, float _angle, float _zoom)
 {
-    int w = glutGet(GLUT_WINDOW_WIDTH);
-    int h = glutGet(GLUT_WINDOW_HEIGHT);
-
     float zoom = 1.0f / _zoom;
+    float w = glutGet(GLUT_WINDOW_WIDTH) * zoom;
+    float h = glutGet(GLUT_WINDOW_HEIGHT) * zoom;
+
+    float x = floorf((_delta ? _delta->x : 0) - w * 0.5f);
+    float y = floorf((_delta ? _delta->y : 0) - h * 0.5f);
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glOrtho(
-            _x,
-            _x + w * zoom,
-            _y + h * zoom,
-            _y,
+            x,
+            x + w,
+            y + h,
+            y,
             -1.0, 1.0);
+
     glRotatef(_angle, 0, 0, -1);
 }
 

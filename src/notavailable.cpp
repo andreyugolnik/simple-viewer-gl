@@ -28,12 +28,13 @@ bool CNotAvailable::Render()
 {
     if(m_enabled == true)
     {
-        float w = (float)glutGet(GLUT_WINDOW_WIDTH);
-        float h = (float)glutGet(GLUT_WINDOW_HEIGHT);
-        float x = ceil((w - imgNa.width) / 2);
-        float y = ceil((h - imgNa.height) / 2);
+        //float w = (float)glutGet(GLUT_WINDOW_WIDTH);
+        //float h = (float)glutGet(GLUT_WINDOW_HEIGHT);
+        //float x = ceil((w - imgNa.width) / 2);
+        //float y = ceil((h - imgNa.height) / 2);
 
-        m_na->Render(x, y);
+        cRenderer::setGlobals();
+        m_na->Render(-imgNa.width / 2, -imgNa.height / 2);
     }
 
     return m_enabled;
