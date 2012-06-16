@@ -218,7 +218,7 @@ void CWindow::fnRender()
         }
         if(m_pixelInfo->IsVisible())
         {
-            m_selection->Render(m_camera, m_scale);
+            m_selection->Render(cVector(-img_w * 0.5f, -img_h * 0.5f), m_scale);
             //m_selection->Render(0, 0);
         }
         cRenderer::setGlobals();
@@ -455,10 +455,12 @@ void CWindow::fnKeyboard(unsigned char key, int /*x*/, int /*y*/)
     case 'R':
         m_angle += 360 - 90;
         m_angle %= 360;
+        calculateScale();
         break;
     case 'L':
         m_angle += 90;
         m_angle %= 360;
+        calculateScale();
         break;
     //default:
          //std::cout << key << std::endl;
@@ -530,6 +532,12 @@ void CWindow::calculateScale()
     {
         float w = static_cast<float>(m_imageList->GetWidth());
         float h = static_cast<float>(m_imageList->GetHeight());
+        if(m_angle == 90 || m_angle == 270)
+        {
+            float t = w;
+            w = h;
+            h = t;
+        }
 
         // scale only large images
         if(w >= m_viewport.x || h >= m_viewport.y)

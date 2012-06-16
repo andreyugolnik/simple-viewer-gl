@@ -25,7 +25,7 @@ CInfoBar::~CInfoBar()
 void CInfoBar::Init()
 {
     m_bg.reset(new CQuad(0, 0));
-    m_bg->SetColor(0, 0, 25, 155);
+    m_bg->SetColor(0, 0, 25, 240);
     m_ft.reset(new CFTString(m_fntSize));
     m_ft->SetColor(255, 255, 127, 255);
 }
