@@ -198,7 +198,7 @@ void CWindow::fnRender()
         m_camera.y = std::max<int>(m_camera.y, -half.y);
         m_camera.y = std::min<int>(m_camera.y, half.y);
 
-        cVector pos(m_camera.x, m_camera.y + m_infoBar->GetHeight() / 2.0f);
+        cVector pos(m_camera.x, m_camera.y + m_infoBar->GetHeight() / m_scale / 2.0f);
         cRenderer::setGlobals(&pos, m_angle, m_scale);
 
         QuadsIc it = m_quads.begin(), itEnd = m_quads.end();
