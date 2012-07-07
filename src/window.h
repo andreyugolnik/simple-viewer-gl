@@ -48,7 +48,6 @@ public:
 
 private:
     bool m_initialImageLoading;
-    int m_prevWinX, m_prevWinY, m_prevWinW, m_prevWinH;
     float m_scale;
     bool m_windowed;
     bool m_center_window;
@@ -61,6 +60,8 @@ private:
     cVector m_viewport;
     cVector m_lastMouse;
     cVector m_camera;
+    cVector m_prev_pos;
+    cVector m_prev_size;
     int m_angle;
 
     typedef std::vector<CQuadImage*> Quads;
@@ -80,6 +81,7 @@ private:
 private:
     bool loadImage(int step, int subImage = 0);
     void showCursor(bool show);
+    void storeWindowPositionSize(bool _position, bool _size);
     void centerWindow();
     void calculateScale();
     void updateScale(bool up);

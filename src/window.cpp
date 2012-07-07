@@ -33,10 +33,6 @@ CWindow* m_window = 0;
 
 CWindow::CWindow()
     : m_initialImageLoading(true)
-    , m_prevWinX(0)
-    , m_prevWinY(0)
-    , m_prevWinW(DEF_WINDOW_W)
-    , m_prevWinH(DEF_WINDOW_H)
     , m_scale(1)
     , m_windowed(true)
     , m_center_window(false)
@@ -53,6 +49,7 @@ CWindow::CWindow()
 {
     m_window = this;
     m_lastMouse = cVector(-1, -1);
+    m_prev_size = cVector(DEF_WINDOW_W, DEF_WINDOW_H);
 
     m_imageList.reset(new CImageLoader(callbackProgressLoading));
     m_checkerBoard.reset(new CCheckerboard());
@@ -253,6 +250,11 @@ void CWindow::fnRender()
 
 void CWindow::fnResize(int width, int height)
 {
+    if(m_windowed)
+    {
+        storeWindowPositionSize(false, true);
+    }
+
     //m_viewport_w = glutGet(GLUT_WINDOW_WIDTH);
     //m_viewport_h = glutGet(GLUT_WINDOW_HEIGHT) - m_infoBar->GetHeight();
     m_viewport = cVector(static_cast<float>(width), static_cast<float>(height - m_infoBar->GetHeight()));
@@ -429,15 +431,17 @@ void CWindow::fnKeyboard(unsigned char key, int /*x*/, int /*y*/)
         break;
     case 13:
         m_windowed = !m_windowed;
-        if(m_windowed == false)
+        if(m_windowed)
         {
-            m_testFullscreen = true;
-
-            glutFullScreen();
+            centerWindow();
         }
         else
         {
-            centerWindow();
+            m_testFullscreen = true;
+
+            storeWindowPositionSize(true, true);
+
+            glutFullScreen();
         }
         break;
     case 'h':
@@ -639,26 +643,57 @@ void CWindow::updateFiltering()
     }
 }
 
+void CWindow::storeWindowPositionSize(bool _position, bool _size)
+{
+    if(_position)
+    {
+        int x = glutGet(GLUT_WINDOW_X);
+        int y = glutGet(GLUT_WINDOW_Y);
+        m_prev_pos = cVector(x, y);
+    }
+
+    if(_size)
+    {
+        int w = glutGet(GLUT_WINDOW_WIDTH);
+        int h = glutGet(GLUT_WINDOW_HEIGHT);
+        m_prev_size = cVector(w, h);
+    }
+}
+
 void CWindow::centerWindow()
 {
-    if(m_windowed && m_center_window)
+    if(m_windowed)
     {
-        calculateScale();
-        int w = m_imageList->GetWidth();// * m_scale;
-        int h = m_imageList->GetHeight();// * m_scale;
-        int scrw = glutGet(GLUT_SCREEN_WIDTH);
-        int scrh = glutGet(GLUT_SCREEN_HEIGHT);
-        int imgw = std::max<int>(w + (m_showBorder ? m_border->GetBorderWidth() * 2 : 0), DEF_WINDOW_W);
-        int imgh = std::max<int>(h + (m_showBorder ? m_border->GetBorderWidth() * 2 : 0) + m_infoBar->GetHeight(), DEF_WINDOW_H);
-        int winw = std::min<int>(imgw, scrw);
-        int winh = std::min<int>(imgh, scrh);
-        glutReshapeWindow(winw, winh);
+        int winw = m_prev_size.x;
+        int winh = m_prev_size.y;
+        int posx = m_prev_pos.x;
+        int posy = m_prev_pos.y;
 
-        int posx = (scrw - winw) / 2;
-        int posy = (scrh - winh) / 2;
+        if(m_center_window)
+        {
+            // calculate window size
+            int w = m_imageList->GetWidth();// * m_scale;
+            int h = m_imageList->GetHeight();// * m_scale;
+            int scrw = glutGet(GLUT_SCREEN_WIDTH);
+            int scrh = glutGet(GLUT_SCREEN_HEIGHT);
+            int imgw = std::max<int>(w + (m_showBorder ? m_border->GetBorderWidth() * 2 : 0), DEF_WINDOW_W);
+            int imgh = std::max<int>(h + (m_showBorder ? m_border->GetBorderWidth() * 2 : 0) + m_infoBar->GetHeight(), DEF_WINDOW_H);
+            winw = std::min<int>(imgw, scrw);
+            winh = std::min<int>(imgh, scrh);
+
+            // calculate window position
+            posx = (scrw - winw) / 2;
+            posy = (scrh - winh) / 2;
+        }
+
         glutPositionWindow(posx, posy);
-
+        glutReshapeWindow(winw, winh);
         //printf("screen: %d x %d, window %d x %d, pos: %d, %d\n", scrw, scrh, winw, winh, posx, posy);
+
+        m_prev_pos = cVector(posx, posy);
+        m_prev_size = cVector(winw, winh);
+
+        calculateScale();
     }
 }
 
@@ -870,6 +905,9 @@ void CWindow::callbackTimerUpdate(int value)
 {
     glutPostRedisplay();
     glutTimerFunc(100, callbackTimerUpdate, value);
+
+    // workaround: store window position by timer, because glut has not related callback
+    m_window->storeWindowPositionSize(true, false);
 }
 
 void CWindow::callbackTimerCursor(int /*value*/)
