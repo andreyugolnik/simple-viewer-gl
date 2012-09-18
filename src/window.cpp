@@ -36,6 +36,7 @@ CWindow::CWindow()
     , m_scale(1)
     , m_windowed(true)
     , m_center_window(false)
+    , m_all_valid(false)
     , m_testFullscreen(false)
     , m_fitImage(false)
     , m_showBorder(false)
@@ -70,6 +71,7 @@ CWindow::~CWindow()
 bool CWindow::Init(int argc, char* argv[], const char* path)
 {
     m_filesList.reset(new CFilesList(path, m_recursiveDir));
+    m_filesList->setAllValid();
     if(m_filesList->GetName() != 0)
     {
         glutInit(&argc, argv);
@@ -141,6 +143,9 @@ void CWindow::SetProp(Property prop)
         break;
     case PROP_CENTER_WINDOW:
         m_center_window = true;
+        break;
+    case PROP_ALL_VALID:
+        m_all_valid = true;
         break;
     }
 }

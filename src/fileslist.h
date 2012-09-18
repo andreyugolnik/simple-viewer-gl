@@ -18,6 +18,7 @@ public:
     CFilesList(const char* file, bool recursive = false);
     virtual ~CFilesList();
 
+    void setAllValid(bool _all_valid = true) { m_allValid = _all_valid; }
     bool ParseDir();
     const char* GetName(int delta = 0);
     void RemoveFromDisk();
@@ -29,6 +30,7 @@ private:
     bool m_recursive;
     int m_position;	// current position in list
     bool m_removeCurrent;
+    bool m_allValid;
     std::vector<std::string> m_files;
 
 private:

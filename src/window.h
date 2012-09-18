@@ -22,7 +22,8 @@ typedef enum
     PROP_FULLSCREEN,
     PROP_BORDER,
     PROP_RECURSIVE,
-    PROP_CENTER_WINDOW
+    PROP_CENTER_WINDOW,
+    PROP_ALL_VALID
 } Property;
 
 class CQuadImage;
@@ -51,6 +52,7 @@ private:
     float m_scale;
     bool m_windowed;
     bool m_center_window;
+    bool m_all_valid;
     bool m_testFullscreen;
     bool m_fitImage;
     bool m_showBorder;

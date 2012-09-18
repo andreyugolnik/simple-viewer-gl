@@ -67,6 +67,8 @@ int main(int argc, char* argv[])
             window.SetProp(PROP_BORDER);
         else if(strncmp(argv[i], "-r", 2) == 0)
             window.SetProp(PROP_RECURSIVE);
+        else if(strncmp(argv[i], "-a", 2) == 0)
+            window.SetProp(PROP_ALL_VALID);
         else if(strncmp(argv[i], "-C", 2) == 0)
         {
             unsigned int r, g, b;
@@ -96,6 +98,7 @@ void showHelp(const char* pchArgv0)
     printf("  -h, --help    show this help;\n");
     printf("  -s            enable scale to window;\n");
     printf("  -cw           center window;\n");
+    printf("  -a            do not filter by file ext;\n");
     printf("  -c            disable chequerboard;\n");
     printf("  -i            disable on screen info;\n");
     printf("  -p            show pixel info (pixel color and coordinates);\n");

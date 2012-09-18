@@ -14,6 +14,7 @@ CFilesList::CFilesList(const char* file, bool recursive)
     , m_recursive(recursive)
     , m_position(0)
     , m_removeCurrent(false)
+    , m_allValid(false)
 {
     if(file != 0)
     {
@@ -148,6 +149,11 @@ int CFilesList::filter(const struct dirent* p)
 
 bool CFilesList::isValidExt(const std::string& path)
 {
+    if(m_allValid)
+    {
+        return true;
+    }
+
     std::string s(path);
     std::transform(s.begin(), s.end(), s.begin(), tolower);
 
