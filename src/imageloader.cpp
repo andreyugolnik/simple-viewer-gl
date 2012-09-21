@@ -22,7 +22,7 @@ CImageLoader::CImageLoader(Callback _callback)
     : m_image(0)
 {
     m_format_common.reset(new CFormatCommon(_callback, "libImlib2", "ImLib2"));
-    m_format_jpeg.reset(new CFormatJpeg(_callback, "libjpeg", "jpeg"));
+    m_format_jpeg.reset(new CFormatJpeg(_callback, "libjpeg", "JPEG"));
     m_format_psd.reset(new CFormatPsd(_callback, 0, "PSD"));
     m_format_png.reset(new CFormatPng(_callback, "libpng", "PNG"));
     m_format_gif.reset(new CFormatGif(_callback, "libgif", "GIF"));
