@@ -20,8 +20,6 @@
 #=============================================================================
 # (To distributed this file outside of CMake, substitute the full
 #  License text for the above reference.)
-    #/Users/andrey/Gentoo/usr/include
-    #/Users/andrey/Gentoo/usr/lib
 
 FIND_PATH(LIBCONFIG_INCLUDE_DIR libconfig.h
     /usr/include
