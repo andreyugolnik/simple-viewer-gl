@@ -78,7 +78,7 @@ namespace FORMAT_ICO
 class CFormatIco : public CFormat
 {
 public:
-    CFormatIco(Callback callback);
+    CFormatIco(Callback callback, const char* _lib, const char* _name);
     virtual ~CFormatIco();
 
     virtual bool Load(const char* filename, int subImage = 0);

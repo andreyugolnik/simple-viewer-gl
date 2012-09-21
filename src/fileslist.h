@@ -36,11 +36,11 @@ private:
 private:
     bool scanDirectory(const std::string& dir);
     bool isValidExt(const std::string& path);
-#if defined(__APPLE__)
-    static int filter(struct dirent* p);
-#else
+//#if defined(__APPLE__)
+    //static int filter(struct dirent* p);
+//#else
     static int filter(const struct dirent* p);
-#endif
+//#endif
 };
 
 

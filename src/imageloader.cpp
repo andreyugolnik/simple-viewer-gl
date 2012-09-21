@@ -18,9 +18,18 @@
 #include <iostream>
 #include <algorithm>
 
-CImageLoader::CImageLoader(Callback callback)
-    : m_callback(callback)
+CImageLoader::CImageLoader(Callback _callback)
+    : m_image(0)
 {
+    m_format_common.reset(new CFormatCommon(_callback, "libImlib2", "ImLib2"));
+    m_format_jpeg.reset(new CFormatJpeg(_callback, "libjpeg", "jpeg"));
+    m_format_psd.reset(new CFormatPsd(_callback, 0, "PSD"));
+    m_format_png.reset(new CFormatPng(_callback, "libpng", "PNG"));
+    m_format_gif.reset(new CFormatGif(_callback, "libgif", "GIF"));
+    m_format_ico.reset(new CFormatIco(_callback, 0, "ICO"));
+    m_format_tiff.reset(new CFormatTiff(_callback, "libtiff", "TIFF"));
+    m_format_xwd.reset(new CFormatXwd(_callback, 0, "XWD"));
+    m_format_dds.reset(new CFormatDds(_callback, 0, "DDS"));
 }
 
 CImageLoader::~CImageLoader()
@@ -33,7 +42,7 @@ bool CImageLoader::LoadImage(const char* path, int subImage)
     {
         if(m_path.empty() == false && m_path == path)
         {
-            if(m_image.get() && !m_image->m_bitmap.empty() && GetSub() == subImage)
+            if(m_image && !m_image->m_bitmap.empty() && GetSub() == subImage)
             {
                 return true;	// image already loaded
             }
@@ -45,34 +54,34 @@ bool CImageLoader::LoadImage(const char* path, int subImage)
         switch(format)
         {
         case FORMAT_JPEG:
-            m_image.reset(new CFormatJpeg(m_callback));
+            m_image = m_format_jpeg.get();
             break;
         case FORMAT_PSD:
-            m_image.reset(new CFormatPsd(m_callback));
+            m_image = m_format_psd.get();
             break;
         case FORMAT_PNG:
-            m_image.reset(new CFormatPng(m_callback));
+            m_image = m_format_png.get();
             break;
         case FORMAT_GIF:
             if(!subImage)
             {
-                m_image.reset(new CFormatGif(m_callback));
+                m_image = m_format_gif.get();
             }
             break;
         case FORMAT_ICO:
-            m_image.reset(new CFormatIco(m_callback));
+            m_image = m_format_ico.get();
             break;
         case FORMAT_TIFF:
-            m_image.reset(new CFormatTiff(m_callback));
+            m_image = m_format_tiff.get();
             break;
         case FORMAT_XWD:
-            m_image.reset(new CFormatXwd(m_callback));
+            m_image = m_format_xwd.get();
             break;
         case FORMAT_DDS:
-            m_image.reset(new CFormatDds(m_callback));
+            m_image = m_format_dds.get();
             break;
         default: //FORMAT_COMMON:
-            m_image.reset(new CFormatCommon(m_callback));
+            m_image = m_format_common.get();
             break;
         }
 
@@ -84,7 +93,7 @@ bool CImageLoader::LoadImage(const char* path, int subImage)
 
 unsigned char* CImageLoader::GetBitmap() const
 {
-    if(m_image.get() && !m_image->m_bitmap.empty())
+    if(m_image && !m_image->m_bitmap.empty())
     {
         return (unsigned char*)&m_image->m_bitmap[0];
     }
@@ -93,7 +102,7 @@ unsigned char* CImageLoader::GetBitmap() const
 
 void CImageLoader::FreeMemory()
 {
-    if(m_image.get() != 0)
+    if(m_image != 0)
     {
         m_image->FreeMemory();
         m_path.clear();
@@ -102,7 +111,7 @@ void CImageLoader::FreeMemory()
 
 int CImageLoader::GetWidth() const
 {
-    if(m_image.get() != 0)
+    if(m_image != 0)
     {
         return m_image->m_width;
     }
@@ -111,7 +120,7 @@ int CImageLoader::GetWidth() const
 
 int CImageLoader::GetHeight() const
 {
-    if(m_image.get() != 0)
+    if(m_image != 0)
     {
         return m_image->m_height;
     }
@@ -120,7 +129,7 @@ int CImageLoader::GetHeight() const
 
 int CImageLoader::GetPitch() const
 {
-    if(m_image.get() != 0)
+    if(m_image != 0)
     {
         return m_image->m_pitch;
     }
@@ -129,7 +138,7 @@ int CImageLoader::GetPitch() const
 
 int CImageLoader::GetBitmapFormat() const
 {
-    if(m_image.get() != 0) {
+    if(m_image != 0) {
         return m_image->m_format;
     }
     return 0;
@@ -137,7 +146,7 @@ int CImageLoader::GetBitmapFormat() const
 
 int CImageLoader::GetBpp() const
 {
-    if(m_image.get() != 0)
+    if(m_image != 0)
     {
         return m_image->m_bpp;
     }
@@ -146,7 +155,7 @@ int CImageLoader::GetBpp() const
 
 int CImageLoader::GetImageBpp() const
 {
-    if(m_image.get() != 0)
+    if(m_image != 0)
     {
         return m_image->m_bppImage;
     }
@@ -156,7 +165,7 @@ int CImageLoader::GetImageBpp() const
 // file size on disk
 long CImageLoader::GetSize() const
 {
-    if(m_image.get() != 0)
+    if(m_image != 0)
     {
         return m_image->m_size;
     }
@@ -165,7 +174,7 @@ long CImageLoader::GetSize() const
 
 size_t CImageLoader::GetSizeMem() const
 {
-    if(m_image.get() != 0)
+    if(m_image != 0)
     {
         return m_image->m_bitmap.size();
     }
@@ -174,7 +183,7 @@ size_t CImageLoader::GetSizeMem() const
 
 int CImageLoader::GetSub() const
 {
-    if(m_image.get() != 0)
+    if(m_image != 0)
     {
         return m_image->m_subImage;
     }
@@ -183,7 +192,7 @@ int CImageLoader::GetSub() const
 
 int CImageLoader::GetSubCount() const
 {
-    if(m_image.get() != 0)
+    if(m_image != 0)
     {
         return m_image->m_subCount;
     }

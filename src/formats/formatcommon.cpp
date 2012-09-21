@@ -11,8 +11,8 @@
 
 CFormatCommon* g_this = 0;
 
-CFormatCommon::CFormatCommon(Callback callback)
-    : CFormat(callback)
+CFormatCommon::CFormatCommon(Callback callback, const char* _lib, const char* _name)
+    : CFormat(callback, _lib, _name)
     , m_image(0)
 {
 	g_this = this;

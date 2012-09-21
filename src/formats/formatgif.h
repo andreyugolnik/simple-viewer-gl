@@ -14,7 +14,7 @@
 class CFormatGif : public CFormat
 {
 public:
-    CFormatGif(Callback callback);
+    CFormatGif(Callback callback, const char* _lib, const char* _name);
     virtual ~CFormatGif();
 
     virtual bool Load(const char* filename, int subImage = 0);

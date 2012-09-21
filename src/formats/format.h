@@ -13,6 +13,7 @@
 #include <vector>
 #include <stdio.h>
 #include <GL/gl.h>
+#include <dlfcn.h>
 
 //#define WIDTHBYTES(bits) ((((bits) + 31) / 32) * 4)
 
@@ -23,7 +24,7 @@ class CFormat
     friend class CImageLoader;
 
 public:
-    CFormat(Callback callback = 0);
+    CFormat(Callback callback, const char* _lib, const char* _name);
     virtual ~CFormat();
 
     virtual bool Load(const char* filename, int subImage = 0) = 0;
@@ -34,6 +35,7 @@ private:
     int m_percent;
 
 protected:
+    void* m_lib;
     FILE* m_file;
     std::vector<unsigned char> m_bitmap;
     GLenum m_format;
@@ -52,6 +54,9 @@ protected:
     uint16_t read_uint16(uint8_t* p);
     uint32_t read_uint32(uint8_t* p);
     void swap_long(uint8_t* bp, uint32_t n);
+
+private:
+    CFormat();
 };
 
 #endif // FORMAT_H

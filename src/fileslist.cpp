@@ -131,11 +131,11 @@ bool CFilesList::scanDirectory(const std::string& dir)
     return true;
 }
 
-#if defined(__APPLE__)
-int CFilesList::filter(struct dirent* p)
-#else
+//#if defined(__APPLE__)
+//int CFilesList::filter(struct dirent* p)
+//#else
 int CFilesList::filter(const struct dirent* p)
-#endif
+//#endif
 {
     // skip . and ..
 #define DOT_OR_DOTDOT(base)	(base[0] == '.' && (base[1] == '\0' || (base[1] == '.' && base[2] == '\0')))

@@ -13,7 +13,7 @@
 class CFormatJpeg : public CFormat
 {
 public:
-    CFormatJpeg(Callback callback);
+    CFormatJpeg(Callback callback, const char* _lib, const char* _name);
     virtual ~CFormatJpeg();
 
     virtual bool Load(const char* filename, int subImage = 0);

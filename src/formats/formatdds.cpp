@@ -42,8 +42,8 @@ DdsLoadInfo loadInfoIndex8 = {
     false, false, true, 1, 1, GL_RGB8, GL_BGRA, GL_UNSIGNED_BYTE
 };
 
-CFormatDds::CFormatDds(Callback callback)
-    : CFormat(callback)
+CFormatDds::CFormatDds(Callback callback, const char* _lib, const char* _name)
+    : CFormat(callback, _lib, _name)
 {
 }
 

@@ -5,17 +5,17 @@
 // http://www.ugolnik.info
 // andrey@ugolnik.info
 //
-// date: 20-Aug-2011
-// changed: 20-Aug-2011
-// version: 0.0.0.7
+// date: 21.09.2012-Aug-2011
+// changed: 21.09.2012-Aug-2011
+// version: 0.0.0.9
 //
 ////////////////////////////////////////////////
 
 #include "formatxwd.h"
 #include <string.h>
 
-CFormatXwd::CFormatXwd(Callback callback)
-    : CFormat(callback)
+CFormatXwd::CFormatXwd(Callback callback, const char* _lib, const char* _name)
+    : CFormat(callback, _lib, _name)
 {
 }
 

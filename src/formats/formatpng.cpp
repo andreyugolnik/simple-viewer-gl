@@ -6,8 +6,8 @@
 // andrey@ugolnik.info
 //
 // created: 26-Aug-2010
-// changed: 20-Aug-2011
-// version: 0.0.0.14
+// changed: 21.09.2012-Aug-2011
+// version: 0.0.0.28
 //
 ////////////////////////////////////////////////
 
@@ -16,8 +16,8 @@
 #include <string.h>
 #include <iostream>
 
-CFormatPng::CFormatPng(Callback callback)
-    : CFormat(callback)
+CFormatPng::CFormatPng(Callback callback, const char* _lib, const char* _name)
+    : CFormat(callback, _lib, _name)
 {
 }
 

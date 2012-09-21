@@ -9,8 +9,8 @@
 #include <string.h>
 #include <iostream>
 
-CFormatGif::CFormatGif(Callback callback)
-    : CFormat(callback)
+CFormatGif::CFormatGif(Callback callback, const char* _lib, const char* _name)
+    : CFormat(callback, _lib, _name)
 {
 }
 

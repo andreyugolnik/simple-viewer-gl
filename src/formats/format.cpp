@@ -7,9 +7,10 @@
 
 #include "format.h"
 
-CFormat::CFormat(Callback callback)
+CFormat::CFormat(Callback callback, const char* _lib, const char* _name)
     : m_callback(callback)
     , m_percent(-1)
+    , m_lib(0)
     , m_file(0)
     , m_format(GL_RGB)
     , m_width(0)
@@ -21,11 +22,34 @@ CFormat::CFormat(Callback callback)
     , m_subImage(0)
     , m_subCount(0)
 {
+    if(_lib)
+    {
+        std::string lib(_lib);
+#if defined(__APPLE__)
+        lib += ".dylib";
+#else
+        lib += ".so";
+#endif
+        m_lib = dlopen(lib.c_str(), RTLD_LAZY);
+        if(m_lib)
+        {
+            std::cout << _name << " format supported." << std::endl;
+        }
+        else
+        {
+            std::cout << "(WW) " << _name << " format unsupported: " << dlerror() << std::endl;
+        }
+    }
+    else
+    {
+        std::cout << _name << " format supported." << std::endl;
+    }
 }
 
 CFormat::~CFormat()
 {
     FreeMemory();
+    dlclose(m_lib);
 }
 
 void CFormat::FreeMemory()
@@ -35,52 +59,52 @@ void CFormat::FreeMemory()
 
 bool CFormat::openFile(const char* path)
 {
-	m_file = fopen(path, "rb");
-	if(m_file == 0)
-	{
-		std::cout << "Can't open \"" << path << "\"." << std::endl;
-		return false;
-	}
+    m_file = fopen(path, "rb");
+    if(m_file == 0)
+    {
+        std::cout << "Can't open \"" << path << "\"." << std::endl;
+        return false;
+    }
 
-	fseek(m_file, 0, SEEK_END);
-	m_size = ftell(m_file);
-	fseek(m_file, 0, SEEK_SET);
+    fseek(m_file, 0, SEEK_END);
+    m_size = ftell(m_file);
+    fseek(m_file, 0, SEEK_SET);
 
-	return true;
+    return true;
 }
 
 void CFormat::progress(int percent)
 {
-	if(m_callback != 0)
-	{
-		if(m_percent != percent)
-		{
-			m_percent	= percent;
-			m_callback(percent);
-		}
-	}
+    if(m_callback != 0)
+    {
+        if(m_percent != percent)
+        {
+            m_percent = percent;
+            m_callback(percent);
+        }
+    }
 }
 
 void CFormat::reset()
 {
-	if(m_file != 0)
-	{
-		fclose(m_file);
-		m_file = 0;
-	}
+    if(m_file != 0)
+    {
+        fclose(m_file);
+        m_file = 0;
+    }
 
-	m_format	= GL_RGB;
-	m_width		= 0;
-	m_height	= 0;
-	m_pitch		= 0;
-	m_bpp		= 0;
-	m_bppImage	= 0;
-	m_size		= -1;
-	m_subImage	= 0;
-	m_subCount	= 0;
-	m_info.clear();
+    m_format	= GL_RGB;
+    m_width		= 0;
+    m_height	= 0;
+    m_pitch		= 0;
+    m_bpp		= 0;
+    m_bppImage	= 0;
+    m_size		= -1;
+    m_subImage	= 0;
+    m_subCount	= 0;
+    m_info.clear();
 
-	FreeMemory();
+    FreeMemory();
 }
 
 uint16_t CFormat::read_uint16(uint8_t* p)
