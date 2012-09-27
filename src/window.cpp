@@ -301,14 +301,14 @@ void CWindow::fnMouse(int x, int y)
     if(m_pixelInfo->IsVisible())
     {
         forceUpdate = true;
-        //if(m_scale == 1)
+        if(m_scale == 1)
         {
             m_selection->MouseMove(x - m_camera.x, y - m_camera.y);
             int cursor = m_selection->GetCursor();
             m_pixelInfo->SetCursor(cursor);
         }
 
-        updatePixelInfo(cVector(x, y));
+        updatePixelInfo(m_lastMouse);
     }
     else
     {
@@ -765,11 +765,11 @@ void CWindow::updatePixelInfo(const cVector& _pos)
 {
     if(m_imageList->GetBitmap())
     {
-        cVector cursor(_pos - m_viewport / 2);
+        cVector cursor(_pos - m_viewport / 2 - m_camera / 2);
         PixelInfo pixelInfo;
         pixelInfo.cursor = cursor;
-        pixelInfo.img = //(_pos / m_scale - m_camera);
-                cVector(m_imageList->GetWidth() / 2.0f, m_imageList->GetHeight() / 2.0f) - cursor;//* m_scale;
+        pixelInfo.img =
+                cVector(m_imageList->GetWidth() / 2.0f, m_imageList->GetHeight() / 2.0f) + cursor;//* m_scale;
 
         // TODO check pixel format (RGB or BGR)
         if(pixelInfo.img.x >= 0

@@ -20,7 +20,7 @@ typedef struct PIXELINFO
     cVector img;
     cVector cursor;
     CRect<float> rc;
-    int r, g, b, a;
+    unsigned char r, g, b, a;
     int w, h;//, pitch;
     //int x, y;	// pixel position
     //unsigned char* bitmap;

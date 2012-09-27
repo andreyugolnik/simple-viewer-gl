@@ -45,40 +45,33 @@ void CPixelInfo::Update(const PixelInfo* _p)
 {
     m_pixelInfo = *_p;
 
-    std::stringstream info;
-
     // TODO correct cursor position according scale factor
     //if(checkBoundary() == true)
     {
-        info << "pos: " << _p->img.x << " x " << _p->img.y;
-        info << "\nargb: " << std::hex << std::uppercase;
-        info << std::setw(2) << std::setfill('0') << _p->a;
-        info << std::setw(2) << std::setfill('0') << _p->r;
-        info << std::setw(2) << std::setfill('0') << _p->g;
-        info << std::setw(2) << std::setfill('0') << _p->b;
-
-        //info << "\nrect: " << std::dec;
-
+        int x = 0;
+        int y = 0;
+        int w = 0;
+        int h = 0;
         if(_p->rc.IsSet() == true)
         {
-            int x = std::min(_p->rc.x1, _p->rc.x2);
-            int y = std::min(_p->rc.y1, _p->rc.y2);
-            int w = _p->rc.GetWidth();
-            int h = _p->rc.GetHeight();
-
-            info << x << ", " << y << " -> " << x + w << ", " << y + h;
-            info << "\nsize: " << (w + 1) << " x " << (h + 1);
+            x = std::min(_p->rc.x1, _p->rc.x2);
+            y = std::min(_p->rc.y1, _p->rc.y2);
+            w = _p->rc.GetWidth();
+            h = _p->rc.GetHeight();
         }
-        //static char info[200];
-        //snprintf(info, sizeof(info), "pos: %d x %d\nargb: 0x%2X%2X%2X%2X\nrect: %d x %d\nsize: %d, %d -> %d, %d"
-                //, (int)_p->img.x, (int)_p->img.y
-                //, _p->a, _p->r, _p->g, _p->b
-                //, w, h
-                //, x, y, x + w, y + h);
-        //m_ft->Update(info);
-    }
 
-    m_ft->Update(info.str().c_str());
+        static char info[200];
+        snprintf(info, sizeof(info), "pos: %.0f x %.0f\nargb: 0x%.2X%.2X%.2X%.2X\nrect: %d x %d\nsize: %d, %d -> %d, %d"
+                , _p->img.x, _p->img.y
+                , _p->a, _p->r, _p->g, _p->b
+                , w, h
+                , x, y, x + w, y + h);
+        m_ft->Update(info);
+    }
+    //else
+    //{
+        //m_ft->Update("out of image");
+    //}
 }
 
 void CPixelInfo::Render()
