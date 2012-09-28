@@ -71,7 +71,7 @@ CWindow::~CWindow()
 bool CWindow::Init(int argc, char* argv[], const char* path)
 {
     m_filesList.reset(new CFilesList(path, m_recursiveDir));
-    m_filesList->setAllValid();
+    m_filesList->setAllValid(m_all_valid);
     if(m_filesList->GetName() != 0)
     {
         glutInit(&argc, argv);
@@ -769,7 +769,7 @@ void CWindow::updatePixelInfo(const cVector& _pos)
         PixelInfo pixelInfo;
         pixelInfo.cursor = cursor;
         pixelInfo.img =
-                cVector(m_imageList->GetWidth() / 2.0f, m_imageList->GetHeight() / 2.0f) + cursor;//* m_scale;
+                cVector(m_imageList->GetWidth() / 2.0f, m_imageList->GetHeight() / 2.0f) + cursor;// * m_scale;
 
         // TODO check pixel format (RGB or BGR)
         if(pixelInfo.img.x >= 0

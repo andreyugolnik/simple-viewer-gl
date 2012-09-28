@@ -18,7 +18,7 @@ public:
     CFilesList(const char* file, bool recursive = false);
     virtual ~CFilesList();
 
-    void setAllValid(bool _all_valid = true) { m_allValid = _all_valid; }
+    void setAllValid(bool _all_valid) { m_allValid = _all_valid; }
     bool ParseDir();
     const char* GetName(int delta = 0);
     void RemoveFromDisk();
