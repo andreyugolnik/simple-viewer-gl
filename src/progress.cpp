@@ -36,8 +36,8 @@ void CProgress::Render(int percent)
 {
     if(m_loadingTime + 600 < glutGet(GLUT_ELAPSED_TIME))
     {
-        float w = (float)glutGet(GLUT_WINDOW_WIDTH);
-        float h = (float)glutGet(GLUT_WINDOW_HEIGHT);
+        float w = 0.0f;//(float)glutGet(GLUT_WINDOW_WIDTH);
+        float h = 0.0f;//(float)glutGet(GLUT_WINDOW_HEIGHT);
         float x = ceil((w - imgLoading.width) / 2);
         float y = ceil((h - imgLoading.height) / 2);
 

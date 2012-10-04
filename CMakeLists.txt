@@ -69,6 +69,7 @@ ADD_EXECUTABLE(../sviewgl
     src/formats/formatdds.cpp
     src/formats/formatgif.cpp
     src/formats/formatpng.cpp
+    src/formats/formatraw.cpp
     src/math/vector.cpp
     )
 

@@ -765,7 +765,7 @@ void CWindow::updatePixelInfo(const cVector& _pos)
 {
     if(m_imageList->GetBitmap())
     {
-        cVector cursor(_pos - m_viewport / 2 - m_camera / 2);
+        cVector cursor = _pos - (m_viewport - m_camera) / 2;
         PixelInfo pixelInfo;
         pixelInfo.cursor = cursor;
         pixelInfo.img =

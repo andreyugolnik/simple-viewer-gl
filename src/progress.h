@@ -14,17 +14,17 @@
 class CProgress
 {
 public:
-	CProgress();
-	virtual ~CProgress();
+    CProgress();
+    virtual ~CProgress();
 
-	void Init();
-	void Start();
-	void Render(int percent);
+    void Init();
+    void Start();
+    void Render(int percent);
 
 private:
-	int m_loadingTime;
-	std::auto_ptr<CQuad> m_loading;
-	std::auto_ptr<CQuad> m_square;
+    int m_loadingTime;
+    std::auto_ptr<CQuad> m_loading;
+    std::auto_ptr<CQuad> m_square;
 };
 
 #endif // PROGRESS_H

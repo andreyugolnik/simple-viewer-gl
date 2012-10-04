@@ -22,6 +22,7 @@ class CFormatIco;
 class CFormatTiff;
 class CFormatXwd;
 class CFormatDds;
+class cFormatRaw;
 
 class CImageLoader
 {
@@ -55,12 +56,13 @@ private:
     std::auto_ptr<CFormatTiff> m_format_tiff;
     std::auto_ptr<CFormatXwd> m_format_xwd;
     std::auto_ptr<CFormatDds> m_format_dds;
+    std::auto_ptr<cFormatRaw> m_format_raw;
     std::string m_path;
 
 private:
     CImageLoader();
 
-    enum FILE_FORMAT { FORMAT_JPEG, FORMAT_PSD, FORMAT_PNG, FORMAT_GIF, FORMAT_ICO, FORMAT_TIFF, FORMAT_XWD, FORMAT_DDS, FORMAT_COMMON };
+    enum FILE_FORMAT { FORMAT_UNKNOWN, FORMAT_JPEG, FORMAT_PSD, FORMAT_PNG, FORMAT_GIF, FORMAT_ICO, FORMAT_TIFF, FORMAT_XWD, FORMAT_DDS, FORMAT_RAW, FORMAT_COMMON };
     struct FORMAT
     {
         const char* ext;

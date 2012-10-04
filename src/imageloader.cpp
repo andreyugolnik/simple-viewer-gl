@@ -15,6 +15,7 @@
 #include "formats/formattiff.h"
 #include "formats/formatxwd.h"
 #include "formats/formatdds.h"
+#include "formats/formatraw.h"
 #include <iostream>
 #include <algorithm>
 
@@ -30,6 +31,7 @@ CImageLoader::CImageLoader(Callback _callback)
     m_format_tiff.reset(new CFormatTiff(_callback, "libtiff", "TIFF"));
     m_format_xwd.reset(new CFormatXwd(_callback, 0, "XWD"));
     m_format_dds.reset(new CFormatDds(_callback, 0, "DDS"));
+    m_format_raw.reset(new cFormatRaw(_callback, 0, "RAW"));
 }
 
 CImageLoader::~CImageLoader()
@@ -79,6 +81,9 @@ bool CImageLoader::LoadImage(const char* path, int subImage)
             break;
         case FORMAT_DDS:
             m_image = m_format_dds.get();
+            break;
+        case FORMAT_RAW:
+            m_image = m_format_raw.get();
             break;
         default: //FORMAT_COMMON:
             m_image = m_format_common.get();
@@ -201,6 +206,11 @@ int CImageLoader::GetSubCount() const
 
 int CImageLoader::getFormat()
 {
+    if(m_format_raw->IsValidFormat(m_path.c_str()))
+    {
+        return FORMAT_RAW;
+    }
+
     std::string s(m_path);
 
     // skip file without extension
@@ -224,6 +234,7 @@ int CImageLoader::getFormat()
         { ".tif",  FORMAT_TIFF },
         { ".xwd",  FORMAT_XWD  },
         { ".dds",  FORMAT_DDS  },
+        { ".raw",  FORMAT_RAW  },
     };
 
     for(size_t i = 0; i < sizeof(format) / sizeof(FORMAT); i++)
