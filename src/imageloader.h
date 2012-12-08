@@ -30,20 +30,20 @@ public:
     CImageLoader(Callback _callback);
     virtual ~CImageLoader();
 
-    bool LoadImage(const char* path, int subImage);
+    bool LoadImage(const char* path, unsigned subImage);
 
     unsigned char* GetBitmap() const;
     void FreeMemory();
-    int GetWidth() const;
-    int GetHeight() const;
-    int GetPitch() const;
-    int GetBitmapFormat() const;
-    int GetBpp() const;
-    int GetImageBpp() const;
+    unsigned GetWidth() const;
+    unsigned GetHeight() const;
+    unsigned GetPitch() const;
+    unsigned GetBitmapFormat() const;
+    unsigned GetBpp() const;
+    unsigned GetImageBpp() const;
     long GetSize() const;
     size_t GetSizeMem() const;
-    int GetSub() const;
-    int GetSubCount() const;
+    unsigned GetSub() const;
+    unsigned GetSubCount() const;
 
 private:
     CFormat* m_image;
@@ -66,9 +66,9 @@ private:
     struct FORMAT
     {
         const char* ext;
-        int format;
+        unsigned format;
     };
-    int getFormat();
+    unsigned getFormat();
 };
 
 #endif // IMAGELOADER_H

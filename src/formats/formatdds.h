@@ -167,7 +167,7 @@ public:
     CFormatDds(Callback callback, const char* _lib, const char* _name);
     virtual ~CFormatDds();
 
-    virtual bool Load(const char* filename, int subImage = 0);
+    virtual bool Load(const char* filename, unsigned subImage = 0);
 
 private:
 };

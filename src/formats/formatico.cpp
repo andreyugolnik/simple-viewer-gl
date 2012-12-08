@@ -20,7 +20,7 @@ CFormatIco::~CFormatIco()
 {
 }
 
-bool CFormatIco::Load(const char* filename, int subImage)
+bool CFormatIco::Load(const char* filename, unsigned subImage)
 {
     if(openFile(filename) == false)
     {
@@ -42,8 +42,8 @@ bool CFormatIco::Load(const char* filename, int subImage)
         return false;
     }
 
-    subImage = std::max(subImage, 0);
-    subImage = std::min(subImage, header.count - 1);
+    subImage = std::max<unsigned>(subImage, 0);
+    subImage = std::min<unsigned>(subImage, header.count - 1);
     IcoDirentry* image = &images[subImage];
     //	std::cout << std::endl;
     //	std::cout << "--- IcoDirentry ---" << std::endl;
@@ -198,7 +198,7 @@ bool CFormatIco::loadPngFrame(const IcoDirentry* image)
 
     // create buffer and read data
     png_bytep* row_pointers = new png_bytep[m_height];
-    for(int y = 0; y < m_height; y++)
+    for(unsigned y = 0; y < m_height; y++)
     {
         row_pointers[y] = new png_byte[m_pitch];
     }
@@ -211,12 +211,12 @@ bool CFormatIco::loadPngFrame(const IcoDirentry* image)
     if(color_type == PNG_COLOR_TYPE_RGB)
     {
         m_format = GL_RGB;
-        for(int y = 0; y < m_height; y++)
+        for(unsigned y = 0; y < m_height; y++)
         {
-            int dst = y * m_pitch;
-            for(int x = 0; x < m_width; x++)
+            unsigned dst = y * m_pitch;
+            for(unsigned x = 0; x < m_width; x++)
             {
-                int dx = x * 3;
+                unsigned dx = x * 3;
                 m_bitmap[dst + dx + 0] = *(row_pointers[y] + dx + 0);
                 m_bitmap[dst + dx + 1] = *(row_pointers[y] + dx + 1);
                 m_bitmap[dst + dx + 2] = *(row_pointers[y] + dx + 2);
@@ -231,12 +231,12 @@ bool CFormatIco::loadPngFrame(const IcoDirentry* image)
     else if(color_type == PNG_COLOR_TYPE_RGB_ALPHA)
     {
         m_format = GL_RGBA;
-        for(int y = 0; y < m_height; y++)
+        for(unsigned y = 0; y < m_height; y++)
         {
-            int dst = y * m_pitch;
-            for(int x = 0; x < m_width; x++)
+            unsigned dst = y * m_pitch;
+            for(unsigned x = 0; x < m_width; x++)
             {
-                int dx = x * 4;
+                unsigned dx = x * 4;
                 m_bitmap[dst + dx + 0] = *(row_pointers[y] + dx + 0);
                 m_bitmap[dst + dx + 1] = *(row_pointers[y] + dx + 1);
                 m_bitmap[dst + dx + 2] = *(row_pointers[y] + dx + 2);
@@ -251,7 +251,7 @@ bool CFormatIco::loadPngFrame(const IcoDirentry* image)
     }
     else
     {
-        for(int y = 0; y < m_height; y++)
+        for(unsigned y = 0; y < m_height; y++)
         {
             delete[] row_pointers[y];
         }
@@ -313,13 +313,13 @@ bool CFormatIco::loadOrdinaryFrame(const IcoDirentry* image)
     switch(m_bppImage)
     {
     case 1:
-        for(int y = 0; y < m_height; y++)
+        for(unsigned y = 0; y < m_height; y++)
         {
-            for(int x = 0; x < m_width; x++)
+            for(unsigned x = 0; x < m_width; x++)
             {
                 uint32_t color = palette[getBit(xorMask, y * m_width + x)];
 
-                int idx = (m_height - y - 1) * m_pitch + x * 4;
+                unsigned idx = (m_height - y - 1) * m_pitch + x * 4;
 
                 m_bitmap[idx + 0] = ((uint8_t*)(&color))[2];
                 m_bitmap[idx + 1] = ((uint8_t*)(&color))[1];
@@ -341,13 +341,13 @@ bool CFormatIco::loadOrdinaryFrame(const IcoDirentry* image)
         break;
 
     case 4:
-        for(int y = 0; y < m_height; y++)
+        for(unsigned y = 0; y < m_height; y++)
         {
-            for(int x = 0; x < m_width; x++)
+            for(unsigned x = 0; x < m_width; x++)
             {
                 uint32_t color = palette[getNibble(xorMask, y * m_width + x)];
 
-                int idx = (m_height - y - 1) * m_pitch + x * 4;
+                unsigned idx = (m_height - y - 1) * m_pitch + x * 4;
 
                 m_bitmap[idx + 0] = ((uint8_t*)(&color))[2];
                 m_bitmap[idx + 1] = ((uint8_t*)(&color))[1];
@@ -369,13 +369,13 @@ bool CFormatIco::loadOrdinaryFrame(const IcoDirentry* image)
         break;
 
     case 8:
-        for(int y = 0; y < m_height; y++)
+        for(unsigned y = 0; y < m_height; y++)
         {
-            for(int x = 0; x < m_width; x++)
+            for(unsigned x = 0; x < m_width; x++)
             {
                 uint32_t color = palette[getByte(xorMask, y * m_width + x)];
 
-                int idx = (m_height - y - 1) * m_pitch + x * 4;
+                unsigned idx = (m_height - y - 1) * m_pitch + x * 4;
 
                 m_bitmap[idx + 0] = ((uint8_t*)(&color))[2];
                 m_bitmap[idx + 1] = ((uint8_t*)(&color))[1];
@@ -398,15 +398,15 @@ bool CFormatIco::loadOrdinaryFrame(const IcoDirentry* image)
 
     default:
         {
-            int bpp = m_bppImage / 8;
-            for(int y = 0; y < m_height; y++)
+            unsigned bpp = m_bppImage / 8;
+            for(unsigned y = 0; y < m_height; y++)
             {
 
                 uint8_t* row = xorMask + pitch * y;
 
-                for(int x = 0; x < m_width; x++)
+                for(unsigned x = 0; x < m_width; x++)
                 {
-                    int idx = (m_height - y - 1) * m_pitch + x * 4;
+                    unsigned idx = (m_height - y - 1) * m_pitch + x * 4;
 
                     m_bitmap[idx + 0] = row[2];
                     m_bitmap[idx + 1] = row[1];

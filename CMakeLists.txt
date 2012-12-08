@@ -9,8 +9,8 @@ SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 #SET( CMAKE_C_COMPILER "clang" )
 
 # additional compiler flags
-#ADD_DEFINITIONS(-Wall -O0 -g)
-ADD_DEFINITIONS(-Wall -Wextra -O2)
+ADD_DEFINITIONS(-Wall -O0 -g)
+#ADD_DEFINITIONS(-Wall -Wextra -O2)
 
 FIND_PACKAGE(GLUT)
 FIND_PACKAGE(OpenGL)

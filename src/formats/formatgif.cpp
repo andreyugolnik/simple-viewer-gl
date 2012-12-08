@@ -18,7 +18,7 @@ CFormatGif::~CFormatGif()
 {
 }
 
-bool CFormatGif::Load(const char* filename, int subImage)
+bool CFormatGif::Load(const char* filename, unsigned subImage)
 {
     if(openFile(filename) == false)
     {
@@ -41,8 +41,8 @@ bool CFormatGif::Load(const char* filename, int subImage)
         return false;
     }
 
-    m_subImage = std::max(subImage, 0);
-    m_subImage = std::min(m_subImage, file->ImageCount - 1);
+    m_subImage = std::max<unsigned>(subImage, 0);
+    m_subImage = std::min<unsigned>(m_subImage, file->ImageCount - 1);
     m_subCount = file->ImageCount;
 
     const SavedImage* image = &file->SavedImages[m_subImage];

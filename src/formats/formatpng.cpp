@@ -7,7 +7,7 @@
 //
 // created: 26-Aug-2010
 // changed: 21.09.2012-Aug-2011
-// version: 0.0.0.28
+// version: 0.0.0.30
 //
 ////////////////////////////////////////////////
 
@@ -25,7 +25,7 @@ CFormatPng::~CFormatPng()
 {
 }
 
-bool CFormatPng::Load(const char* filename, int subImage)
+bool CFormatPng::Load(const char* filename, unsigned subImage)
 {
     if(openFile(filename) == false)
     {
@@ -110,7 +110,7 @@ bool CFormatPng::Load(const char* filename, int subImage)
 
     // create buffer and read data
     png_bytep* row_pointers = new png_bytep[m_height];
-    for(int y = 0; y < m_height; y++)
+    for(unsigned y = 0; y < m_height; y++)
     {
         row_pointers[y] = new png_byte[m_pitch];
     }
@@ -123,12 +123,12 @@ bool CFormatPng::Load(const char* filename, int subImage)
     if(color_type == PNG_COLOR_TYPE_RGB)
     {
         m_format = GL_RGB;
-        for(int y = 0; y < m_height; y++)
+        for(unsigned y = 0; y < m_height; y++)
         {
-            int dst = y * m_pitch;
-            for(int x = 0; x < m_width; x++)
+            unsigned dst = y * m_pitch;
+            for(unsigned x = 0; x < m_width; x++)
             {
-                int dx = x * 3;
+                unsigned dx = x * 3;
                 m_bitmap[dst + dx + 0]	= *(row_pointers[y] + dx + 0);
                 m_bitmap[dst + dx + 1]	= *(row_pointers[y] + dx + 1);
                 m_bitmap[dst + dx + 2]	= *(row_pointers[y] + dx + 2);
@@ -143,12 +143,12 @@ bool CFormatPng::Load(const char* filename, int subImage)
     else if(color_type == PNG_COLOR_TYPE_RGB_ALPHA)
     {
         m_format = GL_RGBA;
-        for(int y = 0; y < m_height; y++)
+        for(unsigned y = 0; y < m_height; y++)
         {
-            int dst = y * m_pitch;
-            for(int x = 0; x < m_width; x++)
+            unsigned dst = y * m_pitch;
+            for(unsigned x = 0; x < m_width; x++)
             {
-                int dx	= x * 4;
+                unsigned dx	= x * 4;
                 m_bitmap[dst + dx + 0] = *(row_pointers[y] + dx + 0);
                 m_bitmap[dst + dx + 1] = *(row_pointers[y] + dx + 1);
                 m_bitmap[dst + dx + 2] = *(row_pointers[y] + dx + 2);
@@ -163,7 +163,7 @@ bool CFormatPng::Load(const char* filename, int subImage)
     }
     else
     {
-        for(int y = 0; y < m_height; y++)
+        for(unsigned y = 0; y < m_height; y++)
         {
             delete[] row_pointers[y];
         }

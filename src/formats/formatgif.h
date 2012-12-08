@@ -17,7 +17,7 @@ public:
     CFormatGif(Callback callback, const char* _lib, const char* _name);
     virtual ~CFormatGif();
 
-    virtual bool Load(const char* filename, int subImage = 0);
+    virtual bool Load(const char* filename, unsigned subImage = 0);
 
 private:
     void putPixel(int _pos, const GifColorType* _color, bool _transparent);

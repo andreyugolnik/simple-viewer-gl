@@ -24,7 +24,7 @@ CFormatCommon::~CFormatCommon()
 {
 }
 
-bool CFormatCommon::Load(const char* filename, int subImage)
+bool CFormatCommon::Load(const char* filename, unsigned subImage)
 {
 	if(openFile(filename) == false)
 	{

@@ -7,7 +7,7 @@
 //
 // date: 21.09.2012-Aug-2011
 // changed: 21.09.2012-Aug-2011
-// version: 0.0.0.9
+// version: 0.0.0.10
 //
 ////////////////////////////////////////////////
 
@@ -23,7 +23,7 @@ CFormatXwd::~CFormatXwd()
 {
 }
 
-bool CFormatXwd::Load(const char* filename, int subImage)
+bool CFormatXwd::Load(const char* filename, unsigned subImage)
 {
     if(openFile(filename) == false)
     {

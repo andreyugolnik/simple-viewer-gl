@@ -27,7 +27,7 @@ public:
     CFormat(Callback callback, const char* _lib, const char* _name);
     virtual ~CFormat();
 
-    virtual bool Load(const char* filename, int subImage = 0) = 0;
+    virtual bool Load(const char* filename, unsigned subImage = 0) = 0;
     virtual void FreeMemory();
 
 private:
@@ -39,12 +39,12 @@ protected:
     FILE* m_file;
     std::vector<unsigned char> m_bitmap;
     GLenum m_format;
-    int m_width, m_height, m_pitch;	// width, height, row pitch of image in buffer
-    int m_bpp;						// bit per pixel of image in buffer
-    int m_bppImage;					// bit per pixel of original image
+    unsigned m_width, m_height, m_pitch;	// width, height, row pitch of image in buffer
+    unsigned m_bpp;						// bit per pixel of image in buffer
+    unsigned m_bppImage;					// bit per pixel of original image
     long m_size;					// file size on disk
-    int m_subImage;
-    int m_subCount;
+    unsigned m_subImage;
+    unsigned m_subCount;
     std::string m_info;				// additional info, such as EXIF
 
 protected:

@@ -16,7 +16,7 @@ public:
     CFormatTiff(Callback callback, const char* _lib, const char* _name);
     virtual ~CFormatTiff();
 
-    virtual bool Load(const char* filename, int subImage = 0);
+    virtual bool Load(const char* filename, unsigned subImage = 0);
 
 private:
 };

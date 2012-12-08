@@ -38,7 +38,7 @@ CImageLoader::~CImageLoader()
 {
 }
 
-bool CImageLoader::LoadImage(const char* path, int subImage)
+bool CImageLoader::LoadImage(const char* path, unsigned subImage)
 {
     if(path != 0)
     {
@@ -46,7 +46,7 @@ bool CImageLoader::LoadImage(const char* path, int subImage)
         {
             if(m_image && !m_image->m_bitmap.empty() && GetSub() == subImage)
             {
-                return true;	// image already loaded
+                return true; // image already loaded
             }
         }
 
@@ -114,7 +114,7 @@ void CImageLoader::FreeMemory()
     }
 }
 
-int CImageLoader::GetWidth() const
+unsigned CImageLoader::GetWidth() const
 {
     if(m_image != 0)
     {
@@ -123,7 +123,7 @@ int CImageLoader::GetWidth() const
     return 0;
 }
 
-int CImageLoader::GetHeight() const
+unsigned CImageLoader::GetHeight() const
 {
     if(m_image != 0)
     {
@@ -132,7 +132,7 @@ int CImageLoader::GetHeight() const
     return 0;
 }
 
-int CImageLoader::GetPitch() const
+unsigned CImageLoader::GetPitch() const
 {
     if(m_image != 0)
     {
@@ -141,7 +141,7 @@ int CImageLoader::GetPitch() const
     return 0;
 }
 
-int CImageLoader::GetBitmapFormat() const
+unsigned CImageLoader::GetBitmapFormat() const
 {
     if(m_image != 0) {
         return m_image->m_format;
@@ -149,7 +149,7 @@ int CImageLoader::GetBitmapFormat() const
     return 0;
 }
 
-int CImageLoader::GetBpp() const
+unsigned CImageLoader::GetBpp() const
 {
     if(m_image != 0)
     {
@@ -158,7 +158,7 @@ int CImageLoader::GetBpp() const
     return 0;
 }
 
-int CImageLoader::GetImageBpp() const
+unsigned CImageLoader::GetImageBpp() const
 {
     if(m_image != 0)
     {
@@ -186,7 +186,7 @@ size_t CImageLoader::GetSizeMem() const
     return 0;
 }
 
-int CImageLoader::GetSub() const
+unsigned CImageLoader::GetSub() const
 {
     if(m_image != 0)
     {
@@ -195,7 +195,7 @@ int CImageLoader::GetSub() const
     return 0;
 }
 
-int CImageLoader::GetSubCount() const
+unsigned CImageLoader::GetSubCount() const
 {
     if(m_image != 0)
     {
@@ -204,7 +204,7 @@ int CImageLoader::GetSubCount() const
     return 0;
 }
 
-int CImageLoader::getFormat()
+unsigned CImageLoader::getFormat()
 {
     if(m_format_raw->IsValidFormat(m_path.c_str()))
     {
@@ -214,7 +214,7 @@ int CImageLoader::getFormat()
     std::string s(m_path);
 
     // skip file without extension
-    size_t pos	= s.find_last_of('.');
+    size_t pos = s.find_last_of('.');
     if(std::string::npos == pos)
     {
         return false;
@@ -223,7 +223,7 @@ int CImageLoader::getFormat()
     // skip non image file (detect by extension)
     std::transform(s.begin(), s.end(), s.begin(), tolower);
 
-    FORMAT format[]	= {
+    FORMAT format[] = {
         { ".jpeg", FORMAT_JPEG },
         { ".jpg",  FORMAT_JPEG },
         { ".psd",  FORMAT_PSD  },

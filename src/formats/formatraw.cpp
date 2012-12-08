@@ -7,7 +7,7 @@
  *
  *  created: 04.10.2012
  *  changed: 05.09.2012
- *  version: 0.0.0.54
+ *  version: 0.0.0.59
  *
  ***********************************************/
 
@@ -17,8 +17,8 @@
 
 static const char Id[] = { 'R', 'A', 'W', 'I' };
 
-cFormatRaw::cFormatRaw(Callback callback, const char* _lib, const char* _name)
-    : CFormat(callback, _lib, _name)
+cFormatRaw::cFormatRaw(Callback callback, const char* lib, const char* name)
+    : CFormat(callback, lib, name)
 {
 }
 
@@ -26,30 +26,35 @@ cFormatRaw::~cFormatRaw()
 {
 }
 
-bool cFormatRaw::IsValidFormat(const char* _name)
+bool cFormatRaw::IsValidFormat(const char* name)
 {
-    if(openFile(_name) == false)
+    if(openFile(name) == false)
     {
         return false;
     }
 
+    bool valid = false;
     sHeader header;
-    size_t size = fread(&header, sizeof(header), 1, m_file);
-    bool valid = isValidFormat(&header);
+    size_t size = fread(&header, 1, sizeof(header), m_file);
+    if(size == sizeof(header))
+    {
+        valid = isValidFormat(&header);
+    }
     reset();
-    return (size == 1 && valid);
+    return valid;
 }
 
-bool cFormatRaw::isValidFormat(const sHeader* _header)
+bool cFormatRaw::isValidFormat(const sHeader* header)
 {
-    if(_header->w * _header->h * _header->format + sizeof(sHeader) == m_size)
+    if(header->w * header->h * header->format + sizeof(sHeader) == m_size)
     {
-        return (memcmp(&_header->id, Id, sizeof(Id)) == 0);
+        const char* id = (const char*)&header->id;
+        return (id[0] == Id[0] && id[1] == Id[1] && id[2] == Id[2] && id[3] == Id[3]);
     }
     return false;
 }
 
-bool cFormatRaw::Load(const char* filename, int subImage)
+bool cFormatRaw::Load(const char* filename, unsigned subImage)
 {
     if(openFile(filename) == false)
     {

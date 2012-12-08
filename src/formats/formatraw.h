@@ -7,7 +7,7 @@
  *
  *  created: 04.10.2012
  *  changed: 05.09.2012
- *  version: 0.0.0.21
+ *  version: 0.0.0.23
  *
  ***********************************************/
 
@@ -19,11 +19,11 @@
 class cFormatRaw : public CFormat
 {
 public:
-    cFormatRaw(Callback callback, const char* _lib, const char* _name);
+    cFormatRaw(Callback callback, const char* lib, const char* name);
     virtual ~cFormatRaw();
 
-    virtual bool Load(const char* filename, int subImage);
-    virtual bool IsValidFormat(const char* _name);
+    virtual bool Load(const char* filename, unsigned subImage);
+    virtual bool IsValidFormat(const char* name);
 
 private:
     struct sHeader
@@ -34,7 +34,7 @@ private:
         unsigned format;
     };
 
-    bool isValidFormat(const sHeader* _header);
+    bool isValidFormat(const sHeader* header);
 };
 
 #endif /* end of include guard: FORMATRAW_H_2D405816DEDEF1 */

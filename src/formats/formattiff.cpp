@@ -18,7 +18,7 @@ CFormatTiff::~CFormatTiff()
 {
 }
 
-bool CFormatTiff::Load(const char* filename, int subImage)
+bool CFormatTiff::Load(const char* filename, unsigned subImage)
 {
     if(openFile(filename) == false)
     {

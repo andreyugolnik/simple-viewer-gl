@@ -23,7 +23,7 @@ CFormatPsd::~CFormatPsd()
 {
 }
 
-bool CFormatPsd::Load(const char* filename, int subImage)
+bool CFormatPsd::Load(const char* filename, unsigned subImage)
 {
     if(openFile(filename) == false)
     {
