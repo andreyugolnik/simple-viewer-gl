@@ -61,14 +61,14 @@ bool CFormatPsd::Load(const char* filename, unsigned subImage)
         return false;
     }
 
-    int channels = read_uint16((uint8_t*)&header.channels);
+    unsigned channels = read_uint16((uint8_t*)&header.channels);
     if(channels != 3 && channels != 4)
     {
         //std::cout << "Unsupported cannels count: " << channels << std::endl;
         //reset();
         //return false;
     }
-    int extraChannels = channels - std::min(channels, 4);
+    unsigned extraChannels = channels - std::min<unsigned>(channels, 4);
     std::cout << " " << extraChannels << " extra channel(s),";
 
     // skip Color Mode Data Block
@@ -110,9 +110,9 @@ bool CFormatPsd::Load(const char* filename, unsigned subImage)
 
     // this will be needed for RLE decompression
     m_linesLengths = new uint16_t[channels * m_height];
-    for(int i = 0; i < channels; i++)
+    for(unsigned i = 0; i < channels; i++)
     {
-        int pos = m_height * i;
+        unsigned pos = m_height * i;
 
         if(m_height * sizeof(uint16_t) != fread(&m_linesLengths[pos], 1, m_height * sizeof(uint16_t), m_file))
         {
@@ -122,7 +122,7 @@ bool CFormatPsd::Load(const char* filename, unsigned subImage)
         }
 
         // convert from different endianness
-        for(int a = 0; a < m_height; a++)
+        for(unsigned a = 0; a < m_height; a++)
         {
             m_linesLengths[pos + a] = read_uint16((uint8_t*)&m_linesLengths[pos + a]);
         }
@@ -130,7 +130,7 @@ bool CFormatPsd::Load(const char* filename, unsigned subImage)
 
     // !!!! this is a temporal hack, need more investigation !!!
     // read only first 3 or 4 channels
-    channels = std::min(channels, 4);
+    channels = std::min<unsigned>(channels, 4);
 
     m_bpp = depth * channels;
     m_bppImage = m_bpp;
@@ -140,25 +140,25 @@ bool CFormatPsd::Load(const char* filename, unsigned subImage)
     m_buffer = new uint8_t[m_width * 2];
 
     // create separate buffers for each channel (up to 24 buffers by spec)
-    for(int i = 0; i < channels; i++)
+    for(unsigned i = 0; i < channels; i++)
     {
         m_chBufs[i] = new uint8_t[m_width * m_height];
     }
 
     // read all channels rgba and extra if available;
-    int currentRow = 0;
-    int currentChannel = 0;
-    int pos = 0;
+    unsigned currentRow = 0;
+    unsigned currentChannel = 0;
+    unsigned pos = 0;
     bool done = false;
     do
     {
-        int lineLength	= m_width;
+        unsigned lineLength = m_width;
         if(compression == 1)
         {
             lineLength = m_linesLengths[currentChannel * m_height + currentRow];
         }
 
-        int readed = fread(m_buffer, 1, lineLength, m_file);
+        unsigned readed = fread(m_buffer, 1, lineLength, m_file);
         if(lineLength != readed)
         {
             std::cout << "Error reading Image Data Block" << std::endl;
@@ -203,9 +203,9 @@ bool CFormatPsd::Load(const char* filename, unsigned subImage)
         if(channels == 3)
         {
             m_format = GL_RGB;
-            for(int y = 0; y < m_height; y++)
+            for(unsigned y = 0; y < m_height; y++)
             {
-                for(int x = 0; x < m_width; x++)
+                for(unsigned x = 0; x < m_width; x++)
                 {
                     bitmap[0] = *(m_chBufs[0] + m_width * y + x);
                     bitmap[1] = *(m_chBufs[1] + m_width * y + x);
@@ -217,9 +217,9 @@ bool CFormatPsd::Load(const char* filename, unsigned subImage)
         else if(channels == 4)
         {
             m_format = GL_RGBA;
-            for(int y = 0; y < m_height; y++)
+            for(unsigned y = 0; y < m_height; y++)
             {
-                for(int x = 0; x < m_width; x++)
+                for(unsigned x = 0; x < m_width; x++)
                 {
                     bitmap[0] = *(m_chBufs[0] + m_width * y + x);
                     bitmap[1] = *(m_chBufs[1] + m_width * y + x);
@@ -237,9 +237,9 @@ bool CFormatPsd::Load(const char* filename, unsigned subImage)
     else if(color_mode == PSD_MODE_CMYK)
     {
         m_format = GL_RGB;
-        for(int y = 0; y < m_height; y++)
+        for(unsigned y = 0; y < m_height; y++)
         {
-            for(int x = 0; x < m_width; x++)
+            for(unsigned x = 0; x < m_width; x++)
             {
                 double C = 1.0 - *(m_chBufs[0] + m_width * y + x) / 255.0;	// C
                 double M = 1.0 - *(m_chBufs[1] + m_width * y + x) / 255.0;	// M

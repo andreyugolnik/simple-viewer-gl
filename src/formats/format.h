@@ -39,13 +39,13 @@ protected:
     FILE* m_file;
     std::vector<unsigned char> m_bitmap;
     GLenum m_format;
-    unsigned m_width, m_height, m_pitch;	// width, height, row pitch of image in buffer
-    unsigned m_bpp;						// bit per pixel of image in buffer
-    unsigned m_bppImage;					// bit per pixel of original image
-    long m_size;					// file size on disk
+    unsigned m_width, m_height, m_pitch; // width, height, row pitch of image in buffer
+    unsigned m_bpp;                      // bit per pixel of image in buffer
+    unsigned m_bppImage;                 // bit per pixel of original image
+    long m_size;                         // file size on disk
     unsigned m_subImage;
     unsigned m_subCount;
-    std::string m_info;				// additional info, such as EXIF
+    std::string m_info;                  // additional info, such as EXIF
 
 protected:
     bool openFile(const char* path);
