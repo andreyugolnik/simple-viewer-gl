@@ -32,9 +32,10 @@ private:
         unsigned w;
         unsigned h;
         unsigned format;
+        unsigned data_size;
     };
 
-    bool isValidFormat(const sHeader* header);
+    bool isValidFormat(const sHeader& header);
 };
 
 #endif /* end of include guard: FORMATRAW_H_2D405816DEDEF1 */
