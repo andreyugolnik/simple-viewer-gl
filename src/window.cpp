@@ -33,7 +33,7 @@ CWindow* m_window = 0;
 
 CWindow::CWindow()
     : m_initialImageLoading(true)
-    , m_scale(1)
+    , m_scale(1.0f)
     , m_windowed(true)
     , m_center_window(false)
     , m_all_valid(false)
@@ -190,8 +190,8 @@ void CWindow::fnRender()
 
     if(m_na->Render() == false)
     {
-        float img_w = m_imageList->GetWidth();
-        float img_h = m_imageList->GetHeight();
+        const unsigned img_w = m_imageList->GetWidth();
+        const unsigned img_h = m_imageList->GetHeight();
 
         cVector half = (m_viewport / m_scale + cVector(img_w, img_h) * m_scale) * 0.5f;
         half -= 20.0f;
@@ -203,13 +203,15 @@ void CWindow::fnRender()
         cVector pos(m_camera.x, m_camera.y + m_infoBar->GetHeight() / m_scale / 2.0f);
         cRenderer::setGlobals(&pos, m_angle, m_scale);
 
+        const float half_w = floorf(img_w * 0.5f);
+        const float half_h = floorf(img_h * 0.5f);
         QuadsIc it = m_quads.begin(), itEnd = m_quads.end();
         for( ; it != itEnd; ++it)
         {
             CQuadImage* quad = *it;
 
-            float x = quad->GetCol() * quad->GetTexWidth() - img_w * 0.5f;
-            float y = quad->GetRow() * quad->GetTexHeight() - img_h * 0.5f;
+            const float x = quad->GetCol() * quad->GetTexWidth() - half_w;
+            const float y = quad->GetRow() * quad->GetTexHeight() - half_h;
 
             quad->Render(x, y);
         }
@@ -301,7 +303,7 @@ void CWindow::fnMouse(int x, int y)
     if(m_pixelInfo->IsVisible())
     {
         forceUpdate = true;
-        if(m_scale == 1)
+        if(m_scale == 1.0f)
         {
             m_selection->MouseMove(x - m_camera.x, y - m_camera.y);
             int cursor = m_selection->GetCursor();
@@ -386,7 +388,7 @@ void CWindow::fnKeyboard(unsigned char key, int /*x*/, int /*y*/)
         m_fitImage = !m_fitImage;
         if(m_fitImage == false)
         {
-            m_scale = 1;
+            m_scale = 1.0f;
         }
         centerWindow();
         updateInfobar();
@@ -429,7 +431,7 @@ void CWindow::fnKeyboard(unsigned char key, int /*x*/, int /*y*/)
         m_checkerBoard->Enable(!m_checkerBoard->IsEnabled());
         break;
     case '0':
-        m_scale = 1;
+        m_scale = 1.0f;
         m_fitImage = false;
         centerWindow();
         updateInfobar();
@@ -528,10 +530,10 @@ void CWindow::keyRight()
     updatePosition(cVector(10, 0));
 }
 
-void CWindow::updatePosition(const cVector& _delta)
+void CWindow::updatePosition(const cVector& delta)
 {
     float scale = 1.0f / m_scale;
-    m_camera += (_delta * scale);
+    m_camera += (delta * scale);
 }
 
 
@@ -580,7 +582,7 @@ void CWindow::calculateScale()
         }
         else
         {
-            m_scale = 1;
+            m_scale = 1.0f;
         }
     }
 
@@ -610,17 +612,17 @@ void CWindow::updateScale(bool up)
 {
     m_fitImage = false;
 
-    int scale = ceilf(m_scale * 10) * 10;
+    int scale = std::max<int>(25, ceilf(m_scale * 100.0f));
 
     if(up == true)
     {
-        scale += 20;
+        scale += 25;
     }
     else
     {
-        if(scale > 20)
+        if(scale > 25)
         {
-            scale -= 20;
+            scale -= 25;
         }
     }
     m_scale = scale / 100.0f;
@@ -804,48 +806,50 @@ void CWindow::createTextures()
     unsigned char* bitmap = m_imageList->GetBitmap();
     if(bitmap)
     {
-        int width   = m_imageList->GetWidth();
-        int height  = m_imageList->GetHeight();
-        int format  = m_imageList->GetBitmapFormat();
-        int pitch   = m_imageList->GetPitch();
-        int bytesPP = (m_imageList->GetBpp() / 8);
+        const unsigned width   = m_imageList->GetWidth();
+        const unsigned height  = m_imageList->GetHeight();
+        const unsigned format  = m_imageList->GetBitmapFormat();
+        const unsigned pitch   = m_imageList->GetPitch();
+        const unsigned bytesPP = (m_imageList->GetBpp() / 8);
 
         std::cout << " " << width << " x " << height << ", ";
 
-        int texW, texH;
+        unsigned texW, texH;
         cRenderer::calculateTextureSize(&texW, &texH, width, height);
-        if(texW > 0 && texH > 0)
+        //if(texW > 0 && texH > 0)
         {
             // texture pitch should be multiple by 4
-            int texPitch = static_cast<int>(ceilf(texW * bytesPP / 4.0f) * 4);
+            //unsigned texPitch = static_cast<unsigned>(ceilf(texW * bytesPP / 4.0f) * 4);
+            const unsigned line = texW * bytesPP;
+            const unsigned texPitch = line + (line % 4) * 4;
 
-            int cols = static_cast<int>(ceilf(static_cast<float>(width) / texW));
-            int rows = static_cast<int>(ceilf(static_cast<float>(height) / texH));
-            size_t quadsCount = cols * rows;
+            const unsigned cols = (unsigned)ceilf((float)width / texW);
+            const unsigned rows = (unsigned)ceilf((float)height / texH);
+            const size_t quadsCount = cols * rows;
             std::cout << "textures: " << quadsCount << " (" << cols << " x " << rows << ") required" << std::endl;
 
             deleteTextures();
 
             unsigned char* buffer = new unsigned char[texPitch * texH];
 
-            int idx = 0;
-            int height2 = height;
-            for(int row = 0; row < rows; row++)
+            unsigned idx = 0;
+            unsigned height2 = height;
+            for(unsigned row = 0; row < rows; row++)
             {
-                int width2 = width;
-                int h = (height2 > texH ? texH : height2);
-                for(int col = 0; col < cols; col++)
+                unsigned width2 = width;
+                unsigned h = (height2 > texH ? texH : height2);
+                for(unsigned col = 0; col < cols; col++)
                 {
-                    int w = (width2 > texW ? texW : width2);
+                    unsigned w = (width2 > texW ? texW : width2);
                     width2 -= w;
 
-                    int dx = col * texPitch;
-                    int dy = row * texH;
-                    int count = w * bytesPP;
-                    for(int line = 0; line < h; line++)
+                    unsigned dx = col * texPitch;
+                    unsigned dy = row * texH;
+                    unsigned count = w * bytesPP;
+                    for(unsigned line = 0; line < h; line++)
                     {
-                        int src	= dx + (dy + line) * pitch;
-                        int dst	= line * texPitch;
+                        unsigned src = dx + (dy + line) * pitch;
+                        unsigned dst = line * texPitch;
                         memcpy(&buffer[dst], &bitmap[src], count);
                     }
 

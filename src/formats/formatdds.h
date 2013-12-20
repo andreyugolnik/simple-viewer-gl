@@ -16,7 +16,7 @@
 #define FORMATDDS_H
 
 #include "format.h"
-
+/*
 //  little-endian, of course
 #define DDS_MAGIC 0x20534444
 
@@ -56,7 +56,7 @@
 #define D3DFMT_DXT3     '3TXD'    //  DXT3 compression texture format
 #define D3DFMT_DXT4     '4TXD'    //  DXT4 compression texture format
 #define D3DFMT_DXT5     '5TXD'    //  DXT5 compression texture format
-
+*/
 /*#define PF_IS_DXT1(pf) \
   ((pf.dwFlags & DDPF_FOURCC) && \
   (pf.dwFourCC == D3DFMT_DXT1))
@@ -69,6 +69,7 @@
 ((pf.dwFlags & DDPF_FOURCC) && \
 (pf.dwFourCC == D3DFMT_DXT5))
 */
+/*
 #define PF_IS_BGRA8(pf) \
     ((pf.dwFlags & DDPF_RGB) && \
      (pf.dwFlags & DDPF_ALPHAPIXELS) && \
@@ -160,7 +161,7 @@ union DDS_header
     char data[ 128 ];
 };
 
-
+*/
 class CFormatDds : public CFormat
 {
 public:

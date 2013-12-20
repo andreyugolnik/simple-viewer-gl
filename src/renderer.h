@@ -53,15 +53,15 @@ public:
     static void init();
 
     //static void disable(bool _disable);
-    static GLuint createTexture(const unsigned char* _data, int _w, int _h, GLenum _format);
-    static void deleteTexture(GLuint _tex);
-    static void bindTexture(GLuint _tex);
-    static void calculateTextureSize(int* _tex_w, int* _tex_h, int _img_w, int _img_h);
-    static void setColor(sLine* _line, int _r, int _g, int _b, int _a);
-    static void setColor(sQuad* _quad, int _r, int _g, int _b, int _a);
-    static void render(sLine* _quad);
-    static void render(sQuad* _quad);
-    static void setGlobals(const cVector* _delta = 0, float _angle = 0, float _zoom = 1);
+    static GLuint createTexture(const unsigned char* data, unsigned w, unsigned h, GLenum format);
+    static void deleteTexture(GLuint tex);
+    static void bindTexture(GLuint tex);
+    static void calculateTextureSize(unsigned* tex_w, unsigned* tex_h, unsigned img_w, unsigned img_h);
+    static void setColor(sLine* line, int r, int g, int b, int a);
+    static void setColor(sQuad* quad, int r, int g, int b, int a);
+    static void render(sLine* quad);
+    static void render(sQuad* quad);
+    static void setGlobals(const cVector* delta = 0, float angle = 0.0f, float zoom = 1.0f);
 
 private:
     //static bool m_inited;
@@ -69,7 +69,7 @@ private:
     static sVertex m_vb[4];
     static unsigned short m_ib[6];
     static bool m_pow2;
-    static int m_texture_max_size;
+    static unsigned m_texture_max_size;
 };
 
 #endif /* end of include guard: RENDERER_H_E44EFE71C29EF8 */

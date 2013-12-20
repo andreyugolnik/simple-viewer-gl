@@ -13,19 +13,23 @@
 class CQuadImage : public CQuad
 {
 public:
-	CQuadImage(int tw, int th, const unsigned char* data, GLenum bitmapFormat);
-	virtual ~CQuadImage();
+    CQuadImage(unsigned tw, unsigned th, const unsigned char* data, GLenum bitmapFormat);
+    virtual ~CQuadImage();
 
-	void SetCell(int col, int row) { m_col = col; m_row = row; }
-	int GetCol() const { return m_col; }
-	int GetRow() const { return m_row; }
+    void SetCell(unsigned col, unsigned row)
+    {
+        m_col = col;
+        m_row = row;
+    }
+    int GetCol() const { return m_col; }
+    int GetRow() const { return m_row; }
 
 private:
-	int m_col;
-	int m_row;
+    unsigned m_col;
+    unsigned m_row;
 
 private:
-	CQuadImage();
+    CQuadImage();
 };
 
 #endif // QUADIMAGE_H

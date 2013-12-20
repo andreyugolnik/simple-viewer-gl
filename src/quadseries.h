@@ -13,15 +13,15 @@
 class CQuadSeries : public CQuad
 {
 public:
-    CQuadSeries(int tw, int th, const unsigned char* data, GLenum bitmapFormat);
+    CQuadSeries(unsigned tw, unsigned th, const unsigned char* data, GLenum bitmapFormat);
     virtual ~CQuadSeries();
 
-    void Setup(int width, int height, int count);
-    void SetFrame(int frame);
+    void Setup(unsigned width, unsigned height, unsigned count);
+    void SetFrame(unsigned frame);
 
 private:
-    int m_count;
-    int m_frame;
+    unsigned m_count;
+    unsigned m_frame;
 
 private:
     CQuadSeries();

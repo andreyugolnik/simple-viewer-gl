@@ -14,7 +14,7 @@
 class CQuad
 {
 public:
-    CQuad(int tw, int th, const unsigned char* data = 0, GLenum bitmapFormat = GL_RGB);
+    CQuad(unsigned tw, unsigned th, const unsigned char* data = 0, GLenum bitmapFormat = GL_RGB);
     virtual ~CQuad();
 
     virtual void SetColor(int r, int g, int b, int a);

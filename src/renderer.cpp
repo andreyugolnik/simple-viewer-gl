@@ -22,14 +22,15 @@ unsigned cRenderer::m_tex = 0;
 sVertex cRenderer::m_vb[4];
 unsigned short cRenderer::m_ib[6] = { 0, 1, 2, 0, 2, 3 };
 bool cRenderer::m_pow2 = false;
-int cRenderer::m_texture_max_size = 256;
+unsigned cRenderer::m_texture_max_size = 256;
 
 void cRenderer::init()
 {
     //if(!m_inited)
     {
-        glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_texture_max_size);
-        m_texture_max_size = std::min<int>(512, m_texture_max_size);
+        int texture_max_size = (int)m_texture_max_size;
+        glGetIntegerv(GL_MAX_TEXTURE_SIZE, &texture_max_size);
+        m_texture_max_size = std::min<unsigned>(512, texture_max_size);
         std::cout << "Using texture size: " << m_texture_max_size << "x"  << m_texture_max_size << "." << std::endl;
 
         m_pow2 = glutExtensionSupported("GL_ARB_texture_non_power_of_two");
@@ -64,19 +65,19 @@ void cRenderer::init()
     ////std::cout << "Renderer " << (m_inited ? "inited" : "disabled") << std::endl;
 //}
 
-GLuint cRenderer::createTexture(const unsigned char* _data, int _w, int _h, GLenum _format)
+GLuint cRenderer::createTexture(const unsigned char* data, unsigned w, unsigned h, GLenum format)
 {
     GLuint tex = 0;
     //if(m_inited)
     {
-        if(_data)
+        if(data)
         {
             glGenTextures(1, &tex);
         }
 
         bindTexture(tex);
 
-        if(_data)
+        if(data)
         {
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -84,8 +85,8 @@ GLuint cRenderer::createTexture(const unsigned char* _data, int _w, int _h, GLen
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
             //std::cout << "creating " << tw << " x " << th << " texture" << std::endl;
-            GLint bytes = ((_format == GL_RGBA || _format == GL_BGRA) ? 4 : 3);
-            glTexImage2D(GL_TEXTURE_2D, 0, bytes, _w, _h, 0, _format, GL_UNSIGNED_BYTE, _data);
+            GLint bytes = ((format == GL_RGBA || format == GL_BGRA) ? 4 : 3);
+            glTexImage2D(GL_TEXTURE_2D, 0, bytes, w, h, 0, format, GL_UNSIGNED_BYTE, data);
             GLenum e = glGetError();
             if(GL_NO_ERROR != e)
             {
@@ -98,117 +99,113 @@ GLuint cRenderer::createTexture(const unsigned char* _data, int _w, int _h, GLen
     return tex;
 }
 
-void cRenderer::deleteTexture(GLuint _tex)
+void cRenderer::deleteTexture(GLuint tex)
 {
     //if(m_inited)
     {
         bindTexture(0);
-        if(_tex != 0)
+        if(tex != 0)
         {
-            glDeleteTextures(1, &_tex);
+            glDeleteTextures(1, &tex);
         }
     }
 }
 
-void cRenderer::bindTexture(GLuint _tex)
+void cRenderer::bindTexture(GLuint tex)
 {
     //if(m_inited)
     {
-        if(m_tex != _tex)
+        if(m_tex != tex)
         {
-            m_tex = _tex;
+            m_tex = tex;
             glBindTexture(GL_TEXTURE_2D, m_tex);
         }
     }
 }
 
-void cRenderer::calculateTextureSize(int* _tex_w, int* _tex_h, int _img_w, int _img_h)
+unsigned nextPOT(unsigned n, bool pow2)
 {
-    int tw = std::min<int>(m_texture_max_size, _img_w);
-    int th = std::min<int>(m_texture_max_size, _img_h);
-
-    // correct texture size
-    if(m_pow2 == false)
+    if(pow2)
     {
-        float power_w = logf(tw) / logf(2.0f);
-        float power_h = logf(th) / logf(2.0f);
-        if(static_cast<int>(power_w) != power_w || static_cast<int>(power_h) != power_h)
-        {
-            tw = static_cast<int>(powf(2.0f, static_cast<int>(ceilf(power_w))));
-            th = static_cast<int>(powf(2.0f, static_cast<int>(ceilf(power_h))));
-        }
+        return n;
     }
+
+    n = n - 1;
+    n = n | (n >> 1);
+    n = n | (n >> 2);
+    n = n | (n >> 4);
+    n = n | (n >> 8);
+    n = n | (n >> 16);
+    return n + 1;
+}
+
+void cRenderer::calculateTextureSize(unsigned* tex_w, unsigned* tex_h, unsigned img_w, unsigned img_h)
+{
+    unsigned tw = std::min<unsigned>(m_texture_max_size, nextPOT(img_w, m_pow2));
+    unsigned th = std::min<unsigned>(m_texture_max_size, nextPOT(img_h, m_pow2));
     //std::cout << "  select texture size: " << tw << " x " << th << std::endl;
-    *_tex_w = tw;
-    *_tex_h = th;
+    *tex_w = tw;
+    *tex_h = th;
 }
 
-void cRenderer::setColor(sLine* _line, int _r, int _g, int _b, int _a)
+void cRenderer::setColor(sLine* line, int r, int g, int b, int a)
 {
-    //_line->v[0].r = _line->v[1].r = _r;
-    //_line->v[0].g = _line->v[1].g = _g;
-    //_line->v[0].b = _line->v[1].b = _b;
-    //_line->v[0].a = _line->v[1].a = _a;
-    for(int i = 0; i < 2; i++)
+    for(unsigned i = 0; i < 2; i++)
     {
-        _line->v[i].r = _r;
-        _line->v[i].g = _g;
-        _line->v[i].b = _b;
-        _line->v[i].a = _a;
+        line->v[i].r = r;
+        line->v[i].g = g;
+        line->v[i].b = b;
+        line->v[i].a = a;
     }
 }
 
-void cRenderer::setColor(sQuad* _quad, int _r, int _g, int _b, int _a)
+void cRenderer::setColor(sQuad* quad, int r, int g, int b, int a)
 {
-    //_quad->v[0].r = _quad->v[1].r = _quad->v[2].r = _quad->v[3].r = _r;
-    //_quad->v[0].g = _quad->v[1].g = _quad->v[2].g = _quad->v[3].g = _g;
-    //_quad->v[0].b = _quad->v[1].b = _quad->v[2].b = _quad->v[3].b = _b;
-    //_quad->v[0].a = _quad->v[1].a = _quad->v[2].a = _quad->v[3].a = _a;
-    for(int i = 0; i < 4; i++)
+    for(unsigned i = 0; i < 4; i++)
     {
-        _quad->v[i].r = _r;
-        _quad->v[i].g = _g;
-        _quad->v[i].b = _b;
-        _quad->v[i].a = _a;
+        quad->v[i].r = r;
+        quad->v[i].g = g;
+        quad->v[i].b = b;
+        quad->v[i].a = a;
     }
 }
 
-void cRenderer::render(sLine* _line)
+void cRenderer::render(sLine* line)
 {
     //if(m_inited)
     {
-        bindTexture(_line->tex);
+        bindTexture(line->tex);
 
-        m_vb[0] = _line->v[0];
-        m_vb[1] = _line->v[1];
+        m_vb[0] = line->v[0];
+        m_vb[1] = line->v[1];
 
         glDrawElements(GL_LINES, 2, GL_UNSIGNED_SHORT, m_ib);
     }
 }
 
-void cRenderer::render(sQuad* _quad)
+void cRenderer::render(sQuad* quad)
 {
     //if(m_inited)
     {
-        bindTexture(_quad->tex);
+        bindTexture(quad->tex);
 
-        m_vb[0] = _quad->v[0];
-        m_vb[1] = _quad->v[1];
-        m_vb[2] = _quad->v[2];
-        m_vb[3] = _quad->v[3];
+        m_vb[0] = quad->v[0];
+        m_vb[1] = quad->v[1];
+        m_vb[2] = quad->v[2];
+        m_vb[3] = quad->v[3];
 
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, m_ib);
     }
 }
 
-void cRenderer::setGlobals(const cVector* _delta, float _angle, float _zoom)
+void cRenderer::setGlobals(const cVector* delta, float angle, float zoom)
 {
-    float zoom = 1.0f / _zoom;
-    float w = glutGet(GLUT_WINDOW_WIDTH) * zoom;
-    float h = glutGet(GLUT_WINDOW_HEIGHT) * zoom;
+    const float z = 1.0f / zoom;
+    const float w = glutGet(GLUT_WINDOW_WIDTH) * z;
+    const float h = glutGet(GLUT_WINDOW_HEIGHT) * z;
 
-    float x = floorf((_delta ? _delta->x : 0) - w * 0.5f);
-    float y = floorf((_delta ? _delta->y : 0) - h * 0.5f);
+    const float x = floorf((delta ? delta->x : 0.0f) - w * 0.5f);
+    const float y = floorf((delta ? delta->y : 0.0f) - h * 0.5f);
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -219,6 +216,6 @@ void cRenderer::setGlobals(const cVector* _delta, float _angle, float _zoom)
             y,
             -1.0, 1.0);
 
-    glRotatef(_angle, 0, 0, -1);
+    glRotatef(angle, 0.0f, 0.0f, -1.0f);
 }
 
