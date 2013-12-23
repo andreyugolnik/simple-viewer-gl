@@ -819,9 +819,9 @@ void CWindow::createTextures()
         //if(texW > 0 && texH > 0)
         {
             // texture pitch should be multiple by 4
-            //unsigned texPitch = static_cast<unsigned>(ceilf(texW * bytesPP / 4.0f) * 4);
-            const unsigned line = texW * bytesPP;
-            const unsigned texPitch = line + (line % 4) * 4;
+            unsigned texPitch = (unsigned)ceilf(texW * bytesPP / 4.0f) * 4;
+            //const unsigned line = texW * bytesPP;
+            //const unsigned texPitch = line + (line % 4) * 4;
 
             const unsigned cols = (unsigned)ceilf((float)width / texW);
             const unsigned rows = (unsigned)ceilf((float)height / texH);
@@ -848,8 +848,8 @@ void CWindow::createTextures()
                     unsigned count = w * bytesPP;
                     for(unsigned line = 0; line < h; line++)
                     {
-                        unsigned src = dx + (dy + line) * pitch;
-                        unsigned dst = line * texPitch;
+                        const unsigned src = dx + (dy + line) * pitch;
+                        const unsigned dst = line * texPitch;
                         memcpy(&buffer[dst], &bitmap[src], count);
                     }
 
