@@ -5,12 +5,12 @@ INCLUDE(FindPkgConfig)
 INCLUDE(CheckLibraryExists)
 
 SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
-#SET( CMAKE_CXX_COMPILER "clang++" )
-#SET( CMAKE_C_COMPILER "clang" )
+SET( CMAKE_CXX_COMPILER "g++" )
+SET( CMAKE_C_COMPILER "gcc" )
 
 # additional compiler flags
-ADD_DEFINITIONS(-Wall -O0 -g)
-#ADD_DEFINITIONS(-Wall -Wextra -O2)
+#ADD_DEFINITIONS(-Wall -O0 -g)
+ADD_DEFINITIONS(-Wall -Wextra -O2)
 
 FIND_PACKAGE(GLUT)
 FIND_PACKAGE(OpenGL)
