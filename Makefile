@@ -1,7 +1,7 @@
 BUILD_DIR=build
 
 all:
-	$(shell [[ ! -d $(BUILD_DIR) ]] && mkdir $(BUILD_DIR) )
+	$(shell if [ ! -d $(BUILD_DIR) ]; then mkdir $(BUILD_DIR); fi )
 	cd $(BUILD_DIR) ; cmake .. ; make ; cd ..
 	#cd $(BUILD_DIR) ; cmake .. -DCMAKE_CXX_COMPILER=clang++ ; make ; cd ..
 

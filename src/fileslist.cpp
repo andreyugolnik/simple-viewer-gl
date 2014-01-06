@@ -8,6 +8,7 @@
 #include "fileslist.h"
 #include <iostream>
 #include <dirent.h>
+#include <unistd.h>
 
 CFilesList::CFilesList(const char* file, bool recursive)
     : m_listCreated(false)
