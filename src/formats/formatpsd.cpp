@@ -64,11 +64,11 @@ bool CFormatPsd::Load(const char* filename, unsigned subImage)
     unsigned channels = read_uint16((uint8_t*)&header.channels);
     if(channels != 3 && channels != 4)
     {
-        //std::cout << "Unsupported cannels count: " << channels << std::endl;
+        std::cout << "Unsupported cannels count: " << channels << std::endl;
         //reset();
         //return false;
     }
-    unsigned extraChannels = channels - std::min<unsigned>(channels, 4);
+    const unsigned extraChannels = channels - std::min<unsigned>(channels, 4);
     std::cout << " " << extraChannels << " extra channel(s),";
 
     // skip Color Mode Data Block
@@ -112,7 +112,7 @@ bool CFormatPsd::Load(const char* filename, unsigned subImage)
     m_linesLengths = new uint16_t[channels * m_height];
     for(unsigned i = 0; i < channels; i++)
     {
-        unsigned pos = m_height * i;
+        const unsigned pos = m_height * i;
 
         if(m_height * sizeof(uint16_t) != fread(&m_linesLengths[pos], 1, m_height * sizeof(uint16_t), m_file))
         {
@@ -159,6 +159,10 @@ bool CFormatPsd::Load(const char* filename, unsigned subImage)
         }
 
         unsigned readed = fread(m_buffer, 1, lineLength, m_file);
+        if(m_width * 2 < lineLength)
+        {
+            std::cout << "Wrong line length: " << lineLength << std::endl;
+        }
         if(lineLength != readed)
         {
             std::cout << "Error reading Image Data Block" << std::endl;
@@ -278,7 +282,7 @@ void CFormatPsd::decompressLine(const uint8_t* src, uint32_t lineLength, uint8_t
     uint16_t bytes_read = 0;
     while(bytes_read < lineLength)
     {
-        signed char byte = src[bytes_read];
+        const signed char byte = src[bytes_read];
         bytes_read++;
 
         if(byte == -128)
@@ -287,7 +291,7 @@ void CFormatPsd::decompressLine(const uint8_t* src, uint32_t lineLength, uint8_t
         }
         else if(byte > -1)
         {
-            int count = byte + 1;
+            const int count = byte + 1;
 
             // copy next count bytes
             for(int i = 0; i < count; i++)
@@ -299,10 +303,10 @@ void CFormatPsd::decompressLine(const uint8_t* src, uint32_t lineLength, uint8_t
         }
         else
         {
-            int count = -byte + 1;
+            const int count = -byte + 1;
 
             // copy next byte count times
-            uint8_t next_byte = src[bytes_read];
+            const uint8_t next_byte = src[bytes_read];
             bytes_read++;
             for(int i = 0; i < count; i++)
             {
@@ -316,14 +320,18 @@ void CFormatPsd::decompressLine(const uint8_t* src, uint32_t lineLength, uint8_t
 void CFormatPsd::cleanup()
 {
     delete[] m_buffer;
+    m_buffer = 0;
     delete[] m_linesLengths;
-    for(int i = 0; i < MAX_CHANNELS; i++)
+    m_linesLengths = 0;
+    for(unsigned i = 0; i < MAX_CHANNELS; i++)
     {
         delete[] m_chBufs[i];
+        m_chBufs[i] = 0;
     }
     if(m_file != 0)
     {
         fclose(m_file);
+        m_file = 0;
     }
 }
 
