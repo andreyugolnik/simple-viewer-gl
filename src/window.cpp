@@ -164,10 +164,10 @@ void CWindow::fnRender()
         //printf("fullscreen desired, actual: %d x %d\n", width, height);
         // if window can't be resized (due WM restriction or limitation) then set size to current window size
         // useful in tiled WM
-        int a_width = glutGet(GLUT_WINDOW_WIDTH);
-        int a_height = glutGet(GLUT_WINDOW_HEIGHT);
-        int scrw = glutGet(GLUT_SCREEN_WIDTH);
-        int scrh = glutGet(GLUT_SCREEN_HEIGHT);
+        const int a_width = glutGet(GLUT_WINDOW_WIDTH);
+        const int a_height = glutGet(GLUT_WINDOW_HEIGHT);
+        const int scrw = glutGet(GLUT_SCREEN_WIDTH);
+        const int scrh = glutGet(GLUT_SCREEN_HEIGHT);
         //printf("fullscreen desired: %d x %d, actual: %d x %d\n", scrw, scrh, a_width, a_height);
         if(scrw != a_width || scrh != a_height)
         {
@@ -216,13 +216,13 @@ void CWindow::fnRender()
             quad->Render(x, y);
         }
 
-        if(m_showBorder == true)
+        if(m_showBorder)
         {
-            m_border->Render(-img_w * 0.5f, -img_h * 0.5f, img_w, img_h, m_scale);
+            m_border->Render(-half_w, -half_h, img_w, img_h, m_scale);
         }
         if(m_pixelInfo->IsVisible())
         {
-            m_selection->Render(cVector(-img_w * 0.5f, -img_h * 0.5f), m_scale);
+            m_selection->Render(cVector(-half_w, -half_h), m_scale);
             //m_selection->Render(0, 0);
         }
         cRenderer::setGlobals();
