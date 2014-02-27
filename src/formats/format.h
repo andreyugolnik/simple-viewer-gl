@@ -17,6 +17,70 @@
 
 //#define WIDTHBYTES(bits) ((((bits) + 31) / 32) * 4)
 
+class cFile
+{
+public:
+    cFile()
+        : m_file(0)
+        , m_size(0)
+    {
+    }
+
+    virtual ~cFile()
+    {
+        if(m_file)
+        {
+            fclose(m_file);
+        }
+    }
+
+    bool open(const char* path, const char* mode = "rb")
+    {
+        FILE* file = fopen(path, mode);
+        if(file)
+        {
+            m_file = file;
+
+            (void)fseek(file, 0, SEEK_END);
+            m_size = ftell(file);
+            (void)fseek(file, 0, SEEK_SET);
+
+            return true;
+        }
+
+        printf("Can't open \"%s\".", path);
+        return false;
+    }
+
+    size_t read(void* ptr, size_t size)
+    {
+        if(m_file)
+        {
+            return fread(ptr, 1, size, m_file);
+        }
+
+        return 0;
+    }
+
+    long getOffset() const
+    {
+        if(m_file)
+        {
+            return ftell(m_file);
+        }
+
+        return 0;
+    }
+
+    long getSize() const { return m_size; }
+
+private:
+    FILE* m_file;
+    long m_size;
+};
+
+
+
 typedef void (*Callback)(int);
 
 class CFormat

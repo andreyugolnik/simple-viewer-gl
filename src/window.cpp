@@ -288,8 +288,9 @@ void CWindow::fnMouse(int x, int y)
 {
     bool forceUpdate = false;
 
-    cVector diff(m_lastMouse - cVector(x, y));
-    m_lastMouse = cVector(x, y);
+    const cVector pointer_pos(x / m_scale, y / m_scale);
+    const cVector diff(m_lastMouse - pointer_pos);
+    m_lastMouse = pointer_pos;
     //if(!m_fitImage && (m_mouseMB || m_mouseRB))
     if(m_mouseMB || m_mouseRB)
     {
@@ -306,7 +307,7 @@ void CWindow::fnMouse(int x, int y)
         if(m_scale == 1.0f)
         {
             m_selection->MouseMove(x - m_camera.x, y - m_camera.y);
-            int cursor = m_selection->GetCursor();
+            const int cursor = m_selection->GetCursor();
             m_pixelInfo->SetCursor(cursor);
         }
 
@@ -532,8 +533,7 @@ void CWindow::keyRight()
 
 void CWindow::updatePosition(const cVector& delta)
 {
-    float scale = 1.0f / m_scale;
-    m_camera += (delta * scale);
+    m_camera += delta;
 }
 
 
