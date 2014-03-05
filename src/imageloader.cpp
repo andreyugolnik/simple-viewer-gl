@@ -22,7 +22,9 @@
 CImageLoader::CImageLoader(Callback _callback)
     : m_image(0)
 {
+#if defined(IMLIB2_SUPPORT)
     m_format_common.reset(new CFormatCommon(_callback, "libImlib2", "ImLib2"));
+#endif
     m_format_jpeg.reset(new CFormatJpeg(_callback, "libjpeg", "JPEG"));
     m_format_psd.reset(new CFormatPsd(_callback, 0, "PSD"));
     m_format_png.reset(new CFormatPng(_callback, "libpng", "PNG"));
@@ -86,7 +88,11 @@ bool CImageLoader::LoadImage(const char* path, unsigned subImage)
             m_image = m_format_raw.get();
             break;
         default: //FORMAT_COMMON:
+#if defined(IMLIB2_SUPPORT)
             m_image = m_format_common.get();
+#else
+            return false;
+#endif
             break;
         }
 

@@ -15,7 +15,11 @@
 #define RENDERER_H_E44EFE71C29EF8
 
 #define GL_GLEXT_PROTOTYPES
-#include <GL/glut.h>
+#if defined(__linux__)
+#   include <GL/glut.h>
+#else
+#   include <glut.h>
+#endif
 
 class cVector;
 

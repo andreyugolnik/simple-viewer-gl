@@ -12,8 +12,12 @@
 #include <iostream>
 #include <vector>
 #include <stdio.h>
-#include <GL/gl.h>
 #include <dlfcn.h>
+#if defined(__linux__)
+#   include <GL/glut.h>
+#else
+#   include <glut.h>
+#endif
 
 //#define WIDTHBYTES(bits) ((((bits) + 31) / 32) * 4)
 

@@ -5,6 +5,8 @@
 //
 /////////////////////////////////////////////////
 
+#if defined(IMLIB2_SUPPORT)
+
 #include "formatcommon.h"
 #include <iostream>
 #include <string.h>
@@ -74,4 +76,6 @@ int CFormatCommon::callbackProgress(void* p, char percent, int a, int b, int c, 
 	g_this->progress(percent);
 	return 1;
 }
+
+#endif
 

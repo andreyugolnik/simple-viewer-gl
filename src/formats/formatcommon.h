@@ -8,6 +8,8 @@
 #ifndef FORMATCOMMON_H
 #define FORMATCOMMON_H
 
+#if defined(IMLIB2_SUPPORT)
+
 #include <Imlib2.h>
 #include "format.h"
 
@@ -26,6 +28,8 @@ private:
 private:
     static int callbackProgress(void*, char percent, int, int, int, int);
 };
+
+#endif
 
 #endif // FORMATCOMMON_H
 

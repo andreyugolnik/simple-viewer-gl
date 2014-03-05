@@ -7,7 +7,7 @@
 
 #include "format.h"
 
-CFormat::CFormat(Callback callback, const char* _lib, const char* _name)
+CFormat::CFormat(Callback callback, const char* lib, const char* name)
     : m_callback(callback)
     , m_percent(-1)
     , m_lib(0)
@@ -22,27 +22,27 @@ CFormat::CFormat(Callback callback, const char* _lib, const char* _name)
     , m_subImage(0)
     , m_subCount(0)
 {
-    if(_lib)
+    if(lib)
     {
-        std::string lib(_lib);
-#if defined(__APPLE__)
-        lib += ".dylib";
-#else
-        lib += ".so";
-#endif
-        m_lib = dlopen(lib.c_str(), RTLD_LAZY);
+        std::string path(lib);
+#if defined(__linux__)
+        path += ".so";
+        m_lib = dlopen(path.c_str(), RTLD_LAZY);
         if(m_lib)
         {
-            std::cout << _name << " format supported." << std::endl;
+            std::cout << name << " format supported." << std::endl;
         }
         else
         {
-            std::cout << "(WW) " << _name << " format unsupported: " << dlerror() << std::endl;
+            std::cout << "(WW) " << name << " format unsupported: " << dlerror() << std::endl;
         }
+#else
+        path += ".dylib";
+#endif
     }
     else
     {
-        std::cout << _name << " format supported." << std::endl;
+        std::cout << name << " format supported." << std::endl;
     }
 }
 

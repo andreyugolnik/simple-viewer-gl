@@ -47,7 +47,9 @@ public:
 
 private:
     CFormat* m_image;
+#if defined(IMLIB2_SUPPORT)
     std::auto_ptr<CFormatCommon> m_format_common;
+#endif
     std::auto_ptr<CFormatJpeg> m_format_jpeg;
     std::auto_ptr<CFormatPsd> m_format_psd;
     std::auto_ptr<CFormatPng> m_format_png;

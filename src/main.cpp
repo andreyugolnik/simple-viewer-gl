@@ -23,9 +23,8 @@ int main(int argc, char* argv[])
 {
     setlocale(LC_ALL, "");
 
-    printf("%s v2.2\n\n", DEF_TITLE);
-    printf("Copyright © 2008-2013 Andrey A. Ugolnik. All Rights Reserved.\n");
-    printf("http://www.wegroup.org\n");
+    printf("%s v2.3\n\n", DEF_TITLE);
+    printf("Copyright © 2008-2014 Andrey A. Ugolnik. All Rights Reserved.\n");
     printf("http://www.ugolnik.info\n");
     printf("andrey@ugolnik.info\n\n");
 
@@ -38,10 +37,17 @@ int main(int argc, char* argv[])
     CWindow window;
     const char* path = 0;
 
-    CConfig config(&window);
-    if(config.Open() == true)
+    try
     {
-        config.Read();
+        CConfig config(&window);
+        if(config.Open() == true)
+        {
+            config.Read();
+        }
+    }
+    catch(...)
+    {
+        printf("Error loading config.\n\n");
     }
 
     for(int i = 1; i < argc; i++)
