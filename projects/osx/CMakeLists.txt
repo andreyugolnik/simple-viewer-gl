@@ -4,7 +4,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 INCLUDE(FindPkgConfig)
 INCLUDE(CheckLibraryExists)
 
-SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/../cmake")
 SET( CMAKE_CXX_COMPILER "g++" )
 SET( CMAKE_C_COMPILER "gcc" )
 
@@ -48,38 +48,38 @@ INCLUDE_DIRECTORIES(
     #)
 
 ADD_EXECUTABLE(../sviewgl
-    src/checkerboard.cpp
-    src/ftsymbol.cpp
-    src/main.cpp
-    src/renderer.cpp
-    src/quad.cpp
-    src/window.cpp
-    src/config.cpp
-    src/imageborder.cpp
-    src/notavailable.cpp
-    src/quadimage.cpp
-    src/fileslist.cpp
-    src/imageloader.cpp
-    src/pixelinfo.cpp
-    src/quadseries.cpp
-    src/ftstring.cpp
-    src/infobar.cpp
-    src/progress.cpp
-    src/selection.cpp
-    src/formats/formatcommon.cpp
-    src/formats/formatico.cpp
-    src/formats/formatpsd.cpp
-    src/formats/format.cpp
-    src/formats/formatjpeg.cpp
-    src/formats/formattiff.cpp
-    src/formats/formatxwd.cpp
-    #src/formats/formatsvg.cpp
-    src/formats/formatdds.cpp
-    src/formats/formatgif.cpp
-    src/formats/formatpng.cpp
-    src/formats/formatraw.cpp
-    src/formats/rle.cpp
-    src/math/vector.cpp
+    ../src/checkerboard.cpp
+    ../src/ftsymbol.cpp
+    ../src/main.cpp
+    ../src/renderer.cpp
+    ../src/quad.cpp
+    ../src/window.cpp
+    ../src/config.cpp
+    ../src/imageborder.cpp
+    ../src/notavailable.cpp
+    ../src/quadimage.cpp
+    ../src/fileslist.cpp
+    ../src/imageloader.cpp
+    ../src/pixelinfo.cpp
+    ../src/quadseries.cpp
+    ../src/ftstring.cpp
+    ../src/infobar.cpp
+    ../src/progress.cpp
+    ../src/selection.cpp
+    ../src/formats/formatcommon.cpp
+    ../src/formats/formatico.cpp
+    ../src/formats/formatpsd.cpp
+    ../src/formats/format.cpp
+    ../src/formats/formatjpeg.cpp
+    ../src/formats/formattiff.cpp
+    ../src/formats/formatxwd.cpp
+    #../src/formats/formatsvg.cpp
+    ../src/formats/formatdds.cpp
+    ../src/formats/formatgif.cpp
+    ../src/formats/formatpng.cpp
+    ../src/formats/formatraw.cpp
+    ../src/formats/rle.cpp
+    ../src/math/vector.cpp
     )
 
 TARGET_LINK_LIBRARIES(../sviewgl

@@ -1,0 +1,8 @@
+.DS_Store
+.build
+
+sviewgl
+tmp/
+project.xcworkspace/
+xcuserdata/
+
