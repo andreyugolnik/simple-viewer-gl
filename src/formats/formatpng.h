@@ -23,9 +23,6 @@ public:
     virtual ~CFormatPng();
 
     virtual bool Load(const char* filename, unsigned subImage = 0);
-
-private:
-    void* m_lib;
 };
 
 #endif // FORMATPNG_H
