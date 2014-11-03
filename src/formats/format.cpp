@@ -60,7 +60,7 @@ void CFormat::FreeMemory()
 bool CFormat::openFile(const char* path)
 {
     m_file = fopen(path, "rb");
-    if(m_file == 0)
+    if(!m_file)
     {
         std::cout << "Can't open \"" << path << "\"." << std::endl;
         return false;
@@ -75,7 +75,7 @@ bool CFormat::openFile(const char* path)
 
 void CFormat::progress(int percent)
 {
-    if(m_callback != 0)
+    if(m_callback)
     {
         if(m_percent != percent)
         {
@@ -93,15 +93,15 @@ void CFormat::reset()
         m_file = 0;
     }
 
-    m_format	= GL_RGB;
-    m_width		= 0;
-    m_height	= 0;
-    m_pitch		= 0;
-    m_bpp		= 0;
-    m_bppImage	= 0;
-    m_size		= -1;
-    m_subImage	= 0;
-    m_subCount	= 0;
+    m_format   = GL_RGB;
+    m_width    = 0;
+    m_height   = 0;
+    m_pitch    = 0;
+    m_bpp      = 0;
+    m_bppImage = 0;
+    m_size     = -1;
+    m_subImage = 0;
+    m_subCount = 0;
     m_info.clear();
 
     FreeMemory();

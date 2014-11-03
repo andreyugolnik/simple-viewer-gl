@@ -13,56 +13,57 @@
 
 CFormatCommon* g_this = 0;
 
-CFormatCommon::CFormatCommon(Callback callback, const char* _lib, const char* _name)
-    : CFormat(callback, _lib, _name)
+CFormatCommon::CFormatCommon(Callback callback, const char* lib, const char* name)
+    : CFormat(callback, lib, name)
     , m_image(0)
 {
-	g_this = this;
-	imlib_context_set_progress_function(callbackProgress);
-	imlib_context_set_progress_granularity(10);	// update progress each 10%
+    g_this = this;
+    imlib_context_set_progress_function(callbackProgress);
+    imlib_context_set_progress_granularity(10);	// update progress each 10%
 }
 
 CFormatCommon::~CFormatCommon()
 {
 }
 
-bool CFormatCommon::Load(const char* filename, unsigned subImage)
+bool CFormatCommon::Load(const char* filename, unsigned /*subImage*/)
 {
-	if(openFile(filename) == false)
-	{
-		return false;
-	}
-	reset();
+    if(openFile(filename) == false)
+    {
+        return false;
+    }
+    fclose(m_file);
+    m_file = 0;
 
-	// try to load image from disk
-	Imlib_Load_Error error_return;
-	m_image	= imlib_load_image_with_error_return(filename, &error_return);
-	if(m_image == 0)
-	{
-		std::cout << ": error loading file '" << filename << "' (" << error_return << ")" << std::endl;
-		reset();
-		return false;
-	}
+    // try to load image from disk
+    Imlib_Load_Error error_return;
+    m_image = imlib_load_image_with_error_return(filename, &error_return);
+    if(m_image == 0)
+    {
+        std::cout << ": error loading file '" << filename << "' (" << error_return << ")" << std::endl;
+        reset();
+        return false;
+    }
 
-	imlib_context_set_image(m_image);
+    imlib_context_set_image(m_image);
 
-	m_width		= imlib_image_get_width();
-	m_height	= imlib_image_get_height();
-	m_pitch		= 4 * m_width;
-	m_bpp		= 32;	// Imlib2 always has 32-bit buffer, but sometimes alpha not used
-	m_bppImage	= (imlib_image_has_alpha() == 1 ? 32 : 24);
+    m_width = imlib_image_get_width();
+    m_height = imlib_image_get_height();
+    m_pitch = 4 * m_width;
+    m_bpp = 32; // Imlib2 always has 32-bit buffer, but sometimes alpha not used
+    m_bppImage = (imlib_image_has_alpha() == 1 ? 32 : 24);
 
-	m_bitmap.resize(m_pitch * m_height);
-	memcpy(&m_bitmap[0], imlib_image_get_data_for_reading_only(), m_bitmap.size());
+    m_bitmap.resize(m_pitch * m_height);
+    memcpy(&m_bitmap[0], imlib_image_get_data_for_reading_only(), m_bitmap.size());
 
-	m_format	= GL_BGRA;
+    m_format = GL_BGRA;
 
-	return true;
+    return true;
 }
 
 void CFormatCommon::FreeMemory()
 {
-    if(m_image != 0)
+    if(m_image)
     {
         imlib_free_image();
         m_image = 0;
@@ -73,8 +74,8 @@ void CFormatCommon::FreeMemory()
 
 int CFormatCommon::callbackProgress(void* p, char percent, int a, int b, int c, int d)
 {
-	g_this->progress(percent);
-	return 1;
+    g_this->progress(percent);
+    return 1;
 }
 
 #endif

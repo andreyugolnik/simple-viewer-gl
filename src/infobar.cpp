@@ -7,9 +7,7 @@
 
 #include "infobar.h"
 #include "main.h"
-#include <iomanip>
-#include <iostream>
-#include <sstream>
+#include <string.h>
 
 CInfoBar::CInfoBar()
     : m_visible(true)
@@ -34,11 +32,11 @@ void CInfoBar::Render()
 {
     if(m_visible == true)
     {
-        int w = glutGet(GLUT_WINDOW_WIDTH);
-        int h = glutGet(GLUT_WINDOW_HEIGHT);
+        const int w = glutGet(GLUT_WINDOW_WIDTH);
+        const int h = glutGet(GLUT_WINDOW_HEIGHT);
 
-        float x = -floorf(w / 2);
-        float y = floorf(h / 2);
+        const float x = -floorf(w * 0.5f);
+        const float y = floorf(h * 0.5f);
         m_bg->SetSpriteSize(w, m_height);
         m_bg->Render(x, y - m_height);
 
@@ -48,83 +46,58 @@ void CInfoBar::Render()
 
 void CInfoBar::Update(const InfoBar* p)
 {
-    std::stringstream title;
-
     if(p != 0)
     {
-        std::string name = p->path;
-        size_t pos = name.find_last_of('/');
-        if(std::string::npos != pos)
-        {
-            name = name.substr(pos + 1);
-        }
+        const char* n = strrchr(p->path, '/');
+        const char* name = n ? n + 1 : p->path;
 
-        std::stringstream dim;
-        dim << p->width << " x " << p->height << " x " << p->bpp << " bpp";
-
-        if(p->scale != 1)
-        {
-            dim << " (" << (int)(100 * p->scale) << "%)";
-        }
-
-        long file_size = p->file_size;
-        std::string file_s;
-        int file_precision = getHumanSize(&file_size, file_s);
-        long mem_size = p->mem_size;
-        std::string mem_s;
-        int mem_precision = getHumanSize(&mem_size, mem_s);
-        std::stringstream size;
-        size << std::fixed << std::setprecision(file_precision) << file_size << " " << file_s;
-        size << " | mem: " << std::setprecision(mem_precision) << mem_size << " " << mem_s;
-
-        std::stringstream formated;
+        char idx_img[20] = { 0 };
         if(p->files_count > 1)
         {
-            formated << (p->index + 1) << " out " << p->files_count << " | ";
+            snprintf(idx_img, sizeof(idx_img), "%d out %d | ", p->index + 1, p->files_count);
         }
-        formated << name;
+
+        char sub_image[20] = { 0 };
         if(p->sub_count > 1)
         {
-            formated << " | " << (p->sub_image + 1) << " (" << p->sub_count << ")";
+            snprintf(sub_image, sizeof(sub_image), " %d (%d)", p->sub_image + 1, p->sub_count);
         }
-        formated << " | " << dim.str() << " | " << size.str();
 
-        m_bottominfo = formated.str();
+        float file_size = p->file_size;
+        std::string file_s = getHumanSize(file_size);
+        float mem_size = p->mem_size;
+        std::string mem_s = getHumanSize(mem_size);
 
-        // set window title
-        if(p->files_count > 1)
-        {
-            title << (p->index + 1) << " out " << p->files_count << " - " << name << " - " << DEF_TITLE;
-        }
-        else
-        {
-            title << name << " - " << DEF_TITLE;
-        }
+        char title[1000] = { 0 };
+        snprintf(title, sizeof(title), "%s%s%s | %d x %d x %d bpp (%d%%) | mem: %.1f %s (%.1f %s)"
+                , idx_img
+                , name
+                , sub_image
+                , p->width, p->height, p->bpp, (int)(100.0f * p->scale)
+                , file_size, file_s.c_str()
+                , mem_size, mem_s.c_str());
+
+        m_bottominfo = title;
+
+        glutSetWindowTitle(name);
     }
     else
     {
-        m_bottominfo = "";
-        title << DEF_TITLE;
+        glutSetWindowTitle("");
     }
 
     m_ft->Update(m_bottominfo.c_str());
-
-    glutSetWindowTitle(title.str().c_str());
 }
 
-int CInfoBar::getHumanSize(long* size, std::string& suffix)
+const char* CInfoBar::getHumanSize(float& size)
 {
-    const char* s[] = { "B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB" };
-    int i = 0;
-    float file_size = *size;
-    while(file_size > 1024)
+    static const char* s[] = { "B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB" };
+    int idx = 0;
+    for( ; size > 1024.0f; size /= 1024.0f)
     {
-        file_size /= 1024;
-        i++;
+        idx++;
     }
 
-    *size = (long)file_size;
-    suffix = s[i];
-    return i;
+    return s[idx];
 }
 

@@ -47,7 +47,7 @@ private:
     std::auto_ptr<CFTString> m_ft;
 
 private:
-    int getHumanSize(long* size, std::string& suffix);
+    const char* getHumanSize(float& size);
 };
 
 #endif // INFOBAR_H
