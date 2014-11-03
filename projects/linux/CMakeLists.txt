@@ -65,18 +65,18 @@ ADD_EXECUTABLE(../sviewgl
     ../src/infobar.cpp
     ../src/progress.cpp
     ../src/selection.cpp
-    ../src/formats/formatcommon.cpp
-    ../src/formats/formatico.cpp
-    ../src/formats/formatpsd.cpp
     ../src/formats/format.cpp
-    ../src/formats/formatjpeg.cpp
-    ../src/formats/formattiff.cpp
-    ../src/formats/formatxwd.cpp
-    #../src/formats/formatsvg.cpp
+    ../src/formats/formatcommon.cpp
     ../src/formats/formatdds.cpp
     ../src/formats/formatgif.cpp
+    ../src/formats/formatico.cpp
+    ../src/formats/formatjpeg.cpp
     ../src/formats/formatpng.cpp
+    ../src/formats/formatppm.cpp
+    ../src/formats/formatpsd.cpp
     ../src/formats/formatraw.cpp
+    ../src/formats/formattiff.cpp
+    ../src/formats/formatxwd.cpp
     ../src/formats/rle.cpp
     ../src/math/vector.cpp
     )

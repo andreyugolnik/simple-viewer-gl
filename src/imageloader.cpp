@@ -16,6 +16,7 @@
 #include "formats/formatxwd.h"
 #include "formats/formatdds.h"
 #include "formats/formatraw.h"
+#include "formats/formatppm.h"
 #include <iostream>
 #include <algorithm>
 
@@ -34,6 +35,7 @@ CImageLoader::CImageLoader(Callback _callback)
     m_format_xwd.reset(new CFormatXwd(_callback, 0, "XWD"));
     m_format_dds.reset(new CFormatDds(_callback, 0, "DDS"));
     m_format_raw.reset(new cFormatRaw(_callback, 0, "RAW"));
+    m_format_ppm.reset(new cFormatPpm(_callback, 0, "PPM"));
 }
 
 CImageLoader::~CImageLoader()
@@ -86,6 +88,9 @@ bool CImageLoader::LoadImage(const char* path, unsigned subImage)
             break;
         case FORMAT_RAW:
             m_image = m_format_raw.get();
+            break;
+        case FORMAT_PPM:
+            m_image = m_format_ppm.get();
             break;
         default: //FORMAT_COMMON:
 #if defined(IMLIB2_SUPPORT)
@@ -241,6 +246,7 @@ unsigned CImageLoader::getFormat()
         { ".xwd",  FORMAT_XWD  },
         { ".dds",  FORMAT_DDS  },
         { ".raw",  FORMAT_RAW  },
+        { ".ppm",  FORMAT_PPM  },
     };
 
     for(size_t i = 0; i < sizeof(format) / sizeof(FORMAT); i++)
