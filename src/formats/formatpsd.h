@@ -54,7 +54,7 @@ private:
     uint8_t* m_chBufs[MAX_CHANNELS];
 
 private:
-    bool skipNextBlock();
+    bool skipNextBlock(cFile& file);
     void decompressLine(const uint8_t* src, uint32_t line_length, uint8_t* dest);
     void cleanup();
 };

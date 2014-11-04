@@ -75,6 +75,8 @@ namespace FORMAT_ICO
     } PngRaw;
 };
 
+class cFile;
+
 class CFormatIco : public CFormat
 {
 public:
@@ -87,9 +89,9 @@ private:
     static FORMAT_ICO::PngRaw m_pngRaw;
 
 private:
-    bool loadOrdinaryFrame(const FORMAT_ICO::IcoDirentry* image);
+    bool loadOrdinaryFrame(cFile& file, const FORMAT_ICO::IcoDirentry* image);
     static void readPngData(png_structp png, png_bytep out, png_size_t count);
-    bool loadPngFrame(const FORMAT_ICO::IcoDirentry* image);
+    bool loadPngFrame(cFile& file, const FORMAT_ICO::IcoDirentry* image);
     int calcIcoPitch();
     int getBit(const uint8_t* data, int bit);
     int getNibble(const uint8_t* data, int nibble);

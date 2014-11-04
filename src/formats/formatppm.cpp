@@ -20,16 +20,20 @@ cFormatPpm::~cFormatPpm()
 
 bool cFormatPpm::Load(const char* filename, unsigned /*subImage*/)
 {
-    if(openFile(filename) == false)
+    cFile file;
+    if(!file.open(filename))
     {
         return false;
     }
 
+    m_size = file.getSize();
+
+    bool result = false;
     char* line = 0;
     size_t len = 0;
     ssize_t read;
     int format = 0;
-    while((read = getline(&line, &len, m_file)) != -1)
+    while((read = getline(&line, &len, file.getHandle())) != -1)
     {
         if(read == 3 && line[0] == 'P')
         {
@@ -47,7 +51,7 @@ bool cFormatPpm::Load(const char* filename, unsigned /*subImage*/)
             m_width = w;
             m_height = h;
 
-            if(getline(&line, &len, m_file) != -1)
+            if(getline(&line, &len, file.getHandle()) != -1)
             {
                 int max_val;
                 sscanf(line, "%d\n", &max_val);
@@ -56,24 +60,24 @@ bool cFormatPpm::Load(const char* filename, unsigned /*subImage*/)
             switch(format)
             {
             case 1: // 1-ascii
-                readAscii(w, h, 1);
+                result = readAscii1(file, w, h);
                 break;
             case 4: // 1-raw
-                readRaw(w, h, 1);
+                result = readRaw1(file, w, h);
                 break;
 
             case 2: // 8-ascii
-                readAscii(w, h, 8);
+                result = readAscii8(file, w, h);
                 break;
             case 5: // 8-raw
-                readRaw(w, h, 8);
+                result = readRaw8(file, w, h);
                 break;
 
             case 3: // 24-ascii
-                readAscii(w, h, 24);
+                result = readAscii24(file, w, h);
                 break;
             case 6: // 24-raw
-                readRaw(w, h, 24);
+                result = readRaw24(file, w, h);
                 break;
             }
 
@@ -82,11 +86,32 @@ bool cFormatPpm::Load(const char* filename, unsigned /*subImage*/)
     }
     free(line);
 
-    return true;
+    return result;
 }
 
-bool cFormatPpm::readAscii(int w, int h, int bpp)
+bool cFormatPpm::readAscii1(cFile& file, int w, int h)
 {
+    return false;
+}
+
+bool cFormatPpm::readRaw1(cFile& file, int w, int h)
+{
+    return false;
+}
+
+bool cFormatPpm::readAscii8(cFile& file, int w, int h)
+{
+    return false;
+}
+
+bool cFormatPpm::readRaw8(cFile& file, int w, int h)
+{
+    return false;
+}
+
+bool cFormatPpm::readAscii24(cFile& file, int w, int h)
+{
+    const int bpp = 24;
     m_bpp = m_bppImage = bpp;
     m_pitch = w * bpp / 8;
     const size_t components = h * m_pitch;
@@ -95,7 +120,7 @@ bool cFormatPpm::readAscii(int w, int h, int bpp)
     size_t idx = 0;
     char* line = 0;
     size_t len = 0;
-    while(getline(&line, &len, m_file) != -1)
+    while(getline(&line, &len, file.getHandle()) != -1)
     {
         const int val = atoi(line);
         m_bitmap[idx++] = val;
@@ -103,13 +128,14 @@ bool cFormatPpm::readAscii(int w, int h, int bpp)
     return idx == m_bitmap.size();
 }
 
-bool cFormatPpm::readRaw(int w, int h, int bpp)
+bool cFormatPpm::readRaw24(cFile& file, int w, int h)
 {
+    const int bpp = 24;
     m_bpp = m_bppImage = bpp;
     m_pitch = w * bpp / 8;
     const size_t components = h * m_pitch;
     m_bitmap.resize(components);
 
-    return components == fread(&m_bitmap[0], 1, components, m_file);
+    return components == file.read(&m_bitmap[0], components);
 }
 

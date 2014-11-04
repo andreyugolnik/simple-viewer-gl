@@ -32,10 +32,7 @@ public:
 
     virtual ~cFile()
     {
-        if(m_file)
-        {
-            fclose(m_file);
-        }
+        close();
     }
 
     bool open(const char* path, const char* mode = "rb")
@@ -54,6 +51,20 @@ public:
 
         printf("Can't open \"%s\".", path);
         return false;
+    }
+
+    void close()
+    {
+        if(m_file)
+        {
+            fclose(m_file);
+            m_file = 0;
+        }
+    }
+
+    int seek(long offset, int whence)
+    {
+        return fseek(m_file, offset, whence);
     }
 
     size_t read(void* ptr, size_t size)
@@ -78,6 +89,8 @@ public:
 
     long getSize() const { return m_size; }
 
+    FILE* getHandle() const { return m_file; }
+
 private:
     FILE* m_file;
     long m_size;
@@ -92,7 +105,7 @@ class CFormat
     friend class CImageLoader;
 
 public:
-    CFormat(Callback callback, const char* _lib, const char* _name);
+    CFormat(Callback callback, const char* lib, const char* name);
     virtual ~CFormat();
 
     virtual bool Load(const char* filename, unsigned subImage = 0) = 0;
@@ -104,7 +117,6 @@ private:
 
 protected:
     void* m_lib;
-    FILE* m_file;
     std::vector<unsigned char> m_bitmap;
     GLenum m_format;
     unsigned m_width, m_height, m_pitch; // width, height, row pitch of image in buffer
@@ -116,7 +128,6 @@ protected:
     std::string m_info;                  // additional info, such as EXIF
 
 protected:
-    bool openFile(const char* path);
     void progress(int percent);
     void reset();
     uint16_t read_uint16(uint8_t* p);

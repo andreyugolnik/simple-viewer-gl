@@ -38,12 +38,15 @@ void my_error_exit(j_common_ptr cinfo)
     longjmp(myerr->setjmp_buffer, 1);
 }
 
-bool CFormatJpeg::Load(const char* filename, unsigned subImage)
+bool CFormatJpeg::Load(const char* filename, unsigned /*subImage*/)
 {
-    if(openFile(filename) == false)
+    cFile file;
+    if(!file.open(filename))
     {
         return false;
     }
+
+    m_size = file.getSize();
 
     // Step 1: allocate and initialize JPEG decompression object
 
@@ -74,7 +77,7 @@ bool CFormatJpeg::Load(const char* filename, unsigned subImage)
 
     // Step 2: specify data source (eg, a file)
 
-    jpeg_stdio_src(&cinfo, m_file);
+    jpeg_stdio_src(&cinfo, file.getHandle());
 
     // Step 3: read file parameters with jpeg_read_header()
 
@@ -130,7 +133,6 @@ bool CFormatJpeg::Load(const char* filename, unsigned subImage)
      * so as to simplify the setjmp error logic above.  (Actually, I don't
      * think that jpeg_destroy can do an error exit, but why assume anything...)
      */
-    fclose(m_file);
 
     /* At this point you may want to check to see whether any corrupt-data
      * warnings occurred (test whether jerr.pub.num_warnings is nonzero).

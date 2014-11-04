@@ -19,8 +19,14 @@ public:
     virtual bool Load(const char* filename, unsigned subImage = 0);
 
 private:
-    bool readAscii(int w, int h, int bpp);
-    bool readRaw(int w, int h, int bpp);
+    bool readAscii1(cFile& file, int w, int h);
+    bool readRaw1(cFile& file, int w, int h);
+
+    bool readAscii8(cFile& file, int w, int h);
+    bool readRaw8(cFile& file, int w, int h);
+
+    bool readAscii24(cFile& file, int w, int h);
+    bool readRaw24(cFile& file, int w, int h);
 };
 
 #endif /* end of include guard: FORMATPPM_H_4GX8MCRJ */

@@ -23,25 +23,26 @@ CFormatPsd::~CFormatPsd()
 {
 }
 
-bool CFormatPsd::Load(const char* filename, unsigned subImage)
+bool CFormatPsd::Load(const char* filename, unsigned /*subImage*/)
 {
-    if(openFile(filename) == false)
+    cFile file;
+    if(!file.open(filename))
     {
         return false;
     }
 
+    m_size = file.getSize();
+
     PSD_HEADER header;
-    if(sizeof(PSD_HEADER) != fread(&header, 1, sizeof(PSD_HEADER), m_file))
+    if(sizeof(PSD_HEADER) != file.read(&header, sizeof(PSD_HEADER)))
     {
         std::cout << "Can't read PSD header" << std::endl;
-        reset();
         return false;
     }
 
     if(header.signature[0] != '8' || header.signature[1] != 'B' || header.signature[2] != 'P' || header.signature[3] != 'S')
     {
         std::cout << "Not valid PSD file" << std::endl;
-        reset();
         return false;
     }
 
@@ -49,7 +50,6 @@ bool CFormatPsd::Load(const char* filename, unsigned subImage)
     if(color_mode != PSD_MODE_RGB && color_mode != PSD_MODE_CMYK)
     {
         std::cout << "Unsupported color mode: " << color_mode << std::endl;
-        reset();
         return false;
     }
 
@@ -57,7 +57,6 @@ bool CFormatPsd::Load(const char* filename, unsigned subImage)
     if(depth != 8)
     {
         std::cout << "Unsupported depth: " << depth << std::endl;
-        reset();
         return false;
     }
 
@@ -65,42 +64,37 @@ bool CFormatPsd::Load(const char* filename, unsigned subImage)
     if(channels != 3 && channels != 4)
     {
         std::cout << "Unsupported cannels count: " << channels << std::endl;
-        //reset();
         //return false;
     }
     const unsigned extraChannels = channels - std::min<unsigned>(channels, 4);
     std::cout << " " << extraChannels << " extra channel(s),";
 
     // skip Color Mode Data Block
-    if(false == skipNextBlock())
+    if(false == skipNextBlock(file))
     {
         std::cout << "Can't read Color Mode Data Block" << std::endl;
-        reset();
         return false;
     }
 
     // skip Image Resources Block
-    if(false == skipNextBlock())
+    if(false == skipNextBlock(file))
     {
         std::cout << "Can't read Image Resources Block" << std::endl;
-        reset();
         return false;
     }
 
     // Layer and Mask Information Block
-    if(false == skipNextBlock())
+    if(false == skipNextBlock(file))
     {
         std::cout << "Can't read Layer and Mask Information Block" << std::endl;
-        reset();
         return false;
     }
 
     // Image Data Block
     uint16_t compression;
-    if(sizeof(uint16_t) != fread(&compression, 1, sizeof(uint16_t), m_file))
+    if(sizeof(uint16_t) != file.read(&compression, sizeof(uint16_t)))
     {
         std::cout << "Can't read compression info" << std::endl;
-        reset();
         return false;
     }
     compression = read_uint16((uint8_t*)&compression);
@@ -114,7 +108,7 @@ bool CFormatPsd::Load(const char* filename, unsigned subImage)
     {
         const unsigned pos = m_height * i;
 
-        if(m_height * sizeof(uint16_t) != fread(&m_linesLengths[pos], 1, m_height * sizeof(uint16_t), m_file))
+        if(m_height * sizeof(uint16_t) != file.read(&m_linesLengths[pos], m_height * sizeof(uint16_t)))
         {
             std::cout << "Can't read length of lines" << std::endl;
             cleanup();
@@ -158,7 +152,7 @@ bool CFormatPsd::Load(const char* filename, unsigned subImage)
             lineLength = m_linesLengths[currentChannel * m_height + currentRow];
         }
 
-        unsigned readed = fread(m_buffer, 1, lineLength, m_file);
+        size_t readed = file.read(m_buffer, lineLength);
         if(m_width * 2 < lineLength)
         {
             std::cout << "Wrong line length: " << lineLength << std::endl;
@@ -263,16 +257,15 @@ bool CFormatPsd::Load(const char* filename, unsigned subImage)
     return true;
 }
 
-bool CFormatPsd::skipNextBlock()
+bool CFormatPsd::skipNextBlock(cFile& file)
 {
     uint32_t size;
-    if(sizeof(uint32_t) != fread(&size, 1, sizeof(uint32_t), m_file))
+    if(sizeof(uint32_t) != file.read(&size, sizeof(uint32_t)))
     {
         return false;
     }
     size = read_uint32((uint8_t*)&size);
-    //	std::cout << size << " bytes skipped" << std::endl;
-    fseek(m_file, size, SEEK_CUR);
+    //std::cout << size << " bytes skipped" << std::endl;
 
     return true;
 }
@@ -327,11 +320,6 @@ void CFormatPsd::cleanup()
     {
         delete[] m_chBufs[i];
         m_chBufs[i] = 0;
-    }
-    if(m_file != 0)
-    {
-        fclose(m_file);
-        m_file = 0;
     }
 }
 

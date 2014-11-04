@@ -25,15 +25,18 @@ CFormatPng::~CFormatPng()
 {
 }
 
-bool CFormatPng::Load(const char* filename, unsigned subImage)
+bool CFormatPng::Load(const char* filename, unsigned /*subImage*/)
 {
-    if(openFile(filename) == false)
+    cFile file;
+    if(!file.open(filename))
     {
         return false;
     }
 
+    m_size = file.getSize();
+
     png_byte header[8];	// 8 is the maximum size that can be checked
-    size_t size	= fread(header, 1, 8, m_file);
+    size_t size = file.read(header, 8);
     if(size != 8 || png_sig_cmp(header, 0, 8) != 0)
     {
         std::cout << "File " << filename << " is not recognized as a PNG file" << std::endl;
@@ -65,7 +68,7 @@ bool CFormatPng::Load(const char* filename, unsigned subImage)
         return false;
     }
 
-    png_init_io(png, m_file);
+    png_init_io(png, file.getHandle());
     png_set_sig_bytes(png, 8);
 
     png_read_info(png, info);
@@ -173,8 +176,6 @@ bool CFormatPng::Load(const char* filename, unsigned subImage)
     delete[] row_pointers;
 
     png_destroy_read_struct(&png, &info, NULL);
-
-    fclose(m_file);
 
     return true;
 }

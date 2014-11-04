@@ -11,5 +11,5 @@ osx:
 
 clean:
 	rm -fr $(BUILD_DIR)
-	rm sviewgl
+	rm -fr sviewgl
 

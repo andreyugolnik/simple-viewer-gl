@@ -1,11 +1,13 @@
-////////////////////////////////////////////////
-//
-// Andrey A. Ugolnik
-// 'WE' Group
-// http://www.ugolnik.info
-// andrey@ugolnik.info
-//
-////////////////////////////////////////////////
+/**********************************************\
+*
+*  Andrey A. Ugolnik
+*  Tiny Orange
+*  http://www.tinyorange.com
+*  andrey@ugolnik.info
+*
+*  created: 21.09.2012
+*
+\**********************************************/
 
 #ifndef FORMATXWD_H
 #define FORMATXWD_H
@@ -55,10 +57,10 @@ typedef struct _X11ColorMap
 class CFormatXwd : public CFormat
 {
 public:
-	CFormatXwd(Callback callback, const char* _lib, const char* _name);
-	virtual ~CFormatXwd();
+    CFormatXwd(Callback callback, const char* lib, const char* name);
+    virtual ~CFormatXwd();
 
-	virtual bool Load(const char* filename, unsigned subImage = 0);
+    virtual bool Load(const char* filename, unsigned subImage = 0);
 
 private:
 };

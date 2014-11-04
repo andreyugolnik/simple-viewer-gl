@@ -20,41 +20,44 @@ CFormatGif::~CFormatGif()
 
 bool CFormatGif::Load(const char* filename, unsigned subImage)
 {
-    if(openFile(filename) == false)
+    cFile file;
+    if(!file.open(filename))
     {
         return false;
     }
-    fclose(m_file);
 
-    GifFileType* file = DGifOpenFileName(filename);
-    if(file == 0)
+    m_size = file.getSize();
+    file.close();
+
+    GifFileType* gif_file = DGifOpenFileName(filename);
+    if(gif_file == 0)
     {
         std::cout << "Error Opening GIF image" << std::endl;
         return false;
     }
 
-    int res = DGifSlurp(file);
-    if(res != GIF_OK || file->ImageCount < 1)
+    int res = DGifSlurp(gif_file);
+    if(res != GIF_OK || gif_file->ImageCount < 1)
     {
         std::cout << "Error Opening GIF image" << std::endl;
-        DGifCloseFile(file);
+        DGifCloseFile(gif_file);
         return false;
     }
 
     m_subImage = std::max<unsigned>(subImage, 0);
-    m_subImage = std::min<unsigned>(m_subImage, file->ImageCount - 1);
-    m_subCount = file->ImageCount;
+    m_subImage = std::min<unsigned>(m_subImage, gif_file->ImageCount - 1);
+    m_subCount = gif_file->ImageCount;
 
-    const SavedImage* image = &file->SavedImages[m_subImage];
+    const SavedImage* image = &gif_file->SavedImages[m_subImage];
 
     // place next frame abov previous
     if(!m_subImage || m_bitmap.empty())
     {
-        m_width = file->SWidth;
-        m_height = file->SHeight;
-        m_pitch = file->SWidth * 4;
+        m_width = gif_file->SWidth;
+        m_height = gif_file->SHeight;
+        m_pitch = gif_file->SWidth * 4;
         m_bpp = 32;
-        m_bppImage = 8;//file->Image.ColorMap->BitsPerPixel;
+        m_bppImage = 8;//gif_file->Image.ColorMap->BitsPerPixel;
         m_bitmap.resize(m_pitch * m_height);
         memset(&m_bitmap[0], 0, m_bitmap.size());
         m_format = GL_RGBA;
@@ -78,12 +81,12 @@ bool CFormatGif::Load(const char* filename, unsigned subImage)
     const ColorMapObject* cmap = image->ImageDesc.ColorMap;
     if(cmap == 0)
     {
-        cmap = file->SColorMap;
+        cmap = gif_file->SColorMap;
     }
     //if(cmap->ColorCount != (1 << cmap->BitsPerPixel))
     //{
         //std::cout << "Invalid ColorMap" << std::endl;
-        //DGifCloseFile(file);
+        //DGifCloseFile(gif_file);
         //return false;
     //}
     const int width = image->ImageDesc.Width;
@@ -136,15 +139,15 @@ bool CFormatGif::Load(const char* filename, unsigned subImage)
     // ExtensionRecordType		- next record is extension block.
     // TerminateRecordType		- last record reached, can close the file.
     //	GifRecordType recordType;
-    //	if(GIF_ERROR == DGifGetRecordType(file, &recordType)) {
-    //		DGifCloseFile(file);
+    //	if(GIF_ERROR == DGifGetRecordType(gif_file, &recordType)) {
+    //		DGifCloseFile(gif_file);
     //		std::cout << "Error Opening GIF image" << std::endl;
     //		return false;
     //	}
     //
     //	std::cout << "Record Type" << (int)recordType << std::endl;
 
-    DGifCloseFile(file);
+    DGifCloseFile(gif_file);
 
     return true;
 }

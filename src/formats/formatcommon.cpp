@@ -8,7 +8,6 @@
 #if defined(IMLIB2_SUPPORT)
 
 #include "formatcommon.h"
-#include <iostream>
 #include <string.h>
 
 CFormatCommon* g_this = 0;
@@ -26,22 +25,52 @@ CFormatCommon::~CFormatCommon()
 {
 }
 
+static const char* toErrorString(int id)
+{
+    static const char* errors[] =
+    {
+        "none",
+        "file_does_not_exist",
+        "file_is_directory",
+        "permission_denied_to_read",
+        "no_loader_for_file_format",
+        "path_too_long",
+        "path_component_non_existant",
+        "path_component_not_directory",
+        "path_points_outside_address_space",
+        "too_many_symbolic_links",
+        "out_of_memory",
+        "out_of_file_descriptors",
+        "permission_denied_to_write",
+        "out_of_disk_space",
+        "unknow"
+    };
+
+    if(id >= 0 && id < sizeof(errors) / sizeof(errors[0]))
+    {
+        return errors[id];
+    }
+    return "";
+}
+
 bool CFormatCommon::Load(const char* filename, unsigned /*subImage*/)
 {
-    if(openFile(filename) == false)
+    cFile file;
+    if(!file.open(filename))
     {
         return false;
     }
-    fclose(m_file);
-    m_file = 0;
+
+    m_size = file.getSize();
 
     // try to load image from disk
     Imlib_Load_Error error_return;
     m_image = imlib_load_image_with_error_return(filename, &error_return);
     if(m_image == 0)
     {
-        std::cout << ": error loading file '" << filename << "' (" << error_return << ")" << std::endl;
-        reset();
+        printf(": error loading file '%s' (error %s)"
+                , filename
+                , toErrorString(error_return));
         return false;
     }
 
@@ -72,7 +101,7 @@ void CFormatCommon::FreeMemory()
     CFormat::FreeMemory();
 }
 
-int CFormatCommon::callbackProgress(void* p, char percent, int a, int b, int c, int d)
+int CFormatCommon::callbackProgress(void* /*p*/, char percent, int /*a*/, int /*b*/, int /*c*/, int /*d*/)
 {
     g_this->progress(percent);
     return 1;

@@ -288,7 +288,7 @@ CFormatDds::~CFormatDds()
 {
 }
 
-bool CFormatDds::Load(const char* filename, unsigned subImage)
+bool CFormatDds::Load(const char* filename, unsigned /*subImage*/)
 {
     cFile file;
     if(!file.open(filename))

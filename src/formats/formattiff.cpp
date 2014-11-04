@@ -20,13 +20,17 @@ CFormatTiff::~CFormatTiff()
 
 bool CFormatTiff::Load(const char* filename, unsigned subImage)
 {
-    if(openFile(filename) == false)
+    cFile file;
+    if(!file.open(filename))
     {
         return false;
     }
-    fclose(m_file);
 
-    bool ret = false;
+    m_size = file.getSize();
+
+    file.close();
+
+    bool result = false;
 
     TIFF* tif = TIFFOpen(filename, "r");
     if(tif != 0)
@@ -54,7 +58,7 @@ bool CFormatTiff::Load(const char* filename, unsigned subImage)
 
                 if(TIFFRGBAImageGet(&img, (uint32*)&m_bitmap[0], m_width, m_height) != 0)
                 {
-                    ret = true;
+                    result = true;
                 }
                 TIFFRGBAImageEnd(&img);
             }
@@ -66,12 +70,6 @@ bool CFormatTiff::Load(const char* filename, unsigned subImage)
         TIFFClose(tif);
     }
 
-    // clean if error
-    if(ret == false)
-    {
-        reset();
-    }
-
-    return ret;
+    return result;
 }
 

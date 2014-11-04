@@ -23,7 +23,7 @@ public:
     virtual ~cFormatRaw();
 
     virtual bool Load(const char* filename, unsigned subImage);
-    virtual bool IsValidFormat(const char* name);
+    virtual bool isRawFormat(const char* name);
 
 private:
     struct sHeader

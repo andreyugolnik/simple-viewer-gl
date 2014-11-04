@@ -11,7 +11,6 @@ CFormat::CFormat(Callback callback, const char* lib, const char* name)
     : m_callback(callback)
     , m_percent(-1)
     , m_lib(0)
-    , m_file(0)
     , m_format(GL_RGB)
     , m_width(0)
     , m_height(0)
@@ -57,22 +56,6 @@ void CFormat::FreeMemory()
     m_bitmap.clear();
 }
 
-bool CFormat::openFile(const char* path)
-{
-    m_file = fopen(path, "rb");
-    if(!m_file)
-    {
-        std::cout << "Can't open \"" << path << "\"." << std::endl;
-        return false;
-    }
-
-    fseek(m_file, 0, SEEK_END);
-    m_size = ftell(m_file);
-    fseek(m_file, 0, SEEK_SET);
-
-    return true;
-}
-
 void CFormat::progress(int percent)
 {
     if(m_callback)
@@ -87,12 +70,6 @@ void CFormat::progress(int percent)
 
 void CFormat::reset()
 {
-    if(m_file != 0)
-    {
-        fclose(m_file);
-        m_file = 0;
-    }
-
     m_format   = GL_RGB;
     m_width    = 0;
     m_height   = 0;

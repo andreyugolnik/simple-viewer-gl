@@ -101,6 +101,7 @@ bool CImageLoader::LoadImage(const char* path, unsigned subImage)
             break;
         }
 
+        m_image->reset();
         return m_image->Load(path, subImage);
     }
 
@@ -217,7 +218,7 @@ unsigned CImageLoader::GetSubCount() const
 
 unsigned CImageLoader::getFormat()
 {
-    if(m_format_raw->IsValidFormat(m_path.c_str()))
+    if(m_format_raw->isRawFormat(m_path.c_str()))
     {
         return FORMAT_RAW;
     }

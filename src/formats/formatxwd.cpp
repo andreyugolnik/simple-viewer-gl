@@ -1,21 +1,19 @@
-////////////////////////////////////////////////
-//
-// Andrey A. Ugolnik
-// 'WE' Group
-// http://www.ugolnik.info
-// andrey@ugolnik.info
-//
-// date: 21.09.2012-Aug-2011
-// changed: 21.09.2012-Aug-2011
-// version: 0.0.0.10
-//
-////////////////////////////////////////////////
+/**********************************************\
+*
+*  Andrey A. Ugolnik
+*  Tiny Orange
+*  http://www.tinyorange.com
+*  andrey@ugolnik.info
+*
+*  created: 21.09.2012
+*
+\**********************************************/
 
 #include "formatxwd.h"
 #include <string.h>
 
-CFormatXwd::CFormatXwd(Callback callback, const char* _lib, const char* _name)
-    : CFormat(callback, _lib, _name)
+CFormatXwd::CFormatXwd(Callback callback, const char* lib, const char* name)
+    : CFormat(callback, lib, name)
 {
 }
 
@@ -23,32 +21,33 @@ CFormatXwd::~CFormatXwd()
 {
 }
 
-bool CFormatXwd::Load(const char* filename, unsigned subImage)
+bool CFormatXwd::Load(const char* filename, unsigned /*subImage*/)
 {
-    if(openFile(filename) == false)
+    cFile file;
+    if(!file.open(filename))
     {
         return false;
     }
 
-	X11WINDOWDUMP header;
+    m_size = file.getSize();
 
-	if(sizeof(header) != fread(&header, 1, sizeof(header), m_file))
-	{
-		std::cout << "Can't read XWD header" << std::endl;
-		reset();
-		return false;
-	}
+    X11WINDOWDUMP header;
+
+    if(sizeof(header) != file.read(&header, sizeof(header)))
+    {
+        std::cout << "Can't read XWD header" << std::endl;
+        return false;
+    }
 
     swap_long((uint8_t*)&header, sizeof(header));
 
     X11COLORMAP* colors = new X11COLORMAP[header.ColorMapEntries];
     std::cout << "Colormap size: " << header.ColorMapEntries << std::endl;
-    if(header.ColorMapEntries != fread(colors, sizeof(X11COLORMAP), header.ColorMapEntries, m_file))
+    if(sizeof(X11COLORMAP) * header.ColorMapEntries != file.read(colors, sizeof(X11COLORMAP) * header.ColorMapEntries))
     {
         delete[] colors;
-		std::cout << "Can't read colormap" << std::endl;
-		reset();
-		return false;
+        std::cout << "Can't read colormap" << std::endl;
+        return false;
     }
 
     m_width		= header.PixmapWidth;
@@ -70,8 +69,6 @@ bool CFormatXwd::Load(const char* filename, unsigned subImage)
     //}
 
     delete[] colors;
-
-    fclose(m_file);
 
     return true;
 }

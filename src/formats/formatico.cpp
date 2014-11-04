@@ -22,23 +22,24 @@ CFormatIco::~CFormatIco()
 
 bool CFormatIco::Load(const char* filename, unsigned subImage)
 {
-    if(openFile(filename) == false)
+    cFile file;
+    if(!file.open(filename))
     {
         return false;
     }
 
+    m_size = file.getSize();
+
     IcoHeader header;
-    if(1 != fread(&header, sizeof(IcoHeader), 1, m_file))
+    if(sizeof(header) != file.read(&header, sizeof(header)))
     {
-        reset();
         return false;
     }
 
     IcoDirentry* images	= new IcoDirentry[header.count];
-    if(header.count != fread(images, sizeof(IcoDirentry), header.count, m_file))
+    if(sizeof(IcoDirentry) * header.count != file.read(images, sizeof(IcoDirentry) * header.count))
     {
         delete[] images;
-        reset();
         return false;
     }
 
@@ -59,23 +60,14 @@ bool CFormatIco::Load(const char* filename, unsigned subImage)
 
     if(image->colors == 0 && image->width == 0 && image->height == 0)
     {
-        ret = loadPngFrame(image);
+        ret = loadPngFrame(file, image);
     }
     else
     {
-        ret = loadOrdinaryFrame(image);
+        ret = loadOrdinaryFrame(file, image);
     }
 
     delete[] images;
-
-    if(ret == false)
-    {
-        reset();
-    }
-    else
-    {
-        fclose(m_file);
-    }
 
     // store frame number and frames count after reset again
     m_subImage = subImage;
@@ -86,7 +78,7 @@ bool CFormatIco::Load(const char* filename, unsigned subImage)
 
 // load frame in png format
 PngRaw CFormatIco::m_pngRaw;
-void CFormatIco::readPngData(png_structp png, png_bytep out, png_size_t count)
+void CFormatIco::readPngData(png_structp /*png*/, png_bytep out, png_size_t count)
 {
     // PngRaw& pngRaw	= *(PngRaw*)png->io_ptr;
     if(m_pngRaw.pos + count <= m_pngRaw.size)
@@ -96,12 +88,12 @@ void CFormatIco::readPngData(png_structp png, png_bytep out, png_size_t count)
     m_pngRaw.pos += count;
 }
 
-bool CFormatIco::loadPngFrame(const IcoDirentry* image)
+bool CFormatIco::loadPngFrame(cFile& file, const IcoDirentry* image)
 {
     uint8_t* p = new uint8_t[image->size];
 
-    fseek(m_file, image->offset, SEEK_SET);
-    if(1 != fread(p, image->size, 1, m_file))
+    file.seek(image->offset, SEEK_SET);
+    if(image->size != file.read(p, image->size))
     {
         delete[] p;
         return false;
@@ -123,7 +115,6 @@ bool CFormatIco::loadPngFrame(const IcoDirentry* image)
         return false;
     }
 
-    //	PngRaw pngRaw	= { p, image->size, 8 };
     m_pngRaw.data = p;
     m_pngRaw.size = image->size;
     m_pngRaw.pos = 8;
@@ -144,7 +135,7 @@ bool CFormatIco::loadPngFrame(const IcoDirentry* image)
         return false;
     }
 
-    png_init_io(png, m_file);
+    png_init_io(png, file.getHandle());
     png_set_sig_bytes(png, 8);
 
     png_read_info(png, info);
@@ -266,11 +257,11 @@ bool CFormatIco::loadPngFrame(const IcoDirentry* image)
 }
 
 // load frame in ordinary format
-bool CFormatIco::loadOrdinaryFrame(const IcoDirentry* image)
+bool CFormatIco::loadOrdinaryFrame(cFile& file, const IcoDirentry* image)
 {
-    fseek(m_file, image->offset, SEEK_SET);
+    file.seek(image->offset, SEEK_SET);
     uint8_t* p = new uint8_t[image->size];
-    if(1 != fread(p, image->size, 1, m_file))
+    if(image->size != file.read(p, image->size))
     {
         delete[] p;
         reset();

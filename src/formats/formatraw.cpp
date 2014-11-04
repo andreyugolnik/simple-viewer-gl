@@ -38,22 +38,20 @@ cFormatRaw::~cFormatRaw()
 {
 }
 
-bool cFormatRaw::IsValidFormat(const char* name)
+bool cFormatRaw::isRawFormat(const char* name)
 {
-    if(openFile(name) == false)
+    cFile file;
+    if(file.open(name))
     {
-        return false;
+        sHeader header;
+        size_t size = file.read(&header, sizeof(header));
+        if(size == sizeof(header))
+        {
+            return isValidFormat(header);
+        }
     }
 
-    bool valid = false;
-    sHeader header;
-    size_t size = fread(&header, 1, sizeof(header), m_file);
-    if(size == sizeof(header))
-    {
-        valid = isValidFormat(header);
-    }
-    reset();
-    return valid;
+    return false;
 }
 
 bool cFormatRaw::isValidFormat(const sHeader& header)
@@ -66,15 +64,18 @@ bool cFormatRaw::isValidFormat(const sHeader& header)
     return false;
 }
 
-bool cFormatRaw::Load(const char* filename, unsigned subImage)
+bool cFormatRaw::Load(const char* filename, unsigned /*subImage*/)
 {
-    if(openFile(filename) == false)
+    cFile file;
+    if(!file.open(filename))
     {
         return false;
     }
 
+    m_size = file.getSize();
+
     sHeader header;
-    if(sizeof(header) != fread(&header, 1, sizeof(header), m_file))
+    if(sizeof(header) != file.read(&header, sizeof(header)))
     {
         std::cout << "not valid RAW format" << std::endl;
         reset();
@@ -124,7 +125,7 @@ bool cFormatRaw::Load(const char* filename, unsigned subImage)
     if(rle)
     {
         std::vector<unsigned char> rle(header.data_size);
-        if(header.data_size != fread(&rle[0], 1, header.data_size, m_file))
+        if(header.data_size != file.read(&rle[0], header.data_size))
         {
             reset();
             return false;
@@ -155,7 +156,7 @@ bool cFormatRaw::Load(const char* filename, unsigned subImage)
     {
         for(unsigned y = 0; y < m_height; y++)
         {
-            if(1 != fread(&m_bitmap[y * m_pitch], m_pitch, 1, m_file))
+            if(m_pitch != file.read(&m_bitmap[y * m_pitch], m_pitch))
             {
                 reset();
                 return false;
@@ -164,8 +165,6 @@ bool cFormatRaw::Load(const char* filename, unsigned subImage)
             progress(percent);
         }
     }
-
-    fclose(m_file);
 
     return true;
 }
