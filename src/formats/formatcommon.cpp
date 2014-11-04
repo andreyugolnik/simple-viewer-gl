@@ -25,7 +25,7 @@ CFormatCommon::~CFormatCommon()
 {
 }
 
-static const char* toErrorString(int id)
+static const char* toErrorString(unsigned id)
 {
     static const char* errors[] =
     {
@@ -46,11 +46,11 @@ static const char* toErrorString(int id)
         "unknow"
     };
 
-    if(id >= 0 && id < sizeof(errors) / sizeof(errors[0]))
+    if(id < sizeof(errors) / sizeof(errors[0]))
     {
         return errors[id];
     }
-    return "";
+    return "not listed";
 }
 
 bool CFormatCommon::Load(const char* filename, unsigned /*subImage*/)
