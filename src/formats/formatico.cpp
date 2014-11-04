@@ -56,15 +56,15 @@ bool CFormatIco::Load(const char* filename, unsigned subImage)
     //	std::cout << "size: " << (int)image->size << "." << std::endl;
     //	std::cout << "offset: " << (int)image->offset << "." << std::endl;
 
-    bool ret = false;
+    bool result = false;
 
     if(image->colors == 0 && image->width == 0 && image->height == 0)
     {
-        ret = loadPngFrame(file, image);
+        result = loadPngFrame(file, image);
     }
     else
     {
-        ret = loadOrdinaryFrame(file, image);
+        result = loadOrdinaryFrame(file, image);
     }
 
     delete[] images;
@@ -73,7 +73,7 @@ bool CFormatIco::Load(const char* filename, unsigned subImage)
     m_subImage = subImage;
     m_subCount = header.count;
 
-    return ret;
+    return result;
 }
 
 // load frame in png format
@@ -264,7 +264,6 @@ bool CFormatIco::loadOrdinaryFrame(cFile& file, const IcoDirentry* image)
     if(image->size != file.read(p, image->size))
     {
         delete[] p;
-        reset();
         return false;
     }
 
@@ -280,7 +279,6 @@ bool CFormatIco::loadOrdinaryFrame(cFile& file, const IcoDirentry* image)
     if(pitch == -1)
     {
         delete[] p;
-        reset();
         return false;
     }
 

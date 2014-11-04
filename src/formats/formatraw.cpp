@@ -78,13 +78,11 @@ bool cFormatRaw::Load(const char* filename, unsigned /*subImage*/)
     if(sizeof(header) != file.read(&header, sizeof(header)))
     {
         std::cout << "not valid RAW format" << std::endl;
-        reset();
         return false;
     }
 
     if(!isValidFormat(header))
     {
-        reset();
         return false;
     }
 
@@ -110,7 +108,6 @@ bool cFormatRaw::Load(const char* filename, unsigned /*subImage*/)
         break;
     default:
         std::cout << "unknown RAW format" << std::endl;
-        reset();
         return false;
     }
     m_bpp = m_bppImage = bytespp * 8;
@@ -127,7 +124,6 @@ bool cFormatRaw::Load(const char* filename, unsigned /*subImage*/)
         std::vector<unsigned char> rle(header.data_size);
         if(header.data_size != file.read(&rle[0], header.data_size))
         {
-            reset();
             return false;
         }
 
@@ -146,7 +142,6 @@ bool cFormatRaw::Load(const char* filename, unsigned /*subImage*/)
         if(!decoded)
         {
             std::cout << "error decode RLE" << std::endl;
-            reset();
             return false;
         }
 
@@ -158,7 +153,6 @@ bool cFormatRaw::Load(const char* filename, unsigned /*subImage*/)
         {
             if(m_pitch != file.read(&m_bitmap[y * m_pitch], m_pitch))
             {
-                reset();
                 return false;
             }
             int percent = (int)(100.0f * y / m_height);

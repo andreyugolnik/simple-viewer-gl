@@ -264,7 +264,7 @@ bool CFormatPsd::skipNextBlock(cFile& file)
     {
         return false;
     }
-    size = read_uint32((uint8_t*)&size);
+    //size = read_uint32((uint8_t*)&size);
     //std::cout << size << " bytes skipped" << std::endl;
 
     return true;

@@ -55,8 +55,12 @@ bool CImageLoader::LoadImage(const char* path, unsigned subImage)
         }
 
         m_path = path;
+        if(m_image)
+        {
+            m_image->reset();
+        }
 
-        int format = getFormat();
+        const int format = getFormat();
         switch(format)
         {
         case FORMAT_JPEG:
@@ -101,8 +105,12 @@ bool CImageLoader::LoadImage(const char* path, unsigned subImage)
             break;
         }
 
-        m_image->reset();
-        return m_image->Load(path, subImage);
+        const bool result = m_image->Load(path, subImage);
+        if(!result)
+        {
+            m_image->reset();
+        }
+        return result;
     }
 
     return false;

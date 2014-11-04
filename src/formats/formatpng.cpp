@@ -40,7 +40,6 @@ bool CFormatPng::Load(const char* filename, unsigned /*subImage*/)
     if(size != 8 || png_sig_cmp(header, 0, 8) != 0)
     {
         std::cout << "File " << filename << " is not recognized as a PNG file" << std::endl;
-        reset();
         return false;
     }
 
@@ -49,7 +48,6 @@ bool CFormatPng::Load(const char* filename, unsigned /*subImage*/)
     if(png == 0)
     {
         std::cout << "png_create_read_struct failed" << std::endl;
-        reset();
         return false;
     }
 
@@ -57,14 +55,12 @@ bool CFormatPng::Load(const char* filename, unsigned /*subImage*/)
     if(info == 0)
     {
         std::cout << "png_create_info_struct failed" << std::endl;
-        reset();
         return false;
     }
 
     if(setjmp(png_jmpbuf(png)) != 0)
     {
         std::cout << "Error during init_io" << std::endl;
-        reset();
         return false;
     }
 
@@ -107,7 +103,6 @@ bool CFormatPng::Load(const char* filename, unsigned /*subImage*/)
     if(setjmp(png_jmpbuf(png)) != 0)
     {
         std::cout << "Error during read_image" << std::endl;
-        reset();
         return false;
     }
 

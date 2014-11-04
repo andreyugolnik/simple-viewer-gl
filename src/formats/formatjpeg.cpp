@@ -69,7 +69,6 @@ bool CFormatJpeg::Load(const char* filename, unsigned /*subImage*/)
         // If we get here, the JPEG code has signaled an error.
         // We need to clean up the JPEG object, close the input file, and return.
         jpeg_destroy_decompress(&cinfo);
-        reset();
         return false;
     }
     // Now we can initialize the JPEG decompression object.
