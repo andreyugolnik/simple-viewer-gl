@@ -49,8 +49,8 @@ CWindow::CWindow()
     //, m_keyPressed(false)
     , m_angle(0)
 {
-    m_lastMouse = cVector(-1, -1);
-    m_prev_size = cVector(DEF_WINDOW_W, DEF_WINDOW_H);
+    m_lastMouse = cVector<float>(-1, -1);
+    m_prev_size = cVector<float>(DEF_WINDOW_W, DEF_WINDOW_H);
 
     m_imageList.reset(new CImageLoader(this));
     m_checkerBoard.reset(new CCheckerboard());
@@ -83,7 +83,7 @@ void CWindow::run()
     m_na->Init();
     m_infoBar->Init();
     m_pixelInfo->Init();
-    updatePixelInfo(cVector(DEF_WINDOW_W, DEF_WINDOW_H));
+    updatePixelInfo(cVector<float>(DEF_WINDOW_W, DEF_WINDOW_H));
     m_progress->Init();
     m_selection->Init();
 }
@@ -127,12 +127,6 @@ void CWindow::SetProp(unsigned char r, unsigned char g, unsigned char b)
     m_checkerBoard->SetColor(r, g, b);
 }
 
-void CWindow::updateViewport()
-{
-    m_viewport = cRenderer::getWindowSize();
-    m_viewport.y -= m_infoBar->GetHeight();
-}
-
 void CWindow::fnRender()
 {
     if(m_testFullscreen == true)
@@ -168,13 +162,13 @@ void CWindow::fnRender()
 
     if(m_na->Render() == false)
     {
-        cRenderer::setGlobals(cVector(m_camera.x, m_camera.y), m_angle, m_scale);
+        cRenderer::setGlobals(cVector<float>(m_camera.x, m_camera.y), m_angle, m_scale);
 
         const unsigned img_w = m_imageList->GetWidth();
         const unsigned img_h = m_imageList->GetHeight();
 
-        const float half_w = floorf(img_w * 0.5f);
-        const float half_h = floorf((img_h + m_infoBar->GetHeight()) * 0.5f);
+        const float half_w = (img_w * 0.5f);
+        const float half_h = ((img_h) * 0.5f);
         for(size_t i = 0, size = m_quads.size(); i < size; i++)
         {
             CQuadImage* quad = m_quads[i];
@@ -190,7 +184,7 @@ void CWindow::fnRender()
         }
         if(m_pixelInfo->IsVisible())
         {
-            m_selection->Render(cVector(-half_w, -half_h), m_scale);
+            m_selection->Render(cVector<float>(-half_w, -half_h), m_scale);
             //m_selection->Render(0, 0);
         }
         cRenderer::resetGlobals();
@@ -230,13 +224,14 @@ void CWindow::fnResize(int width, int height)
         storeWindowPositionSize(false, true);
     }
 
-    const cVector window(width, height);
+    width = (width + 1) & 0xfffffffe;
+    height = (height + 1) & 0xfffffffe;
+    m_viewport = cVector<float>(width, height);
 
-    cRenderer::setWindowSize(window);
+    cRenderer::setWindowSize(m_viewport);
 
-    m_pixelInfo->SetWindowSize(window);
+    m_pixelInfo->SetWindowSize(m_viewport);
     updateInfobar();
-    updateViewport();
     //printf("%d x %d -> %.2f x %.2f\n", width, height, m_viewport_w, m_viewport_h);
 }
 
@@ -245,13 +240,13 @@ void CWindow::fnMouse(int x, int y)
     //printf("mouse: %d x %d\n", x, y); fflush(0);
     bool forceUpdate = false;
 
-    const cVector pointer_pos(x / m_scale, y / m_scale);
-    const cVector diff(m_lastMouse - pointer_pos);
+    const cVector<float> pointer_pos(x / m_scale, y / m_scale);
+    const cVector<float> diff(m_lastMouse - pointer_pos);
     m_lastMouse = pointer_pos;
     //if(!m_fitImage && (m_mouseMB || m_mouseRB))
     if(m_mouseMB || m_mouseRB)
     {
-        if(diff != cVector())
+        if(diff != cVector<float>())
         {
             forceUpdate = true;
             shiftCamera(diff);
@@ -333,7 +328,6 @@ void CWindow::fnKeyboard(unsigned char key, int /*x*/, int /*y*/)
     case 'i':
     case 'I':
         m_infoBar->Show(!m_infoBar->Visible());
-        updateViewport();
         //calculateScale();
         centerWindow();
         break;
@@ -349,6 +343,7 @@ void CWindow::fnKeyboard(unsigned char key, int /*x*/, int /*y*/)
         {
             m_scale = 1.0f;
         }
+        m_camera = cVector<float>();
         centerWindow();
         updateInfobar();
         break;
@@ -391,6 +386,7 @@ void CWindow::fnKeyboard(unsigned char key, int /*x*/, int /*y*/)
         break;
     case '0':
         m_scale = 1.0f;
+        m_camera = cVector<float>();
         m_fitImage = false;
         centerWindow();
         updateInfobar();
@@ -471,32 +467,32 @@ void CWindow::fnKeyboardSpecial(int key, int /*x*/, int /*y*/)
 
 void CWindow::keyUp()
 {
-    shiftCamera(cVector(0, -10));
+    shiftCamera(cVector<float>(0, -10));
 }
 
 void CWindow::keyDown()
 {
-    shiftCamera(cVector(0, 10));
+    shiftCamera(cVector<float>(0, 10));
 }
 
 void CWindow::keyLeft()
 {
-    shiftCamera(cVector(-10, 0));
+    shiftCamera(cVector<float>(-10, 0));
 }
 
 void CWindow::keyRight()
 {
-    shiftCamera(cVector(10, 0));
+    shiftCamera(cVector<float>(10, 0));
 }
 
-void CWindow::shiftCamera(const cVector& delta)
+void CWindow::shiftCamera(const cVector<float>& delta)
 {
     m_camera += delta;
 
     const unsigned w = m_imageList->GetWidth();
     const unsigned h = m_imageList->GetHeight();
 
-    cVector half = (m_viewport / m_scale + cVector(w, h) * m_scale) * 0.5f;
+    cVector<float> half = (m_viewport / m_scale + cVector<float>(w, h)) * 0.5f;
     m_camera.x = std::max<float>(m_camera.x, -half.x);
     m_camera.x = std::min<float>(m_camera.x, half.x);
     m_camera.y = std::max<float>(m_camera.y, -half.y);
@@ -553,24 +549,6 @@ void CWindow::calculateScale()
         }
     }
 
-    //float w = m_imageList->GetWidth();
-    //float h = m_imageList->GetHeight();
-    //if(m_scale >= 1)
-    //{
-        //if(m_fitImage == true)
-        //{
-            //m_camera = cVector(ceilf((m_viewport_w * m_scale - w) / 2), ceilf((m_viewport_h * m_scale - h) / 2));
-        //}
-        //else
-        //{
-            //m_camera = cVector(ceilf((m_viewport_w / m_scale - w) / 2), ceilf((m_viewport_h / m_scale - h) / 2));
-        //}
-    //}
-    //else
-    //{
-        //m_camera = cVector(ceilf((m_viewport_w / m_scale - w) / 2), ceilf((m_viewport_h / m_scale - h) / 2));
-    //}
-
     updateFiltering();
 }
 
@@ -623,14 +601,14 @@ void CWindow::storeWindowPositionSize(bool position, bool size)
     {
         const int x = glutGet(GLUT_WINDOW_X);
         const int y = glutGet(GLUT_WINDOW_Y);
-        m_prev_pos = cVector(x, y);
+        m_prev_pos = cVector<float>(x, y);
     }
 
     if(size)
     {
         const int w = glutGet(GLUT_WINDOW_WIDTH);
         const int h = glutGet(GLUT_WINDOW_HEIGHT);
-        m_prev_size = cVector(w, h);
+        m_prev_size = cVector<float>(w, h);
     }
 }
 
@@ -646,12 +624,13 @@ void CWindow::centerWindow()
         if(m_center_window)
         {
             // calculate window size
-            int w = m_imageList->GetWidth();// * m_scale;
-            int h = m_imageList->GetHeight();// * m_scale;
+            int w = m_imageList->GetWidth();
+            int h = m_imageList->GetHeight();
             int scrw = glutGet(GLUT_SCREEN_WIDTH);
             int scrh = glutGet(GLUT_SCREEN_HEIGHT);
             int imgw = std::max<int>(w + (m_showBorder ? m_border->GetBorderWidth() * 2 : 0), DEF_WINDOW_W);
-            int imgh = std::max<int>(h + (m_showBorder ? m_border->GetBorderWidth() * 2 : 0) + m_infoBar->GetHeight(), DEF_WINDOW_H);
+            //int imgh = std::max<int>(h + (m_showBorder ? m_border->GetBorderWidth() * 2 : 0) + m_infoBar->GetHeight(), DEF_WINDOW_H);
+            int imgh = std::max<int>(h + (m_showBorder ? m_border->GetBorderWidth() * 2 : 0), DEF_WINDOW_H);
             winw = std::min<int>(imgw, scrw);
             winh = std::min<int>(imgh, scrh);
 
@@ -664,8 +643,8 @@ void CWindow::centerWindow()
         glutReshapeWindow(winw, winh);
         //printf("screen: %d x %d, window %d x %d, pos: %d, %d\n", scrw, scrh, winw, winh, posx, posy);
 
-        m_prev_pos = cVector(posx, posy);
-        m_prev_size = cVector(winw, winh);
+        m_prev_pos = cVector<float>(posx, posy);
+        m_prev_size = cVector<float>(winw, winh);
 
         calculateScale();
     }
@@ -681,7 +660,7 @@ bool CWindow::loadImage(int step, int subImage)
     {
         m_scale = 1;
         m_angle = 0;
-        m_camera = cVector(0, 0);
+        m_camera = cVector<float>(0, 0);
         m_filesList->ParseDir();
     }
 
@@ -730,38 +709,33 @@ void CWindow::updateInfobar()
     m_infoBar->Update(&s);
 }
 
-const cVector CWindow::screenToImage(const cVector& pos)
+const cVector<float> CWindow::screenToImage(const cVector<float>& pos)
 {
-    const float z = 1.0f / m_scale;
-    const float half_w = m_viewport.x * z * 0.5f;
-    const float half_h = m_viewport.y * z * 0.5f;
+    const float w = m_imageList->GetWidth();
+    const float h = m_imageList->GetHeight();
 
-    const float img_w = m_imageList->GetWidth();
-    const float img_h = m_imageList->GetHeight();
-
-    const float x = floorf(m_camera.x - half_w + img_w * 0.5f);
-    const float y = floorf(m_camera.y - half_h + img_h * 0.5f);
-
-    return cVector(x, y) + pos;
+    return pos + m_camera - (m_viewport / m_scale - cVector<float>(w, h)) * 0.5f;
 }
 
-void CWindow::updatePixelInfo(const cVector& pos)
+void CWindow::updatePixelInfo(const cVector<float>& pos)
 {
     if(m_imageList->GetBitmap())
     {
         const int w = m_imageList->GetWidth();
         const int h = m_imageList->GetHeight();
 
-        const cVector point = screenToImage(pos);
+        const cVector<float> point = screenToImage(pos);
+        const int x = (int)point.x;
+        const int y = (int)point.y;
 
         sPixelInfo pixelInfo;
 
         // TODO check pixel format (RGB or BGR)
-        if(point.x >= 0 && point.y >= 0 && point.x <= w && point.y <= h)
+        if(x >= 0 && y >= 0 && x <= w && y <= h)
         {
             const int bpp = m_imageList->GetBpp();
             const int pitch = m_imageList->GetPitch();
-            const size_t idx = (size_t)(point.x * bpp / 8 + point.y * pitch);
+            const size_t idx = (size_t)(x * bpp / 8 + y * pitch);
             const unsigned char* color = m_imageList->GetBitmap() + idx;
             pixelInfo.r = color[0];
             pixelInfo.g = color[1];
@@ -769,7 +743,8 @@ void CWindow::updatePixelInfo(const cVector& pos)
             pixelInfo.a = bpp == 32 ? color[3] : 255;
         }
 
-        pixelInfo.mouse = pos;
+        pixelInfo.mouse = (pos - m_viewport / m_scale * 0.5f) * m_scale;
+        //pixelInfo.mouse.y -= m_infoBar->GetHeight() * 0.5f / m_scale;
         pixelInfo.point = point;
         pixelInfo.img_w  = w;
         pixelInfo.img_h  = h;
@@ -783,25 +758,25 @@ void CWindow::createTextures()
     unsigned char* bitmap = m_imageList->GetBitmap();
     if(bitmap)
     {
-        const unsigned width   = m_imageList->GetWidth();
-        const unsigned height  = m_imageList->GetHeight();
-        const unsigned format  = m_imageList->GetBitmapFormat();
-        const unsigned pitch   = m_imageList->GetPitch();
-        const unsigned bytesPP = (m_imageList->GetBpp() / 8);
+        const int width   = m_imageList->GetWidth();
+        const int height  = m_imageList->GetHeight();
+        const int format  = m_imageList->GetBitmapFormat();
+        const int pitch   = m_imageList->GetPitch();
+        const int bytesPP = (m_imageList->GetBpp() / 8);
 
         std::cout << " " << width << " x " << height << ", ";
 
-        unsigned texW, texH;
+        int texW, texH;
         cRenderer::calculateTextureSize(&texW, &texH, width, height);
         //if(texW > 0 && texH > 0)
         {
             // texture pitch should be multiple by 4
-            unsigned texPitch = (unsigned)ceilf(texW * bytesPP / 4.0f) * 4;
+            int texPitch = (int)ceilf(texW * bytesPP / 4.0f) * 4;
             //const unsigned line = texW * bytesPP;
             //const unsigned texPitch = line + (line % 4) * 4;
 
-            const unsigned cols = (unsigned)ceilf((float)width / texW);
-            const unsigned rows = (unsigned)ceilf((float)height / texH);
+            const int cols = (int)ceilf((float)width / texW);
+            const int rows = (int)ceilf((float)height / texH);
             const size_t quadsCount = cols * rows;
             std::cout << "textures: " << quadsCount << " (" << cols << " x " << rows << ") required" << std::endl;
 
@@ -810,12 +785,12 @@ void CWindow::createTextures()
             unsigned char* buffer = new unsigned char[texPitch * texH];
 
             unsigned idx = 0;
-            unsigned height2 = height;
-            for(unsigned row = 0; row < rows; row++)
+            int height2 = height;
+            for(int row = 0; row < rows; row++)
             {
-                unsigned width2 = width;
+                int width2 = width;
                 unsigned h = (height2 > texH ? texH : height2);
-                for(unsigned col = 0; col < cols; col++)
+                for(int col = 0; col < cols; col++)
                 {
                     unsigned w = (width2 > texW ? texW : width2);
                     width2 -= w;

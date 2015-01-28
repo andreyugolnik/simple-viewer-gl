@@ -5,6 +5,7 @@ INCLUDE(FindPkgConfig)
 INCLUDE(CheckLibraryExists)
 
 SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/../cmake")
+cmake_policy(SET CMP0037 OLD)
 
 SET( CMAKE_CXX_COMPILER "g++" )
 SET( CMAKE_C_COMPILER "gcc" )
@@ -48,23 +49,8 @@ INCLUDE_DIRECTORIES(
 
 ADD_EXECUTABLE(../sviewgl
     ../src/checkerboard.cpp
-    ../src/ftsymbol.cpp
-    ../src/main.cpp
-    ../src/renderer.cpp
-    ../src/quad.cpp
-    ../src/window.cpp
     ../src/config.cpp
-    ../src/imageborder.cpp
-    ../src/notavailable.cpp
-    ../src/quadimage.cpp
     ../src/fileslist.cpp
-    ../src/imageloader.cpp
-    ../src/pixelinfo.cpp
-    ../src/quadseries.cpp
-    ../src/ftstring.cpp
-    ../src/infobar.cpp
-    ../src/progress.cpp
-    ../src/selection.cpp
     ../src/formats/format.cpp
     ../src/formats/formatcommon.cpp
     ../src/formats/formatdds.cpp
@@ -78,7 +64,21 @@ ADD_EXECUTABLE(../sviewgl
     ../src/formats/formattiff.cpp
     ../src/formats/formatxwd.cpp
     ../src/formats/rle.cpp
-    ../src/math/vector.cpp
+    ../src/ftstring.cpp
+    ../src/ftsymbol.cpp
+    ../src/imageborder.cpp
+    ../src/imageloader.cpp
+    ../src/infobar.cpp
+    ../src/main.cpp
+    ../src/notavailable.cpp
+    ../src/pixelinfo.cpp
+    ../src/progress.cpp
+    ../src/quad.cpp
+    ../src/quadimage.cpp
+    ../src/quadseries.cpp
+    ../src/renderer.cpp
+    ../src/selection.cpp
+    ../src/window.cpp
     )
 
 TARGET_LINK_LIBRARIES(../sviewgl

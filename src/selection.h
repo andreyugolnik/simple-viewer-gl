@@ -28,7 +28,7 @@ public:
     void SetImageDimension(float w, float h);
     void MouseButton(int x, int y, bool pressed);
     void MouseMove(int x, int y);
-    void Render(const cVector& delta, float scale);
+    void Render(const cVector<float>& delta, float scale);
     const CRect<float>& GetRect() const;
     int GetCursor() const;
 

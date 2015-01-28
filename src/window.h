@@ -75,16 +75,14 @@ private:
     void createTextures();
     void deleteTextures();
     void calculateTextureSize(int* texW, int* texH, int imgW, int imgH);
-    void updatePixelInfo(const cVector& pos);
-    //void updateViewportSize();
-    void updateViewport();
+    void updatePixelInfo(const cVector<float>& pos);
 
     void keyUp();
     void keyDown();
     void keyLeft();
     void keyRight();
-    void shiftCamera(const cVector& delta);
-    const cVector screenToImage(const cVector& pos);
+    void shiftCamera(const cVector<float>& delta);
+    const cVector<float> screenToImage(const cVector<float>& pos);
 
 private:
     bool m_initialImageLoading;
@@ -98,11 +96,11 @@ private:
     bool m_recursiveDir;
     bool m_cursorVisible;
     bool m_mouseLB, m_mouseMB, m_mouseRB;
-    cVector m_lastMouse;
-    cVector m_camera;
-    cVector m_viewport;
-    cVector m_prev_pos;
-    cVector m_prev_size;
+    cVector<float> m_lastMouse;
+    cVector<float> m_camera;
+    cVector<float> m_viewport;
+    cVector<float> m_prev_pos;
+    cVector<float> m_prev_size;
     int m_angle;
 
     std::vector<CQuadImage*> m_quads;

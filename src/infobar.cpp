@@ -9,6 +9,7 @@
 
 #include "infobar.h"
 #include <string.h>
+#include <math.h>
 
 CInfoBar::CInfoBar()
     : m_visible(true)
@@ -36,8 +37,8 @@ void CInfoBar::Render()
         const int w = glutGet(GLUT_WINDOW_WIDTH);
         const int h = glutGet(GLUT_WINDOW_HEIGHT);
 
-        const float x = -floorf(w * 0.5f);
-        const float y = floorf(h * 0.5f);
+        const float x = -ceilf(w * 0.5f);
+        const float y = ceilf(h * 0.5f);
         m_bg->SetSpriteSize(w, m_height);
         m_bg->Render(x, y - m_height);
 

@@ -197,7 +197,7 @@ void CSelection::MouseMove(int x, int y)
     }
 }
 
-void CSelection::Render(const cVector& _delta, float _scale)
+void CSelection::Render(const cVector<float>& _delta, float _scale)
 {
     float dt = getTime();
 

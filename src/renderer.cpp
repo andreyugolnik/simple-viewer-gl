@@ -13,7 +13,7 @@
 #include <iostream>
 #include <cmath>
 
-static cVector m_window_size;
+static cVector<float> m_window_size;
 static unsigned m_tex = 0;
 static sVertex m_vb[4];
 static unsigned short m_ib[6] = { 0, 1, 2, 0, 2, 3 };
@@ -114,7 +114,7 @@ void cRenderer::bindTexture(GLuint tex)
     }
 }
 
-unsigned nextPOT(unsigned n, bool pow2)
+static int nextPOT(int n, bool pow2)
 {
     if(pow2)
     {
@@ -130,10 +130,10 @@ unsigned nextPOT(unsigned n, bool pow2)
     return n + 1;
 }
 
-void cRenderer::calculateTextureSize(unsigned* tex_w, unsigned* tex_h, unsigned img_w, unsigned img_h)
+void cRenderer::calculateTextureSize(int* tex_w, int* tex_h, int img_w, int img_h)
 {
-    unsigned tw = std::min<unsigned>(m_texture_max_size, nextPOT(img_w, m_pow2));
-    unsigned th = std::min<unsigned>(m_texture_max_size, nextPOT(img_h, m_pow2));
+    const int tw = std::min<int>(m_texture_max_size, nextPOT(img_w, m_pow2));
+    const int th = std::min<int>(m_texture_max_size, nextPOT(img_h, m_pow2));
     //std::cout << "  select texture size: " << tw << " x " << th << std::endl;
     *tex_w = tw;
     *tex_h = th;
@@ -189,12 +189,12 @@ void cRenderer::render(sQuad* quad)
     }
 }
 
-const cVector& cRenderer::getWindowSize()
+const cVector<float>& cRenderer::getWindowSize()
 {
     return m_window_size;
 }
 
-void cRenderer::setWindowSize(const cVector& size)
+void cRenderer::setWindowSize(const cVector<float>& size)
 {
     glViewport(0, 0, size.x, size.y);
     m_window_size = size;
@@ -202,17 +202,17 @@ void cRenderer::setWindowSize(const cVector& size)
 
 void cRenderer::resetGlobals()
 {
-    setGlobals(cVector(0.0f, 0.0f), 0.0f, 1.0f);
+    setGlobals(cVector<float>(0, 0), 0.0f, 1.0f);
 }
 
-void cRenderer::setGlobals(const cVector& delta, float angle, float zoom)
+void cRenderer::setGlobals(const cVector<float>& delta, float angle, float zoom)
 {
     const float z = 1.0f / zoom;
     const float w = m_window_size.x * z;
     const float h = m_window_size.y * z;
 
-    const float x = floorf(delta.x - w * 0.5f);
-    const float y = floorf(delta.y - h * 0.5f);
+    const float x = (delta.x - w * 0.5f);
+    const float y = (delta.y - h * 0.5f);
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();

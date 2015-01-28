@@ -51,11 +51,11 @@ void CPixelInfo::setPixelInfo(const sPixelInfo& pi)
 
     static char info[200];
     snprintf(info, sizeof(info),
-            "pos: %.0f x %.0f\n" \
-            "argb: 0x%.2X%.2X%.2X%.2X\n" \
+            "pos: %d x %d\n" \
+            "argb: 0x%.2x%.2x%.2x%.2x\n" \
             "rect: %d x %d\n" \
             "size: %d, %d -> %d, %d"
-            , pi.point.x, pi.point.y
+            , (int)pi.point.x, (int)pi.point.y
             , pi.a, pi.r, pi.g, pi.b
             , w, h
             , x, y, x + w, y + h);
@@ -85,7 +85,7 @@ void CPixelInfo::Render()
     }
 }
 
-bool CPixelInfo::isInsideImage(const cVector& pos) const
+bool CPixelInfo::isInsideImage(const cVector<float>& pos) const
 {
     return !(pos.x < 0 || pos.y < 0 || pos.x >= m_pixelInfo.img_w || pos.y >= m_pixelInfo.img_h);
 }
