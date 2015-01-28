@@ -1,12 +1,11 @@
-////////////////////////////////////////////////
-//
-// Simple Viewer GL edition
-// Andrey A. Ugolnik
-// http://www.wegroup.org
-// http://www.ugolnik.info
-// andrey@ugolnik.info
-//
-////////////////////////////////////////////////
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
 #ifndef SELECTION_H
 #define SELECTION_H
@@ -26,26 +25,12 @@ public:
     virtual ~CSelection();
 
     void Init();
-    void SetImageDimension(float _w, float _h);
+    void SetImageDimension(float w, float h);
     void MouseButton(int x, int y, bool pressed);
     void MouseMove(int x, int y);
-    void Render(const cVector& _delta, float _scale);
-    CRect<float> GetRect() const;
+    void Render(const cVector& delta, float scale);
+    const CRect<float>& GetRect() const;
     int GetCursor() const;
-
-private:
-    bool m_enabled;
-    float m_imageWidth, m_imageHeight;
-    float m_mouseX, m_mouseY;
-    struct timespec m_timeLast;
-    float m_timeDelta;
-    typedef enum { MODE_NONE, MODE_SELECT, MODE_MOVE, MODE_RESIZE } MouseMode;
-    MouseMode m_mode;
-    typedef enum { CORNER_NONE, CORNER_CENTER, CORNER_LEFT, CORNER_RIGHT, CORNER_UP, CORNER_DOWN, CORNER_LEUP, CORNER_RIUP, CORNER_LEDN, CORNER_RIDN } CornerType;
-    CornerType m_corner;
-
-    std::auto_ptr<CQuad> m_selection[m_selectionTexCount];
-    CRect<float> m_rc;
 
 private:
     void updateCorner(int x, int y);
@@ -54,6 +39,19 @@ private:
     void clampPoint(int& x, int& y);
     void setColor(int idx, bool std = true);
     float getTime();
+
+private:
+    bool m_enabled;
+    float m_imageWidth, m_imageHeight;
+    float m_mouseX, m_mouseY;
+    float m_timeDelta;
+    typedef enum { MODE_NONE, MODE_SELECT, MODE_MOVE, MODE_RESIZE } MouseMode;
+    MouseMode m_mode;
+    typedef enum { CORNER_NONE, CORNER_CENTER, CORNER_LEFT, CORNER_RIGHT, CORNER_UP, CORNER_DOWN, CORNER_LEUP, CORNER_RIUP, CORNER_LEDN, CORNER_RIDN } CornerType;
+    CornerType m_corner;
+
+    std::auto_ptr<CQuad> m_selection[m_selectionTexCount];
+    CRect<float> m_rc;
 };
 
 #endif // SELECTION_H

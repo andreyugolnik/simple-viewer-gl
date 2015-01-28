@@ -767,7 +767,7 @@ void CWindow::updatePixelInfo(const cVector& pos)
         //pixelInfo.pitch     = m_imageList->GetPitch();
         //pixelInfo.bpp       = m_imageList->GetBpp();
         //pixelInfo.format    = m_imageList->GetBitmapFormat();
-        //pixelInfo.rc        = m_selection->GetRect();
+        pixelInfo.rc        = m_selection->GetRect();
         //pixelInfo.scale     = m_scale;
         m_pixelInfo->Update(&pixelInfo);
     }

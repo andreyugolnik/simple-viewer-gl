@@ -1,19 +1,22 @@
-////////////////////////////////////////////////
-//
-// Simple Viewer GL edition
-// Andrey A. Ugolnik
-// http://www.wegroup.org
-// http://www.ugolnik.info
-// andrey@ugolnik.info
-//
-////////////////////////////////////////////////
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
 #include "selection.h"
 #include "vector.h"
 
 #include <algorithm>
-#include <time.h>
 #include <stdio.h>
+#include <sys/time.h>
+#include <time.h>
+
+typedef struct timeval SystemTime;
+static SystemTime m_timeLast;
 
 CSelection::CSelection()
     : m_enabled(true)
@@ -23,6 +26,7 @@ CSelection::CSelection()
     , m_mode(MODE_NONE)
     , m_corner(CORNER_NONE)
 {
+    ::gettimeofday(&m_timeLast, 0);
 }
 
 CSelection::~CSelection()
@@ -214,7 +218,7 @@ void CSelection::Render(const cVector& _delta, float _scale)
     }
 }
 
-CRect<float> CSelection::GetRect() const
+const CRect<float>& CSelection::GetRect() const
 {
     return m_rc;
 }
@@ -336,19 +340,13 @@ void CSelection::setColor(int frame, bool std)
 
 float CSelection::getTime()
 {
-    float dt = 0;
+    SystemTime now;
+    ::gettimeofday(&now, 0);
 
-#if defined(__APPLE__)
-    ;
-#else
-    struct timespec now;
-    clock_gettime(CLOCK_REALTIME, &now);
-
-    dt = ((now.tv_sec - m_timeLast.tv_sec) + (now.tv_nsec - m_timeLast.tv_nsec) / 1000000000.0f);
+    const unsigned delta = (unsigned)((now.tv_sec - m_timeLast.tv_sec) * 1000000 + (now.tv_usec - m_timeLast.tv_usec));
 
     m_timeLast = now;
-#endif
 
-    return dt;
+    return delta * 0.000001f;
 }
 
