@@ -79,10 +79,10 @@ void CSelection::Init()
     delete[] buffer;
 }
 
-void CSelection::SetImageDimension(float _w, float _h)
+void CSelection::SetImageDimension(float w, float h)
 {
-    m_imageWidth = _w;
-    m_imageHeight = _h;
+    m_imageWidth = w;
+    m_imageHeight = h;
     m_rc.Clear();
     getTime();
 }
@@ -92,7 +92,7 @@ void CSelection::MouseButton(int x, int y, bool pressed)
     if(pressed == true)
     {
         m_rc.Normalize();
-        bool inside = m_rc.TestPoint(x, y);
+        const bool inside = m_rc.TestPoint(x, y);
 
         m_mouseX = x;
         m_mouseY = y;
@@ -131,12 +131,6 @@ void CSelection::MouseMove(int x, int y)
     {
         int dx = x - m_mouseX;
         int dy = y - m_mouseY;
-
-        // correct selection position
-        dx = std::max<int>(dx, 0 - m_rc.x1);
-        dx = std::min<int>(dx, m_imageWidth - (m_rc.x1 + m_rc.GetWidth()) - 1);
-        dy = std::max<int>(dy, 0 - m_rc.y1);
-        dy = std::min<int>(dy, m_imageHeight - (m_rc.y1 + m_rc.GetHeight()) - 1);
 
         switch(m_mode)
         {
@@ -189,6 +183,14 @@ void CSelection::MouseMove(int x, int y)
                 break;
             }
         }
+
+        dx = m_rc.x1 < 0 ? m_rc.x1 : 0;
+        dy = m_rc.y1 < 0 ? m_rc.y1 : 0;
+        m_rc.ShiftRect(-dx, -dy);
+
+        dx = m_rc.x2 >= m_imageWidth ? m_imageWidth - m_rc.x2 : 0;
+        dy = m_rc.y2 >= m_imageHeight ? m_imageHeight - m_rc.y2 : 0;
+        m_rc.ShiftRect(dx, dy);
 
         m_mouseX = x;
         m_mouseY = y;

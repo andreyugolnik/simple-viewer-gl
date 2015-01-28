@@ -1,9 +1,11 @@
-/////////////////////////////////////////////////
-//
-// Andrey A. Ugolnik
-// andrey@ugolnik.info
-//
-/////////////////////////////////////////////////
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
 #ifndef NOTAVAILABLE_H
 #define NOTAVAILABLE_H

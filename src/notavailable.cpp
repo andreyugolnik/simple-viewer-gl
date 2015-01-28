@@ -1,9 +1,11 @@
-/////////////////////////////////////////////////
-//
-// Andrey A. Ugolnik
-// andrey@ugolnik.info
-//
-/////////////////////////////////////////////////
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
 #include "notavailable.h"
 #include "img-na.c"
@@ -20,7 +22,7 @@ CNotAvailable::~CNotAvailable()
 
 void CNotAvailable::Init()
 {
-    int format = (imgNa.bytes_per_pixel == 3 ? GL_RGB : GL_RGBA);
+    const int format = (imgNa.bytes_per_pixel == 3 ? GL_RGB : GL_RGBA);
     m_na.reset(new CQuad(imgNa.width, imgNa.height, imgNa.pixel_data, format));
 }
 
@@ -28,13 +30,8 @@ bool CNotAvailable::Render()
 {
     if(m_enabled == true)
     {
-        //float w = (float)glutGet(GLUT_WINDOW_WIDTH);
-        //float h = (float)glutGet(GLUT_WINDOW_HEIGHT);
-        //float x = ceil((w - imgNa.width) / 2);
-        //float y = ceil((h - imgNa.height) / 2);
-
-        cRenderer::setGlobals();
-        m_na->Render(-imgNa.width / 2, -imgNa.height / 2);
+        cRenderer::resetGlobals();
+        m_na->Render(-imgNa.width * 0.5f, -imgNa.height * 0.5f);
     }
 
     return m_enabled;

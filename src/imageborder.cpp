@@ -1,9 +1,11 @@
-/////////////////////////////////////////////////
-//
-// Andrey A. Ugolnik
-// andrey@ugolnik.info
-//
-/////////////////////////////////////////////////
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
 #include "imageborder.h"
 
@@ -11,7 +13,7 @@
 
 CImageBorder::CImageBorder()
 {
-    SetColor(255, 25, 25, 255);
+    SetColor(25, 255, 25, 255);
 }
 
 CImageBorder::~CImageBorder()
@@ -28,17 +30,12 @@ void CImageBorder::SetColor(int r, int g, int b, int a)
 
 void CImageBorder::Render(float x, float y, float w, float h, float scale)
 {
-    //_x *= _scale;
-    //_y *= _scale;
-    //_w = _w * _scale;
-    //_h = _h * _scale;
-
     const float delta = GetBorderWidth() / scale;
 
-    renderLine(x - delta, y - delta, w + delta * 2, delta);	// up
-    renderLine(x - delta, y + h,     w + delta * 2, delta);	// down
-    renderLine(x - delta, y,         delta,         h);	// left
-    renderLine(x + w,     y,         delta,         h);	// right
+    renderLine(x - delta, y - delta, w + delta * 2, delta); // up
+    renderLine(x - delta, y + h,     w + delta * 2, delta); // down
+    renderLine(x - delta, y,         delta,         h); // left
+    renderLine(x + w,     y,         delta,         h); // right
 }
 
 void CImageBorder::renderLine(float x, float y, float w, float h)
@@ -55,8 +52,8 @@ void CImageBorder::renderLine(float x, float y, float w, float h)
     cRenderer::render(&m_line);
 }
 
-int CImageBorder::GetBorderWidth() const
+float CImageBorder::GetBorderWidth() const
 {
-    return 2;
+    return 2.0f;
 }
 

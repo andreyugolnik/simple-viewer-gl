@@ -67,10 +67,10 @@ void CCheckerboard::Render()
 {
     if(m_enabled == true)
     {
-        float w	= (float)glutGet(GLUT_WINDOW_WIDTH);
-        float h	= (float)glutGet(GLUT_WINDOW_HEIGHT);
+        const float w = (float)glutGet(GLUT_WINDOW_WIDTH);
+        const float h = (float)glutGet(GLUT_WINDOW_HEIGHT);
         m_cb->SetSpriteSize(w, h);
-        m_cb->Render(-w/2, -h/2);
+        m_cb->Render(-w * 0.5f, -h * 0.5f);
     }
     else
     {

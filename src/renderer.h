@@ -1,15 +1,11 @@
-////////////////////////////////////////////////
-//
-// Andrey A. Ugolnik
-// 'WE' Group
-// http://www.ugolnik.info
-// andrey@ugolnik.info
-//
-// created: 19-Aug-2011
-// changed: 10-Jun-2012
-// version: 0.0.0.56
-//
-////////////////////////////////////////////////
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
 #ifndef RENDERER_H_E44EFE71C29EF8
 #define RENDERER_H_E44EFE71C29EF8
@@ -56,7 +52,6 @@ class cRenderer
 public:
     static void init();
 
-    //static void disable(bool _disable);
     static GLuint createTexture(const unsigned char* data, unsigned w, unsigned h, GLenum format);
     static void deleteTexture(GLuint tex);
     static void bindTexture(GLuint tex);
@@ -65,15 +60,11 @@ public:
     static void setColor(sQuad* quad, int r, int g, int b, int a);
     static void render(sLine* quad);
     static void render(sQuad* quad);
-    static void setGlobals(const cVector* delta = 0, float angle = 0.0f, float zoom = 1.0f);
 
-private:
-    //static bool m_inited;
-    static unsigned m_tex;
-    static sVertex m_vb[4];
-    static unsigned short m_ib[6];
-    static bool m_pow2;
-    static unsigned m_texture_max_size;
+    static void setWindowSize(const cVector& size);
+    static const cVector& getWindowSize();
+    static void resetGlobals();
+    static void setGlobals(const cVector& delta, float angle, float zoom);
 };
 
 #endif /* end of include guard: RENDERER_H_E44EFE71C29EF8 */

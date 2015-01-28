@@ -1,9 +1,11 @@
-/////////////////////////////////////////////////
-//
-// Andrey A. Ugolnik
-// andrey@ugolnik.info
-//
-/////////////////////////////////////////////////
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
 #ifndef IMAGEBORDER_H_7978ADDAEE195E
 #define IMAGEBORDER_H_7978ADDAEE195E
@@ -18,7 +20,7 @@ public:
 
     void SetColor(int r, int g, int b, int a);
     void Render(float x, float y, float w, float h, float scale);
-    int GetBorderWidth() const;
+    float GetBorderWidth() const;
 
 private:
     sQuad m_line;

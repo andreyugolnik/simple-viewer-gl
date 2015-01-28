@@ -47,9 +47,9 @@ void callbackTimerUpdate(int value)
 
 void callbackTimerCursor(int /*value*/)
 {
-    m_window->showCursor(false);
+    //m_window->showCursor(false);
 
-    glutTimerFunc(2000, callbackTimerCursor, 1);
+    //glutTimerFunc(2000, callbackTimerCursor, 1);
 }
 
 void callbackMouse(int x, int y)

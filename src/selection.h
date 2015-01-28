@@ -45,10 +45,28 @@ private:
     float m_imageWidth, m_imageHeight;
     float m_mouseX, m_mouseY;
     float m_timeDelta;
-    typedef enum { MODE_NONE, MODE_SELECT, MODE_MOVE, MODE_RESIZE } MouseMode;
-    MouseMode m_mode;
-    typedef enum { CORNER_NONE, CORNER_CENTER, CORNER_LEFT, CORNER_RIGHT, CORNER_UP, CORNER_DOWN, CORNER_LEUP, CORNER_RIUP, CORNER_LEDN, CORNER_RIDN } CornerType;
-    CornerType m_corner;
+    enum eMouseMode
+    {
+        MODE_NONE,
+        MODE_SELECT,
+        MODE_MOVE,
+        MODE_RESIZE
+    };
+    eMouseMode m_mode;
+    enum eCorner
+    {
+        CORNER_NONE,
+        CORNER_CENTER,
+        CORNER_LEFT,
+        CORNER_RIGHT,
+        CORNER_UP,
+        CORNER_DOWN,
+        CORNER_LEUP,
+        CORNER_RIUP,
+        CORNER_LEDN,
+        CORNER_RIDN
+    };
+    eCorner m_corner;
 
     std::auto_ptr<CQuad> m_selection[m_selectionTexCount];
     CRect<float> m_rc;

@@ -1,15 +1,11 @@
-////////////////////////////////////////////////
-//
-// Andrey A. Ugolnik
-// 'WE' Group
-// http://www.ugolnik.info
-// andrey@ugolnik.info
-//
-// created: 19-Aug-2011
-// changed: 10-Jun-2012
-// version: 0.0.0.116
-//
-////////////////////////////////////////////////
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
 #include "renderer.h"
 #include "vector.h"
@@ -17,45 +13,40 @@
 #include <iostream>
 #include <cmath>
 
-//bool cRenderer::m_inited = false;
-unsigned cRenderer::m_tex = 0;
-sVertex cRenderer::m_vb[4];
-unsigned short cRenderer::m_ib[6] = { 0, 1, 2, 0, 2, 3 };
-bool cRenderer::m_pow2 = false;
-unsigned cRenderer::m_texture_max_size = 256;
+static cVector m_window_size;
+static unsigned m_tex = 0;
+static sVertex m_vb[4];
+static unsigned short m_ib[6] = { 0, 1, 2, 0, 2, 3 };
+static bool m_pow2 = false;
+static unsigned m_texture_max_size = 256;
 
 void cRenderer::init()
 {
-    //if(!m_inited)
-    {
-        int texture_max_size = (int)m_texture_max_size;
-        glGetIntegerv(GL_MAX_TEXTURE_SIZE, &texture_max_size);
-        m_texture_max_size = std::min<unsigned>(512, texture_max_size);
-        std::cout << "Using texture size: " << m_texture_max_size << "x"  << m_texture_max_size << "." << std::endl;
+    int texture_max_size = (int)m_texture_max_size;
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &texture_max_size);
+    m_texture_max_size = std::min<unsigned>(512, texture_max_size);
+    std::cout << "Using texture size: " << m_texture_max_size << "x"  << m_texture_max_size << "." << std::endl;
 
-        m_pow2 = glutExtensionSupported("GL_ARB_texture_non_power_of_two");
-        std::cout << "Non Power of Two extension " << (m_pow2 ? "available." : "not available.") << std::endl;
+    m_pow2 = glutExtensionSupported("GL_ARB_texture_non_power_of_two");
+    std::cout << "Non Power of Two extension " << (m_pow2 ? "available." : "not available.") << std::endl;
 
-        glEnable(GL_BLEND);
-        glEnable(GL_TEXTURE_2D);
-        glDisable(GL_DEPTH_TEST);
-        glDisable(GL_CULL_FACE);
+    glEnable(GL_BLEND);
+    glEnable(GL_TEXTURE_2D);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_CULL_FACE);
 
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        glClearColor(0, 0, 0, 0);
-        glClear(GL_COLOR_BUFFER_BIT);
+    glClearColor(0, 0, 0, 0);
+    glClear(GL_COLOR_BUFFER_BIT);
 
-        glEnableClientState(GL_VERTEX_ARRAY);
-        glEnableClientState(GL_COLOR_ARRAY);
-        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_COLOR_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-        glVertexPointer(2, GL_FLOAT, sizeof(sVertex), &m_vb->x);
-        glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(sVertex), &m_vb->r);
-        glTexCoordPointer(2, GL_FLOAT, sizeof(sVertex), &m_vb->tx);
-
-        //disable(false);
-    }
+    glVertexPointer(2, GL_FLOAT, sizeof(sVertex), &m_vb->x);
+    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(sVertex), &m_vb->r);
+    glTexCoordPointer(2, GL_FLOAT, sizeof(sVertex), &m_vb->tx);
 }
 
 //void cRenderer::disable(bool _disable)
@@ -198,14 +189,30 @@ void cRenderer::render(sQuad* quad)
     }
 }
 
-void cRenderer::setGlobals(const cVector* delta, float angle, float zoom)
+const cVector& cRenderer::getWindowSize()
+{
+    return m_window_size;
+}
+
+void cRenderer::setWindowSize(const cVector& size)
+{
+    glViewport(0, 0, size.x, size.y);
+    m_window_size = size;
+}
+
+void cRenderer::resetGlobals()
+{
+    setGlobals(cVector(0.0f, 0.0f), 0.0f, 1.0f);
+}
+
+void cRenderer::setGlobals(const cVector& delta, float angle, float zoom)
 {
     const float z = 1.0f / zoom;
-    const float w = glutGet(GLUT_WINDOW_WIDTH) * z;
-    const float h = glutGet(GLUT_WINDOW_HEIGHT) * z;
+    const float w = m_window_size.x * z;
+    const float h = m_window_size.y * z;
 
-    const float x = floorf((delta ? delta->x : 0.0f) - w * 0.5f);
-    const float y = floorf((delta ? delta->y : 0.0f) - h * 0.5f);
+    const float x = floorf(delta.x - w * 0.5f);
+    const float y = floorf(delta.y - h * 0.5f);
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
