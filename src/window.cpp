@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////
 //
 // Andrey A. Ugolnik
+// http://www.ugolnik.info
 // andrey@ugolnik.info
 //
 /////////////////////////////////////////////////
@@ -763,15 +764,15 @@ void CWindow::updateInfobar()
     m_infoBar->Update(&s);
 }
 
-void CWindow::updatePixelInfo(const cVector& _pos)
+void CWindow::updatePixelInfo(const cVector& pos)
 {
     if(m_imageList->GetBitmap())
     {
-        cVector cursor = _pos - (m_viewport - m_camera) / 2;
+        cVector cursor = pos - (m_viewport - m_camera) * 0.5f;
         PixelInfo pixelInfo;
         pixelInfo.cursor = cursor;
         pixelInfo.img =
-                cVector(m_imageList->GetWidth() / 2.0f, m_imageList->GetHeight() / 2.0f) + cursor;// * m_scale;
+                cVector(m_imageList->GetWidth() * 0.5f, m_imageList->GetHeight() * 0.5f) + cursor;// * m_scale;
 
         // TODO check pixel format (RGB or BGR)
         if(pixelInfo.img.x >= 0

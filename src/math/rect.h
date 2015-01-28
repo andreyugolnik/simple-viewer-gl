@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////
 //
 // Andrey A. Ugolnik
+// http://www.ugolnik.info
 // andrey@ugolnik.info
 //
 /////////////////////////////////////////////////
@@ -84,7 +85,7 @@ public:
 
     bool TestPoint(T x, T y) const
     {
-        return (m_isSet && x >= x1 && x < x2 && y >= y1 && y < y2);
+        return !(!m_isSet || x < x1 || x >= x2 || y < y1 || y >= y2);
     }
 
     bool Intersect(const CRect<T>* rc) const
@@ -99,12 +100,20 @@ public:
 
     T GetWidth() const
     {
-        return static_cast<T>(fabs(x2 - x1));
+        if(x2 >= x1)
+        {
+            return x2 - x1;
+        }
+        return x1 - x2;
     }
 
     T GetHeight() const
     {
-        return static_cast<T>(fabs(y2 - y1));
+        if(y2 >= y1)
+        {
+            return y2 - y1;
+        }
+        return y1 - y2;
     }
 
     void Normalize()

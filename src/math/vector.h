@@ -1,7 +1,6 @@
 ////////////////////////////////////////////////
 //
 // Andrey A. Ugolnik
-// 'WE' Group
 // http://www.ugolnik.info
 // andrey@ugolnik.info
 //
