@@ -11,8 +11,8 @@
 
 using namespace FORMAT_ICO;
 
-CFormatIco::CFormatIco(Callback callback, const char* _lib, const char* _name)
-    : CFormat(callback, _lib, _name)
+CFormatIco::CFormatIco(const char* lib, const char* name)
+    : CFormat(lib, name)
 {
 }
 

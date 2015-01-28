@@ -9,8 +9,8 @@
 #include <string.h>
 #include <iostream>
 
-cFormatPpm::cFormatPpm(Callback callback, const char* _lib, const char* _name)
-    : CFormat(callback, _lib, _name)
+cFormatPpm::cFormatPpm(const char* lib, const char* name)
+    : CFormat(lib, name)
 {
 }
 

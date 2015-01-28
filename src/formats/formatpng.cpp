@@ -1,13 +1,8 @@
 ////////////////////////////////////////////////
 //
 // Andrey A. Ugolnik
-// 'WE' Group
 // http://www.ugolnik.info
 // andrey@ugolnik.info
-//
-// created: 26-Aug-2010
-// changed: 21.09.2012-Aug-2011
-// version: 0.0.0.30
 //
 ////////////////////////////////////////////////
 
@@ -16,8 +11,8 @@
 #include <string.h>
 #include <iostream>
 
-CFormatPng::CFormatPng(Callback callback, const char* _lib, const char* _name)
-    : CFormat(callback, _lib, _name)
+CFormatPng::CFormatPng(const char* lib, const char* name)
+    : CFormat(lib, name)
 {
 }
 

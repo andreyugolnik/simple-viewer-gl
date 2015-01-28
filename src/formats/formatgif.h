@@ -14,13 +14,13 @@
 class CFormatGif : public CFormat
 {
 public:
-    CFormatGif(Callback callback, const char* _lib, const char* _name);
+    CFormatGif(const char* lib, const char* name);
     virtual ~CFormatGif();
 
     virtual bool Load(const char* filename, unsigned subImage = 0);
 
 private:
-    void putPixel(int _pos, const GifColorType* _color, bool _transparent);
+    void putPixel(int pos, const GifColorType* color, bool transparent);
 };
 
 #endif // FORMATGIF_H

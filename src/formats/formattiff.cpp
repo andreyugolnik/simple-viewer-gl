@@ -9,8 +9,8 @@
 #include <string.h>
 #include <tiffio.h>
 
-CFormatTiff::CFormatTiff(Callback callback, const char* _lib, const char* _name)
-    : CFormat(callback, _lib, _name)
+CFormatTiff::CFormatTiff(const char* lib, const char* name)
+    : CFormat(lib, name)
 {
 }
 

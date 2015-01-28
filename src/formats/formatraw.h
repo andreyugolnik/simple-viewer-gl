@@ -1,13 +1,8 @@
  /**********************************************
  *
  *  Andrey A. Ugolnik
- *  'WE' Group
  *  http://www.ugolnik.info
  *  andrey@ugolnik.info
- *
- *  created: 04.10.2012
- *  changed: 05.09.2012
- *  version: 0.0.0.23
  *
  ***********************************************/
 
@@ -19,7 +14,7 @@
 class cFormatRaw : public CFormat
 {
 public:
-    cFormatRaw(Callback callback, const char* lib, const char* name);
+    cFormatRaw(const char* lib, const char* name);
     virtual ~cFormatRaw();
 
     virtual bool Load(const char* filename, unsigned subImage);

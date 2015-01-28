@@ -80,7 +80,7 @@ class cFile;
 class CFormatIco : public CFormat
 {
 public:
-    CFormatIco(Callback callback, const char* _lib, const char* _name);
+    CFormatIco(const char* lib, const char* name);
     virtual ~CFormatIco();
 
     virtual bool Load(const char* filename, unsigned subImage = 0);

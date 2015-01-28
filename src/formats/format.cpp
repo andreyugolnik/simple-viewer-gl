@@ -1,14 +1,19 @@
-/////////////////////////////////////////////////
-//
-// Andrey A. Ugolnik
-// andrey@ugolnik.info
-//
-/////////////////////////////////////////////////
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
 #include "format.h"
+#include "../callbacks.h"
 
-CFormat::CFormat(Callback callback, const char* lib, const char* name)
-    : m_callback(callback)
+#include <assert.h>
+
+CFormat::CFormat(const char* lib, const char* name)
+    : m_callbacks(0)
     , m_percent(-1)
     , m_lib(0)
     , m_format(GL_RGB)
@@ -58,13 +63,11 @@ void CFormat::FreeMemory()
 
 void CFormat::progress(int percent)
 {
-    if(m_callback)
+    assert(m_callbacks);
+    if(m_percent != percent)
     {
-        if(m_percent != percent)
-        {
-            m_percent = percent;
-            m_callback(percent);
-        }
+        m_percent = percent;
+        m_callbacks->doProgress(percent);
     }
 }
 

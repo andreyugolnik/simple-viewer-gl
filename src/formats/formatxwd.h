@@ -57,7 +57,7 @@ typedef struct _X11ColorMap
 class CFormatXwd : public CFormat
 {
 public:
-    CFormatXwd(Callback callback, const char* lib, const char* name);
+    CFormatXwd(const char* lib, const char* name);
     virtual ~CFormatXwd();
 
     virtual bool Load(const char* filename, unsigned subImage = 0);

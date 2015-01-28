@@ -9,8 +9,8 @@
 #include <string.h>
 #include <iostream>
 
-CFormatGif::CFormatGif(Callback callback, const char* _lib, const char* _name)
-    : CFormat(callback, _lib, _name)
+CFormatGif::CFormatGif(const char* lib, const char* name)
+    : CFormat(lib, name)
 {
 }
 
@@ -152,14 +152,14 @@ bool CFormatGif::Load(const char* filename, unsigned subImage)
     return true;
 }
 
-void CFormatGif::putPixel(int _pos, const GifColorType* _color, bool _transparent)
+void CFormatGif::putPixel(int pos, const GifColorType* color, bool transparent)
 {
-    if(!m_subImage || !_transparent)
+    if(!m_subImage || !transparent)
     {
-        m_bitmap[_pos + 0] = _color->Red;
-        m_bitmap[_pos + 1] = _color->Green;
-        m_bitmap[_pos + 2] = _color->Blue;
-        m_bitmap[_pos + 3] = (_transparent ? 0 : 255);
+        m_bitmap[pos + 0] = color->Red;
+        m_bitmap[pos + 1] = color->Green;
+        m_bitmap[pos + 2] = color->Blue;
+        m_bitmap[pos + 3] = (transparent ? 0 : 255);
     }
 }
 

@@ -13,7 +13,7 @@
 class CFormatDds : public CFormat
 {
 public:
-    CFormatDds(Callback callback, const char* lib, const char* name);
+    CFormatDds(const char* lib, const char* name);
     virtual ~CFormatDds();
 
     virtual bool Load(const char* filename, unsigned subImage = 0);

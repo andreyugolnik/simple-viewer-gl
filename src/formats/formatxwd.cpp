@@ -12,8 +12,8 @@
 #include "formatxwd.h"
 #include <string.h>
 
-CFormatXwd::CFormatXwd(Callback callback, const char* lib, const char* name)
-    : CFormat(callback, lib, name)
+CFormatXwd::CFormatXwd(const char* lib, const char* name)
+    : CFormat(lib, name)
 {
 }
 

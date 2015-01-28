@@ -16,7 +16,7 @@
 class CFormatCommon : public CFormat
 {
 public:
-    CFormatCommon(Callback callback, const char* lib, const char* name);
+    CFormatCommon(const char* lib, const char* name);
     virtual ~CFormatCommon();
 
     virtual bool Load(const char* filename, unsigned subImage = 0);

@@ -13,7 +13,7 @@
 class CFormatTiff : public CFormat
 {
 public:
-    CFormatTiff(Callback callback, const char* _lib, const char* _name);
+    CFormatTiff(const char* lib, const char* name);
     virtual ~CFormatTiff();
 
     virtual bool Load(const char* filename, unsigned subImage = 0);

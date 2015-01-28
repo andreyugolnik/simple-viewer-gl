@@ -1,13 +1,8 @@
 ////////////////////////////////////////////////
 //
 // Andrey A. Ugolnik
-// 'WE' Group
 // http://www.ugolnik.info
 // andrey@ugolnik.info
-//
-// created: 26-Aug-2010
-// changed: 21.09.2012-Apr-2011
-// version: 0.0.0.6
 //
 ////////////////////////////////////////////////
 
@@ -19,7 +14,7 @@
 class CFormatPng : public CFormat
 {
 public:
-    CFormatPng(Callback callback, const char* _lib, const char* _name);
+    CFormatPng(const char* lib, const char* name);
     virtual ~CFormatPng();
 
     virtual bool Load(const char* filename, unsigned subImage = 0);

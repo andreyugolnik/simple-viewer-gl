@@ -279,8 +279,8 @@ static const char* formatToStirng(DDS_FORMAT fmt)
     return "Unknown format";
 }
 
-CFormatDds::CFormatDds(Callback callback, const char* lib, const char* name)
-    : CFormat(callback, lib, name)
+CFormatDds::CFormatDds(const char* lib, const char* name)
+    : CFormat(lib, name)
 {
 }
 

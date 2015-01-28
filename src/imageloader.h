@@ -13,6 +13,7 @@
 #include <memory>
 #include <string>
 
+class iCallbacks;
 class CFormatCommon;
 class CFormatDds;
 class CFormatGif;
@@ -28,7 +29,7 @@ class cFormatRaw;
 class CImageLoader
 {
 public:
-    CImageLoader(Callback _callback);
+    CImageLoader(iCallbacks* callbacks);
     virtual ~CImageLoader();
 
     bool LoadImage(const char* path, unsigned subImage);
@@ -47,6 +48,7 @@ public:
     unsigned GetSubCount() const;
 
 private:
+    iCallbacks* m_callbacks;
     CFormat* m_image;
 #if defined(IMLIB2_SUPPORT)
     std::auto_ptr<CFormatCommon> m_format_common;

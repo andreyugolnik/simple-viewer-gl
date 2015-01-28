@@ -42,7 +42,7 @@ namespace FORMAT_PSD
 class CFormatPsd : public CFormat
 {
 public:
-    CFormatPsd(Callback callback, const char* _lib, const char* _name);
+    CFormatPsd(const char* lib, const char* name);
     virtual ~CFormatPsd();
 
     virtual bool Load(const char* filename, unsigned subImage = 0);

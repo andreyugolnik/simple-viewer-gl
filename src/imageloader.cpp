@@ -20,22 +20,23 @@
 #include <iostream>
 #include <algorithm>
 
-CImageLoader::CImageLoader(Callback _callback)
-    : m_image(0)
+CImageLoader::CImageLoader(iCallbacks* callbacks)
+    : m_callbacks(callbacks)
+    , m_image(0)
 {
 #if defined(IMLIB2_SUPPORT)
-    m_format_common.reset(new CFormatCommon(_callback, "libImlib2", "ImLib2"));
+    m_format_common.reset(new CFormatCommon("libImlib2", "ImLib2"));
 #endif
-    m_format_jpeg.reset(new CFormatJpeg(_callback, "libjpeg", "JPEG"));
-    m_format_psd.reset(new CFormatPsd(_callback, 0, "PSD"));
-    m_format_png.reset(new CFormatPng(_callback, "libpng", "PNG"));
-    m_format_gif.reset(new CFormatGif(_callback, "libgif", "GIF"));
-    m_format_ico.reset(new CFormatIco(_callback, 0, "ICO"));
-    m_format_tiff.reset(new CFormatTiff(_callback, "libtiff", "TIFF"));
-    m_format_xwd.reset(new CFormatXwd(_callback, 0, "XWD"));
-    m_format_dds.reset(new CFormatDds(_callback, 0, "DDS"));
-    m_format_raw.reset(new cFormatRaw(_callback, 0, "RAW"));
-    m_format_ppm.reset(new cFormatPpm(_callback, 0, "PPM"));
+    m_format_jpeg.reset(new CFormatJpeg("libjpeg", "JPEG"));
+    m_format_psd.reset(new CFormatPsd(0, "PSD"));
+    m_format_png.reset(new CFormatPng("libpng", "PNG"));
+    m_format_gif.reset(new CFormatGif("libgif", "GIF"));
+    m_format_ico.reset(new CFormatIco(0, "ICO"));
+    m_format_tiff.reset(new CFormatTiff("libtiff", "TIFF"));
+    m_format_xwd.reset(new CFormatXwd(0, "XWD"));
+    m_format_dds.reset(new CFormatDds(0, "DDS"));
+    m_format_raw.reset(new cFormatRaw(0, "RAW"));
+    m_format_ppm.reset(new cFormatPpm(0, "PPM"));
 }
 
 CImageLoader::~CImageLoader()
@@ -105,6 +106,7 @@ bool CImageLoader::LoadImage(const char* path, unsigned subImage)
             break;
         }
 
+        m_image->setCallbacks(m_callbacks);
         const bool result = m_image->Load(path, subImage);
         if(!result)
         {

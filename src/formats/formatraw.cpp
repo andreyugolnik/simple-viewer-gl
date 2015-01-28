@@ -1,13 +1,8 @@
  /**********************************************
  *
  *  Andrey A. Ugolnik
- *  'WE' Group
  *  http://www.ugolnik.info
  *  andrey@ugolnik.info
- *
- *  created: 04.10.2012
- *  changed: 05.09.2012
- *  version: 0.0.0.59
  *
  ***********************************************/
 
@@ -29,8 +24,8 @@ enum eFormat
     FORMAT_RGBA_RLE4
 };
 
-cFormatRaw::cFormatRaw(Callback callback, const char* lib, const char* name)
-    : CFormat(callback, lib, name)
+cFormatRaw::cFormatRaw(const char* lib, const char* name)
+    : CFormat(lib, name)
 {
 }
 

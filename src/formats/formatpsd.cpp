@@ -11,8 +11,8 @@
 
 using namespace FORMAT_PSD;
 
-CFormatPsd::CFormatPsd(Callback callback, const char* _lib, const char* _name)
-    : CFormat(callback, _lib, _name)
+CFormatPsd::CFormatPsd(const char* lib, const char* name)
+    : CFormat(lib, name)
     , m_buffer(0)
     , m_linesLengths(0)
 {

@@ -1,9 +1,11 @@
-/////////////////////////////////////////////////
-//
-// Andrey A. Ugolnik
-// andrey@ugolnik.info
-//
-/////////////////////////////////////////////////
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
 #ifndef FORMAT_H
 #define FORMAT_H
@@ -20,6 +22,8 @@
 #endif
 
 //#define WIDTHBYTES(bits) ((((bits) + 31) / 32) * 4)
+
+class iCallbacks;
 
 class cFile
 {
@@ -98,21 +102,21 @@ private:
 
 
 
-typedef void (*Callback)(int);
-
 class CFormat
 {
     friend class CImageLoader;
 
 public:
-    CFormat(Callback callback, const char* lib, const char* name);
+    CFormat(const char* lib, const char* name);
     virtual ~CFormat();
+
+    virtual void setCallbacks(iCallbacks* callbacks) { m_callbacks = callbacks; }
 
     virtual bool Load(const char* filename, unsigned subImage = 0) = 0;
     virtual void FreeMemory();
 
 private:
-    Callback m_callback;
+    iCallbacks* m_callbacks;
     int m_percent;
 
 protected:

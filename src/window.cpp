@@ -1,13 +1,13 @@
-/////////////////////////////////////////////////
-//
-// Andrey A. Ugolnik
-// http://www.ugolnik.info
-// andrey@ugolnik.info
-//
-/////////////////////////////////////////////////
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
 #include "window.h"
-#include "main.h"
 #include "quadimage.h"
 #include "fileslist.h"
 #include "imageloader.h"
@@ -25,12 +25,12 @@
 #include <string.h>
 #include <assert.h>
 
+const int DEF_WINDOW_W = 300;
+const int DEF_WINDOW_H = 200;
+
 //void closeWindow() {
 //	printf("done\n");
 //}
-
-// static members of CWindow class
-CWindow* m_window = 0;
 
 CWindow::CWindow()
     : m_initialImageLoading(true)
@@ -49,11 +49,10 @@ CWindow::CWindow()
     //, m_keyPressed(false)
     , m_angle(0)
 {
-    m_window = this;
     m_lastMouse = cVector(-1, -1);
     m_prev_size = cVector(DEF_WINDOW_W, DEF_WINDOW_H);
 
-    m_imageList.reset(new CImageLoader(callbackProgressLoading));
+    m_imageList.reset(new CImageLoader(this));
     m_checkerBoard.reset(new CCheckerboard());
     m_na.reset(new CNotAvailable());
     m_infoBar.reset(new CInfoBar());
@@ -66,55 +65,27 @@ CWindow::CWindow()
 CWindow::~CWindow()
 {
     deleteTextures();
-    m_window = 0;
 }
 
-bool CWindow::Init(int argc, char* argv[], const char* path)
+bool CWindow::setInitialImagePath(const char* path)
 {
+    m_initialImageLoading = true;
     m_filesList.reset(new CFilesList(path, m_recursiveDir));
     m_filesList->setAllValid(m_all_valid);
-    if(m_filesList->GetName() != 0)
-    {
-        glutInit(&argc, argv);
-        glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
+    return m_filesList->GetName() != 0;
+}
 
-        glutCreateWindow(DEF_TITLE);
+void CWindow::run()
+{
+    cRenderer::init();
 
-        //int version = glutGet(GLUT_VERSION);
-        //std::cout << "GLUT v" << version << std::endl;
-
-        cRenderer::init();
-
-        m_checkerBoard->Init();
-        m_na->Init();
-        m_infoBar->Init();
-        m_pixelInfo->Init();
-        updatePixelInfo(cVector(DEF_WINDOW_W, DEF_WINDOW_H));
-        m_progress->Init();
-        m_selection->Init();
-
-        glutReshapeFunc(callbackResize);
-        glutDisplayFunc(callbackRender);
-        glutTimerFunc(100, callbackTimerUpdate, 100);
-        glutTimerFunc(2000, callbackTimerCursor, 1);
-        glutKeyboardFunc(callbackKeyboard);
-        glutMouseFunc(callbackMouseButtons);
-        glutSpecialFunc(callbackKeyboardSpecial);
-        //glutEntryFunc();
-        glutMotionFunc(callbackMouse);
-        glutPassiveMotionFunc(callbackMouse);
-        //glutMouseWheelFunc(callbackMouseWheel);
-        //glutWMCloseFunc(closeWindow);
-
-        m_initialImageLoading = true;
-
-        std::cout << std::endl;
-
-        glutMainLoop();
-
-        return true;
-    }
-    return false;
+    m_checkerBoard->Init();
+    m_na->Init();
+    m_infoBar->Init();
+    m_pixelInfo->Init();
+    updatePixelInfo(cVector(DEF_WINDOW_W, DEF_WINDOW_H));
+    m_progress->Init();
+    m_selection->Init();
 }
 
 void CWindow::SetProp(Property prop)
@@ -651,19 +622,19 @@ void CWindow::updateFiltering()
     }
 }
 
-void CWindow::storeWindowPositionSize(bool _position, bool _size)
+void CWindow::storeWindowPositionSize(bool position, bool size)
 {
-    if(_position)
+    if(position)
     {
-        int x = glutGet(GLUT_WINDOW_X);
-        int y = glutGet(GLUT_WINDOW_Y);
+        const int x = glutGet(GLUT_WINDOW_X);
+        const int y = glutGet(GLUT_WINDOW_Y);
         m_prev_pos = cVector(x, y);
     }
 
-    if(_size)
+    if(size)
     {
-        int w = glutGet(GLUT_WINDOW_WIDTH);
-        int h = glutGet(GLUT_WINDOW_HEIGHT);
+        const int w = glutGet(GLUT_WINDOW_WIDTH);
+        const int h = glutGet(GLUT_WINDOW_HEIGHT);
         m_prev_size = cVector(w, h);
     }
 }
@@ -877,11 +848,6 @@ void CWindow::showCursor(bool show)
     {
         m_cursorVisible = show;
         glutSetCursor(show == true ? GLUT_CURSOR_RIGHT_ARROW : GLUT_CURSOR_NONE);
-
-        if(m_cursorVisible == true)
-        {
-            glutTimerFunc(2000, callbackTimerCursor, 1);
-        }
     }
 }
 
@@ -900,63 +866,8 @@ void CWindow::deleteTextures()
     //m_viewport_h = glutGet(GLUT_WINDOW_HEIGHT) - m_infoBar->GetHeight();
 //}
 
-
-void CWindow::callbackResize(int width, int height)
-{
-    m_window->fnResize(width, height);
-}
-
-void CWindow::callbackRender()
-{
-    m_window->fnRender();
-}
-
-void CWindow::callbackTimerUpdate(int value)
-{
-    glutPostRedisplay();
-    glutTimerFunc(100, callbackTimerUpdate, value);
-
-    // workaround: store window position by timer, because glut has not related callback
-    m_window->storeWindowPositionSize(true, false);
-}
-
-void CWindow::callbackTimerCursor(int /*value*/)
-{
-    m_window->showCursor(false);
-}
-
-void CWindow::callbackMouse(int x, int y)
-{
-    m_window->fnMouse(x, y);
-}
-
-void CWindow::callbackMouseButtons(int button, int state, int x, int y)
-{
-    m_window->fnMouseButtons(button, state, x, y);
-}
-
-void CWindow::callbackMouseWheel(int wheel, int direction, int x, int y)
-{
-    m_window->fnMouseWheel(wheel, direction, x, y);
-}
-
-void CWindow::callbackKeyboardSpecial(int key, int x, int y)
-{
-    m_window->fnKeyboardSpecial(key, x, y);
-}
-
-void CWindow::callbackKeyboard(unsigned char key, int x, int y)
-{
-    m_window->fnKeyboard(key, x, y);
-}
-
-void CWindow::fnProgressLoading(int percent)
+void CWindow::doProgress(int percent)
 {
     m_progress->Render(percent);
-}
-
-void CWindow::callbackProgressLoading(int percent)
-{
-    m_window->fnProgressLoading(percent);
 }
 
