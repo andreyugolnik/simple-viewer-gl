@@ -82,8 +82,8 @@ int main(int argc, char* argv[])
 {
     setlocale(LC_ALL, "");
 
-    printf("%s v2.3\n\n", DEF_TITLE);
-    printf("Copyright © 2008-2014 Andrey A. Ugolnik. All Rights Reserved.\n");
+    printf("%s v2.4\n\n", DEF_TITLE);
+    printf("Copyright © 2008-2015 Andrey A. Ugolnik. All Rights Reserved.\n");
     printf("http://www.ugolnik.info\n");
     printf("andrey@ugolnik.info\n\n");
 
