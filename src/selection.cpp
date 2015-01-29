@@ -60,21 +60,10 @@ void CSelection::Init()
         }
     }
 
-    for(int i = 0; i < m_selectionTexCount; i++)
-    {
-        m_selection[i].reset(new CQuad(m_selectionTexSize, m_selectionTexSize, buffer, GL_RGB));
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        m_selection[i]->useFilter(false);
-
-        // shift texture
-        for(int y = 0; y < m_selectionTexSize; y++)
-        {
-            for(int x = 0; x < m_selectionTexSize; x++)
-            {
-            }
-        }
-    }
+    m_selection.reset(new CQuad(m_selectionTexSize, m_selectionTexSize, buffer, GL_RGB));
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    m_selection->useFilter(false);
 
     delete[] buffer;
 }
@@ -92,7 +81,7 @@ const int delta = 20;
 const int delta2 = delta / 2;
 void CSelection::MouseButton(int x, int y, bool pressed)
 {
-    if(pressed == true)
+    if(pressed)
     {
         m_rc.Normalize();
         const bool inside = m_rc_test.TestPoint(x, y);
@@ -102,9 +91,9 @@ void CSelection::MouseButton(int x, int y, bool pressed)
 
         if(m_mode == MODE_NONE)
         {
-            if(inside == true)
+            if(inside)
             {
-                m_mode = (m_corner == CORNER_CENTER ? MODE_MOVE : MODE_RESIZE);
+                m_mode = (m_corner == CORNER_CR ? MODE_MOVE : MODE_RESIZE);
             }
             else
             {
@@ -151,45 +140,29 @@ void CSelection::MouseMove(int x, int y)
             break;
 
         case MODE_MOVE:
+            clampShiftDelta(dx, dy);
             m_rc.ShiftRect(dx, dy);
             break;
 
         case MODE_RESIZE:
-            switch(m_corner)
+            //clampShiftDelta(dx, dy);
+            if((m_corner & CORNER_UP))
             {
-            case CORNER_NONE:   // do nothing here
-            case CORNER_CENTER:
-                break;
-
-            case CORNER_LEFT:
-                m_rc.x1 += dx;
-                break;
-            case CORNER_RIGHT:
-                m_rc.x2 += dx;
-                break;
-            case CORNER_UP:
                 m_rc.y1 += dy;
-                break;
-            case CORNER_DOWN:
-                m_rc.y2 += dy;
-                break;
-            case CORNER_LEUP:
-                m_rc.x1 += dx;
-                m_rc.y1 += dy;
-                break;
-            case CORNER_RIUP:
-                m_rc.x2 += dx;
-                m_rc.y1 += dy;
-                break;
-            case CORNER_LEDN:
-                m_rc.x1 += dx;
-                m_rc.y2 += dy;
-                break;
-            case CORNER_RIDN:
-                m_rc.x2 += dx;
-                m_rc.y2 += dy;
-                break;
             }
+            if((m_corner & CORNER_RT))
+            {
+                m_rc.x2 += dx;
+            }
+            if((m_corner & CORNER_DN))
+            {
+                m_rc.y2 += dy;
+            }
+            if((m_corner & CORNER_LT))
+            {
+                m_rc.x1 += dx;
+            }
+            break;
         }
 
         m_rc.x1 = m_rc.x1 >= 0 ? m_rc.x1 : 0;
@@ -198,8 +171,28 @@ void CSelection::MouseMove(int x, int y)
         m_rc.x2 = m_rc.x2 < m_imageWidth ? m_rc.x2 : m_imageWidth - 1;
         m_rc.y2 = m_rc.y2 < m_imageHeight ? m_rc.y2 : m_imageHeight - 1;
 
-        m_mouseX = x;
-        m_mouseY = y;
+        m_mouseX += dx;
+        m_mouseY += dy;
+    }
+}
+
+void CSelection::clampShiftDelta(int& dx, int& dy)
+{
+    if(m_rc.x1 + dx < 0)
+    {
+        dx = -m_rc.x1;
+    }
+    else if(m_rc.x2 + dx >= m_imageWidth)
+    {
+        dx = m_imageWidth - 1 - m_rc.x2;
+    }
+    if(m_rc.y1 + dy < 0)
+    {
+        dy = -m_rc.y1;
+    }
+    else if(m_rc.y2 + dy >= m_imageHeight)
+    {
+        dy = m_imageWidth - 1 - m_rc.y2;
     }
 }
 
@@ -209,21 +202,20 @@ void CSelection::Render(float dx, float dy)
     {
         const float dt = getTime();
 
-        m_timeDelta += dt * 10;
-        const int frame = (int)m_timeDelta;
+        m_timeDelta += dt * 10.0f;
 
         CRect<int> rc;
         setImagePos(rc, dx, dy);
         //setImagePos(rc, _delta.x * _scale, _delta.y * _scale);
 
-        setColor(frame, m_corner != CORNER_UP);
-        renderLine(rc.x1, rc.y1, rc.x2, rc.y1, frame); // top line
-        setColor(frame, m_corner != CORNER_DOWN);
-        renderLine(rc.x1, rc.y2, rc.x2, rc.y2, frame); // bottom line
-        setColor(frame, m_corner != CORNER_LEFT);
-        renderLine(rc.x1, rc.y1, rc.x1, rc.y2, frame); // left line
-        setColor(frame, m_corner != CORNER_RIGHT);
-        renderLine(rc.x2, rc.y1, rc.x2, rc.y2, frame); // right line
+        setColor(m_corner & CORNER_UP);
+        renderLine(rc.x1, rc.y1, rc.x2, rc.y1); // top line
+        setColor(m_corner & CORNER_DN);
+        renderLine(rc.x1, rc.y2, rc.x2, rc.y2); // bottom line
+        setColor(m_corner & CORNER_LT);
+        renderLine(rc.x1, rc.y1, rc.x1, rc.y2); // left line
+        setColor(m_corner & CORNER_RT);
+        renderLine(rc.x2, rc.y1, rc.x2, rc.y2); // right line
     }
 }
 
@@ -234,7 +226,12 @@ const CRect<int>& CSelection::GetRect() const
 
 int CSelection::GetCursor() const
 {
-    int cursor[] = { 0, 1, 2, 2, 3, 3, 4, 5, 5, 4 };
+    static const int cursor[16] =
+    {
+        //                                 1  1  1  1  1
+        //0  1  2  3  4  5  6  7  8  9  0  1  2  3  4  5
+          0, 3, 2, 5, 3, 0, 4, 0, 2, 4, 0, 0, 5, 0, 0, 0
+    };
     return cursor[m_corner];
 }
 
@@ -245,60 +242,37 @@ void CSelection::updateCorner(int x, int y)
         return;
     }
 
-    if(!m_rc_test.IsSet())
-    {
-        return;
-    }
-
     const CRect<int>& rc = m_rc_test;
-    if(rc.TestPoint(x, y) == true)
+    if(rc.TestPoint(x, y))
     {
-        CRect<int> rcLe(rc.x1, rc.y1, rc.x1 + delta, rc.y2);
-        CRect<int> rcRi(rc.x2 - delta, rc.y1, rc.x2, rc.y2);
-        CRect<int> rcUp(rc.x1, rc.y1, rc.x2, rc.y1 + delta);
-        CRect<int> rcDn(rc.x1, rc.y2 - delta, rc.x2, rc.y2);
+        m_corner = 0;
+        CRect<int> rcLt(rc.x1, rc.y1, rc.x1 + delta, rc.y2);
+        if(rcLt.TestPoint(x, y))
+        {
+            m_corner |= CORNER_LT;
+        }
 
-        if(rcLe.TestPoint(x, y) == true)
+        CRect<int> rcRt(rc.x2 - delta, rc.y1, rc.x2, rc.y2);
+        if(rcRt.TestPoint(x, y))
         {
-            if(rcUp.TestPoint(x, y) == true)
-            {
-                m_corner = CORNER_LEUP;
-            }
-            else if(rcDn.TestPoint(x, y) == true)
-            {
-                m_corner = CORNER_LEDN;
-            }
-            else
-            {
-                m_corner = CORNER_LEFT;
-            }
+            m_corner |= CORNER_RT;
         }
-        else if(rcRi.TestPoint(x, y) == true)
+
+        CRect<int> rcUp(rc.x1, rc.y1, rc.x2, rc.y1 + delta);
+        if(rcUp.TestPoint(x, y))
         {
-            if(rcUp.TestPoint(x, y) == true)
-            {
-                m_corner = CORNER_RIUP;
-            }
-            else if(rcDn.TestPoint(x, y) == true)
-            {
-                m_corner = CORNER_RIDN;
-            }
-            else
-            {
-                m_corner = CORNER_RIGHT;
-            }
+            m_corner |= CORNER_UP;
         }
-        else if(rcUp.TestPoint(x, y) == true)
+
+        CRect<int> rcDn(rc.x1, rc.y2 - delta, rc.x2, rc.y2);
+        if(rcDn.TestPoint(x, y))
         {
-            m_corner = CORNER_UP;
+            m_corner |= CORNER_DN;
         }
-        else if(rcDn.TestPoint(x, y) == true)
+
+        if(!m_corner)
         {
-            m_corner = CORNER_DOWN;
-        }
-        else
-        {
-            m_corner = CORNER_CENTER;
+            m_corner = CORNER_CR;
         }
     }
     else
@@ -307,17 +281,15 @@ void CSelection::updateCorner(int x, int y)
     }
 }
 
-void CSelection::renderLine(int x1, int y1, int x2, int y2, int frame)
+void CSelection::renderLine(int x1, int y1, int x2, int y2)
 {
-    frame %= m_selectionTexCount;
+    const int x = std::min<int>(x1, x2);
+    const int y = std::min<int>(y1, y2);
+    const int w = (x1 == x2 ? 1 : m_rc.GetWidth());
+    const int h = (y1 == y2 ? 1 : m_rc.GetHeight());
 
-    int x = std::min(x1, x2);
-    int y = std::min(y1, y2);
-    int w = (x1 == x2 ? 1 : m_rc.GetWidth());
-    int h = (y1 == y2 ? 1 : m_rc.GetHeight());
-
-    m_selection[frame]->SetSpriteSize(w, h);
-    m_selection[frame]->Render(x, y);
+    m_selection->SetSpriteSize(w, h);
+    m_selection->Render(x, y);
 }
 
 void CSelection::setImagePos(CRect<int>& rc, int dx, int dy)
@@ -336,17 +308,15 @@ void CSelection::clampPoint(int& x, int& y)
     y = std::min<int>(y, m_imageHeight - 1);
 }
 
-void CSelection::setColor(int frame, bool std)
+void CSelection::setColor(bool selected)
 {
-    frame %= m_selectionTexCount;
-
-    if(std == true)
+    if(!selected)
     {
-        m_selection[frame]->SetColor(200, 255, 200, 150);
+        m_selection->SetColor(255, 255, 255, 255);
     }
     else
     {
-        m_selection[frame]->SetColor(255, 255, 0, 255);
+        m_selection->SetColor(0, 255, 0, 255);
     }
 }
 

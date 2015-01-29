@@ -16,7 +16,6 @@
 #include <memory>
 
 const int m_selectionTexSize = 16;
-const int m_selectionTexCount = 4;
 
 class CSelection
 {
@@ -34,11 +33,12 @@ public:
 
 private:
     void updateCorner(int x, int y);
-    void renderLine(int x1, int y1, int x2, int y2, int frame);
+    void renderLine(int x1, int y1, int x2, int y2);
     void setImagePos(CRect<int>& rc, int dx, int dy);
     void clampPoint(int& x, int& y);
-    void setColor(int idx, bool std = true);
+    void setColor(bool selected);
     float getTime();
+    void clampShiftDelta(int& dx, int& dy);
 
 private:
     bool m_enabled;
@@ -55,20 +55,16 @@ private:
     eMouseMode m_mode;
     enum eCorner
     {
-        CORNER_NONE,
-        CORNER_CENTER,
-        CORNER_LEFT,
-        CORNER_RIGHT,
-        CORNER_UP,
-        CORNER_DOWN,
-        CORNER_LEUP,
-        CORNER_RIUP,
-        CORNER_LEDN,
-        CORNER_RIDN
+        CORNER_NONE = 0,
+        CORNER_UP   = 1 << 0,
+        CORNER_RT   = 1 << 1,
+        CORNER_DN   = 1 << 2,
+        CORNER_LT   = 1 << 3,
+        CORNER_CR   = 1 << 4,
     };
-    eCorner m_corner;
+    unsigned m_corner;
 
-    std::auto_ptr<CQuad> m_selection[m_selectionTexCount];
+    std::auto_ptr<CQuad> m_selection;
     CRect<int> m_rc;
     CRect<int> m_rc_test;
 };
