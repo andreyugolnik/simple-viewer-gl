@@ -57,7 +57,7 @@ void CPixelInfo::setPixelInfo(const sPixelInfo& pi)
             "size: %d, %d -> %d, %d"
             , (int)pi.point.x, (int)pi.point.y
             , pi.a, pi.r, pi.g, pi.b
-            , w, h
+            , w + 1, h + 1
             , x, y, x + w, y + h);
 
     m_ft->Update(info);

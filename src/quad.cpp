@@ -34,6 +34,32 @@ void CQuad::SetColor(int r, int g, int b, int a)
     cRenderer::setColor(&m_quad, r, g, b, a);
 }
 
+void CQuad::SetTextureRect(float x, float y, float w, float h)
+{
+    m_w = w;
+    m_h = h;
+
+    const float tw = 1.0f / m_tw;
+    const float th = 1.0f / m_th;
+
+    const float tx1 = x * tw;
+    const float ty1 = y * th;
+    const float tx2 = (x + w) * tw;
+    const float ty2 = (y + h) * th;
+
+    m_quad.v[0].tx = tx1;
+    m_quad.v[0].ty = ty1;
+
+    m_quad.v[1].tx = tx2;
+    m_quad.v[1].ty = ty1;
+
+    m_quad.v[2].tx = tx2;
+    m_quad.v[2].ty = ty2;
+
+    m_quad.v[3].tx = tx1;
+    m_quad.v[3].ty = ty2;
+}
+
 void CQuad::SetSpriteSize(float w, float h)
 {
     m_w = w;
@@ -59,7 +85,18 @@ void CQuad::Render(float x, float y)
 
 void CQuad::RenderEx(float x, float y, float w, float h, int angle)
 {
-    if(angle != 0.0f)
+    if(angle == 0)
+    {
+        m_quad.v[0].x = x;
+        m_quad.v[0].y = y;
+        m_quad.v[1].x = x + w;
+        m_quad.v[1].y = y;
+        m_quad.v[2].x = x + w;
+        m_quad.v[2].y = y + h;
+        m_quad.v[3].x = x;
+        m_quad.v[3].y = y + h;
+    }
+    else
     {
         const float a = M_PI * angle / 180.0f;
         const float c = cosf(a);
@@ -73,17 +110,6 @@ void CQuad::RenderEx(float x, float y, float w, float h, int angle)
         m_quad.v[2].y = y + w*s + h*c;
         m_quad.v[3].x = x - h*s;
         m_quad.v[3].y = y + h*c;
-    }
-    else
-    {
-        m_quad.v[0].x = x;
-        m_quad.v[0].y = y;
-        m_quad.v[1].x = x + w;
-        m_quad.v[1].y = y;
-        m_quad.v[2].x = x + w;
-        m_quad.v[2].y = y + h;
-        m_quad.v[3].x = x;
-        m_quad.v[3].y = y + h;
     }
 
     cRenderer::render(&m_quad);

@@ -109,14 +109,18 @@ void CSelection::MouseButton(int x, int y, bool pressed)
         {
             m_mode = MODE_NONE;
             m_rc.Clear();
+            m_rc_test.Clear();
         }
     }
     else
     {
         m_mode = MODE_NONE;
 
-        m_rc.Normalize();
-        m_rc_test.Set(m_rc.x1 - delta2, m_rc.y1 - delta2, m_rc.x2 + delta2, m_rc.y2 + delta2);
+        if(m_rc.IsSet())
+        {
+            m_rc.Normalize();
+            m_rc_test.Set(m_rc.x1 - delta2, m_rc.y1 - delta2, m_rc.x2 + delta2, m_rc.y2 + delta2);
+        }
     }
 }
 
@@ -206,16 +210,15 @@ void CSelection::Render(float dx, float dy)
 
         CRect<int> rc;
         setImagePos(rc, dx, dy);
-        //setImagePos(rc, _delta.x * _scale, _delta.y * _scale);
 
         setColor(m_corner & CORNER_UP);
-        renderLine(rc.x1, rc.y1, rc.x2, rc.y1); // top line
+        renderLine(rc.x1 - 1, rc.y1 - 1, rc.x2 + 1, rc.y1 - 1); // top line
         setColor(m_corner & CORNER_DN);
-        renderLine(rc.x1, rc.y2, rc.x2, rc.y2); // bottom line
+        renderLine(rc.x1 - 1, rc.y2 + 1, rc.x2 + 1, rc.y2 + 1); // bottom line
         setColor(m_corner & CORNER_LT);
-        renderLine(rc.x1, rc.y1, rc.x1, rc.y2); // left line
+        renderLine(rc.x1 - 1, rc.y1, rc.x1 - 1, rc.y2); // left line
         setColor(m_corner & CORNER_RT);
-        renderLine(rc.x2, rc.y1, rc.x2, rc.y2); // right line
+        renderLine(rc.x2 + 1, rc.y1, rc.x2 + 1, rc.y2); // right line
     }
 }
 
@@ -226,12 +229,13 @@ const CRect<int>& CSelection::GetRect() const
 
 int CSelection::GetCursor() const
 {
-    static const int cursor[16] =
+    static const int cursor[16 + 1] =
     {
         //                                 1  1  1  1  1
         //0  1  2  3  4  5  6  7  8  9  0  1  2  3  4  5
-          0, 3, 2, 5, 3, 0, 4, 0, 2, 4, 0, 0, 5, 0, 0, 0
+          0, 3, 2, 5, 3, 0, 4, 2, 2, 4, 0, 3, 5, 2, 3, 1, 1
     };
+    //printf("corner: %u , cursor: %d\n", m_corner, cursor[m_corner]);
     return cursor[m_corner];
 }
 
@@ -288,7 +292,14 @@ void CSelection::renderLine(int x1, int y1, int x2, int y2)
     const int w = (x1 == x2 ? 1 : m_rc.GetWidth());
     const int h = (y1 == y2 ? 1 : m_rc.GetHeight());
 
-    m_selection->SetSpriteSize(w, h);
+    if(w < h)
+    {
+        m_selection->SetTextureRect(0.0f, m_timeDelta, w, h);
+    }
+    else
+    {
+        m_selection->SetTextureRect(m_timeDelta, 0.0f, w, h);
+    }
     m_selection->Render(x, y);
 }
 
