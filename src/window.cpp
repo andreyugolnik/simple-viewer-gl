@@ -240,26 +240,19 @@ void CWindow::fnResize(int width, int height)
 
 void CWindow::fnMouse(int x, int y)
 {
-    //printf("mouse: %d x %d\n", x, y); fflush(0);
-    bool forceUpdate = false;
-
     const cVector<float> pointer_pos(x / m_scale, y / m_scale);
     const cVector<float> diff(m_lastMouse - pointer_pos);
     m_lastMouse = pointer_pos;
-    //if(!m_fitImage && (m_mouseMB || m_mouseRB))
     if(m_mouseMB || m_mouseRB)
     {
         if(diff != cVector<float>())
         {
-            forceUpdate = true;
             shiftCamera(diff);
         }
     }
 
     if(m_pixelInfo->IsVisible())
     {
-        forceUpdate = true;
-
         const int cursor = m_selection->GetCursor();
         m_pixelInfo->SetCursor(cursor);
 
@@ -272,11 +265,6 @@ void CWindow::fnMouse(int x, int y)
     {
         showCursor(true);
     }
-
-    if(forceUpdate == true)
-    {
-        glutPostRedisplay();
-    }
 }
 
 void CWindow::fnMouseWheel(int /*wheel*/, int direction, int /*x*/, int /*y*/)
@@ -285,8 +273,8 @@ void CWindow::fnMouseWheel(int /*wheel*/, int direction, int /*x*/, int /*y*/)
     {
         updateScale(true);
     }
-    else
-    {//if(direction < 0) {
+    else //if(direction < 0)
+    {
         updateScale(false);
     }
 }
@@ -302,7 +290,6 @@ void CWindow::fnMouseButtons(int button, int state, int x, int y)
             const cVector<float> pos(x / m_scale, y / m_scale);
             const cVector<float> point = screenToImage(pos);
             m_selection->MouseButton(point.x, point.y, m_mouseLB);
-            //glutPostRedisplay();
             updatePixelInfo(pos);
         }
         break;
@@ -449,11 +436,9 @@ void CWindow::fnKeyboardSpecial(int key, int /*x*/, int /*y*/)
         break;
     case GLUT_KEY_PAGE_UP:
         loadImage(0, m_imageList->GetSub() - 1);
-        //glutPostRedisplay();
         break;
     case GLUT_KEY_PAGE_DOWN:
         loadImage(0, m_imageList->GetSub() + 1);
-        //glutPostRedisplay();
         break;
     //default:
          //std::cout << key << std::endl;
@@ -625,7 +610,6 @@ void CWindow::centerWindow()
             int scrw = glutGet(GLUT_SCREEN_WIDTH);
             int scrh = glutGet(GLUT_SCREEN_HEIGHT);
             int imgw = std::max<int>(w + (m_showBorder ? m_border->GetBorderWidth() * 2 : 0), DEF_WINDOW_W);
-            //int imgh = std::max<int>(h + (m_showBorder ? m_border->GetBorderWidth() * 2 : 0) + m_infoBar->GetHeight(), DEF_WINDOW_H);
             int imgh = std::max<int>(h + (m_showBorder ? m_border->GetBorderWidth() * 2 : 0), DEF_WINDOW_H);
             winw = std::min<int>(imgw, scrw);
             winh = std::min<int>(imgh, scrh);
@@ -690,18 +674,18 @@ void CWindow::updateInfobar()
     calculateScale();
 
     INFO_BAR s;
-    const char* path    = m_filesList->GetName(0);
-    s.path              = path;
-    s.width             = m_imageList->GetWidth();
-    s.height            = m_imageList->GetHeight();
-    s.bpp               = m_imageList->GetImageBpp();
-    s.scale             = m_scale;
-    s.sub_image         = m_imageList->GetSub();
-    s.sub_count         = m_imageList->GetSubCount();
-    s.file_size         = m_imageList->GetSize();
-    s.mem_size          = m_imageList->GetSizeMem();
-    s.index             = m_filesList->GetIndex();
-    s.files_count       = m_filesList->GetCount();
+    const char* path = m_filesList->GetName(0);
+    s.path           = path;
+    s.width          = m_imageList->GetWidth();
+    s.height         = m_imageList->GetHeight();
+    s.bpp            = m_imageList->GetImageBpp();
+    s.scale          = m_scale;
+    s.sub_image      = m_imageList->GetSub();
+    s.sub_count      = m_imageList->GetSubCount();
+    s.file_size      = m_imageList->GetSize();
+    s.mem_size       = m_imageList->GetSizeMem();
+    s.index          = m_filesList->GetIndex();
+    s.files_count    = m_filesList->GetCount();
     m_infoBar->Update(&s);
 }
 
@@ -740,11 +724,10 @@ void CWindow::updatePixelInfo(const cVector<float>& pos)
         }
 
         pixelInfo.mouse = (pos - m_viewport / m_scale * 0.5f) * m_scale;
-        //pixelInfo.mouse.y -= m_infoBar->GetHeight() * 0.5f / m_scale;
         pixelInfo.point = point;
-        pixelInfo.img_w  = w;
-        pixelInfo.img_h  = h;
-        pixelInfo.rc = m_selection->GetRect();
+        pixelInfo.img_w = w;
+        pixelInfo.img_h = h;
+        pixelInfo.rc    = m_selection->GetRect();
         m_pixelInfo->setPixelInfo(pixelInfo);
     }
 }
@@ -767,7 +750,7 @@ void CWindow::createTextures()
         //if(texW > 0 && texH > 0)
         {
             // texture pitch should be multiple by 4
-            int texPitch = (int)ceilf(texW * bytesPP / 4.0f) * 4;
+            const unsigned texPitch = (unsigned)ceilf(texW * bytesPP / 4.0f) * 4;
             //const unsigned line = texW * bytesPP;
             //const unsigned texPitch = line + (line % 4) * 4;
 
@@ -820,7 +803,6 @@ void CWindow::createTextures()
 
 void CWindow::showCursor(bool show)
 {
-    return;
     if(m_cursorVisible != show)
     {
         m_cursorVisible = show;
@@ -836,12 +818,6 @@ void CWindow::deleteTextures()
     }
     m_quads.clear();
 }
-
-//void CWindow::updateViewportSize()
-//{
-    //m_viewport_w = glutGet(GLUT_WINDOW_WIDTH);
-    //m_viewport_h = glutGet(GLUT_WINDOW_HEIGHT) - m_infoBar->GetHeight();
-//}
 
 void CWindow::doProgress(int percent)
 {

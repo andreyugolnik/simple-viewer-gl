@@ -39,7 +39,7 @@ void callbackRender()
 void callbackTimerUpdate(int value)
 {
     glutPostRedisplay();
-    glutTimerFunc(100, callbackTimerUpdate, value);
+    glutTimerFunc(1000 / 60, callbackTimerUpdate, value);
 
     // workaround: store window position by timer, because glut has not related callback
     m_window->storeWindowPositionSize(true, false);
