@@ -28,8 +28,8 @@ public:
     void SetImageDimension(float w, float h);
     void MouseButton(int x, int y, bool pressed);
     void MouseMove(int x, int y);
-    void Render(const cVector<float>& delta, float scale);
-    const CRect<float>& GetRect() const;
+    void Render(float dx, float dy);
+    const CRect<int>& GetRect() const;
     int GetCursor() const;
 
 private:
@@ -69,7 +69,8 @@ private:
     eCorner m_corner;
 
     std::auto_ptr<CQuad> m_selection[m_selectionTexCount];
-    CRect<float> m_rc;
+    CRect<int> m_rc;
+    CRect<int> m_rc_test;
 };
 
 #endif // SELECTION_H

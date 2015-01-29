@@ -84,15 +84,18 @@ void CSelection::SetImageDimension(float w, float h)
     m_imageWidth = w;
     m_imageHeight = h;
     m_rc.Clear();
+    m_rc_test.Clear();
     getTime();
 }
 
+const int delta = 20;
+const int delta2 = delta / 2;
 void CSelection::MouseButton(int x, int y, bool pressed)
 {
     if(pressed == true)
     {
         m_rc.Normalize();
-        const bool inside = m_rc.TestPoint(x, y);
+        const bool inside = m_rc_test.TestPoint(x, y);
 
         m_mouseX = x;
         m_mouseY = y;
@@ -109,6 +112,8 @@ void CSelection::MouseButton(int x, int y, bool pressed)
                 clampPoint(x, y);
                 m_rc.SetLeftTop(x, y);
                 m_rc.Clear();
+                m_rc_test.SetLeftTop(x - delta2, y - delta2);
+                m_rc_test.Clear();
             }
         }
         else if(inside == false)
@@ -120,6 +125,9 @@ void CSelection::MouseButton(int x, int y, bool pressed)
     else
     {
         m_mode = MODE_NONE;
+
+        m_rc.Normalize();
+        m_rc_test.Set(m_rc.x1 - delta2, m_rc.y1 - delta2, m_rc.x2 + delta2, m_rc.y2 + delta2);
     }
 }
 
@@ -184,43 +192,42 @@ void CSelection::MouseMove(int x, int y)
             }
         }
 
-        dx = m_rc.x1 < 0 ? m_rc.x1 : 0;
-        dy = m_rc.y1 < 0 ? m_rc.y1 : 0;
-        m_rc.ShiftRect(-dx, -dy);
+        m_rc.x1 = m_rc.x1 >= 0 ? m_rc.x1 : 0;
+        m_rc.y1 = m_rc.y1 >= 0 ? m_rc.y1 : 0;
 
-        dx = m_rc.x2 >= m_imageWidth ? m_imageWidth - m_rc.x2 : 0;
-        dy = m_rc.y2 >= m_imageHeight ? m_imageHeight - m_rc.y2 : 0;
-        m_rc.ShiftRect(dx, dy);
+        m_rc.x2 = m_rc.x2 < m_imageWidth ? m_rc.x2 : m_imageWidth - 1;
+        m_rc.y2 = m_rc.y2 < m_imageHeight ? m_rc.y2 : m_imageHeight - 1;
 
         m_mouseX = x;
         m_mouseY = y;
     }
 }
 
-void CSelection::Render(const cVector<float>& _delta, float _scale)
+void CSelection::Render(float dx, float dy)
 {
-    float dt = getTime();
-
-    m_timeDelta += dt * 10;
-    int frame = (int)m_timeDelta;
-
-    if(m_enabled == true && m_rc.IsSet() == true)
+    if(m_enabled && m_rc.IsSet())
     {
+        const float dt = getTime();
+
+        m_timeDelta += dt * 10;
+        const int frame = (int)m_timeDelta;
+
         CRect<int> rc;
-        setImagePos(rc, _delta.x * _scale, _delta.y * _scale);
+        setImagePos(rc, dx, dy);
+        //setImagePos(rc, _delta.x * _scale, _delta.y * _scale);
 
         setColor(frame, m_corner != CORNER_UP);
-        renderLine(rc.x1, rc.y1, rc.x2, rc.y1, frame);	// top line
+        renderLine(rc.x1, rc.y1, rc.x2, rc.y1, frame); // top line
         setColor(frame, m_corner != CORNER_DOWN);
-        renderLine(rc.x1, rc.y2, rc.x2, rc.y2, frame);	// bottom line
+        renderLine(rc.x1, rc.y2, rc.x2, rc.y2, frame); // bottom line
         setColor(frame, m_corner != CORNER_LEFT);
-        renderLine(rc.x1, rc.y1, rc.x1, rc.y2, frame);	// left line
+        renderLine(rc.x1, rc.y1, rc.x1, rc.y2, frame); // left line
         setColor(frame, m_corner != CORNER_RIGHT);
-        renderLine(rc.x2, rc.y1, rc.x2, rc.y2, frame);	// right line
+        renderLine(rc.x2, rc.y1, rc.x2, rc.y2, frame); // right line
     }
 }
 
-const CRect<float>& CSelection::GetRect() const
+const CRect<int>& CSelection::GetRect() const
 {
     return m_rc;
 }
@@ -238,15 +245,18 @@ void CSelection::updateCorner(int x, int y)
         return;
     }
 
-    m_rc.Normalize();
-    if(m_rc.TestPoint(x, y) == true)
+    if(!m_rc_test.IsSet())
     {
-        const int delta = 10;
+        return;
+    }
 
-        CRect<int> rcLe(m_rc.x1, m_rc.y1, m_rc.x1 + delta, m_rc.y2);
-        CRect<int> rcRi(m_rc.x2 - delta, m_rc.y1, m_rc.x2, m_rc.y2);
-        CRect<int> rcUp(m_rc.x1, m_rc.y1, m_rc.x2, m_rc.y1 + delta);
-        CRect<int> rcDn(m_rc.x1, m_rc.y2 - delta, m_rc.x2, m_rc.y2);
+    const CRect<int>& rc = m_rc_test;
+    if(rc.TestPoint(x, y) == true)
+    {
+        CRect<int> rcLe(rc.x1, rc.y1, rc.x1 + delta, rc.y2);
+        CRect<int> rcRi(rc.x2 - delta, rc.y1, rc.x2, rc.y2);
+        CRect<int> rcUp(rc.x1, rc.y1, rc.x2, rc.y1 + delta);
+        CRect<int> rcDn(rc.x1, rc.y2 - delta, rc.x2, rc.y2);
 
         if(rcLe.TestPoint(x, y) == true)
         {

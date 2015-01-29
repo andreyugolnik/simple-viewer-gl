@@ -28,9 +28,13 @@
 const int DEF_WINDOW_W = 200;
 const int DEF_WINDOW_H = 200;
 
-//void closeWindow() {
-//	printf("done\n");
-//}
+#if defined(__APPLE__)
+    const int key_delete = 8;
+    const int key_backspace = 127;
+#else
+    const int key_delete = 127;
+    const int key_backspace = 8;
+#endif
 
 CWindow::CWindow()
     : m_initialImageLoading(true)
@@ -184,8 +188,7 @@ void CWindow::fnRender()
         }
         if(m_pixelInfo->IsVisible())
         {
-            m_selection->Render(cVector<float>(-half_w, -half_h), m_scale);
-            //m_selection->Render(0, 0);
+            m_selection->Render(-half_w, -half_h);
         }
         cRenderer::resetGlobals();
 
@@ -256,12 +259,12 @@ void CWindow::fnMouse(int x, int y)
     if(m_pixelInfo->IsVisible())
     {
         forceUpdate = true;
-        if(m_scale == 1.0f)
-        {
-            m_selection->MouseMove(x - m_camera.x, y - m_camera.y);
-            const int cursor = m_selection->GetCursor();
-            m_pixelInfo->SetCursor(cursor);
-        }
+
+        const int cursor = m_selection->GetCursor();
+        m_pixelInfo->SetCursor(cursor);
+
+        const cVector<float> point = screenToImage(m_lastMouse);
+        m_selection->MouseMove(point.x, point.y);
 
         updatePixelInfo(m_lastMouse);
     }
@@ -296,7 +299,8 @@ void CWindow::fnMouseButtons(int button, int state, int x, int y)
         m_mouseLB = (state == GLUT_DOWN);
         if(m_pixelInfo->IsVisible())
         {
-            m_selection->MouseButton(x - m_camera.x, y - m_camera.y, m_mouseLB);
+            const cVector<float> point = screenToImage(cVector<float>(x, y));
+            m_selection->MouseButton(point.x, point.y, m_mouseLB);
             //glutPostRedisplay();
         }
         break;
@@ -350,20 +354,10 @@ void CWindow::fnKeyboard(unsigned char key, int /*x*/, int /*y*/)
     case ' ':
         loadImage(1);
         break;
-        // backspace
-#if defined(__APPLE__)
-    case 127:
-#else
-    case 8:
-#endif
+    case key_backspace:
         loadImage(-1);
         break;
-        // Delete
-#if defined(__APPLE__)
-    case 8:
-#else
-    case 127:
-#endif
+    case key_delete:
         if(mod == GLUT_ACTIVE_CTRL)
         {
             m_filesList->RemoveFromDisk();
