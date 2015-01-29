@@ -1,9 +1,11 @@
-Build with cmake:
+Build with cmake under Linux:
 
 $ mkdir build
 $ cd build
-$ cmake ../
+$ cmake ../projects/linux
 $ make
+
+Or just make linux inside simple-viewer-gl directory.
 
 Optional copy executable in to /usr/bin:
 
@@ -12,3 +14,4 @@ $ cp sviewgl /usr/bin
 Example of config in config.example file.
 Copy it to $XDG_CONFIG_HOME/sviewgl/config
 If $XDG_CONFIG_HOME is not set $HOME/.config/sviewgl/config will be used.
+
