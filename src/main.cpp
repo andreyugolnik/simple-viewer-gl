@@ -39,17 +39,17 @@ void callbackRender()
 void callbackTimerUpdate(int value)
 {
     glutPostRedisplay();
-    glutTimerFunc(1000 / 60, callbackTimerUpdate, value);
+    glutTimerFunc(value, callbackTimerUpdate, value);
 
     // workaround: store window position by timer, because glut has not related callback
     m_window->storeWindowPositionSize(true, false);
 }
 
-void callbackTimerCursor(int /*value*/)
+void callbackTimerCursor(int value)
 {
-    //m_window->showCursor(false);
+    m_window->showCursor(false);
 
-    //glutTimerFunc(2000, callbackTimerCursor, 1);
+    glutTimerFunc(value, callbackTimerCursor, value);
 }
 
 void callbackMouse(int x, int y)
@@ -163,8 +163,8 @@ int main(int argc, char* argv[])
 
         glutReshapeFunc(callbackResize);
         glutDisplayFunc(callbackRender);
-        glutTimerFunc(100, callbackTimerUpdate, 100);
-        glutTimerFunc(2000, callbackTimerCursor, 1);
+        glutTimerFunc(1000/60, callbackTimerUpdate, 1000/60);
+        glutTimerFunc(2000, callbackTimerCursor, 2000);
         glutKeyboardFunc(callbackKeyboard);
         glutMouseFunc(callbackMouseButtons);
         glutSpecialFunc(callbackKeyboardSpecial);

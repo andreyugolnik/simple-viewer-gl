@@ -538,17 +538,20 @@ void CWindow::updateScale(bool up)
 {
     m_fitImage = false;
 
-    int scale = std::max<int>(25, ceilf(m_scale * 100.0f));
+    const int step = 25;
+    int scale = std::max<int>(step, ceilf(m_scale * 100.0f));
+    scale /= 25;
+    scale *= 25;
 
     if(up == true)
     {
-        scale += 25;
+        scale += step;
     }
     else
     {
-        if(scale > 25)
+        if(scale > step)
         {
-            scale -= 25;
+            scale -= step;
         }
     }
     m_scale = scale / 100.0f;
