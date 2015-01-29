@@ -1,6 +1,6 @@
 ## Simple Viewer GL - simple and tiny image viewer based on OpenGL.##
 
-### Features:###
+**Features:**
 * Lightweight and fast: utilize hardware-accelerated video card;
 * Very simple interface;
 * Suitable for default image viewer of desktop;
@@ -9,7 +9,7 @@
 * Open source, licensed under GNU GPL;
 * Support
 
-###Default keybindings:###
+**Default keybindings:**
  <esc>         exit;
  <space>       next image;
  <backspace>   previous image;
@@ -24,7 +24,7 @@
  <p>           hide / show pixel info;
  <b>           hide / show border around image;
 
-###Library requirements:###
+**Library requirements:**
 * OpenGL
 * glut - is a window system independent toolkit for writing OpenGL programs.
 * libXi - provides an X Window System client interface to the XINPUT extension to the X protocol.
@@ -37,7 +37,6 @@
 * giflib
 * zlib
 
---
 Copyright © 2008-2015 Andrey A. Ugolnik. All Rights Reserved.
 
 http://www.ugolnik.info
