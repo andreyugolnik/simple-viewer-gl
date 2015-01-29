@@ -5,7 +5,7 @@ $ cd build
 $ cmake ../projects/linux
 $ make
 
-Or just make linux inside simple-viewer-gl directory.
+Or just make inside simple-viewer-gl directory.
 
 Optional copy executable in to /usr/bin:
 
