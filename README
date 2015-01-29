@@ -7,26 +7,25 @@
 * Suitable for default image viewer of desktop;
 * Minimal lib dependency: look library requirements below;
 * Desktop independent: doesn't require any specific desktop environment;
-* Open source, licensed under GNU GPL;
-* Support
+* Open source, licensed under GNU GPL.
 
 **Default keybindings:**
 
-* <esc>         exit;
-* <space>       next image;
-* <backspace>   previous image;
-* <+> / <->     scale image;
-* <0>           set scale to 100%%;
-* <enter>       switch fullscreen / windowed mode;
-* <ctrl>+<del>  delete image from disk;
-* <s>           fit image to window (quick algorithm);
-* <v>           flip vertical;
-* <c>           hide / show chequerboard;
-* <i>           hide / show on screen info;
-* <p>           hide / show pixel info;
-* <b>           hide / show border around image;
+* <esc> - exit;
+* <space> - next image;
+* <backspace> - previous image;
+* <+> / <-> - scale image;
+* <0> - set scale to 100%%;
+* <enter> - switch fullscreen / windowed mode;
+* <ctrl>+<del> - delete image from disk;
+* <s> - fit image to window (quick algorithm);
+* <v> - flip vertical;
+* <c>- hide / show chequerboard;
+* <i> - hide / show on screen info;
+* <p> - hide / show pixel info;
+* <b> - hide / show border around image;
 
-**Library requirements:**
+**Dependencies:**
 
 * OpenGL
 * glut - is a window system independent toolkit for writing OpenGL programs.
