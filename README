@@ -1,14 +1,15 @@
-Simple Viewer GL - simple and tiny image viewer based on OpenGL.
+## Simple Viewer GL - simple and tiny image viewer based on OpenGL.##
 
-Features:
- - Lightweight and fast: utilize hardware-accelerated video card;
- - Very simple interface;
- - Suitable for default image viewer of desktop;
- - Minimal lib dependency: look library requirements below;
- - Desktop independent: doesn't require any specific desktop environment;
- - Open source, licensed under GNU GPL;
+### Features:###
+* Lightweight and fast: utilize hardware-accelerated video card;
+* Very simple interface;
+* Suitable for default image viewer of desktop;
+* Minimal lib dependency: look library requirements below;
+* Desktop independent: doesn't require any specific desktop environment;
+* Open source, licensed under GNU GPL;
+* Support
 
-Default keybindings:
+###Default keybindings:###
  <esc>         exit;
  <space>       next image;
  <backspace>   previous image;
@@ -23,23 +24,21 @@ Default keybindings:
  <p>           hide / show pixel info;
  <b>           hide / show border around image;
 
-Library requirements:
- - OpenGL
- - glut - is a window system independent toolkit for writing OpenGL programs.
- - libXi - provides an X Window System client interface to the XINPUT extension to the X protocol.
- - libXmu - provides a set of miscellaneous utility convenience functions for X libraries to use.
- - libconfig++ - parsing and manipulation of structured configuration files.
- - freetype2 - FreeType 2 font engine, shared library files.
- - Imlib2 - is an advanced replacement for libraries like libXpm.
- - libjpeg
- - libpng
- - giflib
- - zlib
-
+###Library requirements:###
+* OpenGL
+* glut - is a window system independent toolkit for writing OpenGL programs.
+* libXi - provides an X Window System client interface to the XINPUT extension to the X protocol.
+* libXmu - provides a set of miscellaneous utility convenience functions for X libraries to use.
+* libconfig++ - parsing and manipulation of structured configuration files.
+* freetype2 - FreeType 2 font engine, shared library files.
+* Imlib2 - is an advanced replacement for libraries like libXpm.
+* libjpeg
+* libpng
+* giflib
+* zlib
 
 --
-Copyright © 2008-2011 Andrey A. Ugolnik. All Rights Reserved.
+Copyright © 2008-2015 Andrey A. Ugolnik. All Rights Reserved.
 
-http://www.wegroup.org
 http://www.ugolnik.info
 andrey@ugolnik.info
