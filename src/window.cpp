@@ -299,7 +299,7 @@ void CWindow::fnMouseButtons(int button, int state, int x, int y)
         m_mouseLB = (state == GLUT_DOWN);
         if(m_pixelInfo->IsVisible())
         {
-            const cVector<float> point = screenToImage(cVector<float>(x, y));
+            const cVector<float> point = screenToImage(cVector<float>(x / m_scale, y / m_scale));
             m_selection->MouseButton(point.x, point.y, m_mouseLB);
             //glutPostRedisplay();
         }
