@@ -25,26 +25,29 @@ public:
 
     void Init();
     void SetImageDimension(float w, float h);
-    void MouseButton(int x, int y, bool pressed);
-    void MouseMove(int x, int y);
+    void MouseButton(float x, float y, bool pressed);
+    void MouseMove(float x, float y);
     void Render(float dx, float dy);
-    const CRect<int>& GetRect() const;
+    const CRect<float>& GetRect() const;
     int GetCursor() const;
+    void setScale(float scale);
 
 private:
-    void updateCorner(int x, int y);
-    void renderLine(int x1, int y1, int x2, int y2);
-    void setImagePos(CRect<int>& rc, int dx, int dy);
-    void clampPoint(int& x, int& y);
+    void updateCorner(float x, float y);
+    void renderHorizontal(float x, float y, float w, float scale);
+    void renderVertical(float x, float y, float h, float scale);
+    void setImagePos(CRect<float>& rc, float dx, float dy);
+    void clampPoint(float& x, float& y);
     void setColor(bool selected);
     float getTime();
-    void clampShiftDelta(int& dx, int& dy);
+    void clampShiftDelta(float& dx, float& dy);
 
 private:
     bool m_enabled;
     float m_imageWidth, m_imageHeight;
     float m_mouseX, m_mouseY;
     float m_timeDelta;
+    float m_scale;
     enum eMouseMode
     {
         MODE_NONE,
@@ -65,8 +68,8 @@ private:
     unsigned m_corner;
 
     std::auto_ptr<CQuad> m_selection;
-    CRect<int> m_rc;
-    CRect<int> m_rc_test;
+    CRect<float> m_rc;
+    CRect<float> m_rc_test;
 };
 
 #endif // SELECTION_H

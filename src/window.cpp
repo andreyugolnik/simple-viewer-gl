@@ -339,6 +339,7 @@ void CWindow::fnKeyboard(unsigned char key, int /*x*/, int /*y*/)
         m_camera = cVector<float>();
         centerWindow();
         updateInfobar();
+        m_selection->setScale(m_scale);
         break;
     case ' ':
         loadImage(1);
@@ -373,6 +374,7 @@ void CWindow::fnKeyboard(unsigned char key, int /*x*/, int /*y*/)
         m_fitImage = false;
         centerWindow();
         updateInfobar();
+        m_selection->setScale(m_scale);
         break;
     case 13:
         m_windowed = !m_windowed;
@@ -528,6 +530,7 @@ void CWindow::calculateScale()
         {
             m_scale = 1.0f;
         }
+        m_selection->setScale(m_scale);
     }
 
     updateFiltering();
@@ -555,6 +558,7 @@ void CWindow::updateScale(bool up)
         }
     }
     m_scale = scale / 100.0f;
+    m_selection->setScale(m_scale);
 
     updateFiltering();
     updateInfobar();

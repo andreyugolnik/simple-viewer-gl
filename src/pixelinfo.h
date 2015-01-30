@@ -23,7 +23,7 @@ struct sPixelInfo
     cVector<float> point;
     int img_w, img_h;
     unsigned char r, g, b, a;
-    CRect<int> rc;
+    CRect<float> rc;
 };
 
 class CPixelInfo
