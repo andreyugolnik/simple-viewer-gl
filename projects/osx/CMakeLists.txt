@@ -79,7 +79,6 @@ ADD_EXECUTABLE(../sviewgl
     ../src/formats/formattiff.cpp
     ../src/formats/formatxwd.cpp
     ../src/formats/rle.cpp
-    ../src/math/vector.cpp
     )
 
 TARGET_LINK_LIBRARIES(../sviewgl
