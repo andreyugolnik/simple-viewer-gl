@@ -364,8 +364,13 @@ bool CFormatDds::Load(const char* filename, unsigned /*subImage*/)
     printf("format: %s\n", formatToStirng(format));
 
     const unsigned data_size = m_size - file.getOffset();
-    unsigned char* src = new unsigned char[data_size];
-    file.read(src, data_size);
+    unsigned char* buffer = new unsigned char[data_size];
+    unsigned char* src = buffer;
+    if(data_size != file.read(src, data_size))
+    {
+        printf("error load DDS file \"%s\": wrong data size.\n", filename);
+        return 0;
+    }
 
     if(format == DDS_RGB)
     {
@@ -441,11 +446,11 @@ bool CFormatDds::Load(const char* filename, unsigned /*subImage*/)
                 unsigned c1 = *(unsigned short*)(src + 2);
                 src += 4;
                 color[0].r = ((c0 >> 11) & 0x1f) << 3;
-                color[0].g = ((c0 >> 5) & 0x3f) << 2;
-                color[0].b = (c0 & 0x1f) << 3;
+                color[0].g = ((c0 >>  5) & 0x3f) << 2;
+                color[0].b = ((c0 >>  0) & 0x1f) << 3;
                 color[1].r = ((c1 >> 11) & 0x1f) << 3;
-                color[1].g = ((c1 >> 5) & 0x3f) << 2;
-                color[1].b = (c1 & 0x1f) << 3;
+                color[1].g = ((c1 >>  5) & 0x3f) << 2;
+                color[1].b = ((c1 >>  0) & 0x1f) << 3;
                 if(c0 > c1)
                 {
                     color[2].r = (color[0].r * 2 + color[1].r) / 3;
@@ -469,7 +474,7 @@ bool CFormatDds::Load(const char* filename, unsigned /*subImage*/)
                 {
                     unsigned index = *src++;
                     unsigned char* dest = &m_bitmap[0] + (m_width * (y + i) + x) * 4;
-                    for(int j = 0; j < 4; j++)
+                    for(unsigned j = 0; j < 4; j++)
                     {
                         *dest++ = color[index & 0x03].r;
                         *dest++ = color[index & 0x03].g;
@@ -505,7 +510,7 @@ bool CFormatDds::Load(const char* filename, unsigned /*subImage*/)
         }
     }
 
-    delete[] src;
+    delete[] buffer;
 
     return true;
 }
