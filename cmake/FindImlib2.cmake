@@ -36,7 +36,7 @@ FIND_LIBRARY(IMLIB2_LIBRARY
 	/Library/Frameworks
 	)
 
-# handle the QUIETLY and REQUIRED arguments and set IMLIB2_FOUND to TRUE if 
+# handle the QUIETLY and REQUIRED arguments and set IMLIB2_FOUND to TRUE if
 # all listed variables are TRUE
 INCLUDE(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(IMLIB2  DEFAULT_MSG  IMLIB2_LIBRARY  IMLIB2_INCLUDE_DIR)
