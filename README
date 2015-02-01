@@ -1,6 +1,12 @@
-## Simple Viewer GL - simple and tiny image viewer based on OpenGL.##
+##Simple Viewer GL - simple and tiny image viewer based on OpenGL.##
 
-**Features:**
+The primary goal for writing **sviewgl** is to create an image viewer, which only has the most basic features required for fast image viewing. It has some vi-like key bindings and works nicely with tiling window managers (such as Ion3 and Notion). Supported formats: PNG, JPEG, BMP, TIFF, GIF, PPM, DDS, BMP, TARGA, PSD, ICO.
+
+##Screenshot##
+
+![simpleviewergl.png](https://bitbucket.org/repo/XgobE8/images/1203610096-simpleviewergl.png)
+
+##Features##
 
 * Lightweight and fast: utilize hardware-accelerated video card;
 * Very simple interface;
@@ -9,38 +15,62 @@
 * Desktop independent: doesn't require any specific desktop environment;
 * Open source, licensed under GNU GPL.
 
-**Default keybindings:**
+##Usage##
 
-* <esc> - exit;
-* <space> - next image;
-* <backspace> - previous image;
-* <+> / <-> - scale image;
-* <0> - set scale to 100%%;
-* <enter> - switch fullscreen / windowed mode;
-* <ctrl>+<del> - delete image from disk;
-* <s> - fit image to window (quick algorithm);
-* <v> - flip vertical;
-* <c>- hide / show chequerboard;
-* <i> - hide / show on screen info;
-* <p> - hide / show pixel info;
-* <b> - hide / show border around image;
+**sviewgl** has two modes of operation: image viewer and image info mode. The default is image mode, in which only the current image is shown. In image info mode pixel info and rectangular selection available. This mode useful for brief resource description.
 
-**Dependencies:**
+##Key bindings##
 
+Key | Description
+--|----
+<esc> | exit
+<space> | next image
+<backspace> | previous image
+<+> / <-> | scale image
+<0> | set scale to 100%
+<enter> | switch fullscreen / windowed mode
+<ctrl>+<del> | delete image from disk
+<s> | fit image to window (quick algorithm)
+<v> | flip vertical
+<c> | hide / show chequerboard
+<i> | hide / show on screen info
+<p> | hide / show pixel info
+<b> | hide / show border around image
+
+##Download and build##
+
+You can browse the source code repository on GitHub or get a copy using git with the following command:
+```
+git clone https://github.com/andreyu/simple-viewer-gl.git
+```
+
+Under Linux **sviewgl** is built using the command:
+```
+$ make linux
+```
+And under OS X:
+```
+$ make osx
+```
+
+##Dependencies##
+
+* Imlib2 - is an advanced replacement for libraries like libXpm.
+* libjpeg - jpeg format support.
+* libpng - png format support.
+* giflib - gif format support.
+* tiff - tiff format support.
 * OpenGL
 * glut - is a window system independent toolkit for writing OpenGL programs.
 * libXi - provides an X Window System client interface to the XINPUT extension to the X protocol.
 * libXmu - provides a set of miscellaneous utility convenience functions for X libraries to use.
 * libconfig++ - parsing and manipulation of structured configuration files.
 * freetype2 - FreeType 2 font engine, shared library files.
-* Imlib2 - is an advanced replacement for libraries like libXpm.
-* libjpeg
-* libpng
-* giflib
 * zlib
 
+***
+```
 Copyright © 2008-2015 Andrey A. Ugolnik. All Rights Reserved.
-
 http://www.ugolnik.info
-
 andrey@ugolnik.info
+```
