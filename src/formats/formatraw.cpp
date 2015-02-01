@@ -36,22 +36,23 @@ cFormatRaw::~cFormatRaw()
 bool cFormatRaw::isRawFormat(const char* name)
 {
     cFile file;
-    if(file.open(name))
+    if(!file.open(name))
     {
-        sHeader header;
-        size_t size = file.read(&header, sizeof(header));
-        if(size == sizeof(header))
-        {
-            return isValidFormat(header);
-        }
+        return false;
     }
 
-    return false;
+    sHeader header;
+    if(sizeof(header) != file.read(&header, sizeof(header)))
+    {
+        return false;
+    }
+
+    return isValidFormat(header, file.getSize());
 }
 
-bool cFormatRaw::isValidFormat(const sHeader& header)
+bool cFormatRaw::isValidFormat(const sHeader& header, unsigned file_size)
 {
-    if(header.data_size + sizeof(sHeader) == (unsigned)m_size)
+    if(header.data_size + sizeof(sHeader) == file_size)
     {
         const char* id = (const char*)&header.id;
         return (id[0] == Id[0] && id[1] == Id[1] && id[2] == Id[2] && id[3] == Id[3]);
@@ -76,7 +77,7 @@ bool cFormatRaw::Load(const char* filename, unsigned /*subImage*/)
         return false;
     }
 
-    if(!isValidFormat(header))
+    if(!isValidFormat(header, m_size))
     {
         return false;
     }

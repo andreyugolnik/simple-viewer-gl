@@ -30,7 +30,7 @@ private:
         unsigned data_size;
     };
 
-    bool isValidFormat(const sHeader& header);
+    bool isValidFormat(const sHeader& header, unsigned file_size);
 };
 
 #endif /* end of include guard: FORMATRAW_H_2D405816DEDEF1 */
