@@ -1,6 +1,6 @@
 ## Simple Viewer GL - simple and tiny image viewer based on OpenGL.##
 
-The primary goal for writing sviewgl is to create an image viewer, which only has the most basic features required for fast image viewing. It has some vi-like key bindings and works nicely with tiling window managers (such as Ion3 and Notion).
+The primary goal for writing *sviewgl* is to create an image viewer, which only has the most basic features required for fast image viewing. It has some vi-like key bindings and works nicely with tiling window managers (such as Ion3 and Notion).
 
 ***
 **Screenshot**
@@ -18,19 +18,11 @@ The primary goal for writing sviewgl is to create an image viewer, which only ha
 * Open source, licensed under GNU GPL.
 
 ***
-**Installation**
+**Usage**
 
-sviewgl is built using the commands (Linux):
-```
-$ make linux
-```
-or OS X:
-```
-$ make osx
-```
+*sviewgl* has two modes of operation: image viewer and image info mode. The default is image mode, in which only the current image is shown. In image info mode pixel info and rectangular selection available. This mode useful for brief resource description.
 
-***
-**Default keybindings**
+**Key bindings**
 
 Key | Description
 --|----
@@ -47,6 +39,23 @@ Key | Description
 <i> | hide / show on screen info
 <p> | hide / show pixel info
 <b> | hide / show border around image
+
+***
+**Download and build**
+
+You can browse the source code repository on GitHub or get a copy using git with the following command:
+```
+git clone https://github.com/andreyu/simple-viewer-gl.git
+```
+
+Under Linux *sviewgl* is built using the command:
+```
+$ make linux
+```
+And under OS X:
+```
+$ make osx
+```
 
 ***
 **Dependencies**
