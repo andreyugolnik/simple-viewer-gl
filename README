@@ -21,21 +21,21 @@ The primary goal for writing **sviewgl** is to create an image viewer, which onl
 
 ##Key bindings##
 
-Key | Description
---|----
-<esc> | exit
-<space> | next image
-<backspace> | previous image
-<+> / <-> | scale image
-<0> | set scale to 100%
-<enter> | switch fullscreen / windowed mode
+Key          | Description
+-------------|--------------------------------------
+<esc>        | exit
+<space>      | next image
+<backspace>  | previous image
+<+> / <->    | scale image
+<0>          | set scale to 100%
+<enter>      | switch fullscreen / windowed mode
 <ctrl>+<del> | delete image from disk
-<s> | fit image to window (quick algorithm)
-<v> | flip vertical
-<c> | hide / show chequerboard
-<i> | hide / show on screen info
-<p> | hide / show pixel info
-<b> | hide / show border around image
+<s>          | fit image to window (quick algorithm)
+<v>          | flip vertical
+<c>          | hide / show chequerboard
+<i>          | hide / show on screen info
+<p>          | hide / show pixel info
+<b>          | hide / show border around image
 
 ##Download and build##
 
