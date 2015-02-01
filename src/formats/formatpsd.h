@@ -50,7 +50,7 @@ public:
 private:
     uint8_t* m_buffer;
     uint16_t* m_linesLengths;
-#define MAX_CHANNELS	24
+#define MAX_CHANNELS 24
     uint8_t* m_chBufs[MAX_CHANNELS];
 
 private:

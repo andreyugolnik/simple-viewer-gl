@@ -46,28 +46,26 @@ bool CFormatPsd::Load(const char* filename, unsigned /*subImage*/)
         return false;
     }
 
-    int color_mode = read_uint16((uint8_t*)&header.color_mode);
+    const unsigned color_mode = read_uint16((uint8_t*)&header.color_mode);
     if(color_mode != PSD_MODE_RGB && color_mode != PSD_MODE_CMYK)
     {
         std::cout << "Unsupported color mode: " << color_mode << std::endl;
         return false;
     }
 
-    int depth = read_uint16((uint8_t*)&header.depth);
+    const unsigned depth = read_uint16((uint8_t*)&header.depth);
     if(depth != 8)
     {
         std::cout << "Unsupported depth: " << depth << std::endl;
         return false;
     }
 
-    unsigned channels = read_uint16((uint8_t*)&header.channels);
+    const unsigned channels = read_uint16((uint8_t*)&header.channels);
     if(channels != 3 && channels != 4)
     {
         std::cout << "Unsupported cannels count: " << channels << std::endl;
         //return false;
     }
-    const unsigned extraChannels = channels - std::min<unsigned>(channels, 4);
-    std::cout << " " << extraChannels << " extra channel(s),";
 
     // skip Color Mode Data Block
     if(false == skipNextBlock(file))
@@ -98,40 +96,42 @@ bool CFormatPsd::Load(const char* filename, unsigned /*subImage*/)
         return false;
     }
     compression = read_uint16((uint8_t*)&compression);
+    //printf("compression: %u\n", compression);
 
     m_width = read_uint32((uint8_t*)&header.columns);
     m_height = read_uint32((uint8_t*)&header.rows);
 
     // this will be needed for RLE decompression
-    m_linesLengths = new uint16_t[channels * m_height];
-    for(unsigned i = 0; i < channels; i++)
+    if(compression == 1)
     {
-        const unsigned pos = m_height * i;
-
-        if(m_height * sizeof(uint16_t) != file.read(&m_linesLengths[pos], m_height * sizeof(uint16_t)))
+        m_linesLengths = new uint16_t[channels * m_height];
+        for(unsigned i = 0; i < channels; i++)
         {
-            std::cout << "Can't read length of lines" << std::endl;
-            cleanup();
-            return false;
+            const unsigned pos = m_height * i;
+
+            if(m_height * sizeof(uint16_t) != file.read(&m_linesLengths[pos], m_height * sizeof(uint16_t)))
+            {
+                std::cout << "Can't read length of lines" << std::endl;
+                cleanup();
+                return false;
+            }
         }
 
         // convert from different endianness
-        for(unsigned a = 0; a < m_height; a++)
+        for(unsigned i = 0; i < m_height * channels; i++)
         {
-            m_linesLengths[pos + a] = read_uint16((uint8_t*)&m_linesLengths[pos + a]);
+            m_linesLengths[i] = read_uint16((uint8_t*)&m_linesLengths[i]);
         }
     }
 
-    // !!!! this is a temporal hack, need more investigation !!!
-    // read only first 3 or 4 channels
-    channels = std::min<unsigned>(channels, 4);
-
-    m_bpp = depth * channels;
-    m_bppImage = m_bpp;
+    // only first 3 or 4 channels used
+    m_bpp = depth * std::min<unsigned>(channels, 4);
+    m_bppImage = depth * channels;
 
     // we need buffer that can contain one channel data of one
     // row in RLE compressed format. 2*width should be enough
-    m_buffer = new uint8_t[m_width * 2];
+    const unsigned max_line_length = m_width * 2;
+    m_buffer = new uint8_t[max_line_length];
 
     // create separate buffers for each channel (up to 24 buffers by spec)
     for(unsigned i = 0; i < channels; i++)
@@ -140,59 +140,48 @@ bool CFormatPsd::Load(const char* filename, unsigned /*subImage*/)
     }
 
     // read all channels rgba and extra if available;
-    unsigned currentRow = 0;
-    unsigned currentChannel = 0;
-    unsigned pos = 0;
-    bool done = false;
-    do
+    for(unsigned ch = 0; ch < channels; ch++)
     {
-        unsigned lineLength = m_width;
-        if(compression == 1)
+        unsigned pos = 0;
+        for(unsigned row = 0; row < m_height; row++)
         {
-            lineLength = m_linesLengths[currentChannel * m_height + currentRow];
-        }
-
-        size_t readed = file.read(m_buffer, lineLength);
-        if(m_width * 2 < lineLength)
-        {
-            std::cout << "Wrong line length: " << lineLength << std::endl;
-        }
-        if(lineLength != readed)
-        {
-            std::cout << "Error reading Image Data Block" << std::endl;
-            cleanup();
-            return false;
-        }
-
-        int percent = (int)(100.0f * (currentChannel * m_height + currentRow) / (channels * m_height));
-        progress(percent);
-
-        if(compression == 1)
-        {
-            decompressLine(m_buffer, lineLength, m_chBufs[currentChannel] + pos);
-        }
-        else
-        {
-            memcpy(m_chBufs[currentChannel] + pos, m_buffer, m_width);
-        }
-
-        pos += m_width;
-        currentRow++;
-
-        if(currentRow == m_height)
-        {
-            currentRow = 0;
-            pos = 0;
-            currentChannel++;
-            if(currentChannel == channels)
+            unsigned lineLength = m_width;
+            if(compression == 1)
             {
-                done = true;
+                lineLength = m_linesLengths[ch * m_height + row];
+                if(max_line_length < lineLength)
+                {
+                    std::cout << "Wrong line length: " << lineLength << std::endl;
+                    lineLength = max_line_length;
+                }
             }
+
+            size_t readed = file.read(m_buffer, lineLength);
+            if(lineLength != readed)
+            {
+                printf("Error reading Image Data Block\n");
+                //cleanup();
+                //return false;
+            }
+
+            int percent = (int)(100.0f * (ch * m_height + row) / (channels * m_height));
+            progress(percent);
+
+            if(compression == 1)
+            {
+                decompressLine(m_buffer, lineLength, m_chBufs[ch] + pos);
+            }
+            else
+            {
+                memcpy(m_chBufs[ch] + pos, m_buffer, m_width);
+            }
+
+            pos += m_width;
         }
-    } while(done == false);
+    }
 
     // convert or copy channel buffers to RGB / RGBA
-    m_pitch = m_width * channels;
+    m_pitch = m_width * std::min<unsigned>(channels, 4);
     m_bitmap.resize(m_pitch * m_height);
     unsigned char* bitmap = &m_bitmap[0];
 
@@ -205,31 +194,29 @@ bool CFormatPsd::Load(const char* filename, unsigned /*subImage*/)
             {
                 for(unsigned x = 0; x < m_width; x++)
                 {
-                    bitmap[0] = *(m_chBufs[0] + m_width * y + x);
-                    bitmap[1] = *(m_chBufs[1] + m_width * y + x);
-                    bitmap[2] = *(m_chBufs[2] + m_width * y + x);
+                    const unsigned idx = m_width * y + x;
+                    bitmap[0] = *(m_chBufs[0] + idx);
+                    bitmap[1] = *(m_chBufs[1] + idx);
+                    bitmap[2] = *(m_chBufs[2] + idx);
                     bitmap += 3;
                 }
             }
         }
-        else if(channels == 4)
+        else
         {
             m_format = GL_RGBA;
             for(unsigned y = 0; y < m_height; y++)
             {
                 for(unsigned x = 0; x < m_width; x++)
                 {
-                    bitmap[0] = *(m_chBufs[0] + m_width * y + x);
-                    bitmap[1] = *(m_chBufs[1] + m_width * y + x);
-                    bitmap[2] = *(m_chBufs[2] + m_width * y + x);
-                    bitmap[3] = *(m_chBufs[3] + m_width * y + x);
+                    const unsigned idx = m_width * y + x;
+                    bitmap[0] = *(m_chBufs[0] + idx);
+                    bitmap[1] = *(m_chBufs[1] + idx);
+                    bitmap[2] = *(m_chBufs[2] + idx);
+                    bitmap[3] = *(m_chBufs[3] + idx);
                     bitmap += 4;
                 }
             }
-        }
-        else
-        {
-            std::cout << "Should't be happened" << std::endl;
         }
     }
     else if(color_mode == PSD_MODE_CMYK)
@@ -239,10 +226,11 @@ bool CFormatPsd::Load(const char* filename, unsigned /*subImage*/)
         {
             for(unsigned x = 0; x < m_width; x++)
             {
-                double C = 1.0 - *(m_chBufs[0] + m_width * y + x) / 255.0;	// C
-                double M = 1.0 - *(m_chBufs[1] + m_width * y + x) / 255.0;	// M
-                double Y = 1.0 - *(m_chBufs[2] + m_width * y + x) / 255.0;	// Y
-                double K = 1.0 - *(m_chBufs[3] + m_width * y + x) / 255.0;	// K
+                const unsigned idx = m_width * y + x;
+                double C = 1.0 - *(m_chBufs[0] + idx) / 255.0; // C
+                double M = 1.0 - *(m_chBufs[1] + idx) / 255.0; // M
+                double Y = 1.0 - *(m_chBufs[2] + idx) / 255.0; // Y
+                double K = 1.0 - *(m_chBufs[3] + idx) / 255.0; // K
 
                 bitmap[0] = (unsigned char)((1.0 - (C * (1.0 - K) + K)) * 255.0);
                 bitmap[1] = (unsigned char)((1.0 - (M * (1.0 - K) + K)) * 255.0);
