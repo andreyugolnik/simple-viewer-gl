@@ -1,5 +1,9 @@
 ## Simple Viewer GL - simple and tiny image viewer based on OpenGL.##
 
+**Screenshot**
+
+![simpleviewergl.png](https://bitbucket.org/repo/XgobE8/images/1589611044-simpleviewergl.png)
+
 **Features:**
 
 * Lightweight and fast: utilize hardware-accelerated video card;
