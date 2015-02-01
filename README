@@ -1,10 +1,14 @@
 ## Simple Viewer GL - simple and tiny image viewer based on OpenGL.##
 
+The primary goal for writing sviewgl is to create an image viewer, which only has the most basic features required for fast image viewing. It has some vi-like key bindings and works nicely with tiling window managers (such as Ion3 and Notion).
+
+***
 **Screenshot**
 
 ![simpleviewergl.png](https://bitbucket.org/repo/XgobE8/images/1589611044-simpleviewergl.png)
 
-**Features:**
+***
+**Features**
 
 * Lightweight and fast: utilize hardware-accelerated video card;
 * Very simple interface;
@@ -13,23 +17,39 @@
 * Desktop independent: doesn't require any specific desktop environment;
 * Open source, licensed under GNU GPL.
 
-**Default keybindings:**
+***
+**Installation**
 
-* <esc> - exit;
-* <space> - next image;
-* <backspace> - previous image;
-* <+> / <-> - scale image;
-* <0> - set scale to 100%%;
-* <enter> - switch fullscreen / windowed mode;
-* <ctrl>+<del> - delete image from disk;
-* <s> - fit image to window (quick algorithm);
-* <v> - flip vertical;
-* <c>- hide / show chequerboard;
-* <i> - hide / show on screen info;
-* <p> - hide / show pixel info;
-* <b> - hide / show border around image;
+sviewgl is built using the commands (Linux):
+```
+$ make linux
+```
+or OS X:
+```
+$ make osx
+```
 
-**Dependencies:**
+***
+**Default keybindings**
+
+Key | Description
+--|----
+<esc> | exit
+<space> | next image
+<backspace> | previous image
+<+> / <-> | scale image
+<0> | set scale to 100%
+<enter> | switch fullscreen / windowed mode
+<ctrl>+<del> | delete image from disk
+<s> | fit image to window (quick algorithm)
+<v> | flip vertical
+<c> | hide / show chequerboard
+<i> | hide / show on screen info
+<p> | hide / show pixel info
+<b> | hide / show border around image
+
+***
+**Dependencies**
 
 * OpenGL
 * glut - is a window system independent toolkit for writing OpenGL programs.
@@ -43,8 +63,9 @@
 * giflib
 * zlib
 
+***
+```
 Copyright © 2008-2015 Andrey A. Ugolnik. All Rights Reserved.
-
 http://www.ugolnik.info
-
 andrey@ugolnik.info
+```
