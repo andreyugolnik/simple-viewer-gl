@@ -68,7 +68,7 @@ bool CFormatCommon::Load(const char* filename, unsigned /*subImage*/)
     m_image = imlib_load_image_with_error_return(filename, &error_return);
     if(m_image == 0)
     {
-        printf(": error loading file '%s' (error %s)"
+        printf(": error loading file '%s' (error %s)\n"
                 , filename
                 , toErrorString(error_return));
         return false;
