@@ -97,19 +97,13 @@ uint32_t CFormat::read_uint32(uint8_t* p)
     return (p[0] << 24) | (p[1] << 16) | (p[2] << 8) | p[3];
 }
 
-void CFormat::swap_long(uint8_t* bp, uint32_t n)
+void CFormat::swap_uint32s(uint8_t* p, uint32_t size)
 {
-    uint8_t* ep = bp + n;
-
-    while(bp < ep)
+    const uint32_t items = size / 4;
+    for(uint32_t i = 0; i < items; i++)
     {
-        uint8_t c = bp[3];
-        bp[3] = bp[0];
-        bp[0] = c;
-        c = bp[2];
-        bp[2] = bp[1];
-        bp[1] = c;
-        bp += 4;
+        *((uint32_t*)p) = read_uint32(p);
+        p += 4;
     }
 }
 
