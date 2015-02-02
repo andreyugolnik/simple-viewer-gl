@@ -107,7 +107,7 @@ class CFormat
     friend class CImageLoader;
 
 public:
-    CFormat(const char* lib, const char* name);
+    CFormat(const char* lib, const char* type);
     virtual ~CFormat();
 
     virtual void setCallbacks(iCallbacks* callbacks) { m_callbacks = callbacks; }
@@ -118,6 +118,7 @@ public:
 private:
     iCallbacks* m_callbacks;
     int m_percent;
+    std::string m_type;
 
 protected:
     void* m_lib;

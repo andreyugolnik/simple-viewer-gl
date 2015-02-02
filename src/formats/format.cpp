@@ -12,9 +12,10 @@
 
 #include <assert.h>
 
-CFormat::CFormat(const char* lib, const char* name)
+CFormat::CFormat(const char* lib, const char* type)
     : m_callbacks(0)
     , m_percent(-1)
+    , m_type(type)
     , m_lib(0)
     , m_format(GL_RGB)
     , m_width(0)
@@ -34,11 +35,11 @@ CFormat::CFormat(const char* lib, const char* name)
         m_lib = dlopen(path.c_str(), RTLD_LAZY);
         if(m_lib)
         {
-            std::cout << name << " format supported." << std::endl;
+            std::cout << type << " format supported." << std::endl;
         }
         else
         {
-            std::cout << "(WW) " << name << " format unsupported: " << dlerror() << std::endl;
+            std::cout << "(WW) " << type << " format unsupported: " << dlerror() << std::endl;
         }
 #else
         path += ".dylib";
@@ -46,7 +47,7 @@ CFormat::CFormat(const char* lib, const char* name)
     }
     else
     {
-        std::cout << name << " format supported." << std::endl;
+        std::cout << type << " format supported." << std::endl;
     }
 }
 

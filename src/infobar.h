@@ -18,6 +18,7 @@
 typedef struct INFO_BAR
 {
     const char* path;
+    const char* type;
     int index;
     int width, height, bpp;
     float scale;

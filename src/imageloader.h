@@ -46,6 +46,7 @@ public:
     size_t GetSizeMem() const;
     unsigned GetSub() const;
     unsigned GetSubCount() const;
+    const char* getImageType() const;
 
 private:
     iCallbacks* m_callbacks;

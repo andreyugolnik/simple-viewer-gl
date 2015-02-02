@@ -226,6 +226,15 @@ unsigned CImageLoader::GetSubCount() const
     return 0;
 }
 
+const char* CImageLoader::getImageType() const
+{
+    if(m_image != 0)
+    {
+        return m_image->m_type.c_str();
+    }
+    return 0;
+}
+
 unsigned CImageLoader::getFormat()
 {
     if(m_format_raw->isRawFormat(m_path.c_str()))

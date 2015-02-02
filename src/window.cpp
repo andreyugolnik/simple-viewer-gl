@@ -681,18 +681,18 @@ void CWindow::updateInfobar()
     calculateScale();
 
     INFO_BAR s;
-    const char* path = m_filesList->GetName(0);
-    s.path           = path;
-    s.width          = m_imageList->GetWidth();
-    s.height         = m_imageList->GetHeight();
-    s.bpp            = m_imageList->GetImageBpp();
-    s.scale          = m_scale;
-    s.sub_image      = m_imageList->GetSub();
-    s.sub_count      = m_imageList->GetSubCount();
-    s.file_size      = m_imageList->GetSize();
-    s.mem_size       = m_imageList->GetSizeMem();
-    s.index          = m_filesList->GetIndex();
-    s.files_count    = m_filesList->GetCount();
+    s.path        = m_filesList->GetName(0);
+    s.width       = m_imageList->GetWidth();
+    s.height      = m_imageList->GetHeight();
+    s.bpp         = m_imageList->GetImageBpp();
+    s.scale       = m_scale;
+    s.sub_image   = m_imageList->GetSub();
+    s.sub_count   = m_imageList->GetSubCount();
+    s.file_size   = m_imageList->GetSize();
+    s.mem_size    = m_imageList->GetSizeMem();
+    s.index       = m_filesList->GetIndex();
+    s.files_count = m_filesList->GetCount();
+    s.type        = m_imageList->getImageType();
     m_infoBar->Update(&s);
 }
 
