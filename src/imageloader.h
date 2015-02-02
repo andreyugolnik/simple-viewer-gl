@@ -10,9 +10,6 @@
 
 #include "formats/format.h"
 
-#include <memory>
-#include <string>
-
 class iCallbacks;
 class CFormatCommon;
 class CFormatDds;
@@ -26,6 +23,25 @@ class CFormatXwd;
 class cFormatPpm;
 class cFormatRaw;
 
+enum eImageType
+{
+#if defined(IMLIB2_SUPPORT)
+    TYPE_COMMON,
+#endif
+    TYPE_JPG,
+    TYPE_PSD,
+    TYPE_PNG,
+    TYPE_GIF,
+    TYPE_ICO,
+    TYPE_TIF,
+    TYPE_XWD,
+    TYPE_DDS,
+    TYPE_RAW,
+    TYPE_PPM,
+
+    TYPES_COUNT
+};
+
 class CImageLoader
 {
 public:
@@ -33,6 +49,7 @@ public:
     virtual ~CImageLoader();
 
     bool LoadImage(const char* path, unsigned subImage);
+    bool isLoaded() const;
 
     unsigned char* GetBitmap() const;
     void FreeMemory();
@@ -49,39 +66,14 @@ public:
     const char* getImageType() const;
 
 private:
-    iCallbacks* m_callbacks;
-    CFormat* m_image;
-#if defined(IMLIB2_SUPPORT)
-    std::auto_ptr<CFormatCommon> m_format_common;
-#endif
-    std::auto_ptr<CFormatJpeg> m_format_jpeg;
-    std::auto_ptr<CFormatPsd> m_format_psd;
-    std::auto_ptr<CFormatPng> m_format_png;
-    std::auto_ptr<CFormatGif> m_format_gif;
-    std::auto_ptr<CFormatIco> m_format_ico;
-    std::auto_ptr<CFormatTiff> m_format_tiff;
-    std::auto_ptr<CFormatXwd> m_format_xwd;
-    std::auto_ptr<CFormatDds> m_format_dds;
-    std::auto_ptr<cFormatRaw> m_format_raw;
-    std::auto_ptr<cFormatPpm> m_format_ppm;
-    std::string m_path;
+    CImageLoader();
+    eImageType getType(const char* name);
 
 private:
-    CImageLoader();
-
-    enum FILE_FORMAT
-    {
-        FORMAT_UNKNOWN,
-        FORMAT_COMMON,
-        FORMAT_JPEG, FORMAT_PSD, FORMAT_PNG, FORMAT_GIF, FORMAT_ICO,
-        FORMAT_TIFF, FORMAT_XWD, FORMAT_DDS, FORMAT_RAW, FORMAT_PPM
-    };
-    struct FORMAT
-    {
-        const char* ext;
-        unsigned format;
-    };
-    unsigned getFormat();
+    iCallbacks* m_callbacks;
+    CFormat* m_image;
+    eImageType m_type;
+    CFormat* m_formats[TYPES_COUNT];
 };
 
 #endif // IMAGELOADER_H

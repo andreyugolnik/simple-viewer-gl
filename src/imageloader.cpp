@@ -17,100 +17,79 @@
 #include "formats/formatdds.h"
 #include "formats/formatraw.h"
 #include "formats/formatppm.h"
+
 #include <iostream>
 #include <algorithm>
+#include <string>
+#include <assert.h>
+
+static std::string m_path;
 
 CImageLoader::CImageLoader(iCallbacks* callbacks)
     : m_callbacks(callbacks)
     , m_image(0)
+    , m_type(TYPES_COUNT)
 {
 #if defined(IMLIB2_SUPPORT)
-    m_format_common.reset(new CFormatCommon("libImlib2", "ImLib2"));
+    m_formats[TYPE_COMMON] = new CFormatCommon("libImlib2", "ImLib2");
 #endif
-    m_format_jpeg.reset(new CFormatJpeg("libjpeg", "JPEG"));
-    m_format_psd.reset(new CFormatPsd(0, "PSD"));
-    m_format_png.reset(new CFormatPng("libpng", "PNG"));
-    m_format_gif.reset(new CFormatGif("libgif", "GIF"));
-    m_format_ico.reset(new CFormatIco(0, "ICO"));
-    m_format_tiff.reset(new CFormatTiff("libtiff", "TIFF"));
-    m_format_xwd.reset(new CFormatXwd(0, "XWD"));
-    m_format_dds.reset(new CFormatDds(0, "DDS"));
-    m_format_raw.reset(new cFormatRaw(0, "RAW"));
-    m_format_ppm.reset(new cFormatPpm(0, "PPM"));
+    m_formats[TYPE_JPG] = new CFormatJpeg("libjpeg", "JPEG");
+    m_formats[TYPE_PSD] = new CFormatPsd(0, "PSD");
+    m_formats[TYPE_PNG] = new CFormatPng("libpng", "PNG");
+    m_formats[TYPE_GIF] = new CFormatGif("libgif", "GIF");
+    m_formats[TYPE_ICO] = new CFormatIco(0, "ICO");
+    m_formats[TYPE_TIF] = new CFormatTiff("libtiff", "TIFF");
+    m_formats[TYPE_XWD] = new CFormatXwd(0, "XWD");
+    m_formats[TYPE_DDS] = new CFormatDds(0, "DDS");
+    m_formats[TYPE_RAW] = new cFormatRaw(0, "RAW");
+    m_formats[TYPE_PPM] = new cFormatPpm(0, "PPM");
 }
 
 CImageLoader::~CImageLoader()
 {
+    for(int i = 0; i < TYPES_COUNT; i++)
+    {
+        delete m_formats[i];
+    }
 }
 
 bool CImageLoader::LoadImage(const char* path, unsigned subImage)
 {
     if(path != 0)
     {
-        if(m_path.empty() == false && m_path == path)
+        if(!m_path.empty() && m_path == path)
         {
-            if(m_image && !m_image->m_bitmap.empty() && GetSub() == subImage)
+            if(!m_image->m_bitmap.empty())
             {
+                if(GetSub() != subImage)
+                {
+                    return m_image->Load(path, subImage);
+                }
                 return true; // image already loaded
             }
         }
 
-        m_path = path;
-        if(m_image)
+        const eImageType type = getType(path);
+        if(m_type != type)
         {
-            m_image->reset();
+            m_type = type;
+            FreeMemory();
         }
 
-        const int format = getFormat();
-        switch(format)
+        if(type == TYPES_COUNT)
         {
-        case FORMAT_JPEG:
-            m_image = m_format_jpeg.get();
-            break;
-        case FORMAT_PSD:
-            m_image = m_format_psd.get();
-            break;
-        case FORMAT_PNG:
-            m_image = m_format_png.get();
-            break;
-        case FORMAT_GIF:
-            if(!subImage)
-            {
-                m_image = m_format_gif.get();
-            }
-            break;
-        case FORMAT_ICO:
-            m_image = m_format_ico.get();
-            break;
-        case FORMAT_TIFF:
-            m_image = m_format_tiff.get();
-            break;
-        case FORMAT_XWD:
-            m_image = m_format_xwd.get();
-            break;
-        case FORMAT_DDS:
-            m_image = m_format_dds.get();
-            break;
-        case FORMAT_RAW:
-            m_image = m_format_raw.get();
-            break;
-        case FORMAT_PPM:
-            m_image = m_format_ppm.get();
-            break;
-        default: //FORMAT_COMMON:
-#if defined(IMLIB2_SUPPORT)
-            m_image = m_format_common.get();
-#else
+            m_image = 0;
             return false;
-#endif
-            break;
         }
+
+        m_path = path;
+        m_image = m_formats[type];
 
         m_image->setCallbacks(m_callbacks);
         const bool result = m_image->Load(path, subImage);
         if(!result)
         {
-            m_image->reset();
+            FreeMemory();
         }
         return result;
     }
@@ -118,18 +97,24 @@ bool CImageLoader::LoadImage(const char* path, unsigned subImage)
     return false;
 }
 
+bool CImageLoader::isLoaded() const
+{
+    return m_image && !m_image->m_bitmap.empty();
+}
+
 unsigned char* CImageLoader::GetBitmap() const
 {
-    if(m_image && !m_image->m_bitmap.empty())
+    assert(m_image);
+    if(!m_image->m_bitmap.empty())
     {
-        return (unsigned char*)&m_image->m_bitmap[0];
+        return &m_image->m_bitmap[0];
     }
     return 0;
 }
 
 void CImageLoader::FreeMemory()
 {
-    if(m_image != 0)
+    if(m_image)
     {
         m_image->FreeMemory();
         m_path.clear();
@@ -138,87 +123,62 @@ void CImageLoader::FreeMemory()
 
 unsigned CImageLoader::GetWidth() const
 {
-    if(m_image != 0)
-    {
-        return m_image->m_width;
-    }
-    return 0;
+    assert(m_image);
+    return m_image->m_width;
 }
 
 unsigned CImageLoader::GetHeight() const
 {
-    if(m_image != 0)
-    {
-        return m_image->m_height;
-    }
-    return 0;
+    assert(m_image);
+    return m_image->m_height;
 }
 
 unsigned CImageLoader::GetPitch() const
 {
-    if(m_image != 0)
-    {
-        return m_image->m_pitch;
-    }
-    return 0;
+    assert(m_image);
+    return m_image->m_pitch;
 }
 
 unsigned CImageLoader::GetBitmapFormat() const
 {
-    if(m_image != 0) {
-        return m_image->m_format;
-    }
-    return 0;
+    assert(m_image);
+    return m_image->m_format;
 }
 
 unsigned CImageLoader::GetBpp() const
 {
-    if(m_image != 0)
-    {
-        return m_image->m_bpp;
-    }
-    return 0;
+    assert(m_image);
+    return m_image->m_bpp;
 }
 
 unsigned CImageLoader::GetImageBpp() const
 {
-    if(m_image != 0)
-    {
-        return m_image->m_bppImage;
-    }
-    return 0;
+    assert(m_image);
+    return m_image->m_bppImage;
 }
 
 // file size on disk
 long CImageLoader::GetSize() const
 {
-    if(m_image != 0)
-    {
-        return m_image->m_size;
-    }
-    return 0;
+    assert(m_image);
+    return m_image->m_size;
 }
 
 size_t CImageLoader::GetSizeMem() const
 {
-    if(m_image != 0)
-    {
-        return m_image->m_bitmap.size();
-    }
-    return 0;
+    assert(m_image);
+    return m_image->m_bitmap.size();
 }
 
 unsigned CImageLoader::GetSub() const
 {
-    if(m_image != 0)
-    {
-        return m_image->m_subImage;
-    }
-    return 0;
+    assert(m_image);
+    return m_image->m_subImage;
 }
 
 unsigned CImageLoader::GetSubCount() const
 {
+    assert(m_image);
     if(m_image != 0)
     {
         return m_image->m_subCount;
@@ -228,6 +188,7 @@ unsigned CImageLoader::GetSubCount() const
 
 const char* CImageLoader::getImageType() const
 {
+    assert(m_image);
     if(m_image != 0)
     {
         return m_image->m_type.c_str();
@@ -235,48 +196,57 @@ const char* CImageLoader::getImageType() const
     return 0;
 }
 
-unsigned CImageLoader::getFormat()
+struct sFormatExt
 {
-    if(m_format_raw->isRawFormat(m_path.c_str()))
+    const char* ext;
+    eImageType format;
+};
+
+eImageType CImageLoader::getType(const char* name)
+{
+    if(((cFormatRaw*)m_formats[TYPE_RAW])->isRawFormat(name))
     {
-        return FORMAT_RAW;
+        return TYPE_RAW;
     }
 
-    std::string s(m_path);
+    std::string s(name);
 
     // skip file without extension
-    size_t pos = s.find_last_of('.');
-    if(std::string::npos == pos)
+    const size_t pos = s.find_last_of('.');
+    if(std::string::npos != pos)
     {
-        return false;
-    }
+        // skip non image file (detect by extension)
+        std::transform(s.begin(), s.end(), s.begin(), tolower);
 
-    // skip non image file (detect by extension)
-    std::transform(s.begin(), s.end(), s.begin(), tolower);
-
-    FORMAT format[] = {
-        { ".jpeg", FORMAT_JPEG },
-        { ".jpg",  FORMAT_JPEG },
-        { ".psd",  FORMAT_PSD  },
-        { ".png",  FORMAT_PNG  },
-        { ".gif",  FORMAT_GIF  },
-        { ".ico",  FORMAT_ICO  },
-        { ".tiff", FORMAT_TIFF },
-        { ".tif",  FORMAT_TIFF },
-        { ".xwd",  FORMAT_XWD  },
-        { ".dds",  FORMAT_DDS  },
-        { ".raw",  FORMAT_RAW  },
-        { ".ppm",  FORMAT_PPM  },
-    };
-
-    for(size_t i = 0; i < sizeof(format) / sizeof(FORMAT); i++)
-    {
-        if(s.substr(pos) == format[i].ext)
+        static sFormatExt format[] =
         {
-            return format[i].format;
+            { ".jpeg", TYPE_JPG },
+            { ".jpg",  TYPE_JPG },
+            { ".psd",  TYPE_PSD },
+            { ".png",  TYPE_PNG },
+            { ".gif",  TYPE_GIF },
+            { ".ico",  TYPE_ICO },
+            { ".tiff", TYPE_TIF },
+            { ".tif",  TYPE_TIF },
+            { ".xwd",  TYPE_XWD },
+            { ".dds",  TYPE_DDS },
+            { ".raw",  TYPE_RAW },
+            { ".ppm",  TYPE_PPM },
+        };
+
+        for(size_t i = 0; i < sizeof(format) / sizeof(format[0]); i++)
+        {
+            if(s.substr(pos) == format[i].ext)
+            {
+                return format[i].format;
+            }
         }
+
+#if defined(IMLIB2_SUPPORT)
+        return TYPE_COMMON;
+#endif
     }
 
-    return FORMAT_COMMON;
+    return TYPES_COUNT;
 }
 

@@ -46,49 +46,42 @@ void CInfoBar::Render()
     }
 }
 
-void CInfoBar::Update(const InfoBar* p)
+void CInfoBar::Update(const sInfoBar& p)
 {
-    if(p != 0)
+    const char* n = strrchr(p.path, '/');
+    const char* name = n ? n + 1 : p.path;
+
+    char idx_img[20] = { 0 };
+    if(p.files_count > 1)
     {
-        const char* n = strrchr(p->path, '/');
-        const char* name = n ? n + 1 : p->path;
-
-        char idx_img[20] = { 0 };
-        if(p->files_count > 1)
-        {
-            snprintf(idx_img, sizeof(idx_img), "%d out %d | ", p->index + 1, p->files_count);
-        }
-
-        char sub_image[20] = { 0 };
-        if(p->sub_count > 1)
-        {
-            snprintf(sub_image, sizeof(sub_image), " | %d / %d", p->sub_image + 1, p->sub_count);
-        }
-
-        float file_size = p->file_size;
-        std::string file_s = getHumanSize(file_size);
-        float mem_size = p->mem_size;
-        std::string mem_s = getHumanSize(mem_size);
-
-        char title[1000] = { 0 };
-        snprintf(title, sizeof(title)
-                , "%s%s%s | %s | %d x %d x %d bpp (%d%%) | mem: %.1f %s (%.1f %s)"
-                , idx_img
-                , name
-                , sub_image
-                , p->type
-                , p->width, p->height, p->bpp, (int)(100.0f * p->scale)
-                , file_size, file_s.c_str()
-                , mem_size, mem_s.c_str());
-
-        m_bottominfo = title;
-
-        glutSetWindowTitle(name);
+        snprintf(idx_img, sizeof(idx_img), "%d out %d | ", p.index + 1, p.files_count);
     }
-    else
+
+    char sub_image[20] = { 0 };
+    if(p.sub_count > 1)
     {
-        glutSetWindowTitle("");
+        snprintf(sub_image, sizeof(sub_image), " | %d / %d", p.sub_image + 1, p.sub_count);
     }
+
+    float file_size = p.file_size;
+    std::string file_s = getHumanSize(file_size);
+    float mem_size = p.mem_size;
+    std::string mem_s = getHumanSize(mem_size);
+
+    char title[1000] = { 0 };
+    snprintf(title, sizeof(title)
+            , "%s%s%s | %s | %d x %d x %d bpp (%d%%) | mem: %.1f %s (%.1f %s)"
+            , idx_img
+            , name
+            , sub_image
+            , p.type
+            , p.width, p.height, p.bpp, (int)(100.0f * p.scale)
+            , file_size, file_s.c_str()
+            , mem_size, mem_s.c_str());
+
+    m_bottominfo = title;
+
+    glutSetWindowTitle(name);
 
     m_ft->Update(m_bottominfo.c_str());
 }

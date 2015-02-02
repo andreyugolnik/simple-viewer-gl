@@ -15,8 +15,24 @@
 #include <string>
 #include <memory>
 
-typedef struct INFO_BAR
+struct sInfoBar
 {
+    sInfoBar()
+        : path(0)
+        , type(0)
+        , index(0)
+        , width(0)
+        , height(0)
+        , bpp(0)
+        , scale(0)
+        , sub_image(0)
+        , sub_count(0)
+        , file_size(0)
+        , mem_size(0)
+        , files_count(0)
+    {
+    }
+
     const char* path;
     const char* type;
     int index;
@@ -26,7 +42,7 @@ typedef struct INFO_BAR
     long file_size;
     size_t mem_size;
     int files_count;
-} InfoBar;
+};
 
 class CInfoBar
 {
@@ -38,7 +54,7 @@ public:
     void Render();
     bool Visible() const { return m_visible; }
     void Show(bool show = true) { m_visible = show; }
-    void Update(const InfoBar* p);
+    void Update(const sInfoBar& p);
     float GetHeight() const { return (m_visible == true ? m_height : 0); }
 
 private:

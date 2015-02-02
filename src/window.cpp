@@ -485,7 +485,7 @@ void CWindow::shiftCamera(const cVector<float>& delta)
 
 void CWindow::calculateScale()
 {
-    if(m_fitImage == true)
+    if(m_fitImage && m_imageList->isLoaded())
     {
         float w = static_cast<float>(m_imageList->GetWidth());
         float h = static_cast<float>(m_imageList->GetHeight());
@@ -680,20 +680,28 @@ void CWindow::updateInfobar()
 {
     calculateScale();
 
-    INFO_BAR s;
+    sInfoBar s;
     s.path        = m_filesList->GetName(0);
-    s.width       = m_imageList->GetWidth();
-    s.height      = m_imageList->GetHeight();
-    s.bpp         = m_imageList->GetImageBpp();
     s.scale       = m_scale;
-    s.sub_image   = m_imageList->GetSub();
-    s.sub_count   = m_imageList->GetSubCount();
-    s.file_size   = m_imageList->GetSize();
-    s.mem_size    = m_imageList->GetSizeMem();
     s.index       = m_filesList->GetIndex();
     s.files_count = m_filesList->GetCount();
-    s.type        = m_imageList->getImageType();
-    m_infoBar->Update(&s);
+
+    if(m_imageList->isLoaded())
+    {
+        s.width       = m_imageList->GetWidth();
+        s.height      = m_imageList->GetHeight();
+        s.bpp         = m_imageList->GetImageBpp();
+        s.sub_image   = m_imageList->GetSub();
+        s.sub_count   = m_imageList->GetSubCount();
+        s.file_size   = m_imageList->GetSize();
+        s.mem_size    = m_imageList->GetSizeMem();
+        s.type        = m_imageList->getImageType();
+    }
+    else
+    {
+        s.type        = "unknown";
+    }
+    m_infoBar->Update(s);
 }
 
 const cVector<float> CWindow::screenToImage(const cVector<float>& pos)
@@ -706,7 +714,7 @@ const cVector<float> CWindow::screenToImage(const cVector<float>& pos)
 
 void CWindow::updatePixelInfo(const cVector<float>& pos)
 {
-    if(m_imageList->GetBitmap())
+    if(m_imageList->isLoaded())
     {
         const int w = m_imageList->GetWidth();
         const int h = m_imageList->GetHeight();
