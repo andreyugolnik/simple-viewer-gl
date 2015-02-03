@@ -54,11 +54,12 @@ bool CFormatPsd::Load(const char* filename, unsigned /*subImage*/)
     }
 
     const unsigned depth = read_uint16((uint8_t*)&header.depth);
-    if(depth != 8)
+    if(depth != 8 && depth != 16)
     {
         std::cout << "Unsupported depth: " << depth << std::endl;
         return false;
     }
+    const unsigned bytes_per_component = depth / 8;
 
     const unsigned channels = read_uint16((uint8_t*)&header.channels);
     if(channels != 3 && channels != 4)
@@ -125,18 +126,18 @@ bool CFormatPsd::Load(const char* filename, unsigned /*subImage*/)
     }
 
     // only first 3 or 4 channels used
-    m_bpp = depth * std::min<unsigned>(channels, 4);
+    m_bpp = std::min<unsigned>(8, depth) * std::min<unsigned>(channels, 4);
     m_bppImage = depth * channels;
 
     // we need buffer that can contain one channel data of one
     // row in RLE compressed format. 2*width should be enough
-    const unsigned max_line_length = m_width * 2;
+    const unsigned max_line_length = m_width * 2 * bytes_per_component;
     m_buffer = new uint8_t[max_line_length];
 
     // create separate buffers for each channel (up to 24 buffers by spec)
     for(unsigned i = 0; i < channels; i++)
     {
-        m_chBufs[i] = new uint8_t[m_width * m_height];
+        m_chBufs[i] = new uint8_t[m_width * m_height * bytes_per_component];
     }
 
     // read all channels rgba and extra if available;
@@ -155,6 +156,7 @@ bool CFormatPsd::Load(const char* filename, unsigned /*subImage*/)
                     lineLength = max_line_length;
                 }
             }
+            lineLength *= bytes_per_component;
 
             size_t readed = file.read(m_buffer, lineLength);
             if(lineLength != readed)
@@ -173,10 +175,10 @@ bool CFormatPsd::Load(const char* filename, unsigned /*subImage*/)
             }
             else
             {
-                memcpy(m_chBufs[ch] + pos, m_buffer, m_width);
+                memcpy(m_chBufs[ch] + pos, m_buffer, m_width * bytes_per_component);
             }
 
-            pos += m_width;
+            pos += m_width * bytes_per_component;
         }
     }
 
@@ -194,7 +196,7 @@ bool CFormatPsd::Load(const char* filename, unsigned /*subImage*/)
             {
                 for(unsigned x = 0; x < m_width; x++)
                 {
-                    const unsigned idx = m_width * y + x;
+                    const unsigned idx = m_width * y * bytes_per_component + x * bytes_per_component;
                     bitmap[0] = *(m_chBufs[0] + idx);
                     bitmap[1] = *(m_chBufs[1] + idx);
                     bitmap[2] = *(m_chBufs[2] + idx);
@@ -209,7 +211,7 @@ bool CFormatPsd::Load(const char* filename, unsigned /*subImage*/)
             {
                 for(unsigned x = 0; x < m_width; x++)
                 {
-                    const unsigned idx = m_width * y + x;
+                    const unsigned idx = m_width * y * bytes_per_component + x * bytes_per_component;
                     bitmap[0] = *(m_chBufs[0] + idx);
                     bitmap[1] = *(m_chBufs[1] + idx);
                     bitmap[2] = *(m_chBufs[2] + idx);
@@ -226,7 +228,7 @@ bool CFormatPsd::Load(const char* filename, unsigned /*subImage*/)
         {
             for(unsigned x = 0; x < m_width; x++)
             {
-                const unsigned idx = m_width * y + x;
+                const unsigned idx = m_width * y * bytes_per_component + x * bytes_per_component;
                 double C = 1.0 - *(m_chBufs[0] + idx) / 255.0; // C
                 double M = 1.0 - *(m_chBufs[1] + idx) / 255.0; // M
                 double Y = 1.0 - *(m_chBufs[2] + idx) / 255.0; // Y
