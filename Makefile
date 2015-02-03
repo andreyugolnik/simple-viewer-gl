@@ -18,6 +18,7 @@ linux_debug:
 osx:
 	$(shell if [ ! -d $(BUILD_DIR) ]; then mkdir $(BUILD_DIR); fi )
 	cd $(BUILD_DIR) ; cmake .. -DCMAKE_CXX_FLAGS='-Wall -Wextra -O2' ; make ; cd ..
+	cp $(BUILD_DIR)/sviewgl .
 
 clean:
 	rm -fr $(BUILD_DIR)
