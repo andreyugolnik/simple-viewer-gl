@@ -5,11 +5,10 @@
 *  http://www.tinyorange.com
 *  andrey@ugolnik.info
 *
-*  created: 21.09.2012
-*
 \**********************************************/
 
 #include "formatxwd.h"
+#include "helpers.h"
 #include <string.h>
 
 struct sXwdCommon
@@ -78,8 +77,6 @@ struct X11ColorMap
     uint8_t Flags;        /* Flag for this entry */
     uint8_t Padding;      /* WORD-align padding */
 };
-
-void swap_uint32s(uint8_t* p, uint32_t size);
 
 CFormatXwd::CFormatXwd(const char* lib, const char* name)
     : CFormat(lib, name)

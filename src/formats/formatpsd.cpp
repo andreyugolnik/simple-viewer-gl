@@ -1,11 +1,15 @@
-/////////////////////////////////////////////////
-//
-// Andrey A. Ugolnik
-// andrey@ugolnik.info
-//
-/////////////////////////////////////////////////
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
 #include "formatpsd.h"
+#include "helpers.h"
+
 #include <string.h>
 #include <iostream>
 
@@ -75,9 +79,6 @@ enum COMPRESSION_METHOD
     COMP_ZIP = 2,         // ZIP without prediction
     COMP_ZIP_PREDICT = 3  // ZIP with prediction
 };
-
-uint32_t read_uint16(uint8_t* p);
-uint32_t read_uint32(uint8_t* p);
 
 static bool skipNextBlock(cFile& file)
 {

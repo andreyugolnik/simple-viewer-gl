@@ -5,8 +5,6 @@
 *  http://www.tinyorange.com
 *  andrey@ugolnik.info
 *
-*  created: 21.09.2012
-*
 \**********************************************/
 
 #ifndef FORMATXWD_H
