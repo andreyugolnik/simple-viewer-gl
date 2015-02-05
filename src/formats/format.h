@@ -135,9 +135,6 @@ protected:
 protected:
     void progress(int percent);
     void reset();
-    uint16_t read_uint16(uint8_t* p);
-    uint32_t read_uint32(uint8_t* p);
-    void swap_uint32s(uint8_t* p, uint32_t size);
 
 private:
     CFormat();

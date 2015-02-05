@@ -79,6 +79,7 @@ struct X11ColorMap
     uint8_t Padding;      /* WORD-align padding */
 };
 
+void swap_uint32s(uint8_t* p, uint32_t size);
 
 CFormatXwd::CFormatXwd(const char* lib, const char* name)
     : CFormat(lib, name)
