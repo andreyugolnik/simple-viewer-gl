@@ -12,7 +12,7 @@ linux:
 
 linux_debug:
 	$(shell if [ ! -d $(BUILD_DIR) ]; then mkdir $(BUILD_DIR); fi )
-	cd $(BUILD_DIR) ; cmake .. -DCMAKE_CXX_FLAGS='-Wall -Wextra -O0 -g' ; make ; cd ..
+	cd $(BUILD_DIR) ; CXX='clang++' CC='clang' cmake .. -DCMAKE_CXX_FLAGS='-Wall -Wextra -O0 -g' ; make ; cd ..
 	cp $(BUILD_DIR)/sviewgl .
 
 osx:
