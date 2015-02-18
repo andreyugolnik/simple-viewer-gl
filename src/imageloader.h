@@ -38,6 +38,7 @@ enum eImageType
     TYPE_DDS,
     TYPE_RAW,
     TYPE_PPM,
+    TYPE_PVR,
 
     TYPES_COUNT
 };

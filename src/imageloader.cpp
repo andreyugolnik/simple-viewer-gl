@@ -17,6 +17,7 @@
 #include "formats/formatdds.h"
 #include "formats/formatraw.h"
 #include "formats/formatppm.h"
+#include "formats/formatpvr.h"
 
 #include <iostream>
 #include <algorithm>
@@ -33,16 +34,17 @@ CImageLoader::CImageLoader(iCallbacks* callbacks)
 #if defined(IMLIB2_SUPPORT)
     m_formats[TYPE_COMMON] = new CFormatCommon("libImlib2", "ImLib2");
 #endif
-    m_formats[TYPE_JPG] = new CFormatJpeg("libjpeg", "JPEG");
+    m_formats[TYPE_JPG] = new CFormatJpeg("libjpeg", "jpeg");
     m_formats[TYPE_PSD] = new CFormatPsd(0, "PSD");
-    m_formats[TYPE_PNG] = new CFormatPng("libpng", "PNG");
-    m_formats[TYPE_GIF] = new CFormatGif("libgif", "GIF");
-    m_formats[TYPE_ICO] = new CFormatIco(0, "ICO");
-    m_formats[TYPE_TIF] = new CFormatTiff("libtiff", "TIFF");
-    m_formats[TYPE_XWD] = new CFormatXwd(0, "XWD");
-    m_formats[TYPE_DDS] = new CFormatDds(0, "DDS");
-    m_formats[TYPE_RAW] = new cFormatRaw(0, "RAW");
-    m_formats[TYPE_PPM] = new cFormatPpm(0, "PPM");
+    m_formats[TYPE_PNG] = new CFormatPng("libpng", "png");
+    m_formats[TYPE_GIF] = new CFormatGif("libgif", "gif");
+    m_formats[TYPE_ICO] = new CFormatIco(0, "ico");
+    m_formats[TYPE_TIF] = new CFormatTiff("libtiff", "tiff");
+    m_formats[TYPE_XWD] = new CFormatXwd(0, "xwd");
+    m_formats[TYPE_DDS] = new CFormatDds(0, "dds");
+    m_formats[TYPE_RAW] = new cFormatRaw(0, "raw");
+    m_formats[TYPE_PPM] = new cFormatPpm(0, "ppm");
+    m_formats[TYPE_PVR] = new cFormatPvr(0, "pvr");
 }
 
 CImageLoader::~CImageLoader()
@@ -220,18 +222,20 @@ eImageType CImageLoader::getType(const char* name)
 
         static sFormatExt format[] =
         {
-            { ".jpeg", TYPE_JPG },
-            { ".jpg",  TYPE_JPG },
-            { ".psd",  TYPE_PSD },
-            { ".png",  TYPE_PNG },
-            { ".gif",  TYPE_GIF },
-            { ".ico",  TYPE_ICO },
-            { ".tiff", TYPE_TIF },
-            { ".tif",  TYPE_TIF },
-            { ".xwd",  TYPE_XWD },
-            { ".dds",  TYPE_DDS },
-            { ".raw",  TYPE_RAW },
-            { ".ppm",  TYPE_PPM },
+            { ".jpeg",  TYPE_JPG },
+            { ".jpg",   TYPE_JPG },
+            { ".psd",   TYPE_PSD },
+            { ".png",   TYPE_PNG },
+            { ".gif",   TYPE_GIF },
+            { ".ico",   TYPE_ICO },
+            { ".tiff",  TYPE_TIF },
+            { ".tif",   TYPE_TIF },
+            { ".xwd",   TYPE_XWD },
+            { ".dds",   TYPE_DDS },
+            { ".raw",   TYPE_RAW },
+            { ".ppm",   TYPE_PPM },
+            { ".pvr",   TYPE_PVR },
+            { ".pvrtc", TYPE_PVR },
         };
 
         for(size_t i = 0; i < sizeof(format) / sizeof(format[0]); i++)
