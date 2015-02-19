@@ -1,15 +1,94 @@
-/////////////////////////////////////////////////
-//
-// Andrey A. Ugolnik
-// andrey@ugolnik.info
-//
-/////////////////////////////////////////////////
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
 #include "formatico.h"
-#include <string.h>
-#include <math.h>
+#include "file.h"
 
-using namespace FORMAT_ICO;
+#include <cstring>
+#include <cmath>
+#include <png.h>
+
+#pragma pack(push, 1)
+struct IcoHeader
+{
+    uint16_t reserved;	// Reserved. Should always be 0.
+    uint16_t type;		// Specifies image type: 1 for icon (.ICO) image, 2 for cursor (.CUR) image. Other values are invalid.
+    uint16_t count;		// Specifies number of images in the file.
+};
+
+// List of icons.
+// Size = IcoHeader.ount * 16
+struct IcoDirentry
+{
+    uint8_t width;	// Specifies image width in pixels. Can be 0, 255 or a number between 0 to 255. Should be 0 if image width is 256 pixels.
+    uint8_t height;	// Specifies image height in pixels. Can be 0, 255 or a number between 0 to 255. Should be 0 if image height is 256 pixels.
+    uint8_t colors;	// Specifies number of colors in the color palette. Should be 0 if the image is truecolor.
+    uint8_t reserved;	// Reserved. Should be 0.[Notes 1]
+    uint16_t planes;	// In .ICO format: Specifies color planes. Should be 0 or 1.
+    // In .CUR format: Specifies the horizontal coordinates of the hotspot in number of pixels from the left.
+    uint16_t bits;	// In .ICO format: Specifies bits per pixel. (1, 4, 8)
+    // In .CUR format: Specifies the vertical coordinates of the hotspot in number of pixels from the top.
+    uint32_t size;	// Specifies the size of the bitmap data in bytes. Size of (InfoHeader + ANDbitmap + XORbitmap)
+    uint32_t offset;	// Specifies the offset of bitmap data address in the file
+};
+
+// Variant of BMP InfoHeader.
+// Size = 40 bytes.
+struct IcoBmpInfoHeader
+{
+    uint32_t size;      // Size of InfoHeader structure = 40
+    uint32_t width;     // Icon Width
+    uint32_t height;    // Icon Height (added height of XOR-Bitmap and AND-Bitmap)
+    uint16_t planes;    // number of planes = 1
+    uint16_t bits;      // bits per pixel = 1, 2, 4, 8, 16, 24, 32
+    uint32_t reserved0; // Type of Compression = 0
+    uint32_t imagesize; // Size of Image in Bytes = 0 (uncompressed)
+    uint32_t reserved1; // XpixelsPerM
+    uint32_t reserved2; // YpixelsPerM
+    uint32_t reserved3; // ColorsUsed
+    uint32_t reserved4; // ColorsImportant
+};
+
+// Color Map for XOR-Bitmap.
+// Size = NumberOfColors * 4 bytes.
+struct IcoColors
+{
+    uint8_t red;		// red component
+    uint8_t green;	// green component
+    uint8_t blue;		// blue component
+    uint8_t reserved;	// = 0
+};
+
+//		uint8_t xormask;	// DIB bits for XOR mask
+//		uint8_t andmask;	// DIB bits for AND mask
+#pragma pack(pop)
+
+struct PngRaw
+{
+    uint8_t* data;
+    size_t size;	// size of raw data
+    size_t pos;	// current pos
+};
+
+
+// load frame in png format
+static PngRaw m_pngRaw;
+static void readPngData(png_structp /*png*/, png_bytep out, png_size_t count)
+{
+    // PngRaw& pngRaw	= *(PngRaw*)png->io_ptr;
+    if(m_pngRaw.pos + count <= m_pngRaw.size)
+    {
+        memcpy((uint8_t*)out, &m_pngRaw.data[m_pngRaw.pos], count);
+    }
+    m_pngRaw.pos += count;
+}
+
 
 CFormatIco::CFormatIco(const char* lib, const char* name)
     : CFormat(lib, name)
@@ -76,18 +155,6 @@ bool CFormatIco::Load(const char* filename, unsigned subImage)
     return result;
 }
 
-// load frame in png format
-PngRaw CFormatIco::m_pngRaw;
-void CFormatIco::readPngData(png_structp /*png*/, png_bytep out, png_size_t count)
-{
-    // PngRaw& pngRaw	= *(PngRaw*)png->io_ptr;
-    if(m_pngRaw.pos + count <= m_pngRaw.size)
-    {
-        memcpy((uint8_t*)out, &m_pngRaw.data[m_pngRaw.pos], count);
-    }
-    m_pngRaw.pos += count;
-}
-
 bool CFormatIco::loadPngFrame(cFile& file, const IcoDirentry* image)
 {
     uint8_t* p = new uint8_t[image->size];
@@ -101,7 +168,7 @@ bool CFormatIco::loadPngFrame(cFile& file, const IcoDirentry* image)
 
     if(image->size != 8 && png_sig_cmp(p, 0, 8) != 0)
     {
-        std::cout << "Frame is not recognized as a PNG format" << std::endl;
+        printf("Frame is not recognized as a PNG format\n");
         delete[] p;
         return false;
     }
@@ -110,7 +177,7 @@ bool CFormatIco::loadPngFrame(cFile& file, const IcoDirentry* image)
     png_structp png = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
     if(png == 0)
     {
-        std::cout << "png_create_read_struct failed" << std::endl;
+        printf("png_create_read_struct failed\n");
         delete[] p;
         return false;
     }
@@ -123,19 +190,19 @@ bool CFormatIco::loadPngFrame(cFile& file, const IcoDirentry* image)
     png_infop info = png_create_info_struct(png);
     if(info == 0)
     {
-        std::cout << "png_create_info_struct failed" << std::endl;
+        printf("png_create_info_struct failed\n");
         delete[] p;
         return false;
     }
 
     if(setjmp(png_jmpbuf(png)) != 0)
     {
-        std::cout << "Error during init_io" << std::endl;
+        printf("Error during init_io\n");
         delete[] p;
         return false;
     }
 
-    png_init_io(png, file.getHandle());
+    png_init_io(png, (FILE*)file.getHandle());
     png_set_sig_bytes(png, 8);
 
     png_read_info(png, info);
@@ -182,7 +249,7 @@ bool CFormatIco::loadPngFrame(cFile& file, const IcoDirentry* image)
     // read file
     if(setjmp(png_jmpbuf(png)) != 0)
     {
-        std::cout << "Error during read_image" << std::endl;
+        printf("Error during read_image\n");
         delete[] p;
         return false;
     }
@@ -246,7 +313,7 @@ bool CFormatIco::loadPngFrame(cFile& file, const IcoDirentry* image)
         {
             delete[] row_pointers[y];
         }
-        std::cout << "Should't be happened" << std::endl;
+        printf("Should't be happened\n");
     }
 
     delete[] row_pointers;
@@ -460,7 +527,7 @@ int CFormatIco::calcIcoPitch()
         return m_width * 4;
 
     default:
-        std::cout << "Invalid bits count: " << m_bppImage << std::endl;
+        printf("Invalid bits count: %u\n", m_bppImage);
         return -1;	//m_width * (m_bppImage / 8);
     }
 }

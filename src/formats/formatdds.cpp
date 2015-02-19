@@ -6,6 +6,7 @@
 /////////////////////////////////////////////////
 
 #include "formatdds.h"
+#include "file.h"
 #include <string.h>
 #include <assert.h>
 #include <iostream>

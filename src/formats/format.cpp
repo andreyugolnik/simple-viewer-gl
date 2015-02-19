@@ -10,7 +10,9 @@
 #include "format.h"
 #include "../callbacks.h"
 
-#include <assert.h>
+#include <iostream>
+#include <dlfcn.h>
+#include <cassert>
 
 CFormat::CFormat(const char* lib, const char* type)
     : m_callbacks(0)

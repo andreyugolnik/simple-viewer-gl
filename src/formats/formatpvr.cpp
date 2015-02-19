@@ -8,6 +8,8 @@
 \**********************************************/
 
 #include "formatpvr.h"
+#include "file_zlib.h"
+#include "helpers.h"
 
 enum PVRPixelFormat
 {
@@ -57,7 +59,20 @@ cFormatPvr::~cFormatPvr()
 {
 }
 
-bool cFormatPvr::Load(const char* filename, unsigned subImage)
+static bool isZpvr(cFile& file)
+{
+    uint8_t header[4];
+    if(sizeof(header) == file.read(header, sizeof(header)))
+    {
+        if(::memcmp(header, "ZPVR", 4) == 0)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool cFormatPvr::Load(const char* filename, unsigned /*subImage*/)
 {
     cFile file;
     if(!file.open(filename))
@@ -67,6 +82,16 @@ bool cFormatPvr::Load(const char* filename, unsigned subImage)
 
     m_size = file.getSize();
 
+    if(isZpvr(file))
+    {
+        cFileZlib zip(&file);
+        return readPvr(zip);
+    }
+    return readPvr(file);
+}
+
+bool cFormatPvr::readPvr(cFileInterface& file)
+{
     PVRTexHeader header;
     if(sizeof(header) != file.read(&header, sizeof(header)))
     {
@@ -74,51 +99,70 @@ bool cFormatPvr::Load(const char* filename, unsigned subImage)
         return false;
     }
 
+    printf("version: %u\n", header.version);
+    printf("flags: %u\n", header.flags);
+    printf("format: %u\n", header.pixels_format);
+    printf("format: %u\n", header.pixels_format2);
+    printf("colorspace: %u\n", header.colorspace);
+    printf("channel_type: %u\n", header.channel_type);
+    printf("height: %u\n", header.height);
+    printf("width: %u\n", header.width);
+    printf("depth: %u\n", header.depth);
+    printf("num_surfaces: %u\n", header.num_surfaces);
+    printf("num_faces: %u\n", header.num_faces);
+    printf("mipmap_count: %u\n", header.mipmap_count);
+    printf("metadata_size: %u\n", header.metadata_size);
+
     if(header.metadata_size > 0)
     {
-        uint8_t* buff = new uint8_t[header.metadata_size];
-        file.read(buff, header.metadata_size);
-        delete[] buff;
+        file.seek(header.metadata_size, SEEK_CUR);
     }
 
-    uint64_t pixelFormat = ((uint64_t)header.pixels_format2 << 32 | header.pixels_format);
+    const uint64_t pixelFormat = ((uint64_t)header.pixels_format2 << 32 | header.pixels_format);
 
     switch(pixelFormat)
     {
     case (uint64_t)RGBA8888:
+        printf("RGBA8888\n");
         m_format = GL_RGBA;
         m_bpp = 32;
         m_bppImage = 32;
-        m_pitch = header.width * header.height * 4;
+        m_pitch = header.width * 4;
         break;
 
     case (uint64_t)RGBA4444:
+        printf("RGBA4444\n");
         m_format = GL_RGBA;
         m_bppImage = 16;
-        m_bpp = 16;
-        m_pitch = header.width * header.height * 4;
+        m_bpp = 32;
+        m_pitch = header.width * 4;
         break;
 
     case (uint64_t)RGB565:
+        printf("RGB565\n");
         m_format = GL_RGB;
-        m_bpp = 16;
+        m_bpp = 24;
         m_bppImage = 16;
-        m_pitch = header.width * header.height * 3;
+        m_pitch = header.width * 3;
         break;
 
     case (uint64_t)RGBA5551:
+        printf("RGBA5551\n");
         m_format = GL_RGBA;
-        m_bpp = 16;
+        m_bpp = 32;
         m_bppImage = 16;
-        m_pitch = header.width * header.height * 4;
+        m_pitch = header.width * 4;
         break;
+
+    default:
+        printf("Unsupported format.\n");
+        return false;
     }
 
     m_width = header.width;
     m_height = header.height;
     m_bitmap.resize(m_pitch * m_height);
 
-        printf("%u x %u", m_width, m_height);
     return true;
 }
 

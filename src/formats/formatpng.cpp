@@ -1,12 +1,15 @@
-////////////////////////////////////////////////
-//
-// Andrey A. Ugolnik
-// http://www.ugolnik.info
-// andrey@ugolnik.info
-//
-////////////////////////////////////////////////
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
 #include "formatpng.h"
+#include "file.h"
+
 #include <png.h>
 #include <string.h>
 #include <iostream>
@@ -59,7 +62,7 @@ bool CFormatPng::Load(const char* filename, unsigned /*subImage*/)
         return false;
     }
 
-    png_init_io(png, file.getHandle());
+    png_init_io(png, (FILE*)file.getHandle());
     png_set_sig_bytes(png, 8);
 
     png_read_info(png, info);

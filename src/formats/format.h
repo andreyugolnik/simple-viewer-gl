@@ -11,10 +11,7 @@
 #define FORMAT_H
 
 #include <string>
-#include <iostream>
 #include <vector>
-#include <stdio.h>
-#include <dlfcn.h>
 #if defined(__linux__)
 #   include <GL/glut.h>
 #else
@@ -24,83 +21,6 @@
 //#define WIDTHBYTES(bits) ((((bits) + 31) / 32) * 4)
 
 class iCallbacks;
-
-class cFile
-{
-public:
-    cFile()
-        : m_file(0)
-        , m_size(0)
-    {
-    }
-
-    virtual ~cFile()
-    {
-        close();
-    }
-
-    bool open(const char* path, const char* mode = "rb")
-    {
-        FILE* file = fopen(path, mode);
-        if(file)
-        {
-            m_file = file;
-
-            (void)fseek(file, 0, SEEK_END);
-            m_size = ftell(file);
-            (void)fseek(file, 0, SEEK_SET);
-
-            return true;
-        }
-
-        printf("Can't open \"%s\".", path);
-        return false;
-    }
-
-    void close()
-    {
-        if(m_file)
-        {
-            fclose(m_file);
-            m_file = 0;
-        }
-    }
-
-    int seek(long offset, int whence)
-    {
-        return fseek(m_file, offset, whence);
-    }
-
-    size_t read(void* ptr, size_t size)
-    {
-        if(m_file)
-        {
-            return fread(ptr, 1, size, m_file);
-        }
-
-        return 0;
-    }
-
-    long getOffset() const
-    {
-        if(m_file)
-        {
-            return ftell(m_file);
-        }
-
-        return 0;
-    }
-
-    long getSize() const { return m_size; }
-
-    FILE* getHandle() const { return m_file; }
-
-private:
-    FILE* m_file;
-    long m_size;
-};
-
-
 
 class CFormat
 {

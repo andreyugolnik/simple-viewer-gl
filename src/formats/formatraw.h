@@ -1,10 +1,11 @@
- /**********************************************
- *
- *  Andrey A. Ugolnik
- *  http://www.ugolnik.info
- *  andrey@ugolnik.info
- *
- ***********************************************/
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
 #ifndef FORMATRAW_H_2D405816DEDEF1
 #define FORMATRAW_H_2D405816DEDEF1
@@ -19,18 +20,6 @@ public:
 
     virtual bool Load(const char* filename, unsigned subImage);
     virtual bool isRawFormat(const char* name);
-
-private:
-    struct sHeader
-    {
-        unsigned id;
-        unsigned w;
-        unsigned h;
-        unsigned format;
-        unsigned data_size;
-    };
-
-    bool isValidFormat(const sHeader& header, unsigned file_size);
 };
 
 #endif /* end of include guard: FORMATRAW_H_2D405816DEDEF1 */

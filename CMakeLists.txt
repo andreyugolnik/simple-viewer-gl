@@ -18,6 +18,7 @@ FIND_PACKAGE(JPEG)
 FIND_PACKAGE(TIFF)
 FIND_PACKAGE(GIF)
 FIND_PACKAGE(LIBCONFIG)
+FIND_PACKAGE(ZLIB)
 FIND_PACKAGE(Imlib2)
 if(IMLIB2_FOUND)
     ADD_DEFINITIONS(-DIMLIB2_SUPPORT=1)
@@ -39,6 +40,7 @@ INCLUDE_DIRECTORIES(
     "/usr/X11/include/"
     ${OPENGL_INCLUDE_DIR}
     ${LIBCONFIG_INCLUDE_DIR}
+    ${ZLIB_INCLUDE_DIRS}
     )
 
 if(IMLIB2_FOUND)
@@ -56,6 +58,8 @@ ADD_EXECUTABLE(sviewgl
     src/checkerboard.cpp
     src/config.cpp
     src/fileslist.cpp
+    src/formats/file.cpp
+    src/formats/file_zlib.cpp
     src/formats/format.cpp
     src/formats/formatcommon.cpp
     src/formats/formatdds.cpp
@@ -99,6 +103,7 @@ TARGET_LINK_LIBRARIES(sviewgl
     ${TIFF_LIBRARY}
     ${GIF_LIBRARY}
     ${LIBCONFIG_LIBRARY}
+    ${ZLIB_LIBRARIES}
     )
 
 if(IMLIB2_FOUND)

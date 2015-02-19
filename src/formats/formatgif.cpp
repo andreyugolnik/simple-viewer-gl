@@ -1,13 +1,18 @@
-/////////////////////////////////////////////////
-//
-// Andrey A. Ugolnik
-// andrey@ugolnik.info
-//
-/////////////////////////////////////////////////
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
 #include "formatgif.h"
-#include <string.h>
+#include "file.h"
+
+#include <cstring>
 #include <iostream>
+#include <gif_lib.h>
 
 CFormatGif::CFormatGif(const char* lib, const char* name)
     : CFormat(lib, name)

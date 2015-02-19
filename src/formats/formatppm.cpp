@@ -1,12 +1,16 @@
-/////////////////////////////////////////////////
-//
-// Andrey A. Ugolnik
-// andrey@ugolnik.info
-//
-/////////////////////////////////////////////////
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
 #include "formatppm.h"
-#include <string.h>
+#include "file.h"
+
+#include <cstring>
 #include <iostream>
 
 cFormatPpm::cFormatPpm(const char* lib, const char* name)
@@ -33,7 +37,7 @@ bool cFormatPpm::Load(const char* filename, unsigned /*subImage*/)
     size_t len = 0;
     ssize_t read;
     int format = 0;
-    while((read = getline(&line, &len, file.getHandle())) != -1)
+    while((read = getline(&line, &len, (FILE*)file.getHandle())) != -1)
     {
         if(read == 3 && line[0] == 'P')
         {
@@ -51,7 +55,7 @@ bool cFormatPpm::Load(const char* filename, unsigned /*subImage*/)
             m_width = w;
             m_height = h;
 
-            if(getline(&line, &len, file.getHandle()) != -1)
+            if(getline(&line, &len, (FILE*)file.getHandle()) != -1)
             {
                 int max_val;
                 sscanf(line, "%d\n", &max_val);
@@ -120,7 +124,7 @@ bool cFormatPpm::readAscii24(cFile& file, int w, int h)
     size_t idx = 0;
     char* line = 0;
     size_t len = 0;
-    while(getline(&line, &len, file.getHandle()) != -1)
+    while(getline(&line, &len, (FILE*)file.getHandle()) != -1)
     {
         const int val = atoi(line);
         m_bitmap[idx++] = val;

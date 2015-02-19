@@ -8,8 +8,10 @@
 \**********************************************/
 
 #include "formatxwd.h"
+#include "file.h"
 #include "helpers.h"
-#include <string.h>
+
+#include <cstring>
 
 struct sXwdCommon
 {

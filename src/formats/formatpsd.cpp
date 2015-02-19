@@ -8,6 +8,7 @@
 \**********************************************/
 
 #include "formatpsd.h"
+#include "file.h"
 #include "helpers.h"
 
 #include <string.h>

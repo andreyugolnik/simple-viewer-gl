@@ -1,12 +1,16 @@
-/////////////////////////////////////////////////
-//
-// Andrey A. Ugolnik
-// andrey@ugolnik.info
-//
-/////////////////////////////////////////////////
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
 #include "formatjpeg.h"
-#include <string.h>
+#include "file.h"
+
+#include <cstring>
 #include <jpeglib.h>
 #include <setjmp.h>
 
@@ -76,7 +80,7 @@ bool CFormatJpeg::Load(const char* filename, unsigned /*subImage*/)
 
     // Step 2: specify data source (eg, a file)
 
-    jpeg_stdio_src(&cinfo, file.getHandle());
+    jpeg_stdio_src(&cinfo, (FILE*)file.getHandle());
 
     // Step 3: read file parameters with jpeg_read_header()
 

@@ -12,6 +12,8 @@
 
 #include "format.h"
 
+class cFileInterface;
+
 class cFormatPvr : public CFormat
 {
 public:
@@ -19,6 +21,9 @@ public:
     virtual ~cFormatPvr();
 
     virtual bool Load(const char* filename, unsigned subImage = 0);
+
+private:
+    bool readPvr(cFileInterface& file);
 };
 
 #endif // FORMATPVR_H_BD4C879BFA

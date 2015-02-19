@@ -1,9 +1,11 @@
-/////////////////////////////////////////////////
-//
-// Andrey A. Ugolnik
-// andrey@ugolnik.info
-//
-/////////////////////////////////////////////////
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
 #ifndef FORMATTIFF_H
 #define FORMATTIFF_H
@@ -17,8 +19,6 @@ public:
     virtual ~CFormatTiff();
 
     virtual bool Load(const char* filename, unsigned subImage = 0);
-
-private:
 };
 
 #endif // FORMATTIFF_H

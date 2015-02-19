@@ -1,15 +1,18 @@
-/////////////////////////////////////////////////
-//
-// Andrey A. Ugolnik
-// andrey@ugolnik.info
-//
-/////////////////////////////////////////////////
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
 #ifndef FORMATGIF_H
 #define FORMATGIF_H
 
 #include "format.h"
-#include <gif_lib.h>
+
+struct GifColorType;
 
 class CFormatGif : public CFormat
 {

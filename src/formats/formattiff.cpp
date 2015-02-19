@@ -1,12 +1,16 @@
-/////////////////////////////////////////////////
-//
-// Andrey A. Ugolnik
-// andrey@ugolnik.info
-//
-/////////////////////////////////////////////////
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
 #include "formattiff.h"
-#include <string.h>
+#include "file.h"
+
+#include <cstring>
 #include <tiffio.h>
 
 CFormatTiff::CFormatTiff(const char* lib, const char* name)

@@ -1,14 +1,18 @@
-/////////////////////////////////////////////////
-//
-// Andrey A. Ugolnik
-// andrey@ugolnik.info
-//
-/////////////////////////////////////////////////
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
 #ifndef FORMATPPM_H_4GX8MCRJ
 #define FORMATPPM_H_4GX8MCRJ
 
 #include "format.h"
+
+class cFile;
 
 class cFormatPpm : public CFormat
 {

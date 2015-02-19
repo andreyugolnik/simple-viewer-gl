@@ -1,15 +1,17 @@
- /**********************************************
- *
- *  Andrey A. Ugolnik
- *  http://www.ugolnik.info
- *  andrey@ugolnik.info
- *
- ***********************************************/
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
 #include "formatraw.h"
+#include "file.h"
 #include "rle.h"
 
-#include <string.h>
+#include <cstring>
 
 static const char Id[] = { 'R', 'A', 'W', 'I' };
 
@@ -23,6 +25,27 @@ enum eFormat
     FORMAT_RGB_RLE4,
     FORMAT_RGBA_RLE4
 };
+
+struct sHeader
+{
+    unsigned id;
+    unsigned w;
+    unsigned h;
+    unsigned format;
+    unsigned data_size;
+};
+
+static bool isValidFormat(const sHeader& header, unsigned file_size)
+{
+    if(header.data_size + sizeof(sHeader) == file_size)
+    {
+        const char* id = (const char*)&header.id;
+        return (id[0] == Id[0] && id[1] == Id[1] && id[2] == Id[2] && id[3] == Id[3]);
+    }
+    return false;
+}
+
+
 
 cFormatRaw::cFormatRaw(const char* lib, const char* name)
     : CFormat(lib, name)
@@ -50,16 +73,6 @@ bool cFormatRaw::isRawFormat(const char* name)
     return isValidFormat(header, file.getSize());
 }
 
-bool cFormatRaw::isValidFormat(const sHeader& header, unsigned file_size)
-{
-    if(header.data_size + sizeof(sHeader) == file_size)
-    {
-        const char* id = (const char*)&header.id;
-        return (id[0] == Id[0] && id[1] == Id[1] && id[2] == Id[2] && id[3] == Id[3]);
-    }
-    return false;
-}
-
 bool cFormatRaw::Load(const char* filename, unsigned /*subImage*/)
 {
     cFile file;
@@ -73,7 +86,7 @@ bool cFormatRaw::Load(const char* filename, unsigned /*subImage*/)
     sHeader header;
     if(sizeof(header) != file.read(&header, sizeof(header)))
     {
-        std::cout << "not valid RAW format" << std::endl;
+        printf("not valid RAW format\n");
         return false;
     }
 
@@ -103,7 +116,7 @@ bool cFormatRaw::Load(const char* filename, unsigned /*subImage*/)
         bytespp = 4;
         break;
     default:
-        std::cout << "unknown RAW format" << std::endl;
+        printf("unknown RAW format\n");
         return false;
     }
     m_bpp = m_bppImage = bytespp * 8;
@@ -137,7 +150,7 @@ bool cFormatRaw::Load(const char* filename, unsigned /*subImage*/)
         }
         if(!decoded)
         {
-            std::cout << "error decode RLE" << std::endl;
+            printf("error decode RLE\n");
             return false;
         }
 

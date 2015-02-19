@@ -1,10 +1,11 @@
-////////////////////////////////////////////////
-//
-// Andrey A. Ugolnik
-// http://www.ugolnik.info
-// andrey@ugolnik.info
-//
-////////////////////////////////////////////////
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
 #ifndef FORMATPNG_H
 #define FORMATPNG_H

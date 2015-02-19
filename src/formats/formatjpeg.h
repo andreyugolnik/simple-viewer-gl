@@ -1,9 +1,11 @@
-/////////////////////////////////////////////////
-//
-// Andrey A. Ugolnik
-// andrey@ugolnik.info
-//
-/////////////////////////////////////////////////
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
 #ifndef FORMATJPEG_H
 #define FORMATJPEG_H
@@ -17,8 +19,7 @@ public:
     virtual ~CFormatJpeg();
 
     virtual bool Load(const char* filename, unsigned subImage = 0);
-
-private:
 };
 
 #endif // FORMATJPEG_H
+

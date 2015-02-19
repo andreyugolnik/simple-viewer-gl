@@ -15,6 +15,8 @@
 struct X10WindowDump;
 struct X11WindowDump;
 
+class cFile;
+
 class CFormatXwd : public CFormat
 {
 public:
