@@ -8,6 +8,7 @@
 \**********************************************/
 
 #include "formatraw.h"
+#include "helpers.h"
 #include "file.h"
 #include "rle.h"
 
@@ -56,22 +57,33 @@ cFormatRaw::~cFormatRaw()
 {
 }
 
-bool cFormatRaw::isRawFormat(const char* name)
+bool cFormatRaw::isSupported(cFile& file, Buffer& buffer) const
 {
-    cFile file;
-    if(!file.open(name))
+    if(!readBuffer(file, buffer, sizeof(sHeader)))
     {
         return false;
     }
 
-    sHeader header;
-    if(sizeof(header) != file.read(&header, sizeof(header)))
-    {
-        return false;
-    }
-
-    return isValidFormat(header, file.getSize());
+    sHeader* header = (sHeader*)&buffer[0];
+    return isValidFormat(*header, file.getSize());
 }
+
+//bool cFormatRaw::isRawFormat(const char* name)
+//{
+    //cFile file;
+    //if(!file.open(name))
+    //{
+        //return false;
+    //}
+
+    //sHeader header;
+    //if(sizeof(header) != file.read(&header, sizeof(header)))
+    //{
+        //return false;
+    //}
+
+    //return isValidFormat(header, file.getSize());
+//}
 
 bool cFormatRaw::Load(const char* filename, unsigned /*subImage*/)
 {

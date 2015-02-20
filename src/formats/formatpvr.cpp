@@ -72,6 +72,16 @@ static bool isZpvr(cFile& file)
     return false;
 }
 
+bool cFormatPvr::isSupported(cFile& file, Buffer& buffer) const
+{
+    if(!readBuffer(file, buffer, 4))
+    {
+        return false;
+    }
+
+    return (::memcmp(&buffer[0], "ZPVR", 4) == 0);
+}
+
 bool cFormatPvr::Load(const char* filename, unsigned /*subImage*/)
 {
     cFile file;

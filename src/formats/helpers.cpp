@@ -8,6 +8,7 @@
 \**********************************************/
 
 #include "helpers.h"
+#include "file.h"
 
 uint16_t read_uint16(uint8_t* p)
 {
@@ -27,5 +28,20 @@ void swap_uint32s(uint8_t* p, uint32_t size)
         *((uint32_t*)p) = read_uint32(p);
         p += 4;
     }
+}
+
+bool readBuffer(cFileInterface& file, Buffer& buffer, unsigned desired_size)
+{
+    const unsigned size = buffer.size();
+    if(size < desired_size)
+    {
+        buffer.resize(desired_size);
+        const unsigned length = desired_size - size;
+        if(length != file.read(&buffer[size], length))
+        {
+            return false;
+        }
+    }
+    return desired_size <= size;
 }
 

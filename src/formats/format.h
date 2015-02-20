@@ -21,6 +21,9 @@
 //#define WIDTHBYTES(bits) ((((bits) + 31) / 32) * 4)
 
 class iCallbacks;
+class cFile;
+
+typedef std::vector<unsigned char> Buffer;
 
 class CFormat
 {
@@ -31,6 +34,7 @@ public:
     virtual ~CFormat();
 
     virtual void setCallbacks(iCallbacks* callbacks) { m_callbacks = callbacks; }
+    virtual bool isSupported(cFile& /*file*/, Buffer& /*buffer*/) const { return false; }
 
     virtual bool Load(const char* filename, unsigned subImage = 0) = 0;
     virtual void FreeMemory();
@@ -42,7 +46,7 @@ private:
 
 protected:
     void* m_lib;
-    std::vector<unsigned char> m_bitmap;
+    Buffer m_bitmap;
     GLenum m_format;
     unsigned m_width, m_height, m_pitch; // width, height, row pitch of image in buffer
     unsigned m_bpp;                      // bit per pixel of image in buffer

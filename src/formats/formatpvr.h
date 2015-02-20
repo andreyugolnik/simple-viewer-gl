@@ -20,6 +20,7 @@ public:
     cFormatPvr(const char* lib, const char* name);
     virtual ~cFormatPvr();
 
+    virtual bool isSupported(cFile& file, Buffer& buffer) const;
     virtual bool Load(const char* filename, unsigned subImage = 0);
 
 private:

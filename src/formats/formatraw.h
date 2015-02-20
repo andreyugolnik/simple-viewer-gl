@@ -19,7 +19,8 @@ public:
     virtual ~cFormatRaw();
 
     virtual bool Load(const char* filename, unsigned subImage);
-    virtual bool isRawFormat(const char* name);
+    virtual bool isSupported(cFile& file, Buffer& buffer) const;
+    //virtual bool isRawFormat(const char* name);
 };
 
 #endif /* end of include guard: FORMATRAW_H_2D405816DEDEF1 */

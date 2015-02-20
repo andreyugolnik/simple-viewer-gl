@@ -6,6 +6,7 @@
 /////////////////////////////////////////////////
 
 #include "imageloader.h"
+#include "formats/file.h"
 #include "formats/formatcommon.h"
 #include "formats/formatjpeg.h"
 #include "formats/formatpsd.h"
@@ -206,9 +207,20 @@ struct sFormatExt
 
 eImageType CImageLoader::getType(const char* name)
 {
-    if(((cFormatRaw*)m_formats[TYPE_RAW])->isRawFormat(name))
+    cFile file;
+    if(!file.open(name))
+    {
+        return TYPES_COUNT;
+    }
+
+    Buffer buffer;
+    if(m_formats[TYPE_RAW]->isSupported(file, buffer))
     {
         return TYPE_RAW;
+    }
+    if(m_formats[TYPE_PVR]->isSupported(file, buffer))
+    {
+        return TYPE_PVR;
     }
 
     std::string s(name);
@@ -220,22 +232,19 @@ eImageType CImageLoader::getType(const char* name)
         // skip non image file (detect by extension)
         std::transform(s.begin(), s.end(), s.begin(), tolower);
 
-        static sFormatExt format[] =
+        static const sFormatExt format[] =
         {
-            { ".jpeg",  TYPE_JPG },
-            { ".jpg",   TYPE_JPG },
-            { ".psd",   TYPE_PSD },
-            { ".png",   TYPE_PNG },
-            { ".gif",   TYPE_GIF },
-            { ".ico",   TYPE_ICO },
-            { ".tiff",  TYPE_TIF },
-            { ".tif",   TYPE_TIF },
-            { ".xwd",   TYPE_XWD },
-            { ".dds",   TYPE_DDS },
-            { ".raw",   TYPE_RAW },
-            { ".ppm",   TYPE_PPM },
-            { ".pvr",   TYPE_PVR },
-            { ".pvrtc", TYPE_PVR },
+            { ".jpeg", TYPE_JPG },
+            { ".jpg",  TYPE_JPG },
+            { ".psd",  TYPE_PSD },
+            { ".png",  TYPE_PNG },
+            { ".gif",  TYPE_GIF },
+            { ".ico",  TYPE_ICO },
+            { ".tiff", TYPE_TIF },
+            { ".tif",  TYPE_TIF },
+            { ".xwd",  TYPE_XWD },
+            { ".dds",  TYPE_DDS },
+            { ".ppm",  TYPE_PPM },
         };
 
         for(size_t i = 0; i < sizeof(format) / sizeof(format[0]); i++)
