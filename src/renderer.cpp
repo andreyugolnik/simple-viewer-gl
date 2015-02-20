@@ -17,18 +17,18 @@ static cVector<float> m_window_size;
 static unsigned m_tex = 0;
 static sVertex m_vb[4];
 static unsigned short m_ib[6] = { 0, 1, 2, 0, 2, 3 };
-static bool m_pow2 = false;
+static bool m_npot = false;
 static unsigned m_texture_max_size = 256;
 
 void cRenderer::init()
 {
     int texture_max_size = (int)m_texture_max_size;
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &texture_max_size);
-    m_texture_max_size = std::min<unsigned>(512, texture_max_size);
-    std::cout << "Using texture size: " << m_texture_max_size << "x"  << m_texture_max_size << "." << std::endl;
+    m_texture_max_size = texture_max_size;
+    std::cout << "Max texture size: " << m_texture_max_size << "x" << m_texture_max_size << "." << std::endl;
 
-    m_pow2 = glutExtensionSupported("GL_ARB_texture_non_power_of_two");
-    std::cout << "Non Power of Two extension " << (m_pow2 ? "available." : "not available.") << std::endl;
+    m_npot = glutExtensionSupported("GL_ARB_texture_non_power_of_two");
+    std::cout << "Non Power of Two extension " << (m_npot ? "available." : "not available.") << std::endl;
 
     glEnable(GL_BLEND);
     glEnable(GL_TEXTURE_2D);
@@ -76,8 +76,39 @@ GLuint cRenderer::createTexture(const unsigned char* data, unsigned w, unsigned 
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
             //std::cout << "creating " << tw << " x " << th << " texture" << std::endl;
-            GLint bytes = ((format == GL_RGBA || format == GL_BGRA) ? 4 : 3);
-            glTexImage2D(GL_TEXTURE_2D, 0, bytes, w, h, 0, format, GL_UNSIGNED_BYTE, data);
+            GLint bytes = 3;
+            GLenum type = 0;
+            if(format == GL_RGB || format == GL_BGR)
+            {
+                bytes = 3;
+                type = GL_UNSIGNED_BYTE;
+            }
+            else if(format == GL_RGBA || format == GL_BGRA)
+            {
+                bytes = 4;
+                type = GL_UNSIGNED_BYTE;
+            }
+            else if(format == GL_UNSIGNED_SHORT_4_4_4_4)
+            {
+                bytes = 2;
+                format = GL_RGBA;
+                type = GL_UNSIGNED_SHORT_4_4_4_4;
+            }
+            else if(format == GL_UNSIGNED_SHORT_5_6_5)
+            {
+                bytes = 2;
+                format = GL_RGB;
+                type = GL_UNSIGNED_SHORT_5_6_5;
+            }
+            else if(format == GL_UNSIGNED_SHORT_5_5_5_1)
+            {
+                bytes = 2;
+                format = GL_RGBA;
+                type = GL_UNSIGNED_SHORT_5_5_5_1;
+            }
+
+            glTexImage2D(GL_TEXTURE_2D, 0, bytes, w, h, 0, format, type, data);
+
             GLenum e = glGetError();
             if(GL_NO_ERROR != e)
             {
@@ -114,9 +145,9 @@ void cRenderer::bindTexture(GLuint tex)
     }
 }
 
-static int nextPOT(int n, bool pow2)
+static int nextPOT(int n, bool npot)
 {
-    if(pow2)
+    if(npot)
     {
         return n;
     }
@@ -132,8 +163,8 @@ static int nextPOT(int n, bool pow2)
 
 void cRenderer::calculateTextureSize(int* tex_w, int* tex_h, int img_w, int img_h)
 {
-    const int tw = std::min<int>(m_texture_max_size, nextPOT(img_w, m_pow2));
-    const int th = std::min<int>(m_texture_max_size, nextPOT(img_h, m_pow2));
+    const int tw = std::min<int>(m_texture_max_size, nextPOT(img_w, m_npot));
+    const int th = std::min<int>(m_texture_max_size, nextPOT(img_h, m_npot));
     //std::cout << "  select texture size: " << tw << " x " << th << std::endl;
     *tex_w = tw;
     *tex_h = th;

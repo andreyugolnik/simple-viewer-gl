@@ -99,59 +99,48 @@ bool cFormatPvr::readPvr(cFileInterface& file)
         return false;
     }
 
-    printf("version: %u\n", header.version);
-    printf("flags: %u\n", header.flags);
-    printf("format: %u\n", header.pixels_format);
-    printf("format: %u\n", header.pixels_format2);
-    printf("colorspace: %u\n", header.colorspace);
-    printf("channel_type: %u\n", header.channel_type);
-    printf("height: %u\n", header.height);
-    printf("width: %u\n", header.width);
-    printf("depth: %u\n", header.depth);
-    printf("num_surfaces: %u\n", header.num_surfaces);
-    printf("num_faces: %u\n", header.num_faces);
-    printf("mipmap_count: %u\n", header.mipmap_count);
-    printf("metadata_size: %u\n", header.metadata_size);
+    //printf("version: %u\n", header.version);
+    //printf("flags: %u\n", header.flags);
+    //printf("format: %u\n", header.pixels_format);
+    //printf("format: %u\n", header.pixels_format2);
+    //printf("colorspace: %u\n", header.colorspace);
+    //printf("channel_type: %u\n", header.channel_type);
+    //printf("height: %u\n", header.height);
+    //printf("width: %u\n", header.width);
+    //printf("depth: %u\n", header.depth);
+    //printf("num_surfaces: %u\n", header.num_surfaces);
+    //printf("num_faces: %u\n", header.num_faces);
+    //printf("mipmap_count: %u\n", header.mipmap_count);
+    //printf("metadata_size: %u\n", header.metadata_size);
 
     if(header.metadata_size > 0)
     {
         file.seek(header.metadata_size, SEEK_CUR);
     }
 
-    const uint64_t pixelFormat = ((uint64_t)header.pixels_format2 << 32 | header.pixels_format);
+    unsigned bytes = 0;
 
+    const uint64_t pixelFormat = ((uint64_t)header.pixels_format2 << 32 | header.pixels_format);
     switch(pixelFormat)
     {
     case (uint64_t)RGBA8888:
-        printf("RGBA8888\n");
+        bytes    = 4;
         m_format = GL_RGBA;
-        m_bpp = 32;
-        m_bppImage = 32;
-        m_pitch = header.width * 4;
         break;
 
     case (uint64_t)RGBA4444:
-        printf("RGBA4444\n");
-        m_format = GL_RGBA;
-        m_bppImage = 16;
-        m_bpp = 32;
-        m_pitch = header.width * 4;
+        bytes    = 2;
+        m_format = GL_UNSIGNED_SHORT_4_4_4_4;
         break;
 
     case (uint64_t)RGB565:
-        printf("RGB565\n");
-        m_format = GL_RGB;
-        m_bpp = 24;
-        m_bppImage = 16;
-        m_pitch = header.width * 3;
+        bytes    = 2;
+        m_format = GL_UNSIGNED_SHORT_5_6_5;
         break;
 
     case (uint64_t)RGBA5551:
-        printf("RGBA5551\n");
-        m_format = GL_RGBA;
-        m_bpp = 32;
-        m_bppImage = 16;
-        m_pitch = header.width * 4;
+        bytes    = 2;
+        m_format = GL_UNSIGNED_SHORT_5_5_5_1;
         break;
 
     default:
@@ -159,9 +148,19 @@ bool cFormatPvr::readPvr(cFileInterface& file)
         return false;
     }
 
-    m_width = header.width;
-    m_height = header.height;
-    m_bitmap.resize(m_pitch * m_height);
+    m_bpp      = bytes * 8;
+    m_bppImage = bytes * 8;
+    m_width    = header.width;
+    m_height   = header.height;
+    m_pitch    = m_width * bytes;
+
+    const unsigned size = m_pitch * m_height;
+    m_bitmap.resize(size);
+    if(size != file.read(&m_bitmap[0], size))
+    {
+        printf("Unexpected EOF.\n");
+        return false;
+    }
 
     return true;
 }
