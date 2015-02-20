@@ -36,7 +36,7 @@ CImageLoader::CImageLoader(iCallbacks* callbacks)
     m_formats[TYPE_COMMON] = new CFormatCommon("libImlib2", "ImLib2");
 #endif
     m_formats[TYPE_JPG] = new CFormatJpeg("libjpeg", "jpeg");
-    m_formats[TYPE_PSD] = new CFormatPsd(0, "PSD");
+    m_formats[TYPE_PSD] = new CFormatPsd(0, "psd");
     m_formats[TYPE_PNG] = new CFormatPng("libpng", "png");
     m_formats[TYPE_GIF] = new CFormatGif("libgif", "gif");
     m_formats[TYPE_ICO] = new CFormatIco(0, "ico");

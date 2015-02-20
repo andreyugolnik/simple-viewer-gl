@@ -1,20 +1,30 @@
-/////////////////////////////////////////////////
-//
-// Andrey A. Ugolnik
-// andrey@ugolnik.info
-//
-/////////////////////////////////////////////////
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
 #if defined(IMLIB2_SUPPORT)
 
 #include "formatcommon.h"
-#include <string.h>
 
-CFormatCommon* g_this = 0;
+#include <cstring>
+#include <Imlib2.h>
+
+static Imlib_Image m_image = 0;
+static CFormatCommon* g_this = 0;
+
+static int callbackProgress(void* /*p*/, char percent, int /*a*/, int /*b*/, int /*c*/, int /*d*/)
+{
+    g_this->progress(percent);
+    return 1;
+}
 
 CFormatCommon::CFormatCommon(const char* lib, const char* name)
     : CFormat(lib, name)
-    , m_image(0)
 {
     g_this = this;
     imlib_context_set_progress_function(callbackProgress);
@@ -99,12 +109,6 @@ void CFormatCommon::FreeMemory()
     }
 
     CFormat::FreeMemory();
-}
-
-int CFormatCommon::callbackProgress(void* /*p*/, char percent, int /*a*/, int /*b*/, int /*c*/, int /*d*/)
-{
-    g_this->progress(percent);
-    return 1;
 }
 
 #endif
