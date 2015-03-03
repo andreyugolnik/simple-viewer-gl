@@ -81,13 +81,13 @@ GLuint cRenderer::createTexture(const unsigned char* data, unsigned w, unsigned 
             if(format == GL_RGB || format == GL_BGR)
             {
                 bytes  = 3;
-                format = GL_RGB;
+                //format = GL_RGB;
                 type   = GL_UNSIGNED_BYTE;
             }
             else if(format == GL_RGBA || format == GL_BGRA)
             {
                 bytes  = 4;
-                format = GL_RGBA;
+                //format = GL_RGBA;
                 type   = GL_UNSIGNED_BYTE;
             }
             else if(format == GL_UNSIGNED_SHORT_4_4_4_4)

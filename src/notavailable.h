@@ -25,7 +25,7 @@ public:
 
 private:
     bool m_enabled;
-    std::auto_ptr<CQuad> m_na;
+    std::unique_ptr<CQuad> m_na;
 };
 
 #endif // NOTAVAILABLE_H

@@ -9,6 +9,7 @@
 
 #include "file_zlib.h"
 
+#include <cstring>
 #include <memory>
 #include <zlib.h>
 

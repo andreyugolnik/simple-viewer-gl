@@ -39,6 +39,8 @@ public:
     virtual bool Load(const char* filename, unsigned subImage = 0) = 0;
     virtual void FreeMemory();
 
+    void progress(int percent);
+
 private:
     iCallbacks* m_callbacks;
     int m_percent;
@@ -57,7 +59,6 @@ protected:
     std::string m_info;                  // additional info, such as EXIF
 
 protected:
-    void progress(int percent);
     void reset();
 
 private:

@@ -44,9 +44,9 @@ private:
     bool m_visible;
     cVector<float> m_window;
     sPixelInfo m_pixelInfo;
-    std::auto_ptr<CQuad> m_bg;
-    std::auto_ptr<CQuadSeries> m_pointer;
-    std::auto_ptr<CFTString> m_ft;
+    std::unique_ptr<CQuad> m_bg;
+    std::unique_ptr<CQuadSeries> m_pointer;
+    std::unique_ptr<CFTString> m_ft;
 
 private:
     bool isInsideImage(const cVector<float>& pos) const;

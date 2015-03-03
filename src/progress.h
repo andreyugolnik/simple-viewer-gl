@@ -23,8 +23,8 @@ public:
 
 private:
     int m_loadingTime;
-    std::auto_ptr<CQuad> m_loading;
-    std::auto_ptr<CQuad> m_square;
+    std::unique_ptr<CQuad> m_loading;
+    std::unique_ptr<CQuad> m_square;
 };
 
 #endif // PROGRESS_H

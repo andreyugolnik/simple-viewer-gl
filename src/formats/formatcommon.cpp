@@ -10,6 +10,7 @@
 #if defined(IMLIB2_SUPPORT)
 
 #include "formatcommon.h"
+#include "file.h"
 
 #include <cstring>
 #include <Imlib2.h>

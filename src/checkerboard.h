@@ -26,7 +26,7 @@ public:
 private:
 	bool m_enabled;
 	GLfloat m_r, m_g, m_b;
-	std::auto_ptr<CQuad> m_cb;
+	std::unique_ptr<CQuad> m_cb;
 };
 
 #endif // CHECKERBOARD_H

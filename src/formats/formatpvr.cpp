@@ -11,6 +11,8 @@
 #include "file_zlib.h"
 #include "helpers.h"
 
+#include <cstring>
+
 enum PVRPixelFormat
 {
     RgbPvrtc2  = 0,

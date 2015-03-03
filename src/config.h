@@ -25,7 +25,7 @@ public:
 private:
     CWindow * m_window;
     bool m_opened;
-    std::auto_ptr<libconfig::Config> m_config;
+    std::unique_ptr<libconfig::Config> m_config;
 };
 
 #endif /* end of include guard: CONFIG_H_D5951FCC953627 */

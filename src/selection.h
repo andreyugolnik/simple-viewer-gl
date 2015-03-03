@@ -67,7 +67,7 @@ private:
     };
     unsigned m_corner;
 
-    std::auto_ptr<CQuad> m_selection;
+    std::unique_ptr<CQuad> m_selection;
     CRect<float> m_rc;
     CRect<float> m_rc_test;
 };
