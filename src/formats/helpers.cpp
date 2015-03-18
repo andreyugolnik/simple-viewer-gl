@@ -42,6 +42,6 @@ bool readBuffer(cFileInterface& file, Buffer& buffer, unsigned desired_size)
             return false;
         }
     }
-    return desired_size <= size;
+    return desired_size <= buffer.size();
 }
 

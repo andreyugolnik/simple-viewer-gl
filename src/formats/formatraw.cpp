@@ -64,8 +64,8 @@ bool cFormatRaw::isSupported(cFile& file, Buffer& buffer) const
         return false;
     }
 
-    sHeader* header = (sHeader*)&buffer[0];
-    return isValidFormat(*header, file.getSize());
+    const sHeader& header = *(sHeader*)&buffer[0];
+    return isValidFormat(header, file.getSize());
 }
 
 //bool cFormatRaw::isRawFormat(const char* name)
