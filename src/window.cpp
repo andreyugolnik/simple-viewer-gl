@@ -171,8 +171,8 @@ void CWindow::fnRender()
         const unsigned img_w = m_imageList->GetWidth();
         const unsigned img_h = m_imageList->GetHeight();
 
-        const float half_w = (img_w * 0.5f);
-        const float half_h = ((img_h) * 0.5f);
+        const float half_w = ceilf(img_w * 0.5f);
+        const float half_h = ceilf(img_h * 0.5f);
         for(size_t i = 0, size = m_quads.size(); i < size; i++)
         {
             CQuadImage* quad = m_quads[i];
