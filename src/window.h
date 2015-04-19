@@ -66,6 +66,7 @@ public:
     void showCursor(bool show);
 
 private:
+    bool loadSubImage(int subStep);
     bool loadImage(int step, int subImage = 0);
     void centerWindow();
     void calculateScale();
