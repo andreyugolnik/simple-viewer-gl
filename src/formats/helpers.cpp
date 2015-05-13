@@ -30,6 +30,16 @@ void swap_uint32s(uint8_t* p, uint32_t size)
     }
 }
 
+void swap_uint16s(uint8_t* p, uint32_t size)
+{
+    const uint32_t items = size / 2;
+    for(uint32_t i = 0; i < items; i++)
+    {
+        *((uint16_t*)p) = read_uint16(p);
+        p += 2;
+    }
+}
+
 bool readBuffer(cFileInterface& file, Buffer& buffer, unsigned desired_size)
 {
     const unsigned size = buffer.size();

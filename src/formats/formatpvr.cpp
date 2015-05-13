@@ -174,6 +174,25 @@ bool cFormatPvr::readPvr(cFileInterface& file)
         return false;
     }
 
+    if(pixelFormat == (uint64_t)RGBA4444)
+    {
+        swap_uint16s(&m_bitmap[0], size);
+    }
+    else if(pixelFormat == (uint64_t)RGBA8888)
+    {
+        for(unsigned i = 0; i < size; i += 4)
+        {
+            const unsigned char g = m_bitmap[i + 0];
+            const unsigned char b = m_bitmap[i + 1];
+            const unsigned char a = m_bitmap[i + 2];
+            const unsigned char r = m_bitmap[i + 3];
+            m_bitmap[i + 0] = r;
+            m_bitmap[i + 1] = g;
+            m_bitmap[i + 2] = b;
+            m_bitmap[i + 3] = a;
+        }
+    }
+
     return true;
 }
 
