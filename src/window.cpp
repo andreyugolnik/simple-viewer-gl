@@ -437,10 +437,10 @@ void CWindow::fnKeyboardSpecial(int key, int /*x*/, int /*y*/)
         keyDown();
         break;
     case GLUT_KEY_PAGE_UP:
-        loadImage(0, m_imageList->GetSub() - 1);
+        loadSubImage(-1);
         break;
     case GLUT_KEY_PAGE_DOWN:
-        loadImage(0, m_imageList->GetSub() + 1);
+        loadSubImage(1);
         break;
     //default:
          //std::cout << key << std::endl;
@@ -635,6 +635,23 @@ void CWindow::centerWindow()
 
         calculateScale();
     }
+}
+
+bool CWindow::loadSubImage(int subStep)
+{
+    const int subCount = (int)m_imageList->GetSubCount();
+    int subImage = (int)m_imageList->GetSub() + subStep;
+
+    if(subImage < 0)
+    {
+        subImage = subCount - 1;
+    }
+    else if(subImage >= subCount)
+    {
+        subImage = 0;
+    }
+
+    return loadImage(0, subImage);
 }
 
 bool CWindow::loadImage(int step, int subImage)
