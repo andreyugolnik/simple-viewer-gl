@@ -36,17 +36,17 @@ enum PVRPixelFormat
     L8                     = 0x00080000006C,
 };
 
-enum PVRConversionFlags
-{
-    None,
-    RGBA44442ARGB4444 = 0x1,
-    RGBA44442RGBA8888 = 0x2,
-    RGB5652RGBA8888   = 0x4,
-    RGBA55512ARGB1555 = 0x8,
-    RGBA55512RGBA8888 = 0x10,
-    RGBA88882BGRA8888 = 0x20
+//enum PVRConversionFlags
+//{
+    //None,
+    //RGBA44442ARGB4444 = 0x1,
+    //RGBA44442RGBA8888 = 0x2,
+    //RGB5652RGBA8888   = 0x4,
+    //RGBA55512ARGB1555 = 0x8,
+    //RGBA55512RGBA8888 = 0x10,
+    //RGBA88882BGRA8888 = 0x20
 
-};
+//};
 
 struct PVRTexHeader
 {
@@ -65,27 +65,27 @@ struct PVRTexHeader
     uint32_t metadata_size;
 };
 
-static void ConvertRgba4444ToRgba8888(Buffer& buffer, unsigned width, unsigned height)
-{
-    Buffer rgba(width * height * 4);
+//static void ConvertRgba4444ToRgba8888(Buffer& buffer, unsigned width, unsigned height)
+//{
+    //Buffer rgba(width * height * 4);
 
-    uint16_t* in = (uint16_t*)&buffer[0];
-    uint32_t* out = (uint32_t*)&rgba[0];
+    //uint16_t* in = (uint16_t*)&buffer[0];
+    //uint32_t* out = (uint32_t*)&rgba[0];
 
-    for(unsigned i = 0, size = width * height; i < size; i++)
-    {
-        const uint16_t value = in[i];
+    //for(unsigned i = 0, size = width * height; i < size; i++)
+    //{
+        //const uint16_t value = in[i];
 
-        const uint32_t r = ((value >> 12) & 0xF) * 17;
-        const uint32_t g = (((value >> 8) & 0xF) * 17) << 8;
-        const uint32_t b = (((value >> 4) & 0xF) * 17) << 16;
-        const uint32_t a = ((value & 0xF) * 17) << 24;
+        //const uint32_t r = ((value >> 12) & 0xF) * 17;
+        //const uint32_t g = (((value >> 8) & 0xF) * 17) << 8;
+        //const uint32_t b = (((value >> 4) & 0xF) * 17) << 16;
+        //const uint32_t a = ((value & 0xF) * 17) << 24;
 
-        out[i] = r | g | b | a;
-    }
+        //out[i] = r | g | b | a;
+    //}
 
-    std::swap(buffer, rgba);
-}
+    //std::swap(buffer, rgba);
+//}
 
 //static void ConvertRgb565ToRgba8888(Buffer& buffer, unsigned width, unsigned height)
 //{
