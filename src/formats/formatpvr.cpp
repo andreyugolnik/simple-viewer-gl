@@ -87,76 +87,76 @@ static void ConvertRgba4444ToRgba8888(Buffer& buffer, unsigned width, unsigned h
     std::swap(buffer, rgba);
 }
 
-static void ConvertRgb565ToRgba8888(Buffer& buffer, unsigned width, unsigned height)
-{
-    Buffer rgba(width * height * 4);
+//static void ConvertRgb565ToRgba8888(Buffer& buffer, unsigned width, unsigned height)
+//{
+    //Buffer rgba(width * height * 4);
 
-    uint16_t* in = (uint16_t*)&buffer[0];
-    uint32_t* out = (uint32_t*)&rgba[0];
+    //uint16_t* in = (uint16_t*)&buffer[0];
+    //uint32_t* out = (uint32_t*)&rgba[0];
 
-    for(unsigned i = 0, size = width * height; i < size; i++)
-    {
-        uint16_t value = in[i];
+    //for(unsigned i = 0, size = width * height; i < size; i++)
+    //{
+        //uint16_t value = in[i];
 
-        uint32_t r = value & 0xF800;
-        r = (r >> 8 | r >> 13);
-        uint32_t g = value & 0x7E0;
-        g = (g >> 3 | g >> 9) << 8;
-        uint32_t b = value & 0x1F;
-        b = (b << 3 | b >> 2) << 16;
-        const uint32_t a = 0xFF << 24;
+        //uint32_t r = value & 0xF800;
+        //r = (r >> 8 | r >> 13);
+        //uint32_t g = value & 0x7E0;
+        //g = (g >> 3 | g >> 9) << 8;
+        //uint32_t b = value & 0x1F;
+        //b = (b << 3 | b >> 2) << 16;
+        //const uint32_t a = 0xFF << 24;
 
-        out[i] = r | g | b | a;
-    }
+        //out[i] = r | g | b | a;
+    //}
 
-    std::swap(buffer, rgba);
-}
+    //std::swap(buffer, rgba);
+//}
 
-static void ConvertRgba5551ToArgb1555Inplace(Buffer& buffer, unsigned width, unsigned height)
-{
-    uint16_t* inOut = (uint16_t*)&buffer[0];
-    for(unsigned i = 0, size = width * height; i < size; i++)
-    {
-        uint16_t value = inOut[i];
-        value = (uint16_t)(((value >> 1) & 0x7FFF) | (value << 15));
-        inOut[i] = value;
-    }
-}
+//static void ConvertRgba5551ToArgb1555Inplace(Buffer& buffer, unsigned width, unsigned height)
+//{
+    //uint16_t* inOut = (uint16_t*)&buffer[0];
+    //for(unsigned i = 0, size = width * height; i < size; i++)
+    //{
+        //uint16_t value = inOut[i];
+        //value = (uint16_t)(((value >> 1) & 0x7FFF) | (value << 15));
+        //inOut[i] = value;
+    //}
+//}
 
-static void ConvertRgba4444ToArgb4444Inplace(Buffer& buffer, unsigned width, unsigned height)
-{
-    uint16_t* inOut = (uint16_t*)&buffer[0];
-    for(unsigned i = 0, size = width * height; i < size; i++)
-    {
-        uint16_t value = inOut[i];
-        value = (uint16_t)(((value >> 4) & 0x0FFF) | (value << 12));
-        inOut[i] = value;
-    }
-}
+//static void ConvertRgba4444ToArgb4444Inplace(Buffer& buffer, unsigned width, unsigned height)
+//{
+    //uint16_t* inOut = (uint16_t*)&buffer[0];
+    //for(unsigned i = 0, size = width * height; i < size; i++)
+    //{
+        //uint16_t value = inOut[i];
+        //value = (uint16_t)(((value >> 4) & 0x0FFF) | (value << 12));
+        //inOut[i] = value;
+    //}
+//}
 
-static void ConvertRgba5551ToRgba8888(Buffer& buffer, unsigned width, unsigned height)
-{
-    Buffer rgba(width * height * 4);
+//static void ConvertRgba5551ToRgba8888(Buffer& buffer, unsigned width, unsigned height)
+//{
+    //Buffer rgba(width * height * 4);
 
-    uint16_t* in = (uint16_t*)&buffer[0];
-    uint32_t* out = (uint32_t*)&rgba[0];
+    //uint16_t* in = (uint16_t*)&buffer[0];
+    //uint32_t* out = (uint32_t*)&rgba[0];
 
-    for(unsigned i = 0, size = width * height; i < size; i++)
-    {
-        uint16_t value = in[i];
-        uint32_t r = (value & 0xF800);
-        r = (r >> 8 | r >> 13);
-        uint32_t g = (value & 0x7C0);
-        g = (g << 5 | g) & 0xFF00;
-        uint32_t b = (value & 0x3E);
-        b = (b << 18 | b << 13) & 0xFF0000;
-        uint32_t a = ((value & 0x1) * 255) << 24;
+    //for(unsigned i = 0, size = width * height; i < size; i++)
+    //{
+        //uint16_t value = in[i];
+        //uint32_t r = (value & 0xF800);
+        //r = (r >> 8 | r >> 13);
+        //uint32_t g = (value & 0x7C0);
+        //g = (g << 5 | g) & 0xFF00;
+        //uint32_t b = (value & 0x3E);
+        //b = (b << 18 | b << 13) & 0xFF0000;
+        //uint32_t a = ((value & 0x1) * 255) << 24;
 
-        out[i] = r | g | b | a;
-    }
+        //out[i] = r | g | b | a;
+    //}
 
-    std::swap(buffer, rgba);
-}
+    //std::swap(buffer, rgba);
+//}
 
 
 
@@ -315,34 +315,6 @@ bool cFormatPvr::readPvr(cFileInterface& file)
         //}
     }
 
-
-    //switch(pixelFormat)
-    //{
-    //case (uint64_t)RGBA8888:
-        //bytes    = 4;
-        //m_format = GL_RGBA;
-        //break;
-
-    //case (uint64_t)RGBA4444:
-        //bytes    = 2;
-        //m_format = GL_UNSIGNED_SHORT_4_4_4_4;
-        //break;
-
-    //case (uint64_t)RGB565:
-        //bytes    = 2;
-        //m_format = GL_UNSIGNED_SHORT_5_6_5;
-        //break;
-
-    //case (uint64_t)RGBA5551:
-        //bytes    = 2;
-        //m_format = GL_UNSIGNED_SHORT_5_5_5_1;
-        //break;
-
-    //default:
-        //printf("Unsupported format.\n");
-        //return false;
-    //}
-
     m_bpp      = bytes * 8;
     m_bppImage = bytes * 8;
     m_width    = header.width;
@@ -357,48 +329,48 @@ bool cFormatPvr::readPvr(cFileInterface& file)
         return false;
     }
 
-    if((pixelFormat & PVRPixelFormat::FORMATMASK) != 0)
-    {
-        const uint32_t flags = header.flags;
-        switch(pixelFormat)
-        {
-        case (uint64_t)PVRPixelFormat::RGBA4444:
-            if((flags & PVRConversionFlags::RGBA44442ARGB4444) != 0)
-            {
-                //SwizzlingTools.ConvertRgba4444ToArgb4444Inplace(&m_bitmap[0], header.width, header.height);
-                //m_format = GL_UNSIGNED_SHORT_4_4_4_4;
-            }
-            if((flags & PVRConversionFlags::RGBA44442RGBA8888) != 0)
-            {
-                ConvertRgba4444ToRgba8888(m_bitmap, header.width, header.height);
-                m_bpp    = 32;
-                m_pitch  = m_width * 4;
-                m_format = GL_RGBA;
-            }
-            break;
+    //if((pixelFormat & PVRPixelFormat::FORMATMASK) != 0)
+    //{
+        //const uint32_t flags = header.flags;
+        //switch(pixelFormat)
+        //{
+        //case (uint64_t)PVRPixelFormat::RGBA4444:
+            //if((flags & PVRConversionFlags::RGBA44442ARGB4444) != 0)
+            //{
+                ////ConvertRgba4444ToArgb4444Inplace(&m_bitmap[0], header.width, header.height);
+                ////m_format = GL_UNSIGNED_SHORT_4_4_4_4;
+            //}
+            //if((flags & PVRConversionFlags::RGBA44442RGBA8888) != 0)
+            //{
+                ////ConvertRgba4444ToRgba8888(m_bitmap, header.width, header.height);
+                ////m_bpp    = 32;
+                ////m_pitch  = m_width * 4;
+                ////m_format = GL_RGBA;
+            //}
+            //break;
 
-        case (uint64_t)PVRPixelFormat::RGB565:
-            if((flags & PVRConversionFlags::RGB5652RGBA8888) != 0)
-            {
-                //_dataPointer = SwizzlingTools.ConvertRgb565ToRgba8888(&m_bitmap[0], header.width, header.height);
-                //m_format = GL_RGBA;
-            }
-            break;
+        //case (uint64_t)PVRPixelFormat::RGB565:
+            //if((flags & PVRConversionFlags::RGB5652RGBA8888) != 0)
+            //{
+                ////_dataPointer = ConvertRgb565ToRgba8888(&m_bitmap[0], header.width, header.height);
+                ////m_format = GL_RGBA;
+            //}
+            //break;
 
-        case (uint64_t)PVRPixelFormat::RGBA5551:
-            if((flags & PVRConversionFlags::RGBA55512ARGB1555) != 0)
-            {
-                //SwizzlingTools.ConvertRgba5551ToArgb1555Inplace(&m_bitmap[0], header.width, header.height);
-                //m_format = GL_UNSIGNED_SHORT_5_5_5_1;
-            }
-            if((flags & PVRConversionFlags::RGBA55512RGBA8888) != 0)
-            {
-                //_dataPointer = SwizzlingTools.ConvertRgba5551ToRgba8888(&m_bitmap[0], header.width, header.height);
-                //m_format = GL_RGBA;
-            }
-            break;
-        }
-    }
+        //case (uint64_t)PVRPixelFormat::RGBA5551:
+            //if((flags & PVRConversionFlags::RGBA55512ARGB1555) != 0)
+            //{
+                ////ConvertRgba5551ToArgb1555Inplace(&m_bitmap[0], header.width, header.height);
+                ////m_format = GL_UNSIGNED_SHORT_5_5_5_1;
+            //}
+            //if((flags & PVRConversionFlags::RGBA55512RGBA8888) != 0)
+            //{
+                ////_dataPointer = ConvertRgba5551ToRgba8888(&m_bitmap[0], header.width, header.height);
+                ////m_format = GL_RGBA;
+            //}
+            //break;
+        //}
+    //}
 
     return true;
 }

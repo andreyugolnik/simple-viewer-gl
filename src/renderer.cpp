@@ -76,40 +76,34 @@ GLuint cRenderer::createTexture(const unsigned char* data, unsigned w, unsigned 
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
             //std::cout << "creating " << tw << " x " << th << " texture" << std::endl;
-            GLint bytes = 3;
             GLenum type = 0;
             if(format == GL_RGB || format == GL_BGR)
             {
-                bytes  = 3;
                 //format = GL_RGB;
                 type   = GL_UNSIGNED_BYTE;
             }
             else if(format == GL_RGBA || format == GL_BGRA)
             {
-                bytes  = 4;
                 //format = GL_RGBA;
                 type   = GL_UNSIGNED_BYTE;
             }
             else if(format == GL_UNSIGNED_SHORT_4_4_4_4)
             {
-                bytes  = 2;
                 format = GL_RGBA;
                 type   = GL_UNSIGNED_SHORT_4_4_4_4;
             }
             else if(format == GL_UNSIGNED_SHORT_5_6_5)
             {
-                bytes  = 2;
                 format = GL_RGB;
                 type   = GL_UNSIGNED_SHORT_5_6_5;
             }
             else if(format == GL_UNSIGNED_SHORT_5_5_5_1)
             {
-                bytes  = 2;
                 format = GL_RGBA;
                 type   = GL_UNSIGNED_SHORT_5_5_5_1;
             }
 
-            glTexImage2D(GL_TEXTURE_2D, 0, bytes, w, h, 0, format, type, data);
+            glTexImage2D(GL_TEXTURE_2D, 0, format, w, h, 0, format, type, data);
 
             GLenum e = glGetError();
             if(GL_NO_ERROR != e)
