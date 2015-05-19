@@ -77,39 +77,43 @@ GLuint cRenderer::createTexture(const unsigned char* data, unsigned w, unsigned 
 
             //std::cout << "creating " << tw << " x " << th << " texture" << std::endl;
             GLenum type = 0;
+            GLint fmt = format;
             if(format == GL_RGB || format == GL_BGR)
             {
-                //format = GL_RGB;
+                fmt    = GL_RGB;
                 type   = GL_UNSIGNED_BYTE;
             }
             else if(format == GL_RGBA || format == GL_BGRA)
             {
-                //format = GL_RGBA;
+                fmt    = GL_RGBA;
                 type   = GL_UNSIGNED_BYTE;
             }
             else if(format == GL_UNSIGNED_SHORT_4_4_4_4)
             {
                 format = GL_RGBA;
+                fmt    = GL_RGBA;
                 type   = GL_UNSIGNED_SHORT_4_4_4_4;
             }
             else if(format == GL_UNSIGNED_SHORT_5_6_5)
             {
                 format = GL_RGB;
+                fmt    = GL_RGB;
                 type   = GL_UNSIGNED_SHORT_5_6_5;
             }
             else if(format == GL_UNSIGNED_SHORT_5_5_5_1)
             {
                 format = GL_RGBA;
+                fmt    = GL_RGBA;
                 type   = GL_UNSIGNED_SHORT_5_5_5_1;
             }
 
-            glTexImage2D(GL_TEXTURE_2D, 0, format, w, h, 0, format, type, data);
+            glTexImage2D(GL_TEXTURE_2D, 0, fmt, w, h, 0, format, type, data);
 
             GLenum e = glGetError();
             if(GL_NO_ERROR != e)
             {
                 //const GLubyte* s   = gluErrorString(e);
-                std::cout << "can't update texture " << tex << ": " << e << std::endl;
+                printf("can't update texture %u: 0x%x\n", tex, e);
             }
         }
     }
