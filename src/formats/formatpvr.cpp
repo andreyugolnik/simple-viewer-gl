@@ -296,24 +296,24 @@ bool cFormatPvr::readPvr(cFileInterface& file)
     else
     {
         printf("Unsupported format.\n");
-        //return false;
+        return false;
 
-        const PVRPixelFormat format = (PVRPixelFormat)pixelFormat;
-        switch(format)
-        {
-        case PVRPixelFormat::RGBPVRTC2:
-            printf("SurfaceFormat.RgbPvrtc2\n");
-            break;
-        case PVRPixelFormat::RGBAPVRTC2:
-            printf("SurfaceFormat.RgbaPvrtc2\n");
-            break;
-        case PVRPixelFormat::RGBPVRTC4:
-            printf("SurfaceFormat.RgbPvrtc4\n");
-            break;
-        case PVRPixelFormat::RGBAPVRTC4:
-            printf("SurfaceFormat.RgbaPvrtc4\n");
-            break;
-        }
+        //const PVRPixelFormat format = (PVRPixelFormat)pixelFormat;
+        //switch(format)
+        //{
+        //case PVRPixelFormat::RGBPVRTC2:
+            //printf("SurfaceFormat.RgbPvrtc2\n");
+            //break;
+        //case PVRPixelFormat::RGBAPVRTC2:
+            //printf("SurfaceFormat.RgbaPvrtc2\n");
+            //break;
+        //case PVRPixelFormat::RGBPVRTC4:
+            //printf("SurfaceFormat.RgbPvrtc4\n");
+            //break;
+        //case PVRPixelFormat::RGBAPVRTC4:
+            //printf("SurfaceFormat.RgbaPvrtc4\n");
+            //break;
+        //}
     }
 
     m_bpp      = bytes * 8;
