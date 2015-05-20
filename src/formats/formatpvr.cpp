@@ -221,8 +221,8 @@ bool cFormatPvr::readPvr(cFileInterface& file)
 
     //printf("version: %u\n", header.version);
     //printf("flags: %u\n", header.flags);
-    //printf("format: %u\n", header.pixels_format);
-    //printf("format: %u\n", header.pixels_format2);
+    //printf("format: 0x%x\n", header.pixels_format);
+    //printf("format: 0x%x\n", header.pixels_format2);
     //printf("colorspace: %u\n", header.colorspace);
     //printf("channel_type: %u\n", header.channel_type);
     //printf("height: %u\n", header.height);

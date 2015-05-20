@@ -106,6 +106,10 @@ GLuint cRenderer::createTexture(const unsigned char* data, unsigned w, unsigned 
                 fmt    = GL_RGBA;
                 type   = GL_UNSIGNED_SHORT_5_5_5_1;
             }
+            else if(format == GL_LUMINANCE || format == GL_LUMINANCE_ALPHA || format == GL_ALPHA)
+            {
+                type   = GL_UNSIGNED_BYTE;
+            }
 
             glTexImage2D(GL_TEXTURE_2D, 0, fmt, w, h, 0, format, type, data);
 
