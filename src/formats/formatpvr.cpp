@@ -189,7 +189,7 @@ bool cFormatPvr::isSupported(cFile& file, Buffer& buffer) const
         return false;
     }
 
-    return (::memcmp(&buffer[0], "ZPVR", 4) == 0);
+    return (::memcmp(&buffer[0], "ZPVR", 4) == 0 || ::memcmp(&buffer[0], "PVR", 3) == 0);
 }
 
 bool cFormatPvr::Load(const char* filename, unsigned /*subImage*/)
@@ -207,6 +207,7 @@ bool cFormatPvr::Load(const char* filename, unsigned /*subImage*/)
         cFileZlib zip(&file);
         return readPvr(zip);
     }
+    file.seek(0, SEEK_SET);
     return readPvr(file);
 }
 
@@ -219,19 +220,19 @@ bool cFormatPvr::readPvr(cFileInterface& file)
         return false;
     }
 
-    //printf("version: %u\n", header.version);
-    //printf("flags: %u\n", header.flags);
-    //printf("format: 0x%x\n", header.pixels_format);
-    //printf("format: 0x%x\n", header.pixels_format2);
-    //printf("colorspace: %u\n", header.colorspace);
-    //printf("channel_type: %u\n", header.channel_type);
-    //printf("height: %u\n", header.height);
-    //printf("width: %u\n", header.width);
-    //printf("depth: %u\n", header.depth);
-    //printf("num_surfaces: %u\n", header.num_surfaces);
-    //printf("num_faces: %u\n", header.num_faces);
-    //printf("mipmap_count: %u\n", header.mipmap_count);
-    //printf("metadata_size: %u\n", header.metadata_size);
+    printf("version: %u\n", header.version);
+    printf("flags: %u\n", header.flags);
+    printf("format: 0x%x\n", header.pixels_format);
+    printf("format: 0x%x\n", header.pixels_format2);
+    printf("colorspace: %u\n", header.colorspace);
+    printf("channel_type: %u\n", header.channel_type);
+    printf("height: %u\n", header.height);
+    printf("width: %u\n", header.width);
+    printf("depth: %u\n", header.depth);
+    printf("num_surfaces: %u\n", header.num_surfaces);
+    printf("num_faces: %u\n", header.num_faces);
+    printf("mipmap_count: %u\n", header.mipmap_count);
+    printf("metadata_size: %u\n", header.metadata_size);
 
     if(header.metadata_size > 0)
     {
@@ -295,24 +296,24 @@ bool cFormatPvr::readPvr(cFileInterface& file)
     else
     {
         printf("Unsupported format.\n");
-        return false;
+        //return false;
 
-        //const PVRPixelFormat format = (PVRPixelFormat)pixelFormat;
-        //switch(format)
-        //{
-        //case PVRPixelFormat::RGBPVRTC2:
-            //surfaceFormat = SurfaceFormat.RgbPvrtc2;
-            //break;
-        //case PVRPixelFormat::RGBAPVRTC2:
-            //surfaceFormat = SurfaceFormat.RgbaPvrtc2;
-            //break;
-        //case PVRPixelFormat::RGBPVRTC4:
-            //surfaceFormat = SurfaceFormat.RgbPvrtc4;
-            //break;
-        //case PVRPixelFormat::RGBAPVRTC4:
-            //surfaceFormat = SurfaceFormat.RgbaPvrtc4;
-            //break;
-        //}
+        const PVRPixelFormat format = (PVRPixelFormat)pixelFormat;
+        switch(format)
+        {
+        case PVRPixelFormat::RGBPVRTC2:
+            printf("SurfaceFormat.RgbPvrtc2\n");
+            break;
+        case PVRPixelFormat::RGBAPVRTC2:
+            printf("SurfaceFormat.RgbaPvrtc2\n");
+            break;
+        case PVRPixelFormat::RGBPVRTC4:
+            printf("SurfaceFormat.RgbPvrtc4\n");
+            break;
+        case PVRPixelFormat::RGBAPVRTC4:
+            printf("SurfaceFormat.RgbaPvrtc4\n");
+            break;
+        }
     }
 
     m_bpp      = bytes * 8;
