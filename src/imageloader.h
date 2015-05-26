@@ -11,17 +11,6 @@
 #include "formats/format.h"
 
 class iCallbacks;
-class CFormatCommon;
-class CFormatDds;
-class CFormatGif;
-class CFormatIco;
-class CFormatJpeg;
-class CFormatPng;
-class CFormatPsd;
-class CFormatTiff;
-class CFormatXwd;
-class cFormatPpm;
-class cFormatRaw;
 
 enum eImageType
 {
@@ -39,6 +28,8 @@ enum eImageType
     TYPE_RAW,
     TYPE_PPM,
     TYPE_PVR,
+
+    TYPE_NOTAVAILABLE,
 
     TYPES_COUNT
 };

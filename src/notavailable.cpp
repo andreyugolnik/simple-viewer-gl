@@ -9,10 +9,9 @@
 
 #include "notavailable.h"
 #include "img-na.c"
-#include <math.h>
 
 CNotAvailable::CNotAvailable()
-    : m_enabled(false)
+    : CFormat(0, "n/a")
 {
 }
 
@@ -20,20 +19,22 @@ CNotAvailable::~CNotAvailable()
 {
 }
 
-void CNotAvailable::Init()
+bool CNotAvailable::Load(const char* filename, unsigned subImage)
 {
-    const int format = (imgNa.bytes_per_pixel == 3 ? GL_RGB : GL_RGBA);
-    m_na.reset(new CQuad(imgNa.width, imgNa.height, imgNa.pixel_data, format));
-}
+    (void)filename;
+    (void)subImage;
 
-bool CNotAvailable::Render()
-{
-    if(m_enabled == true)
-    {
-        cRenderer::resetGlobals();
-        m_na->Render(-imgNa.width * 0.5f, -imgNa.height * 0.5f);
-    }
+    m_format   = imgNa.bytes_per_pixel == 3 ? GL_RGB : GL_RGBA;
+    m_width    = imgNa.width;
+    m_height   = imgNa.height;
+    m_bpp      = imgNa.bytes_per_pixel * 8;
+    m_bppImage = 0;
+    m_pitch    = m_width * imgNa.bytes_per_pixel;
 
-    return m_enabled;
+    const unsigned size = m_pitch * m_height;
+    m_bitmap.resize(size);
+    ::memcpy(&m_bitmap[0], imgNa.pixel_data, size);
+
+    return true;
 }
 

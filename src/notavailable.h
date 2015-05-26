@@ -10,22 +10,16 @@
 #ifndef NOTAVAILABLE_H
 #define NOTAVAILABLE_H
 
-#include "quad.h"
+#include "formats/format.h"
 #include <memory>
 
-class CNotAvailable
+class CNotAvailable : public CFormat
 {
 public:
     CNotAvailable();
     virtual ~CNotAvailable();
 
-    void Init();
-    bool Render();
-    void Enable(bool enable) { m_enabled = enable; }
-
-private:
-    bool m_enabled;
-    std::unique_ptr<CQuad> m_na;
+    virtual bool Load(const char* filename, unsigned subImage = 0) override;
 };
 
 #endif // NOTAVAILABLE_H

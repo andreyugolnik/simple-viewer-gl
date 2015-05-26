@@ -169,11 +169,15 @@ bool CFilesList::isValidExt(const std::string& path)
 
     const char* ext[] =
     {
-        ".jpeg", ".jpg", ".png", ".psd", ".pnm", ".bmp", ".xpm", ".gif",
+#if defined(IMLIB2_SUPPORT)
+        ".bmp",
+#endif
+        ".jpeg", ".jpg", ".png", ".psd", ".pnm",
+        ".xpm", ".gif",
         ".tga", ".targa", ".tiff", ".tif", ".ico", ".lbm", ".id3", ".argb",
         ".xwd", ".dds", ".raw", ".ppm", ".pvr", ".pvrtc"
     };
-    for(size_t i = 0; i < sizeof(ext) / sizeof(const char*); i++)
+    for(size_t i = 0; i < sizeof(ext) / sizeof(ext[0]); i++)
     {
         if(s.substr(pos) == ext[i])
         {

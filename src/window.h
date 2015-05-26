@@ -35,7 +35,6 @@ class CImageLoader;
 class CInfoBar;
 class CPixelInfo;
 class CCheckerboard;
-class CNotAvailable;
 class CProgress;
 class CImageBorder;
 class CSelection;
@@ -111,7 +110,6 @@ private:
     std::unique_ptr<CInfoBar> m_infoBar;
     std::unique_ptr<CPixelInfo> m_pixelInfo;
     std::unique_ptr<CCheckerboard> m_checkerBoard;
-    std::unique_ptr<CNotAvailable> m_na;
     std::unique_ptr<CProgress> m_progress;
     std::unique_ptr<CImageBorder> m_border;
     std::unique_ptr<CSelection> m_selection;

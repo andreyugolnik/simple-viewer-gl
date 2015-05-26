@@ -14,7 +14,6 @@
 #include "infobar.h"
 #include "pixelinfo.h"
 #include "checkerboard.h"
-#include "notavailable.h"
 #include "progress.h"
 #include "imageborder.h"
 #include "selection.h"
@@ -58,7 +57,6 @@ CWindow::CWindow()
 
     m_imageList.reset(new CImageLoader(this));
     m_checkerBoard.reset(new CCheckerboard());
-    m_na.reset(new CNotAvailable());
     m_infoBar.reset(new CInfoBar());
     m_pixelInfo.reset(new CPixelInfo());
     m_progress.reset(new CProgress());
@@ -84,7 +82,6 @@ void CWindow::run()
     cRenderer::init();
 
     m_checkerBoard->Init();
-    m_na->Init();
     m_infoBar->Init();
     m_pixelInfo->Init();
     updatePixelInfo(cVector<float>(DEF_WINDOW_W, DEF_WINDOW_H));
@@ -164,57 +161,52 @@ void CWindow::fnRender()
 
     //updateViewportSize();
 
-    if(m_na->Render() == false)
+    cRenderer::setGlobals(cVector<float>(m_camera.x, m_camera.y), m_angle, m_scale);
+
+    const unsigned img_w = m_imageList->GetWidth();
+    const unsigned img_h = m_imageList->GetHeight();
+
+    const float half_w = ceilf(img_w * 0.5f);
+    const float half_h = ceilf(img_h * 0.5f);
+    for(size_t i = 0, size = m_quads.size(); i < size; i++)
     {
-        cRenderer::setGlobals(cVector<float>(m_camera.x, m_camera.y), m_angle, m_scale);
+        CQuadImage* quad = m_quads[i];
+        const float x = quad->GetCol() * quad->GetTexWidth() - half_w;
+        const float y = quad->GetRow() * quad->GetTexHeight() - half_h;
 
-        const unsigned img_w = m_imageList->GetWidth();
-        const unsigned img_h = m_imageList->GetHeight();
-
-        const float half_w = ceilf(img_w * 0.5f);
-        const float half_h = ceilf(img_h * 0.5f);
-        for(size_t i = 0, size = m_quads.size(); i < size; i++)
-        {
-            CQuadImage* quad = m_quads[i];
-            const float x = quad->GetCol() * quad->GetTexWidth() - half_w;
-            const float y = quad->GetRow() * quad->GetTexHeight() - half_h;
-
-            quad->Render(x, y);
-        }
-
-        if(m_showBorder)
-        {
-            m_border->Render(-half_w, -half_h, img_w, img_h, m_scale);
-        }
-        if(m_pixelInfo->IsVisible())
-        {
-            m_selection->Render(-half_w, -half_h);
-        }
-        cRenderer::resetGlobals();
-
-        //if(m_showBorder == true)
-        //{
-            //switch(m_angle)
-            //{
-            //case 0:
-                //m_border->Render(m_camera_x, m_camera_y, img_w, img_h, m_scale);
-                //break;
-            //case 90:
-                //m_border->Render(m_camera_x, m_camera_y, img_h, -img_w, m_scale);
-                //break;
-            //case 180:
-                //m_border->Render(m_camera_x, m_camera_y, -img_w, -img_h, m_scale);
-                //break;
-            //case 270:
-                //m_border->Render(m_camera_x, m_camera_y, -img_h, img_w, m_scale);
-                //break;
-            //}
-        //}
-
+        quad->Render(x, y);
     }
 
-    m_infoBar->Render();
+    if(m_showBorder)
+    {
+        m_border->Render(-half_w, -half_h, img_w, img_h, m_scale);
+    }
+    if(m_pixelInfo->IsVisible())
+    {
+        m_selection->Render(-half_w, -half_h);
+    }
+    cRenderer::resetGlobals();
 
+    //if(m_showBorder == true)
+    //{
+        //switch(m_angle)
+        //{
+        //case 0:
+            //m_border->Render(m_camera_x, m_camera_y, img_w, img_h, m_scale);
+            //break;
+        //case 90:
+            //m_border->Render(m_camera_x, m_camera_y, img_h, -img_w, m_scale);
+            //break;
+        //case 180:
+            //m_border->Render(m_camera_x, m_camera_y, -img_w, -img_h, m_scale);
+            //break;
+        //case 270:
+            //m_border->Render(m_camera_x, m_camera_y, -img_h, img_w, m_scale);
+            //break;
+        //}
+    //}
+
+    m_infoBar->Render();
     m_pixelInfo->Render();
 
     glutSwapBuffers();
@@ -656,10 +648,6 @@ bool CWindow::loadSubImage(int subStep)
 
 bool CWindow::loadImage(int step, int subImage)
 {
-    bool ret = false;
-
-    m_na->Enable(false);
-
     if(step != 0)
     {
         m_scale = 1;
@@ -671,15 +659,9 @@ bool CWindow::loadImage(int step, int subImage)
     const char* path = m_filesList->GetName(step);
     m_progress->Start();
 
-    if(true == m_imageList->LoadImage(path, subImage))
-    {
-        createTextures();
-        ret = true;
-    }
-    else
-    {
-        m_na->Enable(true);
-    }
+    const bool result = m_imageList->LoadImage(path, subImage);
+
+    createTextures();
 
     m_selection->SetImageDimension(m_imageList->GetWidth(), m_imageList->GetHeight());
     updateInfobar();
@@ -690,7 +672,7 @@ bool CWindow::loadImage(int step, int subImage)
 
     //m_imageList->FreeMemory();
 
-    return ret;
+    return result;
 }
 
 void CWindow::updateInfobar()

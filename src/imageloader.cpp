@@ -6,6 +6,7 @@
 /////////////////////////////////////////////////
 
 #include "imageloader.h"
+#include "notavailable.h"
 #include "formats/file.h"
 #include "formats/formatcommon.h"
 #include "formats/formatjpeg.h"
@@ -46,6 +47,8 @@ CImageLoader::CImageLoader(iCallbacks* callbacks)
     m_formats[TYPE_RAW] = new cFormatRaw(0, "raw");
     m_formats[TYPE_PPM] = new cFormatPpm(0, "ppm");
     m_formats[TYPE_PVR] = new cFormatPvr(0, "pvr");
+
+    m_formats[TYPE_NOTAVAILABLE] = new CNotAvailable();
 }
 
 CImageLoader::~CImageLoader()
@@ -58,7 +61,7 @@ CImageLoader::~CImageLoader()
 
 bool CImageLoader::LoadImage(const char* path, unsigned subImage)
 {
-    if(path != 0)
+    while(path != 0)
     {
         if(!m_path.empty() && m_path == path)
         {
@@ -67,7 +70,9 @@ bool CImageLoader::LoadImage(const char* path, unsigned subImage)
                 if(GetSub() != subImage)
                 {
                     return m_image->Load(path, subImage);
+                    break;
                 }
+
                 return true; // image already loaded
             }
         }
@@ -79,22 +84,16 @@ bool CImageLoader::LoadImage(const char* path, unsigned subImage)
             FreeMemory();
         }
 
-        if(type == TYPES_COUNT)
-        {
-            m_image = 0;
-            return false;
-        }
-
         m_path = path;
         m_image = m_formats[type];
-
         m_image->setCallbacks(m_callbacks);
+
         const bool result = m_image->Load(path, subImage);
         if(!result)
         {
             FreeMemory();
+            return false;
         }
-        return result;
     }
 
     return false;
@@ -210,7 +209,7 @@ eImageType CImageLoader::getType(const char* name)
     cFile file;
     if(!file.open(name))
     {
-        return TYPES_COUNT;
+        return TYPE_NOTAVAILABLE;
     }
 
     Buffer buffer;
@@ -260,6 +259,6 @@ eImageType CImageLoader::getType(const char* name)
 #endif
     }
 
-    return TYPES_COUNT;
+    return TYPE_NOTAVAILABLE;
 }
 
