@@ -55,7 +55,7 @@ bool CConfig::Open()
     // try to read config
     try
     {
-        m_config->readFile(path.str().c_str());
+        m_config->readFile(path);
     }
     catch(libconfig::FileIOException e)
     {

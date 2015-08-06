@@ -55,8 +55,8 @@ void CPixelInfo::setPixelInfo(const sPixelInfo& pi)
         snprintf(info, sizeof(info),
                 "pos: %d x %d\n" \
                 "argb: 0x%.2x%.2x%.2x%.2x\n" \
-                "rect: %d x %d\n" \
-                "size: %d, %d -> %d, %d"
+                "size: %d x %d\n" \
+                "rect: %d, %d -> %d, %d"
                 , (int)pi.point.x, (int)pi.point.y
                 , pi.a, pi.r, pi.g, pi.b
                 , w + 1, h + 1
