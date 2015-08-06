@@ -13,7 +13,7 @@
 #include "math/vector.h"
 
 #define GL_GLEXT_PROTOTYPES
-#if defined(__linux__)
+#if defined(__linux__) || defined(__CYGWIN__)
 #   include <GL/glut.h>
 #else
 #   include <glut.h>

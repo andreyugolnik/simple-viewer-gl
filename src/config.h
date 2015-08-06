@@ -8,7 +8,11 @@
 #ifndef CONFIG_H_D5951FCC953627
 #define CONFIG_H_D5951FCC953627
 
-#include <libconfig.h++>
+namespace libconfig
+{
+    class Config;
+}
+
 #include <memory>
 
 class CWindow;
@@ -23,7 +27,7 @@ public:
     void Read();
 
 private:
-    CWindow * m_window;
+    CWindow* m_window;
     bool m_opened;
     std::unique_ptr<libconfig::Config> m_config;
 };
