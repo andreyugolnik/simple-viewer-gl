@@ -10,6 +10,8 @@
 #include "notavailable.h"
 #include "img-na.c"
 
+#include <cstring>
+
 CNotAvailable::CNotAvailable()
     : CFormat(0, "n/a")
 {
