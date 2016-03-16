@@ -301,7 +301,7 @@ void CWindow::fnKeyboard(unsigned char key, int /*x*/, int /*y*/)
     //GLUT_ACTIVE_SHIFT
     //GLUT_ACTIVE_CTRL
     //GLUT_ACTIVE_ALT
-    int mod = glutGetModifiers();
+    const int mod = glutGetModifiers();
 
     switch(key)
     {
@@ -360,14 +360,6 @@ void CWindow::fnKeyboard(unsigned char key, int /*x*/, int /*y*/)
     case 'C':
         m_checkerBoard->Enable(!m_checkerBoard->IsEnabled());
         break;
-    case '0':
-        m_scale = 1.0f;
-        m_camera = cVector<float>();
-        m_fitImage = false;
-        centerWindow();
-        updateInfobar();
-        m_selection->setScale(m_scale);
-        break;
     case 13:
         m_windowed = !m_windowed;
         if(m_windowed)
@@ -405,9 +397,19 @@ void CWindow::fnKeyboard(unsigned char key, int /*x*/, int /*y*/)
         m_angle %= 360;
         calculateScale();
         break;
-    //default:
-         //std::cout << key << std::endl;
-         //break;
+
+    default:
+        //std::cout << key << std::endl;
+        if(key >= '0' && key <= '9')
+        {
+            m_scale = (float)(key - '0') + 1.0f;
+            m_camera = cVector<float>();
+            m_fitImage = false;
+            centerWindow();
+            updateInfobar();
+            m_selection->setScale(m_scale);
+        }
+        break;
     }
 }
 
