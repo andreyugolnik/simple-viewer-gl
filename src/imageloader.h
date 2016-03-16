@@ -28,6 +28,7 @@ enum eImageType
     TYPE_RAW,
     TYPE_PPM,
     TYPE_PVR,
+    TYPE_SCR,
 
     TYPE_NOTAVAILABLE,
 

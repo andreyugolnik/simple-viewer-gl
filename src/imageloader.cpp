@@ -20,6 +20,7 @@
 #include "formats/formatraw.h"
 #include "formats/formatppm.h"
 #include "formats/formatpvr.h"
+#include "formats/formatscr.h"
 
 #include <iostream>
 #include <algorithm>
@@ -47,6 +48,7 @@ CImageLoader::CImageLoader(iCallbacks* callbacks)
     m_formats[TYPE_RAW] = new cFormatRaw(0, "raw");
     m_formats[TYPE_PPM] = new cFormatPpm(0, "ppm");
     m_formats[TYPE_PVR] = new cFormatPvr(0, "pvr");
+    m_formats[TYPE_SCR] = new cFormatScr(0, "scr");
 
     m_formats[TYPE_NOTAVAILABLE] = new CNotAvailable();
 }
@@ -244,6 +246,7 @@ eImageType CImageLoader::getType(const char* name)
             { ".xwd",  TYPE_XWD },
             { ".dds",  TYPE_DDS },
             { ".ppm",  TYPE_PPM },
+            { ".scr",  TYPE_SCR },
         };
 
         for(size_t i = 0; i < sizeof(format) / sizeof(format[0]); i++)

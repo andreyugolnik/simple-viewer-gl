@@ -175,7 +175,8 @@ bool CFilesList::isValidExt(const std::string& path)
         ".jpeg", ".jpg", ".png", ".psd", ".pnm",
         ".xpm", ".gif",
         ".tga", ".targa", ".tiff", ".tif", ".ico", ".lbm", ".id3", ".argb",
-        ".xwd", ".dds", ".raw", ".ppm", ".pvr", ".pvrtc"
+        ".xwd", ".dds", ".raw", ".ppm", ".pvr", ".pvrtc",
+        ".scr"
     };
     for(size_t i = 0; i < sizeof(ext) / sizeof(ext[0]); i++)
     {

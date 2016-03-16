@@ -83,6 +83,7 @@ ADD_EXECUTABLE(sviewgl
     src/formats/formatpsd.cpp
     src/formats/formatpvr.cpp
     src/formats/formatraw.cpp
+    src/formats/formatscr.cpp
     src/formats/formattiff.cpp
     src/formats/formatxwd.cpp
     src/formats/helpers.cpp
