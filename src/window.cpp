@@ -55,7 +55,7 @@ CWindow::CWindow()
     m_lastMouse = cVector<float>(-1, -1);
     m_prev_size = cVector<float>(DEF_WINDOW_W, DEF_WINDOW_H);
 
-    m_imageList.reset(new CImageLoader(this));
+    m_loader.reset(new CImageLoader(this));
     m_checkerBoard.reset(new CCheckerboard());
     m_infoBar.reset(new CInfoBar());
     m_pixelInfo.reset(new CPixelInfo());
@@ -163,8 +163,8 @@ void CWindow::fnRender()
 
     cRenderer::setGlobals(cVector<float>(m_camera.x, m_camera.y), m_angle, m_scale);
 
-    const unsigned img_w = m_imageList->GetWidth();
-    const unsigned img_h = m_imageList->GetHeight();
+    const unsigned img_w = m_loader->GetWidth();
+    const unsigned img_h = m_loader->GetHeight();
 
     const float half_w = ceilf(img_w * 0.5f);
     const float half_h = ceilf(img_h * 0.5f);
@@ -466,8 +466,8 @@ void CWindow::shiftCamera(const cVector<float>& delta)
 {
     m_camera += delta;
 
-    const unsigned w = m_imageList->GetWidth();
-    const unsigned h = m_imageList->GetHeight();
+    const unsigned w = m_loader->GetWidth();
+    const unsigned h = m_loader->GetHeight();
 
     cVector<float> half = (m_viewport / m_scale + cVector<float>(w, h)) * 0.5f;
     m_camera.x = std::max<float>(m_camera.x, -half.x);
@@ -479,10 +479,10 @@ void CWindow::shiftCamera(const cVector<float>& delta)
 
 void CWindow::calculateScale()
 {
-    if(m_fitImage && m_imageList->isLoaded())
+    if(m_fitImage && m_loader->isLoaded())
     {
-        float w = static_cast<float>(m_imageList->GetWidth());
-        float h = static_cast<float>(m_imageList->GetHeight());
+        float w = static_cast<float>(m_loader->GetWidth());
+        float h = static_cast<float>(m_loader->GetHeight());
         if(m_angle == 90 || m_angle == 270)
         {
             float t = w;
@@ -606,8 +606,8 @@ void CWindow::centerWindow()
         if(m_center_window)
         {
             // calculate window size
-            int w = m_imageList->GetWidth();
-            int h = m_imageList->GetHeight();
+            int w = m_loader->GetWidth();
+            int h = m_loader->GetHeight();
             int scrw = glutGet(GLUT_SCREEN_WIDTH);
             int scrh = glutGet(GLUT_SCREEN_HEIGHT);
             int imgw = std::max<int>(w + (m_showBorder ? m_border->GetBorderWidth() * 2 : 0), DEF_WINDOW_W);
@@ -633,8 +633,8 @@ void CWindow::centerWindow()
 
 bool CWindow::loadSubImage(int subStep)
 {
-    const int subCount = (int)m_imageList->GetSubCount();
-    int subImage = (int)m_imageList->GetSub() + subStep;
+    const int subCount = (int)m_loader->GetSubCount();
+    int subImage = (int)m_loader->GetSub() + subStep;
 
     if(subImage < 0)
     {
@@ -661,18 +661,18 @@ bool CWindow::loadImage(int step, int subImage)
     const char* path = m_filesList->GetName(step);
     m_progress->Start();
 
-    const bool result = m_imageList->LoadImage(path, subImage);
+    const bool result = m_loader->LoadImage(path, subImage);
 
     createTextures();
 
-    m_selection->SetImageDimension(m_imageList->GetWidth(), m_imageList->GetHeight());
+    m_selection->SetImageDimension(m_loader->GetWidth(), m_loader->GetHeight());
     updateInfobar();
 
     centerWindow();
 
     updatePixelInfo(m_lastMouse);
 
-    //m_imageList->FreeMemory();
+    //m_loader->FreeMemory();
 
     return result;
 }
@@ -687,16 +687,16 @@ void CWindow::updateInfobar()
     s.index       = m_filesList->GetIndex();
     s.files_count = m_filesList->GetCount();
 
-    if(m_imageList->isLoaded())
+    if(m_loader->isLoaded())
     {
-        s.width       = m_imageList->GetWidth();
-        s.height      = m_imageList->GetHeight();
-        s.bpp         = m_imageList->GetImageBpp();
-        s.sub_image   = m_imageList->GetSub();
-        s.sub_count   = m_imageList->GetSubCount();
-        s.file_size   = m_imageList->GetSize();
-        s.mem_size    = m_imageList->GetSizeMem();
-        s.type        = m_imageList->getImageType();
+        s.width       = m_loader->GetWidth();
+        s.height      = m_loader->GetHeight();
+        s.bpp         = m_loader->GetImageBpp();
+        s.sub_image   = m_loader->GetSub();
+        s.sub_count   = m_loader->GetSubCount();
+        s.file_size   = m_loader->GetSize();
+        s.mem_size    = m_loader->GetSizeMem();
+        s.type        = m_loader->getImageType();
     }
     else
     {
@@ -707,18 +707,18 @@ void CWindow::updateInfobar()
 
 const cVector<float> CWindow::screenToImage(const cVector<float>& pos)
 {
-    const float w = m_imageList->GetWidth();
-    const float h = m_imageList->GetHeight();
+    const float w = m_loader->GetWidth();
+    const float h = m_loader->GetHeight();
 
     return pos + m_camera - (m_viewport / m_scale - cVector<float>(w, h)) * 0.5f;
 }
 
 void CWindow::updatePixelInfo(const cVector<float>& pos)
 {
-    if(m_imageList->isLoaded())
+    if(m_loader->isLoaded())
     {
-        const int w = m_imageList->GetWidth();
-        const int h = m_imageList->GetHeight();
+        const int w = m_loader->GetWidth();
+        const int h = m_loader->GetHeight();
 
         const cVector<float> point = screenToImage(pos);
         const int x = (int)point.x;
@@ -729,10 +729,10 @@ void CWindow::updatePixelInfo(const cVector<float>& pos)
         // TODO check pixel format (RGB or BGR)
         if(x >= 0 && y >= 0 && x <= w && y <= h)
         {
-            const int bpp = m_imageList->GetBpp();
-            const int pitch = m_imageList->GetPitch();
+            const int bpp = m_loader->GetBpp();
+            const int pitch = m_loader->GetPitch();
             const size_t idx = (size_t)(x * bpp / 8 + y * pitch);
-            const unsigned char* color = m_imageList->GetBitmap() + idx;
+            const unsigned char* color = m_loader->GetBitmap() + idx;
             pixelInfo.r = color[0];
             pixelInfo.g = color[1];
             pixelInfo.b = color[2];
@@ -750,14 +750,14 @@ void CWindow::updatePixelInfo(const cVector<float>& pos)
 
 void CWindow::createTextures()
 {
-    unsigned char* bitmap = m_imageList->GetBitmap();
+    unsigned char* bitmap = m_loader->GetBitmap();
     if(bitmap)
     {
-        const int width   = m_imageList->GetWidth();
-        const int height  = m_imageList->GetHeight();
-        const int format  = m_imageList->GetBitmapFormat();
-        const int pitch   = m_imageList->GetPitch();
-        const int bytesPP = (m_imageList->GetBpp() / 8);
+        const int width   = m_loader->GetWidth();
+        const int height  = m_loader->GetHeight();
+        const int format  = m_loader->GetBitmapFormat();
+        const int pitch   = m_loader->GetPitch();
+        const int bytesPP = (m_loader->GetBpp() / 8);
 
         std::cout << " " << width << " x " << height << ", ";
 

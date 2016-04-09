@@ -106,7 +106,7 @@ private:
     std::vector<CQuadImage*> m_quads;
 
     std::unique_ptr<CFilesList> m_filesList;
-    std::unique_ptr<CImageLoader> m_imageList;
+    std::unique_ptr<CImageLoader> m_loader;
     std::unique_ptr<CInfoBar> m_infoBar;
     std::unique_ptr<CPixelInfo> m_pixelInfo;
     std::unique_ptr<CCheckerboard> m_checkerBoard;

@@ -14,11 +14,12 @@
 #include <dlfcn.h>
 #include <cassert>
 
-CFormat::CFormat(const char* lib, const char* type)
-    : m_callbacks(0)
+CFormat::CFormat(const char* libName, const char* formatName)
+    : m_callbacks(nullptr)
     , m_percent(-1)
-    , m_type(type)
-    , m_lib(0)
+    , m_formatName(formatName)
+    , m_lib(nullptr)
+    , m_support(eSupport::Unsupported)
     , m_format(GL_RGB)
     , m_width(0)
     , m_height(0)
@@ -29,34 +30,52 @@ CFormat::CFormat(const char* lib, const char* type)
     , m_subImage(0)
     , m_subCount(0)
 {
-    if(lib)
+    if(libName != nullptr)
     {
-        std::string path(lib);
+        std::string path(libName);
 #if defined(__linux__)
         path += ".so";
-        m_lib = dlopen(path.c_str(), RTLD_LAZY);
-        if(m_lib)
-        {
-            std::cout << type << " format supported." << std::endl;
-        }
-        else
-        {
-            std::cout << "(WW) " << type << " format unsupported: " << dlerror() << std::endl;
-        }
 #else
         path += ".dylib";
 #endif
+        m_lib = dlopen(path.c_str(), RTLD_LAZY);
+        if(m_lib != nullptr)
+        {
+            m_support = eSupport::ExternalLib;
+        }
     }
     else
     {
-        std::cout << type << " format supported." << std::endl;
+        m_support = eSupport::Internal;
     }
 }
 
 CFormat::~CFormat()
 {
     FreeMemory();
-    dlclose(m_lib);
+    if(m_lib != nullptr)
+    {
+        dlclose(m_lib);
+    }
+}
+
+void CFormat::dumpFormat()
+{
+    const char* formatName = m_formatName.c_str();
+    switch(m_support)
+    {
+    case eSupport::Unsupported:
+        printf("(WW) %s format unsupported.\n", formatName);
+        break;
+
+    case eSupport::ExternalLib:
+        printf("%s format supported by external lib.\n", formatName);
+        break;
+
+    case eSupport::Internal:
+        printf("%s format has internal support.\n", formatName);
+        break;
+    }
 }
 
 void CFormat::FreeMemory()

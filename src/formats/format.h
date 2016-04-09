@@ -30,8 +30,10 @@ class CFormat
     friend class CImageLoader;
 
 public:
-    CFormat(const char* lib, const char* type);
+    CFormat(const char* libName, const char* formatName);
     virtual ~CFormat();
+
+    virtual void dumpFormat();
 
     virtual void setCallbacks(iCallbacks* callbacks) { m_callbacks = callbacks; }
     virtual bool isSupported(cFile& /*file*/, Buffer& /*buffer*/) const { return false; }
@@ -44,10 +46,17 @@ public:
 private:
     iCallbacks* m_callbacks;
     int m_percent;
-    std::string m_type;
+    std::string m_formatName;
 
 protected:
     void* m_lib;
+    enum class eSupport
+    {
+        Unsupported,
+        ExternalLib,
+        Internal
+    };
+    eSupport m_support;
     Buffer m_bitmap;
     GLenum m_format;
     unsigned m_width, m_height, m_pitch; // width, height, row pitch of image in buffer

@@ -17,12 +17,12 @@
 #endif
 
 #include <iostream>
-#include <locale.h>
-#include <string.h>
-#include <stdio.h>
+#include <clocale>
+#include <cstring>
+#include <cstdio>
 
-static const char* DEF_TITLE = "Simple Viewer GL";
-static CWindow* m_window = 0;
+static const char* SimpleViewerTitle = "Simple Viewer GL";
+static CWindow* m_window = nullptr;
 
 void showHelp(const char* name);
 
@@ -82,8 +82,8 @@ int main(int argc, char* argv[])
 {
     setlocale(LC_ALL, "");
 
-    printf("%s v2.5\n\n", DEF_TITLE);
-    printf("Copyright © 2008-2015 Andrey A. Ugolnik. All Rights Reserved.\n");
+    printf("%s v2.6\n\n", SimpleViewerTitle);
+    printf("Copyright © 2008-2016 Andrey A. Ugolnik. All Rights Reserved.\n");
     printf("http://www.ugolnik.info\n");
     printf("andrey@ugolnik.info\n\n");
 
@@ -159,7 +159,7 @@ int main(int argc, char* argv[])
         glutInit(&argc, argv);
         glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
 
-        glutCreateWindow(DEF_TITLE);
+        glutCreateWindow(SimpleViewerTitle);
 
         glutReshapeFunc(callbackResize);
         glutDisplayFunc(callbackRender);

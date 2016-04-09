@@ -39,53 +39,66 @@ bool cFormatPpm::Load(const char* filename, unsigned /*subImage*/)
     int format = 0;
     while((read = getline(&line, &len, (FILE*)file.getHandle())) != -1)
     {
-        if(read == 3 && line[0] == 'P')
+        if(line[0] != '#')
         {
-            // format
-            format = line[1] - '0';
-        }
-        else if(line[0] == '#')
-        {
-            // comment
-        }
-        else
-        {
-            int w, h;
-            sscanf(line, "%d %d\n", &w, &h);
-            m_width = w;
-            m_height = h;
-
-            if(getline(&line, &len, (FILE*)file.getHandle()) != -1)
+            if(read == 3 && line[0] == 'P')
             {
-                int max_val;
-                sscanf(line, "%d\n", &max_val);
+                // format
+                format = line[1] - '0';
             }
-
-            switch(format)
+            else
             {
-            case 1: // 1-ascii
-                result = readAscii1(file, w, h);
-                break;
-            case 4: // 1-raw
-                result = readRaw1(file, w, h);
-                break;
+                int w = 0;
+                int h = 0;
+                if(2 == sscanf(line, "%d %d\n", &w, &h))
+                {
+                    m_width = w;
+                    m_height = h;
+                }
+                else
+                {
+                    sscanf(line, "%d\n", &w);
+                    m_width = w;
 
-            case 2: // 8-ascii
-                result = readAscii8(file, w, h);
-                break;
-            case 5: // 8-raw
-                result = readRaw8(file, w, h);
-                break;
+                    if(getline(&line, &len, (FILE*)file.getHandle()) != -1)
+                    {
+                        sscanf(line, "%d\n", &h);
+                        m_height = h;
+                    }
+                }
 
-            case 3: // 24-ascii
-                result = readAscii24(file, w, h);
-                break;
-            case 6: // 24-raw
-                result = readRaw24(file, w, h);
+                if(getline(&line, &len, (FILE*)file.getHandle()) != -1)
+                {
+                    int max_val;
+                    sscanf(line, "%d\n", &max_val);
+                }
+
+                switch(format)
+                {
+                case 1: // 1-ascii
+                    result = readAscii1(file, w, h);
+                    break;
+                case 4: // 1-raw
+                    result = readRaw1(file, w, h);
+                    break;
+
+                case 2: // 8-ascii
+                    result = readAscii8(file, w, h);
+                    break;
+                case 5: // 8-raw
+                    result = readRaw8(file, w, h);
+                    break;
+
+                case 3: // 24-ascii
+                    result = readAscii24(file, w, h);
+                    break;
+                case 6: // 24-raw
+                    result = readRaw24(file, w, h);
+                    break;
+                }
+
                 break;
             }
-
-            break;
         }
     }
     free(line);

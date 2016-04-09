@@ -9,6 +9,7 @@
 #define IMAGELOADER_H
 
 #include "formats/format.h"
+#include <memory>
 
 class iCallbacks;
 
@@ -66,7 +67,7 @@ private:
     iCallbacks* m_callbacks;
     CFormat* m_image;
     eImageType m_type;
-    CFormat* m_formats[TYPES_COUNT];
+    std::unique_ptr<CFormat> m_formats[TYPES_COUNT];
 };
 
 #endif // IMAGELOADER_H

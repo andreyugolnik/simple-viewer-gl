@@ -31,39 +31,35 @@ static std::string m_path;
 
 CImageLoader::CImageLoader(iCallbacks* callbacks)
     : m_callbacks(callbacks)
-    , m_image(0)
+    , m_image(nullptr)
     , m_type(TYPES_COUNT)
 {
 #if defined(IMLIB2_SUPPORT)
-    m_formats[TYPE_COMMON] = new CFormatCommon("libImlib2", "ImLib2");
+    m_formats[TYPE_COMMON].reset(new CFormatCommon("libImlib2", "ImLib2"));
 #endif
-    m_formats[TYPE_JPG] = new CFormatJpeg("libjpeg", "jpeg");
-    m_formats[TYPE_PSD] = new CFormatPsd(0, "psd");
-    m_formats[TYPE_PNG] = new CFormatPng("libpng", "png");
-    m_formats[TYPE_GIF] = new CFormatGif("libgif", "gif");
-    m_formats[TYPE_ICO] = new CFormatIco(0, "ico");
-    m_formats[TYPE_TIF] = new CFormatTiff("libtiff", "tiff");
-    m_formats[TYPE_XWD] = new CFormatXwd(0, "xwd");
-    m_formats[TYPE_DDS] = new CFormatDds(0, "dds");
-    m_formats[TYPE_RAW] = new cFormatRaw(0, "raw");
-    m_formats[TYPE_PPM] = new cFormatPpm(0, "ppm");
-    m_formats[TYPE_PVR] = new cFormatPvr(0, "pvr");
-    m_formats[TYPE_SCR] = new cFormatScr(0, "scr");
+    m_formats[TYPE_JPG].reset(new CFormatJpeg("libjpeg", "jpeg"));
+    m_formats[TYPE_PSD].reset(new CFormatPsd(nullptr, "psd"));
+    m_formats[TYPE_PNG].reset(new CFormatPng("libpng", "png"));
+    m_formats[TYPE_GIF].reset(new CFormatGif("libgif", "gif"));
+    m_formats[TYPE_ICO].reset(new CFormatIco(nullptr, "ico"));
+    m_formats[TYPE_TIF].reset(new CFormatTiff("libtiff", "tiff"));
+    m_formats[TYPE_XWD].reset(new CFormatXwd(nullptr, "xwd"));
+    m_formats[TYPE_DDS].reset(new CFormatDds(nullptr, "dds"));
+    m_formats[TYPE_RAW].reset(new cFormatRaw(nullptr, "raw"));
+    m_formats[TYPE_PPM].reset(new cFormatPpm(nullptr, "ppm"));
+    m_formats[TYPE_PVR].reset(new cFormatPvr(nullptr, "pvr"));
+    m_formats[TYPE_SCR].reset(new cFormatScr(nullptr, "scr"));
 
-    m_formats[TYPE_NOTAVAILABLE] = new CNotAvailable();
+    m_formats[TYPE_NOTAVAILABLE].reset(new CNotAvailable());
 }
 
 CImageLoader::~CImageLoader()
 {
-    for(int i = 0; i < TYPES_COUNT; i++)
-    {
-        delete m_formats[i];
-    }
 }
 
 bool CImageLoader::LoadImage(const char* path, unsigned subImage)
 {
-    while(path != 0)
+    while(path != nullptr)
     {
         if(!m_path.empty() && m_path == path)
         {
@@ -87,13 +83,18 @@ bool CImageLoader::LoadImage(const char* path, unsigned subImage)
         }
 
         m_path = path;
-        m_image = m_formats[type];
+        m_image = m_formats[type].get();
         m_image->setCallbacks(m_callbacks);
 
         const bool result = m_image->Load(path, subImage);
         if(!result)
         {
             FreeMemory();
+
+            m_type = TYPE_NOTAVAILABLE;
+            m_image = m_formats[m_type].get();
+            m_image->Load(path, subImage);
+
             return false;
         }
     }
@@ -103,12 +104,12 @@ bool CImageLoader::LoadImage(const char* path, unsigned subImage)
 
 bool CImageLoader::isLoaded() const
 {
-    return m_image && !m_image->m_bitmap.empty();
+    return m_image != nullptr && !m_image->m_bitmap.empty();
 }
 
 unsigned char* CImageLoader::GetBitmap() const
 {
-    assert(m_image);
+    assert(m_image != nullptr);
     if(!m_image->m_bitmap.empty())
     {
         return &m_image->m_bitmap[0];
@@ -118,7 +119,7 @@ unsigned char* CImageLoader::GetBitmap() const
 
 void CImageLoader::FreeMemory()
 {
-    if(m_image)
+    if(m_image != nullptr)
     {
         m_image->FreeMemory();
         m_path.clear();
@@ -127,63 +128,63 @@ void CImageLoader::FreeMemory()
 
 unsigned CImageLoader::GetWidth() const
 {
-    assert(m_image);
+    assert(m_image != nullptr);
     return m_image->m_width;
 }
 
 unsigned CImageLoader::GetHeight() const
 {
-    assert(m_image);
+    assert(m_image != nullptr);
     return m_image->m_height;
 }
 
 unsigned CImageLoader::GetPitch() const
 {
-    assert(m_image);
+    assert(m_image != nullptr);
     return m_image->m_pitch;
 }
 
 unsigned CImageLoader::GetBitmapFormat() const
 {
-    assert(m_image);
+    assert(m_image != nullptr);
     return m_image->m_format;
 }
 
 unsigned CImageLoader::GetBpp() const
 {
-    assert(m_image);
+    assert(m_image != nullptr);
     return m_image->m_bpp;
 }
 
 unsigned CImageLoader::GetImageBpp() const
 {
-    assert(m_image);
+    assert(m_image != nullptr);
     return m_image->m_bppImage;
 }
 
 // file size on disk
 long CImageLoader::GetSize() const
 {
-    assert(m_image);
+    assert(m_image != nullptr);
     return m_image->m_size;
 }
 
 size_t CImageLoader::GetSizeMem() const
 {
-    assert(m_image);
+    assert(m_image != nullptr);
     return m_image->m_bitmap.size();
 }
 
 unsigned CImageLoader::GetSub() const
 {
-    assert(m_image);
+    assert(m_image != nullptr);
     return m_image->m_subImage;
 }
 
 unsigned CImageLoader::GetSubCount() const
 {
     assert(m_image);
-    if(m_image != 0)
+    if(m_image != nullptr)
     {
         return m_image->m_subCount;
     }
@@ -193,9 +194,9 @@ unsigned CImageLoader::GetSubCount() const
 const char* CImageLoader::getImageType() const
 {
     assert(m_image);
-    if(m_image != 0)
+    if(m_image != nullptr)
     {
-        return m_image->m_type.c_str();
+        return m_image->m_formatName.c_str();
     }
     return 0;
 }

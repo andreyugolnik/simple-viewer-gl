@@ -42,7 +42,7 @@ Key          | Description
 
 You can browse the source code repository on GitHub or get a copy using git with the following command:
 ```
-git clone https://github.com/andreyu/simple-viewer-gl.git
+git clone https://bitbucket.org/andreyu/simple-viewer-gl.git
 ```
 
 Under Linux **sviewgl** is built using the command:
