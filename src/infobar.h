@@ -48,20 +48,23 @@ class CInfoBar final
 public:
     void Init(GLFWwindow* window);
 
+    void setRatio(float ratio);
+    float getHeight() const;
+
+    void Update(const sInfoBar& p);
     void Render();
+
     bool Visible() const { return m_visible; }
     void Show(bool show = true) { m_visible = show; }
-    void Update(const sInfoBar& p);
-    float GetHeight() const { return (m_visible == true ? m_height : 0); }
 
 private:
     const char* getHumanSize(float& size);
+    void createFont();
 
 private:
     GLFWwindow* m_window = nullptr;
     bool m_visible = true;
-    const float m_height = 18;
-    const int m_fntSize = 12;
+    float m_ratio = 1.0f;
     std::string m_bottominfo;
     std::unique_ptr<CQuad> m_bg;
     std::unique_ptr<CFTString> m_ft;

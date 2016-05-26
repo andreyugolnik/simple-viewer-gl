@@ -112,7 +112,7 @@ void CQuad::RenderEx(float x, float y, float w, float h, int angle)
         m_quad.v[3].y = y + h*c;
     }
 
-    cRenderer::render(&m_quad);
+    cRenderer::render(m_quad);
 }
 
 void CQuad::useFilter(bool filter)

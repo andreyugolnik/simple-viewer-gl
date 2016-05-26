@@ -49,76 +49,66 @@ void cRenderer::init()
     glTexCoordPointer(2, GL_FLOAT, sizeof(sVertex), &m_vb->tx);
 }
 
-//void cRenderer::disable(bool _disable)
-//{
-    //m_inited = !_disable;
-
-    ////std::cout << "Renderer " << (m_inited ? "inited" : "disabled") << std::endl;
-//}
-
 GLuint cRenderer::createTexture(const unsigned char* data, unsigned w, unsigned h, GLenum format)
 {
     GLuint tex = 0;
-    //if(m_inited)
+    if(data)
     {
-        if(data)
+        glGenTextures(1, &tex);
+    }
+
+    bindTexture(tex);
+
+    if(data)
+    {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+        //std::cout << "creating " << tw << " x " << th << " texture" << std::endl;
+        GLenum type = 0;
+        GLint fmt = format;
+        if(format == GL_RGB || format == GL_BGR)
         {
-            glGenTextures(1, &tex);
+            fmt    = GL_RGB;
+            type   = GL_UNSIGNED_BYTE;
+        }
+        else if(format == GL_RGBA || format == GL_BGRA)
+        {
+            fmt    = GL_RGBA;
+            type   = GL_UNSIGNED_BYTE;
+        }
+        else if(format == GL_UNSIGNED_SHORT_4_4_4_4)
+        {
+            format = GL_RGBA;
+            fmt    = GL_RGBA;
+            type   = GL_UNSIGNED_SHORT_4_4_4_4;
+        }
+        else if(format == GL_UNSIGNED_SHORT_5_6_5)
+        {
+            format = GL_RGB;
+            fmt    = GL_RGB;
+            type   = GL_UNSIGNED_SHORT_5_6_5;
+        }
+        else if(format == GL_UNSIGNED_SHORT_5_5_5_1)
+        {
+            format = GL_RGBA;
+            fmt    = GL_RGBA;
+            type   = GL_UNSIGNED_SHORT_5_5_5_1;
+        }
+        else if(format == GL_LUMINANCE || format == GL_LUMINANCE_ALPHA || format == GL_ALPHA)
+        {
+            type   = GL_UNSIGNED_BYTE;
         }
 
-        bindTexture(tex);
+        glTexImage2D(GL_TEXTURE_2D, 0, fmt, w, h, 0, format, type, data);
 
-        if(data)
+        GLenum e = glGetError();
+        if(GL_NO_ERROR != e)
         {
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-            //std::cout << "creating " << tw << " x " << th << " texture" << std::endl;
-            GLenum type = 0;
-            GLint fmt = format;
-            if(format == GL_RGB || format == GL_BGR)
-            {
-                fmt    = GL_RGB;
-                type   = GL_UNSIGNED_BYTE;
-            }
-            else if(format == GL_RGBA || format == GL_BGRA)
-            {
-                fmt    = GL_RGBA;
-                type   = GL_UNSIGNED_BYTE;
-            }
-            else if(format == GL_UNSIGNED_SHORT_4_4_4_4)
-            {
-                format = GL_RGBA;
-                fmt    = GL_RGBA;
-                type   = GL_UNSIGNED_SHORT_4_4_4_4;
-            }
-            else if(format == GL_UNSIGNED_SHORT_5_6_5)
-            {
-                format = GL_RGB;
-                fmt    = GL_RGB;
-                type   = GL_UNSIGNED_SHORT_5_6_5;
-            }
-            else if(format == GL_UNSIGNED_SHORT_5_5_5_1)
-            {
-                format = GL_RGBA;
-                fmt    = GL_RGBA;
-                type   = GL_UNSIGNED_SHORT_5_5_5_1;
-            }
-            else if(format == GL_LUMINANCE || format == GL_LUMINANCE_ALPHA || format == GL_ALPHA)
-            {
-                type   = GL_UNSIGNED_BYTE;
-            }
-
-            glTexImage2D(GL_TEXTURE_2D, 0, fmt, w, h, 0, format, type, data);
-
-            GLenum e = glGetError();
-            if(GL_NO_ERROR != e)
-            {
-                //const GLubyte* s   = gluErrorString(e);
-                printf("can't update texture %u: 0x%x\n", tex, e);
-            }
+            //const GLubyte* s   = gluErrorString(e);
+            printf("can't update texture %u: 0x%x\n", tex, e);
         }
     }
 
@@ -127,25 +117,19 @@ GLuint cRenderer::createTexture(const unsigned char* data, unsigned w, unsigned 
 
 void cRenderer::deleteTexture(GLuint tex)
 {
-    //if(m_inited)
+    bindTexture(0);
+    if(tex != 0)
     {
-        bindTexture(0);
-        if(tex != 0)
-        {
-            glDeleteTextures(1, &tex);
-        }
+        glDeleteTextures(1, &tex);
     }
 }
 
 void cRenderer::bindTexture(GLuint tex)
 {
-    //if(m_inited)
+    if(m_tex != tex)
     {
-        if(m_tex != tex)
-        {
-            m_tex = tex;
-            glBindTexture(GL_TEXTURE_2D, m_tex);
-        }
+        m_tex = tex;
+        glBindTexture(GL_TEXTURE_2D, m_tex);
     }
 }
 
@@ -196,32 +180,26 @@ void cRenderer::setColor(sQuad* quad, int r, int g, int b, int a)
     }
 }
 
-void cRenderer::render(sLine* line)
+void cRenderer::render(const sLine& line)
 {
-    //if(m_inited)
-    {
-        bindTexture(line->tex);
+    bindTexture(line.tex);
 
-        m_vb[0] = line->v[0];
-        m_vb[1] = line->v[1];
+    m_vb[0] = line.v[0];
+    m_vb[1] = line.v[1];
 
-        glDrawElements(GL_LINES, 2, GL_UNSIGNED_SHORT, m_ib);
-    }
+    glDrawElements(GL_LINES, 2, GL_UNSIGNED_SHORT, m_ib);
 }
 
-void cRenderer::render(sQuad* quad)
+void cRenderer::render(const sQuad& quad)
 {
-    //if(m_inited)
-    {
-        bindTexture(quad->tex);
+    bindTexture(quad.tex);
 
-        m_vb[0] = quad->v[0];
-        m_vb[1] = quad->v[1];
-        m_vb[2] = quad->v[2];
-        m_vb[3] = quad->v[3];
+    m_vb[0] = quad.v[0];
+    m_vb[1] = quad.v[1];
+    m_vb[2] = quad.v[2];
+    m_vb[3] = quad.v[3];
 
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, m_ib);
-    }
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, m_ib);
 }
 
 const cVector<float>& cRenderer::getWindowSize()

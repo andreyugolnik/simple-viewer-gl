@@ -49,7 +49,7 @@ void CImageBorder::renderLine(float x, float y, float w, float h)
     m_line.v[3].x = x;
     m_line.v[3].y = y + h;
     cRenderer::bindTexture(0);
-    cRenderer::render(&m_line);
+    cRenderer::render(m_line);
 }
 
 float CImageBorder::GetBorderWidth() const

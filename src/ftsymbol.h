@@ -1,28 +1,27 @@
-/////////////////////////////////////////////////
-//
-// Andrey A. Ugolnik
-// andrey@ugolnik.info
-//
-/////////////////////////////////////////////////
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
-#ifndef FTSYMBOL_H
-#define FTSYMBOL_H
+#pragma once
 
 #include "renderer.h"
 
-class CFTSymbol
+class CFTSymbol final
 {
 public:
-    CFTSymbol(sQuad& _quad, int _tw, int _th, float _tx, float _ty, int _w, int _h);
-    virtual ~CFTSymbol();
+    CFTSymbol(const sQuad& quad, int tw, int th, float tx, float ty, int w, int h);
+    ~CFTSymbol();
 
-    void Render(int _x, int _y);
+    void Render(int x, int y);
 
 private:
+    sQuad m_quad;
     int m_w;
     int m_h;
-    sQuad m_quad;
 };
-
-#endif // FTSYMBOL_H
 

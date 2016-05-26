@@ -82,7 +82,6 @@ void cViewer::initialize(GLFWwindow* window)
     glfwGetFramebufferSize(m_window, &width, &height);
 
     updateFramebufferSize(width, height);
-    updatePixelInfo({ (float)width, (float)height });
 }
 
 void cViewer::SetProp(Property prop)
@@ -236,7 +235,10 @@ void cViewer::updateFramebufferSize(int width, int height)
 
     m_ratio = { (float)width / win_w, (float)height / win_h };
 
-    //printf("framebuffer: %d x %d -> window: %d x %d ratio: %.1f x %.1f\n", width, height, win_w, win_h, m_ratio.x, m_ratio.y);
+    m_infoBar->setRatio(m_ratio.y);
+    updatePixelInfo({ (float)width, (float)height });
+
+    printf("framebuffer: %d x %d -> window: %d x %d ratio: %.1f x %.1f\n", width, height, win_w, win_h, m_ratio.x, m_ratio.y);
 }
 
 void cViewer::fnMouse(float x, float y)
@@ -319,7 +321,6 @@ void cViewer::fnKeyboard(int key, int scancode, int action, int mods)
     switch(key)
     {
     case GLFW_KEY_ESCAPE:
-        //cRenderer::disable(true);
         exit(0);
         break;
 

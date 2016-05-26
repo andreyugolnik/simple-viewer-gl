@@ -1,22 +1,24 @@
-/////////////////////////////////////////////////
-//
-// Andrey A. Ugolnik
-// andrey@ugolnik.info
-//
-/////////////////////////////////////////////////
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
 #include "ftsymbol.h"
 
-CFTSymbol::CFTSymbol(sQuad& _quad, int _tw, int _th, float _tx, float _ty, int _w, int _h)
-    : m_w(_w)
-    , m_h(_h)
+CFTSymbol::CFTSymbol(const sQuad& quad, int tw, int th, float tx, float ty, int w, int h)
+    : m_w(w)
+    , m_h(h)
 {
-    m_quad = _quad;
+    m_quad = quad;
 
-    float x1 = _tx / _tw;
-    float y1 = _ty / _th;
-    float x2 = (_tx + _w) / _tw;
-    float y2 = (_ty + _h) / _th;
+    float x1 = tx / tw;
+    float y1 = ty / th;
+    float x2 = (tx + w) / tw;
+    float y2 = (ty + h) / th;
 
     m_quad.v[0].tx = x1;
     m_quad.v[0].ty = y1;
@@ -32,17 +34,17 @@ CFTSymbol::~CFTSymbol()
 {
 }
 
-void CFTSymbol::Render(int _x, int _y)
+void CFTSymbol::Render(int x, int y)
 {
-    m_quad.v[0].x = _x;
-    m_quad.v[0].y = _y;
-    m_quad.v[1].x = _x + m_w;
-    m_quad.v[1].y = _y;
-    m_quad.v[2].x = _x + m_w;
-    m_quad.v[2].y = _y + m_h;
-    m_quad.v[3].x = _x;
-    m_quad.v[3].y = _y + m_h;
+    m_quad.v[0].x = x;
+    m_quad.v[0].y = y;
+    m_quad.v[1].x = x + m_w;
+    m_quad.v[1].y = y;
+    m_quad.v[2].x = x + m_w;
+    m_quad.v[2].y = y + m_h;
+    m_quad.v[3].x = x;
+    m_quad.v[3].y = y + m_h;
 
-    cRenderer::render(&m_quad);
+    cRenderer::render(m_quad);
 }
 

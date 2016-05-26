@@ -11,14 +11,37 @@
 #include <string.h>
 #include <math.h>
 
+const float DesiredHeight = 18;
+const int DesiredFontSize = 12;
+
 void CInfoBar::Init(GLFWwindow* window)
 {
     m_window = window;
 
     m_bg.reset(new CQuad(0, 0));
     m_bg->SetColor(0, 0, 25, 240);
-    m_ft.reset(new CFTString(m_fntSize));
+
+    createFont();
+}
+
+void CInfoBar::setRatio(float ratio)
+{
+    if(m_ratio != ratio)
+    {
+        m_ratio = ratio;
+        createFont();
+    }
+}
+
+void CInfoBar::createFont()
+{
+    m_ft.reset(new CFTString(DesiredFontSize * m_ratio));
     m_ft->SetColor(255, 255, 127, 255);
+}
+
+float CInfoBar::getHeight() const
+{
+    return m_visible ? m_ratio * DesiredHeight : 0.0f;
 }
 
 void CInfoBar::Render()
@@ -27,15 +50,14 @@ void CInfoBar::Render()
     {
         int width;
         int height;
-        //glfwGetWindowSize(m_window, &width, &height);
         glfwGetFramebufferSize(m_window, &width, &height);
 
         const float x = -ceilf(width * 0.5f);
         const float y = ceilf(height * 0.5f);
-        m_bg->SetSpriteSize(width, m_height);
-        m_bg->Render(x, y - m_height);
+        m_bg->SetSpriteSize(width, DesiredHeight * m_ratio);
+        m_bg->Render(x, y - DesiredHeight * m_ratio);
 
-        m_ft->Render(x, y - (m_height - m_fntSize));
+        m_ft->Render(x, y - (DesiredHeight - DesiredFontSize) * m_ratio);
     }
 }
 
