@@ -80,7 +80,8 @@ private:
     void keyLeft();
     void keyRight();
     void shiftCamera(const cVector<float>& delta);
-    const cVector<float> screenToImage(const cVector<float>& pos);
+    cVector<float> screenToImage(const cVector<float>& pos) const;
+    cVector<float> calculateMousePosition(float x, float y) const;
 
 private:
     GLFWwindow* m_window = nullptr;

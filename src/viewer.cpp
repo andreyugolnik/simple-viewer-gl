@@ -241,16 +241,23 @@ void cViewer::fnResize()
     fnRender();
 }
 
-void cViewer::fnMouse(float x, float y)
+cVector<float> cViewer::calculateMousePosition(float x, float y) const
 {
     x *= m_ratio.x;
     y *= m_ratio.y;
 
-    const cVector<float> pointer_pos(x / m_scale, y / m_scale);
-    const cVector<float> diff(m_lastMouse - pointer_pos);
-    m_lastMouse = pointer_pos;
+    return { x / m_scale, y / m_scale };
+}
+
+void cViewer::fnMouse(float x, float y)
+{
+    const cVector<float> pos(calculateMousePosition(x, y));
+
     if(m_mouseMB || m_mouseRB)
     {
+        const cVector<float> diff(m_lastMouse - pos);
+        m_lastMouse = pos;
+
         if(diff != cVector<float>())
         {
             shiftCamera(diff);
@@ -262,10 +269,10 @@ void cViewer::fnMouse(float x, float y)
         const int cursor = m_selection->GetCursor();
         m_pixelInfo->SetCursor(cursor);
 
-        const cVector<float> point = screenToImage(m_lastMouse);
+        const cVector<float> point = screenToImage(pos);
         m_selection->MouseMove(point.x, point.y);
 
-        updatePixelInfo(m_lastMouse);
+        updatePixelInfo(pos);
     }
     else
     {
@@ -276,6 +283,10 @@ void cViewer::fnMouse(float x, float y)
 void cViewer::fnMouseButtons(int button, int action, int mods)
 {
     (void)mods;
+
+    double x, y;
+    glfwGetCursorPos(m_window, &x, &y);
+    m_lastMouse = calculateMousePosition(x, y);
 
     switch(button)
     {
@@ -289,14 +300,9 @@ void cViewer::fnMouseButtons(int button, int action, int mods)
 
     case GLFW_MOUSE_BUTTON_LEFT:
         m_mouseLB = (action == GLFW_PRESS);
-        if(m_pixelInfo->IsVisible())
         {
-            double x, y;
-            glfwGetCursorPos(m_window, &x, &y);
-            const cVector<float> pos(x / m_scale, y / m_scale);
-            const cVector<float> point = screenToImage(pos);
+            const cVector<float> point = screenToImage(m_lastMouse);
             m_selection->MouseButton(point.x, point.y, m_mouseLB);
-            updatePixelInfo(pos);
         }
         break;
 
@@ -445,10 +451,19 @@ void cViewer::fnKeyboard(int key, int scancode, int action, int mods)
 
     default:
         //std::cout << key << std::endl;
-        if(key >= GLFW_KEY_0 && key <= GLFW_KEY_9)
+        if(key == GLFW_KEY_0)
         {
-            m_scale = (float)(key - GLFW_KEY_0) + 1.0f;
-            m_camera = cVector<float>();
+            m_scale = 10.0f;
+            m_camera = { 0.0f, 0.0f };
+            m_fitImage = false;
+            centerWindow();
+            updateInfobar();
+            m_selection->setScale(m_scale);
+        }
+        else if(key >= GLFW_KEY_1 && key <= GLFW_KEY_9)
+        {
+            m_scale = (float)(key - GLFW_KEY_0);
+            m_camera = { 0.0f, 0.0f };
             m_fitImage = false;
             centerWindow();
             updateInfobar();
@@ -725,7 +740,7 @@ void cViewer::updateInfobar()
     m_infoBar->Update(s);
 }
 
-const cVector<float> cViewer::screenToImage(const cVector<float>& pos)
+cVector<float> cViewer::screenToImage(const cVector<float>& pos) const
 {
     const float w = m_loader->GetWidth();
     const float h = m_loader->GetHeight();
