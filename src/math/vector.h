@@ -7,11 +7,10 @@
 *
 \**********************************************/
 
-#ifndef VECTOR_H_E3551352CCAF74
-#define VECTOR_H_E3551352CCAF74
+#pragma once
 
 template<typename T>
-class cVector
+class cVector final
 {
 public:
     cVector()
@@ -100,6 +99,4 @@ public:
     T x;
     T y;
 };
-
-#endif /* end of include guard: VECTOR_H_E3551352CCAF74 */
 

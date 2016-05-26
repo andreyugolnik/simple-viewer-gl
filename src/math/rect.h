@@ -1,18 +1,18 @@
-/////////////////////////////////////////////////
-//
-// Andrey A. Ugolnik
-// http://www.ugolnik.info
-// andrey@ugolnik.info
-//
-/////////////////////////////////////////////////
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
-#ifndef RECT_H
-#define RECT_H
+#pragma once
 
-#include <math.h>
+#include <cmath>
 
 template<typename T>
-class CRect
+class CRect final
 {
 public:
     CRect() :
@@ -151,6 +151,4 @@ private:
 public:
     T x1, y1, x2, y2;
 };
-
-#endif // RECT_H
 

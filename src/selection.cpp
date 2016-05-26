@@ -8,7 +8,7 @@
 \**********************************************/
 
 #include "selection.h"
-#include "vector.h"
+#include "math/vector.h"
 
 #include <algorithm>
 #include <stdio.h>

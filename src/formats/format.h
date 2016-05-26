@@ -7,16 +7,11 @@
 *
 \**********************************************/
 
-#ifndef FORMAT_H
-#define FORMAT_H
+#pragma once
 
 #include <string>
 #include <vector>
-#if defined(__linux__)
-#   include <GL/glut.h>
-#else
-#   include <glut.h>
-#endif
+#include <GLFW/glfw3.h>
 
 //#define WIDTHBYTES(bits) ((((bits) + 31) / 32) * 4)
 
@@ -73,6 +68,4 @@ protected:
 private:
     CFormat();
 };
-
-#endif // FORMAT_H
 

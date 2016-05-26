@@ -39,6 +39,8 @@ class CProgress;
 class CImageBorder;
 class CSelection;
 
+class GLFWwindow;
+
 class CWindow : public iCallbacks
 {
 public:
@@ -46,7 +48,7 @@ public:
     virtual ~CWindow();
 
     bool setInitialImagePath(const char* path);
-    void run();
+    void run(GLFWwindow* window);
 
     void SetProp(Property prop);
     void SetProp(unsigned char r, unsigned char g, unsigned char b);
@@ -56,11 +58,9 @@ public:
 
     void fnRender();
     void fnResize(int width, int height);
-    void fnMouse(int x, int y);
-    void fnMouseButtons(int button, int state, int x, int y);
-    void fnMouseWheel(int wheel, int direction, int x, int y);
-    void fnKeyboard(unsigned char key, int x, int y);
-    void fnKeyboardSpecial(int key, int x, int y);
+    void fnMouse(float x, float y);
+    void fnMouseButtons(int button, int action, int mods);
+    void fnKeyboard(int key, int scancode, int action, int mods);
     void storeWindowPositionSize(bool position, bool size);
     void showCursor(bool show);
 
@@ -85,6 +85,7 @@ private:
     const cVector<float> screenToImage(const cVector<float>& pos);
 
 private:
+    GLFWwindow* m_window = nullptr;
     bool m_initialImageLoading;
     float m_scale;
     bool m_windowed;

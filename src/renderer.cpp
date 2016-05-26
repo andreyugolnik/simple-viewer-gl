@@ -8,7 +8,7 @@
 \**********************************************/
 
 #include "renderer.h"
-#include "vector.h"
+#include "math/vector.h"
 
 #include <iostream>
 #include <cmath>
@@ -27,7 +27,7 @@ void cRenderer::init()
     m_texture_max_size = texture_max_size;
     std::cout << "Max texture size: " << m_texture_max_size << "x" << m_texture_max_size << "." << std::endl;
 
-    m_npot = glutExtensionSupported("GL_ARB_texture_non_power_of_two");
+    m_npot = glfwExtensionSupported("GL_ARB_texture_non_power_of_two");
     std::cout << "Non Power of Two extension " << (m_npot ? "available." : "not available.") << std::endl;
 
     glEnable(GL_BLEND);

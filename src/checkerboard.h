@@ -5,29 +5,27 @@
 //
 /////////////////////////////////////////////////
 
-#ifndef CHECKERBOARD_H
-#define CHECKERBOARD_H
+#pragma once
 
 #include "quad.h"
 #include <memory>
 
-class CCheckerboard
+class CCheckerboard final
 {
 public:
-	CCheckerboard();
-	virtual ~CCheckerboard();
+    void Init(GLFWwindow* window);
 
-	void Init();
-	void Render();
-	void Enable(bool enable = true) { m_enabled = enable; }
-	bool IsEnabled() const { return m_enabled; }
-	void SetColor(int r, int g, int b);
+    void Render();
+    void Enable(bool enable = true) { m_enabled = enable; }
+    bool IsEnabled() const { return m_enabled; }
+    void SetColor(int r, int g, int b);
 
 private:
-	bool m_enabled;
-	GLfloat m_r, m_g, m_b;
-	std::unique_ptr<CQuad> m_cb;
+    GLFWwindow* m_window = nullptr;
+    bool m_enabled = true;
+    GLfloat m_r = 0.0f;
+    GLfloat m_g = 0.0f;
+    GLfloat m_b = 1.0f;
+    std::unique_ptr<CQuad> m_cb;
 };
-
-#endif // CHECKERBOARD_H
 

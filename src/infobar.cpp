@@ -11,19 +11,10 @@
 #include <string.h>
 #include <math.h>
 
-CInfoBar::CInfoBar()
-    : m_visible(true)
-    , m_height(18)
-    , m_fntSize(12)
+void CInfoBar::Init(GLFWwindow* window)
 {
-}
+    m_window = window;
 
-CInfoBar::~CInfoBar()
-{
-}
-
-void CInfoBar::Init()
-{
     m_bg.reset(new CQuad(0, 0));
     m_bg->SetColor(0, 0, 25, 240);
     m_ft.reset(new CFTString(m_fntSize));
@@ -34,12 +25,13 @@ void CInfoBar::Render()
 {
     if(m_visible == true)
     {
-        const int w = glutGet(GLUT_WINDOW_WIDTH);
-        const int h = glutGet(GLUT_WINDOW_HEIGHT);
+        int width;
+        int height;
+        glfwGetWindowSize(m_window, &width, &height);
 
-        const float x = -ceilf(w * 0.5f);
-        const float y = ceilf(h * 0.5f);
-        m_bg->SetSpriteSize(w, m_height);
+        const float x = -ceilf(width * 0.5f);
+        const float y = ceilf(height * 0.5f);
+        m_bg->SetSpriteSize(width, m_height);
         m_bg->Render(x, y - m_height);
 
         m_ft->Render(x, y - (m_height - m_fntSize));
@@ -81,7 +73,7 @@ void CInfoBar::Update(const sInfoBar& p)
 
     m_bottominfo = title;
 
-    glutSetWindowTitle(name);
+    glfwSetWindowTitle(m_window, name);
 
     m_ft->Update(m_bottominfo.c_str());
 }

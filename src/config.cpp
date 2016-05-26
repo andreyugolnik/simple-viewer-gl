@@ -8,7 +8,9 @@
 #include "config.h"
 #include "window.h"
 
+#if !defined(PATH_MAX)
 #define PATH_MAX 4096 /* # chars in a path name including nul */
+#endif
 
 #if defined(LIBCONFIG_SUPPORT)
 #include <libconfig.h++>

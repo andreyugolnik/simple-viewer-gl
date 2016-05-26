@@ -10,24 +10,18 @@
 #include "pixelinfo.h"
 #include "img-pointer-cross.c"
 
-const int BORDER	= 4;
-const int ALPHA		= 200;
-const int FONT_HEIGHT	= 13;
-const int FRAME_DELTA	= 10;
+#include <cstring>
+
+const int BORDER = 4;
+const int ALPHA = 200;
+const int FONT_HEIGHT = 13;
+const int FRAME_DELTA = 10;
 const int LINES_COUNT[2] = { 2, 4 };
-
-CPixelInfo::CPixelInfo()
-    : m_visible(false)
-{
-    memset(&m_pixelInfo, 0, sizeof(m_pixelInfo));
-}
-
-CPixelInfo::~CPixelInfo()
-{
-}
 
 void CPixelInfo::Init()
 {
+    m_pixelInfo.reset();
+
     m_bg.reset(new CQuad(0, 0));
     m_bg->SetColor(0, 0, 0, ALPHA);
 
@@ -85,8 +79,8 @@ void CPixelInfo::Render()
             const int frameWidth = m_ft->GetStringWidth() + 2 * BORDER;
             const int frameHeight = FONT_HEIGHT * LINES_COUNT[m_pixelInfo.rc.IsSet()] + 2 * BORDER;
 
-            const int cursor_x = std::min<int>(m_pixelInfo.mouse.x + FRAME_DELTA, m_window.x - frameWidth);
-            const int cursor_y = std::min<int>(m_pixelInfo.mouse.y + FRAME_DELTA, m_window.y - frameHeight);
+            const int cursor_x = std::min<int>(m_pixelInfo.mouse.x + FRAME_DELTA, m_size.x - frameWidth);
+            const int cursor_y = std::min<int>(m_pixelInfo.mouse.y + FRAME_DELTA, m_size.y - frameHeight);
 
             m_bg->SetSpriteSize(frameWidth, frameHeight);
             m_bg->Render(cursor_x, cursor_y);

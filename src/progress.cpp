@@ -1,23 +1,16 @@
-/////////////////////////////////////////////////
-//
-// Andrey A. Ugolnik
-// andrey@ugolnik.info
-//
-/////////////////////////////////////////////////
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
 #include "progress.h"
 #include "img-loading.c"
 #include <iostream>
 #include <math.h>
-
-CProgress::CProgress()
-    : m_loadingTime(0)
-{
-}
-
-CProgress::~CProgress()
-{
-}
 
 void CProgress::Init()
 {
@@ -29,29 +22,29 @@ void CProgress::Init()
 void CProgress::Start()
 {
     std::cout << "Loading...";
-    m_loadingTime = glutGet(GLUT_ELAPSED_TIME);
+    //m_loadingTime = glutGet(GLUT_ELAPSED_TIME);
 }
 
 void CProgress::Render(int percent)
 {
-    if(m_loadingTime + 600 < glutGet(GLUT_ELAPSED_TIME))
-    {
-        float w = 0.0f;//(float)glutGet(GLUT_WINDOW_WIDTH);
-        float h = 0.0f;//(float)glutGet(GLUT_WINDOW_HEIGHT);
-        float x = ceil((w - imgLoading.width) / 2);
-        float y = ceil((h - imgLoading.height) / 2);
+    //if(m_loadingTime + 600 < glutGet(GLUT_ELAPSED_TIME))
+    //{
+        //float w = 0.0f;//(float)glutGet(GLUT_WINDOW_WIDTH);
+        //float h = 0.0f;//(float)glutGet(GLUT_WINDOW_HEIGHT);
+        //float x = ceil((w - imgLoading.width) / 2);
+        //float y = ceil((h - imgLoading.height) / 2);
 
-        m_loading->Render(x, y);
+        //m_loading->Render(x, y);
 
-        const int count = 20;
-        const float step = imgLoading.width / count;
-        x = ceilf((w - step * count) / 2);
-        for(int i = 0; i < percent / (100 / count); i++)
-        {
-            m_square->Render(x + i * step, y + imgLoading.height);
-        }
+        //const int count = 20;
+        //const float step = imgLoading.width / count;
+        //x = ceilf((w - step * count) / 2);
+        //for(int i = 0; i < percent / (100 / count); i++)
+        //{
+            //m_square->Render(x + i * step, y + imgLoading.height);
+        //}
 
-        glutSwapBuffers();
-    }
+        //glutSwapBuffers();
+    //}
 }
 

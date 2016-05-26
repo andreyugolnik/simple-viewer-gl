@@ -10,11 +10,7 @@
 #include "window.h"
 #include "config.h"
 
-#if defined(__linux__)
-#   include <GL/glut.h>
-#else
-#   include <glut.h>
-#endif
+#include <GLFW/glfw3.h>
 
 #include <iostream>
 #include <clocale>
@@ -26,58 +22,30 @@ static CWindow* m_window = nullptr;
 
 void showHelp(const char* name);
 
-void callbackResize(int width, int height)
+void callbackResize(GLFWwindow* window, int width, int height)
 {
+    (void)window;
     m_window->fnResize(width, height);
 }
 
-void callbackRender()
+void callbackMouse(GLFWwindow* window, double x, double y)
 {
-    m_window->fnRender();
-}
-
-void callbackTimerUpdate(int value)
-{
-    glutPostRedisplay();
-    glutTimerFunc(value, callbackTimerUpdate, value);
-
-    // workaround: store window position by timer, because glut has not related callback
-    m_window->storeWindowPositionSize(true, false);
-}
-
-void callbackTimerCursor(int value)
-{
-    m_window->showCursor(false);
-
-    glutTimerFunc(value, callbackTimerCursor, value);
-}
-
-void callbackMouse(int x, int y)
-{
+    (void)window;
     m_window->fnMouse(x, y);
 }
 
-void callbackMouseButtons(int button, int state, int x, int y)
+void callbackMouseButtons(GLFWwindow* window, int button, int action, int mods)
 {
-    m_window->fnMouseButtons(button, state, x, y);
+    (void)window;
+    m_window->fnMouseButtons(button, action, mods);
 }
 
-void callbackMouseWheel(int wheel, int direction, int x, int y)
+void callbackKeyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    m_window->fnMouseWheel(wheel, direction, x, y);
+    (void)window;
+    m_window->fnKeyboard(key, scancode, action, mods);
 }
 
-void callbackKeyboardSpecial(int key, int x, int y)
-{
-    m_window->fnKeyboardSpecial(key, x, y);
-}
-
-void callbackKeyboard(unsigned char key, int x, int y)
-{
-    m_window->fnKeyboard(key, x, y);
-}
-
-// Program entry point
 int main(int argc, char* argv[])
 {
     setlocale(LC_ALL, "");
@@ -156,27 +124,54 @@ int main(int argc, char* argv[])
 
     if(m_window->setInitialImagePath(path))
     {
-        glutInit(&argc, argv);
-        glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
+        if(glfwInit())
+        {
+            GLFWwindow* window = glfwCreateWindow(640, 480, SimpleViewerTitle, nullptr, nullptr);
+            if(window != nullptr)
+            {
+                glfwMakeContextCurrent(window);
 
-        glutCreateWindow(SimpleViewerTitle);
+                glfwSetWindowSizeCallback(window, callbackResize);
+                //glfwSetWindowPosCallback(window, callbackResize);
+                glfwSetCursorPosCallback(window, callbackMouse);
+                glfwSetKeyCallback(window, callbackKeyboard);
+                glfwSetMouseButtonCallback(window, callbackMouseButtons);
 
-        glutReshapeFunc(callbackResize);
-        glutDisplayFunc(callbackRender);
-        glutTimerFunc(1000/60, callbackTimerUpdate, 1000/60);
-        glutTimerFunc(2000, callbackTimerCursor, 2000);
-        glutKeyboardFunc(callbackKeyboard);
-        glutMouseFunc(callbackMouseButtons);
-        glutSpecialFunc(callbackKeyboardSpecial);
-        //glutEntryFunc();
-        glutMotionFunc(callbackMouse);
-        glutPassiveMotionFunc(callbackMouse);
-        //glutMouseWheelFunc(callbackMouseWheel);
-        //glutWMCloseFunc(closeWindow);
+                m_window->run(window);
 
-        m_window->run();
+                while(!glfwWindowShouldClose(window))
+                {
+                    m_window->fnRender();
 
-        glutMainLoop();
+                    glfwSwapBuffers(window);
+
+                    glfwPollEvents();
+                }
+            }
+            glfwTerminate();
+        }
+
+        //glutInit(&argc, argv);
+        //glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
+
+        //glutCreateWindow(SimpleViewerTitle);
+
+        //glutReshapeFunc(callbackResize);
+        //glutDisplayFunc(callbackRender);
+        //glutTimerFunc(1000/60, callbackTimerUpdate, 1000/60);
+        //glutTimerFunc(2000, callbackTimerCursor, 2000);
+        //glutKeyboardFunc(callbackKeyboard);
+        //glutMouseFunc(callbackMouseButtons);
+        //glutSpecialFunc(callbackKeyboardSpecial);
+        ////glutEntryFunc();
+        //glutMotionFunc(callbackMouse);
+        //glutPassiveMotionFunc(callbackMouse);
+        ////glutMouseWheelFunc(callbackMouseWheel);
+        ////glutWMCloseFunc(closeWindow);
+
+        //m_window->run();
+
+        //glutMainLoop();
     }
 
     delete m_window;

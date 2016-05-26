@@ -1,31 +1,27 @@
-/////////////////////////////////////////////////
-//
-// Andrey A. Ugolnik
-// andrey@ugolnik.info
-//
-/////////////////////////////////////////////////
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
-#ifndef PROGRESS_H
-#define PROGRESS_H
+#pragma once
 
 #include "quad.h"
 #include <memory>
 
-class CProgress
+class CProgress final
 {
 public:
-    CProgress();
-    virtual ~CProgress();
-
     void Init();
     void Start();
     void Render(int percent);
 
 private:
-    int m_loadingTime;
+    int m_loadingTime = 0;
     std::unique_ptr<CQuad> m_loading;
     std::unique_ptr<CQuad> m_square;
 };
-
-#endif // PROGRESS_H
 

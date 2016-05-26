@@ -27,14 +27,6 @@
 const int DEF_WINDOW_W = 200;
 const int DEF_WINDOW_H = 200;
 
-#if defined(__APPLE__)
-    const int key_delete = 8;
-    const int key_backspace = 127;
-#else
-    const int key_delete = 127;
-    const int key_backspace = 8;
-#endif
-
 CWindow::CWindow()
     : m_initialImageLoading(true)
     , m_scale(1.0f)
@@ -77,12 +69,14 @@ bool CWindow::setInitialImagePath(const char* path)
     return m_filesList->GetName() != 0;
 }
 
-void CWindow::run()
+void CWindow::run(GLFWwindow* window)
 {
+    m_window = window;
+
     cRenderer::init();
 
-    m_checkerBoard->Init();
-    m_infoBar->Init();
+    m_checkerBoard->Init(window);
+    m_infoBar->Init(window);
     m_pixelInfo->Init();
     updatePixelInfo(cVector<float>(DEF_WINDOW_W, DEF_WINDOW_H));
     m_progress->Init();
@@ -137,14 +131,17 @@ void CWindow::fnRender()
         //printf("fullscreen desired, actual: %d x %d\n", width, height);
         // if window can't be resized (due WM restriction or limitation) then set size to current window size
         // useful in tiled WM
-        const int a_width = glutGet(GLUT_WINDOW_WIDTH);
-        const int a_height = glutGet(GLUT_WINDOW_HEIGHT);
-        const int scrw = glutGet(GLUT_SCREEN_WIDTH);
-        const int scrh = glutGet(GLUT_SCREEN_HEIGHT);
-        //printf("fullscreen desired: %d x %d, actual: %d x %d\n", scrw, scrh, a_width, a_height);
-        if(scrw != a_width || scrh != a_height)
+        int a_width;
+        int a_height;
+        glfwGetWindowSize(m_window, &a_width, &a_height);
+
+        GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+        //printf("fullscreen desired: %d x %d, actual: %d x %d\n", mode->width, mode->height, a_width, a_height);
+        if(mode->width != a_width || mode->height != a_height)
         {
-            //printf("can't set fullscreen mode. scr: %d x %d, win: %d x %d\n", scrw, scrh, width, height);
+            //printf("can't set fullscreen mode. scr: %d x %d, win: %d x %d\n", mode->width, mode->height, width, height);
             m_windowed = true;
             centerWindow();
             return;
@@ -209,7 +206,7 @@ void CWindow::fnRender()
     m_infoBar->Render();
     m_pixelInfo->Render();
 
-    glutSwapBuffers();
+    //glutSwapBuffers();
 }
 
 void CWindow::fnResize(int width, int height)
@@ -230,7 +227,7 @@ void CWindow::fnResize(int width, int height)
     //printf("%d x %d -> %.2f x %.2f\n", width, height, m_viewport_w, m_viewport_h);
 }
 
-void CWindow::fnMouse(int x, int y)
+void CWindow::fnMouse(float x, float y)
 {
     const cVector<float> pointer_pos(x / m_scale, y / m_scale);
     const cVector<float> diff(m_lastMouse - pointer_pos);
@@ -259,26 +256,26 @@ void CWindow::fnMouse(int x, int y)
     }
 }
 
-void CWindow::fnMouseWheel(int /*wheel*/, int direction, int /*x*/, int /*y*/)
+void CWindow::fnMouseButtons(int button, int action, int mods)
 {
-    if(direction > 0)
-    {
-        updateScale(true);
-    }
-    else //if(direction < 0)
-    {
-        updateScale(false);
-    }
-}
+    (void)mods;
 
-void CWindow::fnMouseButtons(int button, int state, int x, int y)
-{
     switch(button)
     {
-    case GLUT_LEFT_BUTTON:
-        m_mouseLB = (state == GLUT_DOWN);
+    case GLFW_MOUSE_BUTTON_4:
+        updateScale(true);
+        break;
+
+    case GLFW_MOUSE_BUTTON_5:
+        updateScale(false);
+        break;
+
+    case GLFW_MOUSE_BUTTON_LEFT:
+        m_mouseLB = (action == GLFW_PRESS);
         if(m_pixelInfo->IsVisible())
         {
+            double x, y;
+            glfwGetCursorPos(m_window, &x, &y);
             const cVector<float> pos(x / m_scale, y / m_scale);
             const cVector<float> point = screenToImage(pos);
             m_selection->MouseButton(point.x, point.y, m_mouseLB);
@@ -286,43 +283,43 @@ void CWindow::fnMouseButtons(int button, int state, int x, int y)
         }
         break;
 
-    case GLUT_MIDDLE_BUTTON:
-        m_mouseMB = (state == GLUT_DOWN);
+    case GLFW_MOUSE_BUTTON_MIDDLE:
+        m_mouseMB = (action == GLFW_PRESS);
         break;
 
-    case GLUT_RIGHT_BUTTON:
-        m_mouseRB = (state == GLUT_DOWN);
+    case GLFW_MOUSE_BUTTON_RIGHT:
+        m_mouseRB = (action == GLFW_PRESS);
         break;
     }
 }
 
-void CWindow::fnKeyboard(unsigned char key, int /*x*/, int /*y*/)
+void CWindow::fnKeyboard(int key, int scancode, int action, int mods)
 {
-    //GLUT_ACTIVE_SHIFT
-    //GLUT_ACTIVE_CTRL
-    //GLUT_ACTIVE_ALT
-    const int mod = glutGetModifiers();
+    (void)scancode;
+    if(action != GLFW_PRESS)
+    {
+        return;
+    }
 
     switch(key)
     {
-    case 27: // ESC
+    case GLFW_KEY_ESCAPE:
         //cRenderer::disable(true);
         exit(0);
         break;
 
-    case 'i':
-    case 'I':
+    case GLFW_KEY_I:
         m_infoBar->Show(!m_infoBar->Visible());
         //calculateScale();
         centerWindow();
         break;
-    case 'p':
-    case 'P':
+
+    case GLFW_KEY_P:
         m_pixelInfo->Show(!m_pixelInfo->IsVisible());
         showCursor(!m_pixelInfo->IsVisible());
         break;
-    case 's':
-    case 'S':
+
+    case GLFW_KEY_S:
         m_fitImage = !m_fitImage;
         if(m_fitImage == false)
         {
@@ -333,34 +330,39 @@ void CWindow::fnKeyboard(unsigned char key, int /*x*/, int /*y*/)
         updateInfobar();
         m_selection->setScale(m_scale);
         break;
-    case ' ':
+
+    case GLFW_KEY_SPACE:
         loadImage(1);
         break;
-    case key_backspace:
+
+    case GLFW_KEY_BACKSPACE:
         loadImage(-1);
         break;
-    case key_delete:
-        if(mod == GLUT_ACTIVE_CTRL)
+
+    case GLFW_KEY_DELETE:
+        if(mods & GLFW_MOD_CONTROL)
         {
             m_filesList->RemoveFromDisk();
         }
         break;
-    case 'b':
-    case 'B':
+
+    case GLFW_KEY_B:
         m_showBorder = !m_showBorder;
         break;
-    case '+':
-    case '=':
+
+    case GLFW_KEY_EQUAL:
         updateScale(true);
         break;
-    case '-':
+
+    case GLFW_KEY_MINUS:
         updateScale(false);
         break;
-    case 'c':
-    case 'C':
+
+    case GLFW_KEY_C:
         m_checkerBoard->Enable(!m_checkerBoard->IsEnabled());
         break;
-    case 13:
+
+    case GLFW_KEY_ENTER:
         m_windowed = !m_windowed;
         if(m_windowed)
         {
@@ -372,37 +374,64 @@ void CWindow::fnKeyboard(unsigned char key, int /*x*/, int /*y*/)
 
             storeWindowPositionSize(true, true);
 
-            glutFullScreen();
+            //glutFullScreen();
         }
         break;
-    case 'h':
+
+    case GLFW_KEY_H:
+    case GLFW_KEY_LEFT:
         keyLeft();
         break;
-    case 'l':
+
+    case GLFW_KEY_RIGHT:
         keyRight();
         break;
-    case 'k':
+
+    case GLFW_KEY_L:
+        if(mods & GLFW_MOD_CONTROL)
+        {
+            m_angle += 90;
+            m_angle %= 360;
+            calculateScale();
+        }
+        else
+        {
+            keyRight();
+        }
+        break;
+
+    case GLFW_KEY_K:
+    case GLFW_KEY_UP:
         keyUp();
         break;
-    case 'j':
+
+    case GLFW_KEY_J:
+    case GLFW_KEY_DOWN:
         keyDown();
         break;
-    case 'R':
-        m_angle += 360 - 90;
-        m_angle %= 360;
-        calculateScale();
+
+    case GLFW_KEY_R:
+        if(mods & GLFW_MOD_CONTROL)
+        {
+            m_angle += 360 - 90;
+            m_angle %= 360;
+            calculateScale();
+        }
         break;
-    case 'L':
-        m_angle += 90;
-        m_angle %= 360;
-        calculateScale();
+
+    case GLFW_KEY_PAGE_UP:
+        loadSubImage(-1);
+        break;
+
+    case GLFW_KEY_PAGE_DOWN:
+        loadSubImage(1);
         break;
 
     default:
         //std::cout << key << std::endl;
-        if(key >= '0' && key <= '9')
+        if(key >= GLFW_KEY_0 && key <= GLFW_KEY_9)
         {
-            m_scale = (float)(key - '0') + 1.0f;
+            m_scale = (float)(key - GLFW_KEY_0) + 1.0f;
             m_camera = cVector<float>();
             m_fitImage = false;
             centerWindow();
@@ -410,35 +439,6 @@ void CWindow::fnKeyboard(unsigned char key, int /*x*/, int /*y*/)
             m_selection->setScale(m_scale);
         }
         break;
-    }
-}
-
-void CWindow::fnKeyboardSpecial(int key, int /*x*/, int /*y*/)
-{
-    //std::cout << key << std::endl;
-    switch(key)
-    {
-    case GLUT_KEY_LEFT:
-        keyLeft();
-        break;
-    case GLUT_KEY_RIGHT:
-        keyRight();
-        break;
-    case GLUT_KEY_UP:
-        keyUp();
-        break;
-    case GLUT_KEY_DOWN:
-        keyDown();
-        break;
-    case GLUT_KEY_PAGE_UP:
-        loadSubImage(-1);
-        break;
-    case GLUT_KEY_PAGE_DOWN:
-        loadSubImage(1);
-        break;
-    //default:
-         //std::cout << key << std::endl;
-         //break;
     }
 }
 
@@ -581,16 +581,18 @@ void CWindow::storeWindowPositionSize(bool position, bool size)
 {
     if(position)
     {
-        const int x = glutGet(GLUT_WINDOW_X);
-        const int y = glutGet(GLUT_WINDOW_Y);
+        int x;
+        int y;
+        glfwGetWindowPos(m_window, &x, &y);
         m_prev_pos = cVector<float>(x, y);
     }
 
     if(size)
     {
-        const int w = glutGet(GLUT_WINDOW_WIDTH);
-        const int h = glutGet(GLUT_WINDOW_HEIGHT);
-        m_prev_size = cVector<float>(w, h);
+        int width;
+        int height;
+        glfwGetWindowSize(m_window, &width, &height);
+        m_prev_size = cVector<float>(width, height);
     }
 }
 
@@ -608,21 +610,21 @@ void CWindow::centerWindow()
             // calculate window size
             int w = m_loader->GetWidth();
             int h = m_loader->GetHeight();
-            int scrw = glutGet(GLUT_SCREEN_WIDTH);
-            int scrh = glutGet(GLUT_SCREEN_HEIGHT);
+            GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+            const GLFWvidmode* mode = glfwGetVideoMode(monitor);
             int imgw = std::max<int>(w + (m_showBorder ? m_border->GetBorderWidth() * 2 : 0), DEF_WINDOW_W);
             int imgh = std::max<int>(h + (m_showBorder ? m_border->GetBorderWidth() * 2 : 0), DEF_WINDOW_H);
-            winw = std::min<int>(imgw, scrw);
-            winh = std::min<int>(imgh, scrh);
+            winw = std::min<int>(imgw, mode->width);
+            winh = std::min<int>(imgh, mode->height);
 
             // calculate window position
-            posx = (scrw - winw) / 2;
-            posy = (scrh - winh) / 2;
+            posx = (mode->width - winw) / 2;
+            posy = (mode->height - winh) / 2;
         }
 
-        glutPositionWindow(posx, posy);
-        glutReshapeWindow(winw, winh);
-        //printf("screen: %d x %d, window %d x %d, pos: %d, %d\n", scrw, scrh, winw, winh, posx, posy);
+        glfwSetWindowPos(m_window, posx, posy);
+        glfwSetWindowSize(m_window, winw, winh);
+        //printf("screen: %d x %d, window %d x %d, pos: %d, %d\n", mode->width, mode->height, winw, winh, posx, posy);
 
         m_prev_pos = cVector<float>(posx, posy);
         m_prev_size = cVector<float>(winw, winh);
@@ -822,7 +824,7 @@ void CWindow::showCursor(bool show)
     if(m_cursorVisible != show)
     {
         m_cursorVisible = show;
-        glutSetCursor(show == true ? GLUT_CURSOR_LEFT_ARROW : GLUT_CURSOR_NONE);
+        glfwSetInputMode(m_window, GLFW_CURSOR, show ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_HIDDEN);
     }
 }
 

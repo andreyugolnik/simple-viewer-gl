@@ -10,20 +10,10 @@
 
 const int tex_size = 128;
 
-CCheckerboard::CCheckerboard()
-    : m_enabled(true)
-    , m_r(0)
-    , m_g(0)
-    , m_b(1)
+void CCheckerboard::Init(GLFWwindow* window)
 {
-}
+    m_window = window;
 
-CCheckerboard::~CCheckerboard()
-{
-}
-
-void CCheckerboard::Init()
-{
     unsigned char* buffer = new unsigned char[tex_size * tex_size * 3];
     unsigned char* p = buffer;
     bool checker_height_odd = true;
@@ -67,10 +57,11 @@ void CCheckerboard::Render()
 {
     if(m_enabled == true)
     {
-        const float w = (float)glutGet(GLUT_WINDOW_WIDTH);
-        const float h = (float)glutGet(GLUT_WINDOW_HEIGHT);
-        m_cb->SetSpriteSize(w, h);
-        m_cb->Render(-w * 0.5f, -h * 0.5f);
+        int width;
+        int height;
+        glfwGetWindowSize(m_window, &width, &height);
+        m_cb->SetSpriteSize(width, height);
+        m_cb->Render(-width * 0.5f, -height * 0.5f);
     }
     else
     {

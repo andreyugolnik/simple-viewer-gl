@@ -12,12 +12,13 @@
 
 #include "math/vector.h"
 
-#define GL_GLEXT_PROTOTYPES
-#if defined(__linux__) || defined(__CYGWIN__)
-#   include <GL/glut.h>
-#else
-#   include <glut.h>
-#endif
+#include <GLFW/glfw3.h>
+//#define GL_GLEXT_PROTOTYPES
+//#if defined(__linux__) || defined(__CYGWIN__)
+//#   include <GL/glut.h>
+//#else
+//#   include <glut.h>
+//#endif
 
 struct sVertex
 {

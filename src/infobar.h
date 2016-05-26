@@ -7,8 +7,7 @@
 *
 \**********************************************/
 
-#ifndef INFOBAR_H
-#define INFOBAR_H
+#pragma once
 
 #include "ftstring.h"
 #include "quad.h"
@@ -44,13 +43,11 @@ struct sInfoBar
     int files_count;
 };
 
-class CInfoBar
+class CInfoBar final
 {
 public:
-    CInfoBar();
-    virtual ~CInfoBar();
+    void Init(GLFWwindow* window);
 
-    void Init();
     void Render();
     bool Visible() const { return m_visible; }
     void Show(bool show = true) { m_visible = show; }
@@ -58,16 +55,15 @@ public:
     float GetHeight() const { return (m_visible == true ? m_height : 0); }
 
 private:
-    bool m_visible;
-    const float m_height;
-    const int m_fntSize;
+    const char* getHumanSize(float& size);
+
+private:
+    GLFWwindow* m_window = nullptr;
+    bool m_visible = true;
+    const float m_height = 18;
+    const int m_fntSize = 12;
     std::string m_bottominfo;
     std::unique_ptr<CQuad> m_bg;
     std::unique_ptr<CFTString> m_ft;
-
-private:
-    const char* getHumanSize(float& size);
 };
-
-#endif // INFOBAR_H
 
