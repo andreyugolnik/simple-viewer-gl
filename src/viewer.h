@@ -7,27 +7,13 @@
 *
 \**********************************************/
 
-#ifndef WINDOW_H_75C5AF4863DEDB
-#define WINDOW_H_75C5AF4863DEDB
+#pragma once
 
 #include "math/vector.h"
 #include "callbacks.h"
 
 #include <vector>
 #include <memory>
-
-typedef enum
-{
-    PROP_INFOBAR,
-    PROP_PIXELINFO,
-    PROP_CHECKERS,
-    PROP_FITIMAGE,
-    PROP_FULLSCREEN,
-    PROP_BORDER,
-    PROP_RECURSIVE,
-    PROP_CENTER_WINDOW,
-    PROP_ALL_VALID
-} Property;
 
 class CQuadImage;
 class CFilesList;
@@ -41,15 +27,27 @@ class CSelection;
 
 class GLFWwindow;
 
-class CWindow : public iCallbacks
+class cViewer final : public iCallbacks
 {
 public:
-    CWindow();
-    virtual ~CWindow();
+    cViewer();
+    ~cViewer();
 
     bool setInitialImagePath(const char* path);
-    void run(GLFWwindow* window);
+    void initialize(GLFWwindow* window);
 
+    enum class Property
+    {
+        Infobar,
+        PixelInfo,
+        Checkers,
+        FitImage,
+        Fullscreen,
+        Border,
+        Recursive,
+        CenterWindow,
+        AllValid
+    };
     void SetProp(Property prop);
     void SetProp(unsigned char r, unsigned char g, unsigned char b);
 
@@ -65,6 +63,7 @@ public:
     void showCursor(bool show);
 
 private:
+    void updateFramebufferSize(int width, int height);
     bool loadSubImage(int subStep);
     bool loadImage(int step, int subImage = 0);
     void centerWindow();
@@ -86,6 +85,7 @@ private:
 
 private:
     GLFWwindow* m_window = nullptr;
+    cVector<float> m_ratio;
     bool m_initialImageLoading;
     float m_scale;
     bool m_windowed;
@@ -115,6 +115,4 @@ private:
     std::unique_ptr<CImageBorder> m_border;
     std::unique_ptr<CSelection> m_selection;
 };
-
-#endif /* end of include guard: WINDOW_H_75C5AF4863DEDB */
 

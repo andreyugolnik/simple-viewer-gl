@@ -27,7 +27,8 @@ void CInfoBar::Render()
     {
         int width;
         int height;
-        glfwGetWindowSize(m_window, &width, &height);
+        //glfwGetWindowSize(m_window, &width, &height);
+        glfwGetFramebufferSize(m_window, &width, &height);
 
         const float x = -ceilf(width * 0.5f);
         const float y = ceilf(height * 0.5f);

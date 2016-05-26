@@ -7,7 +7,7 @@
 *
 \**********************************************/
 
-#include "window.h"
+#include "viewer.h"
 #include "quadimage.h"
 #include "fileslist.h"
 #include "imageloader.h"
@@ -27,7 +27,7 @@
 const int DEF_WINDOW_W = 200;
 const int DEF_WINDOW_H = 200;
 
-CWindow::CWindow()
+cViewer::cViewer()
     : m_initialImageLoading(true)
     , m_scale(1.0f)
     , m_windowed(true)
@@ -44,9 +44,6 @@ CWindow::CWindow()
     //, m_keyPressed(false)
     , m_angle(0)
 {
-    m_lastMouse = cVector<float>(-1, -1);
-    m_prev_size = cVector<float>(DEF_WINDOW_W, DEF_WINDOW_H);
-
     m_loader.reset(new CImageLoader(this));
     m_checkerBoard.reset(new CCheckerboard());
     m_infoBar.reset(new CInfoBar());
@@ -56,12 +53,12 @@ CWindow::CWindow()
     m_selection.reset(new CSelection());
 }
 
-CWindow::~CWindow()
+cViewer::~cViewer()
 {
     deleteTextures();
 }
 
-bool CWindow::setInitialImagePath(const char* path)
+bool cViewer::setInitialImagePath(const char* path)
 {
     m_initialImageLoading = true;
     m_filesList.reset(new CFilesList(path, m_recursiveDir));
@@ -69,7 +66,7 @@ bool CWindow::setInitialImagePath(const char* path)
     return m_filesList->GetName() != 0;
 }
 
-void CWindow::run(GLFWwindow* window)
+void cViewer::initialize(GLFWwindow* window)
 {
     m_window = window;
 
@@ -78,75 +75,81 @@ void CWindow::run(GLFWwindow* window)
     m_checkerBoard->Init(window);
     m_infoBar->Init(window);
     m_pixelInfo->Init();
-    updatePixelInfo(cVector<float>(DEF_WINDOW_W, DEF_WINDOW_H));
     m_progress->Init();
     m_selection->Init();
+
+    int width, height;
+    glfwGetFramebufferSize(m_window, &width, &height);
+
+    updateFramebufferSize(width, height);
+    updatePixelInfo({ (float)width, (float)height });
 }
 
-void CWindow::SetProp(Property prop)
+void cViewer::SetProp(Property prop)
 {
     switch(prop)
     {
-    case PROP_INFOBAR:
+    case Property::Infobar:
         m_infoBar->Show(false);
         break;
-    case PROP_PIXELINFO:
+    case Property::PixelInfo:
         m_pixelInfo->Show(true);
         break;
-    case PROP_CHECKERS:
+    case Property::Checkers:
         m_checkerBoard->Enable(false);
         break;
-    case PROP_FITIMAGE:
+    case Property::FitImage:
         m_fitImage = true;
         break;
-    case PROP_FULLSCREEN:
+    case Property::Fullscreen:
         m_windowed = false;
         break;
-    case PROP_BORDER:
+    case Property::Border:
         m_showBorder = true;
         break;
-    case PROP_RECURSIVE:
+    case Property::Recursive:
         m_recursiveDir = true;
         break;
-    case PROP_CENTER_WINDOW:
+    case Property::CenterWindow:
         m_center_window = true;
         break;
-    case PROP_ALL_VALID:
+    case Property::AllValid:
         m_all_valid = true;
         break;
     }
 }
 
-void CWindow::SetProp(unsigned char r, unsigned char g, unsigned char b)
+void cViewer::SetProp(unsigned char r, unsigned char g, unsigned char b)
 {
     m_checkerBoard->SetColor(r, g, b);
 }
 
-void CWindow::fnRender()
+void cViewer::fnRender()
 {
-    if(m_testFullscreen == true)
-    {
-        m_testFullscreen = false;
+    //if(m_testFullscreen == true)
+    //{
+        //m_testFullscreen = false;
 
-        //printf("fullscreen desired, actual: %d x %d\n", width, height);
-        // if window can't be resized (due WM restriction or limitation) then set size to current window size
-        // useful in tiled WM
-        int a_width;
-        int a_height;
-        glfwGetWindowSize(m_window, &a_width, &a_height);
+        ////printf("fullscreen desired, actual: %d x %d\n", width, height);
+        //// if window can't be resized (due WM restriction or limitation) then set size to current window size
+        //// useful in tiled WM
+        //int a_width;
+        //int a_height;
+        ////glfwGetWindowSize(m_window, &a_width, &a_height);
+        //glfwGetFramebufferSize(m_window, &a_width, &a_height);
 
-        GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+        //GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+        //const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
-        //printf("fullscreen desired: %d x %d, actual: %d x %d\n", mode->width, mode->height, a_width, a_height);
-        if(mode->width != a_width || mode->height != a_height)
-        {
-            //printf("can't set fullscreen mode. scr: %d x %d, win: %d x %d\n", mode->width, mode->height, width, height);
-            m_windowed = true;
-            centerWindow();
-            return;
-        }
-    }
+        ////printf("fullscreen desired: %d x %d, actual: %d x %d\n", mode->width, mode->height, a_width, a_height);
+        //if(mode->width != a_width || mode->height != a_height)
+        //{
+            ////printf("can't set fullscreen mode. scr: %d x %d, win: %d x %d\n", mode->width, mode->height, width, height);
+            //m_windowed = true;
+            //centerWindow();
+            //return;
+        //}
+    //}
 
     if(m_initialImageLoading == true)
     {
@@ -205,11 +208,14 @@ void CWindow::fnRender()
 
     m_infoBar->Render();
     m_pixelInfo->Render();
-
-    //glutSwapBuffers();
 }
 
-void CWindow::fnResize(int width, int height)
+void cViewer::fnResize(int width, int height)
+{
+    updateFramebufferSize(width, height);
+}
+
+void cViewer::updateFramebufferSize(int width, int height)
 {
     if(m_windowed)
     {
@@ -224,11 +230,20 @@ void CWindow::fnResize(int width, int height)
 
     m_pixelInfo->SetWindowSize(m_viewport);
     updateInfobar();
-    //printf("%d x %d -> %.2f x %.2f\n", width, height, m_viewport_w, m_viewport_h);
+
+    int win_w, win_h;
+    glfwGetWindowSize(m_window, &win_w, &win_h);
+
+    m_ratio = { (float)width / win_w, (float)height / win_h };
+
+    //printf("framebuffer: %d x %d -> window: %d x %d ratio: %.1f x %.1f\n", width, height, win_w, win_h, m_ratio.x, m_ratio.y);
 }
 
-void CWindow::fnMouse(float x, float y)
+void cViewer::fnMouse(float x, float y)
 {
+    x *= m_ratio.x;
+    y *= m_ratio.y;
+
     const cVector<float> pointer_pos(x / m_scale, y / m_scale);
     const cVector<float> diff(m_lastMouse - pointer_pos);
     m_lastMouse = pointer_pos;
@@ -256,7 +271,7 @@ void CWindow::fnMouse(float x, float y)
     }
 }
 
-void CWindow::fnMouseButtons(int button, int action, int mods)
+void cViewer::fnMouseButtons(int button, int action, int mods)
 {
     (void)mods;
 
@@ -293,7 +308,7 @@ void CWindow::fnMouseButtons(int button, int action, int mods)
     }
 }
 
-void CWindow::fnKeyboard(int key, int scancode, int action, int mods)
+void cViewer::fnKeyboard(int key, int scancode, int action, int mods)
 {
     (void)scancode;
     if(action != GLFW_PRESS)
@@ -442,27 +457,27 @@ void CWindow::fnKeyboard(int key, int scancode, int action, int mods)
     }
 }
 
-void CWindow::keyUp()
+void cViewer::keyUp()
 {
     shiftCamera(cVector<float>(0, -10));
 }
 
-void CWindow::keyDown()
+void cViewer::keyDown()
 {
     shiftCamera(cVector<float>(0, 10));
 }
 
-void CWindow::keyLeft()
+void cViewer::keyLeft()
 {
     shiftCamera(cVector<float>(-10, 0));
 }
 
-void CWindow::keyRight()
+void cViewer::keyRight()
 {
     shiftCamera(cVector<float>(10, 0));
 }
 
-void CWindow::shiftCamera(const cVector<float>& delta)
+void cViewer::shiftCamera(const cVector<float>& delta)
 {
     m_camera += delta;
 
@@ -477,7 +492,7 @@ void CWindow::shiftCamera(const cVector<float>& delta)
 }
 
 
-void CWindow::calculateScale()
+void cViewer::calculateScale()
 {
     if(m_fitImage && m_loader->isLoaded())
     {
@@ -531,7 +546,7 @@ void CWindow::calculateScale()
 }
 
 // TODO update m_camera_x / m_camera_y according current mouse position
-void CWindow::updateScale(bool up)
+void cViewer::updateScale(bool up)
 {
     m_fitImage = false;
 
@@ -558,7 +573,7 @@ void CWindow::updateScale(bool up)
     updateInfobar();
 }
 
-void CWindow::updateFiltering()
+void cViewer::updateFiltering()
 {
     const int scale = (int)(m_scale * 100);
     if(scale % 100 == 0 && m_scale >= 1.0f)
@@ -577,7 +592,7 @@ void CWindow::updateFiltering()
     }
 }
 
-void CWindow::storeWindowPositionSize(bool position, bool size)
+void cViewer::storeWindowPositionSize(bool position, bool size)
 {
     if(position)
     {
@@ -591,49 +606,51 @@ void CWindow::storeWindowPositionSize(bool position, bool size)
     {
         int width;
         int height;
-        glfwGetWindowSize(m_window, &width, &height);
+        //glfwGetWindowSize(m_window, &width, &height);
+        glfwGetFramebufferSize(m_window, &width, &height);
         m_prev_size = cVector<float>(width, height);
     }
 }
 
-void CWindow::centerWindow()
+void cViewer::centerWindow()
 {
-    if(m_windowed)
-    {
-        int winw = m_prev_size.x;
-        int winh = m_prev_size.y;
-        int posx = m_prev_pos.x;
-        int posy = m_prev_pos.y;
+    //if(m_windowed)
+    //{
+        //int winw = m_prev_size.x;
+        //int winh = m_prev_size.y;
+        //int posx = m_prev_pos.x;
+        //int posy = m_prev_pos.y;
 
-        if(m_center_window)
-        {
-            // calculate window size
-            int w = m_loader->GetWidth();
-            int h = m_loader->GetHeight();
-            GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-            const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-            int imgw = std::max<int>(w + (m_showBorder ? m_border->GetBorderWidth() * 2 : 0), DEF_WINDOW_W);
-            int imgh = std::max<int>(h + (m_showBorder ? m_border->GetBorderWidth() * 2 : 0), DEF_WINDOW_H);
-            winw = std::min<int>(imgw, mode->width);
-            winh = std::min<int>(imgh, mode->height);
+        //GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+        //const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
-            // calculate window position
-            posx = (mode->width - winw) / 2;
-            posy = (mode->height - winh) / 2;
-        }
+        //if(m_center_window)
+        //{
+            //// calculate window size
+            //int w = m_loader->GetWidth();
+            //int h = m_loader->GetHeight();
+            //int imgw = std::max<int>(w + (m_showBorder ? m_border->GetBorderWidth() * 2 : 0), DEF_WINDOW_W);
+            //int imgh = std::max<int>(h + (m_showBorder ? m_border->GetBorderWidth() * 2 : 0), DEF_WINDOW_H);
+            //winw = std::min<int>(imgw, mode->width);
+            //winh = std::min<int>(imgh, mode->height);
 
-        glfwSetWindowPos(m_window, posx, posy);
-        glfwSetWindowSize(m_window, winw, winh);
+            //// calculate window position
+            //posx = (mode->width - winw) / 2;
+            //posy = (mode->height - winh) / 2;
+        //}
+
+        //glfwSetWindowPos(m_window, posx, posy);
+        //glfwSetWindowSize(m_window, winw, winh);
         //printf("screen: %d x %d, window %d x %d, pos: %d, %d\n", mode->width, mode->height, winw, winh, posx, posy);
 
-        m_prev_pos = cVector<float>(posx, posy);
-        m_prev_size = cVector<float>(winw, winh);
+        //m_prev_pos = cVector<float>(posx, posy);
+        //m_prev_size = cVector<float>(winw, winh);
 
-        calculateScale();
-    }
+        //calculateScale();
+    //}
 }
 
-bool CWindow::loadSubImage(int subStep)
+bool cViewer::loadSubImage(int subStep)
 {
     const int subCount = (int)m_loader->GetSubCount();
     int subImage = (int)m_loader->GetSub() + subStep;
@@ -650,7 +667,7 @@ bool CWindow::loadSubImage(int subStep)
     return loadImage(0, subImage);
 }
 
-bool CWindow::loadImage(int step, int subImage)
+bool cViewer::loadImage(int step, int subImage)
 {
     if(step != 0)
     {
@@ -679,7 +696,7 @@ bool CWindow::loadImage(int step, int subImage)
     return result;
 }
 
-void CWindow::updateInfobar()
+void cViewer::updateInfobar()
 {
     calculateScale();
 
@@ -707,7 +724,7 @@ void CWindow::updateInfobar()
     m_infoBar->Update(s);
 }
 
-const cVector<float> CWindow::screenToImage(const cVector<float>& pos)
+const cVector<float> cViewer::screenToImage(const cVector<float>& pos)
 {
     const float w = m_loader->GetWidth();
     const float h = m_loader->GetHeight();
@@ -715,7 +732,7 @@ const cVector<float> CWindow::screenToImage(const cVector<float>& pos)
     return pos + m_camera - (m_viewport / m_scale - cVector<float>(w, h)) * 0.5f;
 }
 
-void CWindow::updatePixelInfo(const cVector<float>& pos)
+void cViewer::updatePixelInfo(const cVector<float>& pos)
 {
     if(m_loader->isLoaded())
     {
@@ -750,7 +767,7 @@ void CWindow::updatePixelInfo(const cVector<float>& pos)
     }
 }
 
-void CWindow::createTextures()
+void cViewer::createTextures()
 {
     unsigned char* bitmap = m_loader->GetBitmap();
     if(bitmap)
@@ -819,7 +836,7 @@ void CWindow::createTextures()
     }
 }
 
-void CWindow::showCursor(bool show)
+void cViewer::showCursor(bool show)
 {
     if(m_cursorVisible != show)
     {
@@ -828,7 +845,7 @@ void CWindow::showCursor(bool show)
     }
 }
 
-void CWindow::deleteTextures()
+void cViewer::deleteTextures()
 {
     for(size_t i = 0, size = m_quads.size(); i < size; i++)
     {
@@ -837,7 +854,7 @@ void CWindow::deleteTextures()
     m_quads.clear();
 }
 
-void CWindow::doProgress(int percent)
+void cViewer::doProgress(int percent)
 {
     m_progress->Render(percent);
 }

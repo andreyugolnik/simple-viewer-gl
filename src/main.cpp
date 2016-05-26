@@ -7,7 +7,7 @@
 *
 \**********************************************/
 
-#include "window.h"
+#include "viewer.h"
 #include "config.h"
 
 #include <GLFW/glfw3.h>
@@ -18,32 +18,32 @@
 #include <cstdio>
 
 static const char* SimpleViewerTitle = "Simple Viewer GL";
-static CWindow* m_window = nullptr;
+static cViewer* m_viewer = nullptr;
 
 void showHelp(const char* name);
 
 void callbackResize(GLFWwindow* window, int width, int height)
 {
     (void)window;
-    m_window->fnResize(width, height);
+    m_viewer->fnResize(width, height);
 }
 
 void callbackMouse(GLFWwindow* window, double x, double y)
 {
     (void)window;
-    m_window->fnMouse(x, y);
+    m_viewer->fnMouse(x, y);
 }
 
 void callbackMouseButtons(GLFWwindow* window, int button, int action, int mods)
 {
     (void)window;
-    m_window->fnMouseButtons(button, action, mods);
+    m_viewer->fnMouseButtons(button, action, mods);
 }
 
 void callbackKeyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     (void)window;
-    m_window->fnKeyboard(key, scancode, action, mods);
+    m_viewer->fnKeyboard(key, scancode, action, mods);
 }
 
 int main(int argc, char* argv[])
@@ -70,11 +70,12 @@ int main(int argc, char* argv[])
         }
     }
 
-    m_window = new CWindow();
+    cViewer viewer;
+    m_viewer = &viewer;
 
     try
     {
-        CConfig config(m_window);
+        CConfig config(&viewer);
         if(config.Open() == true)
         {
             config.Read();
@@ -85,34 +86,34 @@ int main(int argc, char* argv[])
         printf("Error loading config.\n\n");
     }
 
-    const char* path = 0;
+    const char* path = nullptr;
 
     for(int i = 1; i < argc; i++)
     {
         if(strncmp(argv[i], "-i", 2) == 0)
-            m_window->SetProp(PROP_INFOBAR);
+            viewer.SetProp(cViewer::Property::Infobar);
         else if(strncmp(argv[i], "-p", 2) == 0)
-            m_window->SetProp(PROP_PIXELINFO);
+            viewer.SetProp(cViewer::Property::PixelInfo);
         else if(strncmp(argv[i], "-cw", 3) == 0)
-            m_window->SetProp(PROP_CENTER_WINDOW);
+            viewer.SetProp(cViewer::Property::CenterWindow);
         else if(strncmp(argv[i], "-c", 2) == 0)
-            m_window->SetProp(PROP_CHECKERS);
+            viewer.SetProp(cViewer::Property::Checkers);
         else if(strncmp(argv[i], "-s", 2) == 0)
-            m_window->SetProp(PROP_FITIMAGE);
+            viewer.SetProp(cViewer::Property::FitImage);
         else if(strncmp(argv[i], "-f", 2) == 0)
-            m_window->SetProp(PROP_FULLSCREEN);
+            viewer.SetProp(cViewer::Property::Fullscreen);
         else if(strncmp(argv[i], "-b", 2) == 0)
-            m_window->SetProp(PROP_BORDER);
+            viewer.SetProp(cViewer::Property::Border);
         else if(strncmp(argv[i], "-r", 2) == 0)
-            m_window->SetProp(PROP_RECURSIVE);
+            viewer.SetProp(cViewer::Property::Recursive);
         else if(strncmp(argv[i], "-a", 2) == 0)
-            m_window->SetProp(PROP_ALL_VALID);
+            viewer.SetProp(cViewer::Property::AllValid);
         else if(strncmp(argv[i], "-C", 2) == 0)
         {
             unsigned int r, g, b;
             if(3 == sscanf(argv[i + 1], "%2x%2x%2x", &r, &g, &b))
             {
-                m_window->SetProp(r, g, b);
+                viewer.SetProp(r, g, b);
                 i++;
             }
         }
@@ -122,7 +123,7 @@ int main(int argc, char* argv[])
         }
     }
 
-    if(m_window->setInitialImagePath(path))
+    if(viewer.setInitialImagePath(path))
     {
         if(glfwInit())
         {
@@ -131,50 +132,28 @@ int main(int argc, char* argv[])
             {
                 glfwMakeContextCurrent(window);
 
-                glfwSetWindowSizeCallback(window, callbackResize);
-                //glfwSetWindowPosCallback(window, callbackResize);
+                //glfwSetWindowSizeCallback(window, callbackResize);
+                glfwSetFramebufferSizeCallback(window, callbackResize);
+                //glfwSetWindowPosCallback(window, callbackPosition);
                 glfwSetCursorPosCallback(window, callbackMouse);
                 glfwSetKeyCallback(window, callbackKeyboard);
                 glfwSetMouseButtonCallback(window, callbackMouseButtons);
 
-                m_window->run(window);
+                viewer.initialize(window);
 
                 while(!glfwWindowShouldClose(window))
                 {
-                    m_window->fnRender();
+                    viewer.fnRender();
 
                     glfwSwapBuffers(window);
 
                     glfwPollEvents();
                 }
             }
+
             glfwTerminate();
         }
-
-        //glutInit(&argc, argv);
-        //glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
-
-        //glutCreateWindow(SimpleViewerTitle);
-
-        //glutReshapeFunc(callbackResize);
-        //glutDisplayFunc(callbackRender);
-        //glutTimerFunc(1000/60, callbackTimerUpdate, 1000/60);
-        //glutTimerFunc(2000, callbackTimerCursor, 2000);
-        //glutKeyboardFunc(callbackKeyboard);
-        //glutMouseFunc(callbackMouseButtons);
-        //glutSpecialFunc(callbackKeyboardSpecial);
-        ////glutEntryFunc();
-        //glutMotionFunc(callbackMouse);
-        //glutPassiveMotionFunc(callbackMouse);
-        ////glutMouseWheelFunc(callbackMouseWheel);
-        ////glutWMCloseFunc(closeWindow);
-
-        //m_window->run();
-
-        //glutMainLoop();
     }
-
-    delete m_window;
 
     return 0;
 }

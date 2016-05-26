@@ -102,7 +102,7 @@ ADD_EXECUTABLE( sviewgl
     src/quadseries.cpp
     src/renderer.cpp
     src/selection.cpp
-    src/window.cpp
+    src/viewer.cpp
     )
 
 TARGET_LINK_LIBRARIES( sviewgl

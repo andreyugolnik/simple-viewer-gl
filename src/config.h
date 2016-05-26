@@ -1,36 +1,35 @@
-/////////////////////////////////////////////////
-//
-// Andrey A. Ugolnik
-// andrey@ugolnik.info
-//
-/////////////////////////////////////////////////
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
-#ifndef CONFIG_H_D5951FCC953627
-#define CONFIG_H_D5951FCC953627
+#pragma once
+
+#include <memory>
 
 namespace libconfig
 {
     class Config;
 }
 
-#include <memory>
+class cViewer;
 
-class CWindow;
-
-class CConfig
+class CConfig final
 {
 public:
-    CConfig(CWindow* window);
-    virtual ~CConfig();
+    CConfig(cViewer* viewer);
+    ~CConfig();
 
     bool Open();
     void Read();
 
 private:
-    CWindow* m_window;
+    cViewer* m_viewer;
     bool m_opened;
     std::unique_ptr<libconfig::Config> m_config;
 };
-
-#endif /* end of include guard: CONFIG_H_D5951FCC953627 */
 

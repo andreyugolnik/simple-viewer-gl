@@ -1,12 +1,14 @@
-/////////////////////////////////////////////////
-//
-// Andrey A. Ugolnik
-// andrey@ugolnik.info
-//
-/////////////////////////////////////////////////
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
 #include "config.h"
-#include "window.h"
+#include "viewer.h"
 
 #if !defined(PATH_MAX)
 #define PATH_MAX 4096 /* # chars in a path name including nul */
@@ -19,8 +21,8 @@
 #include <cstdlib>
 #include <cstdio>
 
-CConfig::CConfig(CWindow* window)
-    : m_window(window)
+CConfig::CConfig(cViewer* viewer)
+    : m_viewer(viewer)
     , m_opened(false)
 {
 #if defined(LIBCONFIG_SUPPORT)
@@ -86,31 +88,31 @@ void CConfig::Read()
         bool value;
 
         if(true == m_config->lookupValue("hide_infobar", value) && value == true) {
-            m_window->SetProp(PROP_INFOBAR);
+            m_viewer->SetProp(cViewer::Property::Infobar);
         }
 
         if(true == m_config->lookupValue("show_pixelinfo", value) && value == true) {
-            m_window->SetProp(PROP_PIXELINFO);
+            m_viewer->SetProp(cViewer::Property::PixelInfo);
         }
 
         if(true == m_config->lookupValue("hide_checkboard", value) && value == true) {
-            m_window->SetProp(PROP_CHECKERS);
+            m_viewer->SetProp(cViewer::Property::Checkers);
         }
 
         if(true == m_config->lookupValue("fit_image", value) && value == true) {
-            m_window->SetProp(PROP_FITIMAGE);
+            m_viewer->SetProp(cViewer::Property::FitImage);
         }
 
         if(true == m_config->lookupValue("start_fullscreen", value) && value == true) {
-            m_window->SetProp(PROP_FULLSCREEN);
+            m_viewer->SetProp(cViewer::Property::Fullscreen);
         }
 
         if(true == m_config->lookupValue("show_image_border", value) && value == true) {
-            m_window->SetProp(PROP_BORDER);
+            m_viewer->SetProp(cViewer::Property::Border);
         }
 
         if(true == m_config->lookupValue("lookup_recursive", value) && value == true) {
-            m_window->SetProp(PROP_RECURSIVE);
+            m_viewer->SetProp(cViewer::Property::Recursive);
         }
 
         int r, g, b;
@@ -118,7 +120,7 @@ void CConfig::Read()
                 && m_config->lookupValue("background_g", g)
                 && m_config->lookupValue("background_b", b))
         {
-            m_window->SetProp(r, g, b);
+            m_viewer->SetProp(r, g, b);
         }
     }
 #endif
