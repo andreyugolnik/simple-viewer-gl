@@ -205,7 +205,7 @@ void CSelection::clampShiftDelta(float& dx, float& dy)
     }
     else if(m_rc.y2 + dy >= m_imageHeight)
     {
-        dy = m_imageWidth - 1.0f - m_rc.y2;
+        dy = m_imageHeight - 1.0f - m_rc.y2;
     }
 }
 
