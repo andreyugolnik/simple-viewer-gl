@@ -25,7 +25,9 @@ void showHelp(const char* name);
 void callbackResize(GLFWwindow* window, int width, int height)
 {
     (void)window;
-    m_viewer->fnResize(width, height);
+    (void)width;
+    (void)height;
+    m_viewer->fnResize();
 }
 
 void callbackMouse(GLFWwindow* window, double x, double y)
@@ -132,7 +134,7 @@ int main(int argc, char* argv[])
             {
                 glfwMakeContextCurrent(window);
 
-                //glfwSetWindowSizeCallback(window, callbackResize);
+                glfwSetWindowSizeCallback(window, callbackResize);
                 glfwSetFramebufferSizeCallback(window, callbackResize);
                 //glfwSetWindowPosCallback(window, callbackPosition);
                 glfwSetCursorPosCallback(window, callbackMouse);
@@ -144,8 +146,6 @@ int main(int argc, char* argv[])
                 while(!glfwWindowShouldClose(window))
                 {
                     viewer.fnRender();
-
-                    glfwSwapBuffers(window);
 
                     glfwPollEvents();
                 }

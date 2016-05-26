@@ -55,7 +55,7 @@ public:
     virtual void doProgress(int percent);
 
     void fnRender();
-    void fnResize(int width, int height);
+    void fnResize();
     void fnMouse(float x, float y);
     void fnMouseButtons(int button, int action, int mods);
     void fnKeyboard(int key, int scancode, int action, int mods);
@@ -63,7 +63,6 @@ public:
     void showCursor(bool show);
 
 private:
-    void updateFramebufferSize(int width, int height);
     bool loadSubImage(int subStep);
     bool loadImage(int step, int subImage = 0);
     void centerWindow();

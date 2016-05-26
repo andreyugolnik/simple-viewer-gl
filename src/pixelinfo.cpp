@@ -14,7 +14,7 @@
 
 const int BORDER = 4;
 const int ALPHA = 200;
-const int FONT_HEIGHT = 13;
+const int DesiredFontSize = 13;
 const int FRAME_DELTA = 10;
 const int LINES_COUNT[2] = { 2, 4 };
 
@@ -30,7 +30,21 @@ void CPixelInfo::Init()
     m_pointer->Setup(21, 21, 10);
     SetCursor(0);
 
-    m_ft.reset(new CFTString(FONT_HEIGHT));
+    createFont();
+}
+
+void CPixelInfo::setRatio(float ratio)
+{
+    if(m_ratio != ratio)
+    {
+        m_ratio = ratio;
+        createFont();
+    }
+}
+
+void CPixelInfo::createFont()
+{
+    m_ft.reset(new CFTString(DesiredFontSize * m_ratio));
     m_ft->SetColor(255, 255, 255, ALPHA);
 }
 
@@ -76,16 +90,16 @@ void CPixelInfo::Render()
 
         if(isInsideImage(m_pixelInfo.point))
         {
-            const int frameWidth = m_ft->GetStringWidth() + 2 * BORDER;
-            const int frameHeight = FONT_HEIGHT * LINES_COUNT[m_pixelInfo.rc.IsSet()] + 2 * BORDER;
+            const int frameWidth = m_ft->GetStringWidth() + 2 * BORDER * m_ratio;
+            const int frameHeight = (DesiredFontSize * LINES_COUNT[m_pixelInfo.rc.IsSet()] + 2 * BORDER) * m_ratio;
 
-            const int cursor_x = std::min<int>(m_pixelInfo.mouse.x + FRAME_DELTA, m_size.x - frameWidth);
-            const int cursor_y = std::min<int>(m_pixelInfo.mouse.y + FRAME_DELTA, m_size.y - frameHeight);
+            const int cursor_x = std::min<int>(m_pixelInfo.mouse.x + FRAME_DELTA * m_ratio, m_size.x - frameWidth);
+            const int cursor_y = std::min<int>(m_pixelInfo.mouse.y + FRAME_DELTA * m_ratio, m_size.y - frameHeight);
 
             m_bg->SetSpriteSize(frameWidth, frameHeight);
             m_bg->Render(cursor_x, cursor_y);
 
-            m_ft->Render(cursor_x + BORDER, cursor_y + FONT_HEIGHT);
+            m_ft->Render(cursor_x + BORDER * m_ratio, cursor_y + DesiredFontSize * m_ratio);
         }
     }
 }

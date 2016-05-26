@@ -78,10 +78,7 @@ void cViewer::initialize(GLFWwindow* window)
     m_progress->Init();
     m_selection->Init();
 
-    int width, height;
-    glfwGetFramebufferSize(m_window, &width, &height);
-
-    updateFramebufferSize(width, height);
+    fnResize();
 }
 
 void cViewer::SetProp(Property prop)
@@ -207,15 +204,15 @@ void cViewer::fnRender()
 
     m_infoBar->Render();
     m_pixelInfo->Render();
+
+    glfwSwapBuffers(m_window);
 }
 
-void cViewer::fnResize(int width, int height)
+void cViewer::fnResize()
 {
-    updateFramebufferSize(width, height);
-}
+    int width, height;
+    glfwGetFramebufferSize(m_window, &width, &height);
 
-void cViewer::updateFramebufferSize(int width, int height)
-{
     if(m_windowed)
     {
         storeWindowPositionSize(false, true);
@@ -228,17 +225,20 @@ void cViewer::updateFramebufferSize(int width, int height)
     cRenderer::setWindowSize(m_viewport);
 
     m_pixelInfo->SetWindowSize(m_viewport);
-    updateInfobar();
 
     int win_w, win_h;
     glfwGetWindowSize(m_window, &win_w, &win_h);
 
     m_ratio = { (float)width / win_w, (float)height / win_h };
 
-    m_infoBar->setRatio(m_ratio.y);
+    m_pixelInfo->setRatio(m_ratio.y);
     updatePixelInfo({ (float)width, (float)height });
 
-    printf("framebuffer: %d x %d -> window: %d x %d ratio: %.1f x %.1f\n", width, height, win_w, win_h, m_ratio.x, m_ratio.y);
+    m_infoBar->setRatio(m_ratio.y);
+    updateInfobar();
+
+    //printf("framebuffer: %d x %d -> window: %d x %d ratio: %.1f x %.1f\n", width, height, win_w, win_h, m_ratio.x, m_ratio.y);
+    fnRender();
 }
 
 void cViewer::fnMouse(float x, float y)

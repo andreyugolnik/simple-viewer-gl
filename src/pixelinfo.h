@@ -45,6 +45,8 @@ class CPixelInfo final
 public:
     void Init();
 
+    void setRatio(float ratio);
+
     void setPixelInfo(const sPixelInfo& pi);
     void Render();
     void Show(bool show = true) { m_visible = show; }
@@ -53,10 +55,12 @@ public:
     void SetCursor(int cursor);
 
 private:
+    void createFont();
     bool isInsideImage(const cVector<float>& pos) const;
 
 private:
     bool m_visible = false;
+    float m_ratio = 1.0f;
     cVector<float> m_size;
     sPixelInfo m_pixelInfo;
     std::unique_ptr<CQuad> m_bg;
