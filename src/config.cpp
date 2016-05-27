@@ -115,6 +115,10 @@ void CConfig::Read()
             m_viewer->SetProp(cViewer::Property::Recursive);
         }
 
+        if(true == m_config->lookupValue("wheel_zoom", value) && value == true) {
+            m_viewer->SetProp(cViewer::Property::WheelZoom);
+        }
+
         int r, g, b;
         if(m_config->lookupValue("background_r", r)
                 && m_config->lookupValue("background_g", g)
