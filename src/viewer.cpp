@@ -270,6 +270,12 @@ void cViewer::fnMouse(float x, float y)
     }
 }
 
+void cViewer::fnMouseScroll(float x, float y)
+{
+    (void)x;
+    updateScale(y > 0.0f);
+}
+
 void cViewer::fnMouseButtons(int button, int action, int mods)
 {
     (void)mods;
@@ -282,14 +288,6 @@ void cViewer::fnMouseButtons(int button, int action, int mods)
 
     switch(button)
     {
-    case GLFW_MOUSE_BUTTON_4:
-        updateScale(true);
-        break;
-
-    case GLFW_MOUSE_BUTTON_5:
-        updateScale(false);
-        break;
-
     case GLFW_MOUSE_BUTTON_LEFT:
         m_mouseLB = (action == GLFW_PRESS);
         {

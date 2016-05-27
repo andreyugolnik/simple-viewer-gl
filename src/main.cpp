@@ -61,6 +61,7 @@ void callbackMouse(GLFWwindow* window, double x, double y)
 void callbackMouseScroll(GLFWwindow* window, double x, double y)
 {
     (void)window;
+    m_viewer->fnMouseScroll(x, y);
 }
 
 void callbackDrop(GLFWwindow* window, int count, const char** paths)

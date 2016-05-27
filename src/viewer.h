@@ -67,6 +67,7 @@ public:
     void centerWindow();
     void fnPosition(int x, int y);
     void fnMouse(float x, float y);
+    void fnMouseScroll(float x, float y);
     void fnMouseButtons(int button, int action, int mods);
     void fnKeyboard(int key, int scancode, int action, int mods);
     void showCursor(bool show);
