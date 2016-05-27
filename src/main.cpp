@@ -143,9 +143,9 @@ int main(int argc, char* argv[])
 
                 viewer.initialize(window);
 
-                while(!glfwWindowShouldClose(window))
+                while(!glfwWindowShouldClose(window) && !viewer.isQuitRequested())
                 {
-                    viewer.fnRender();
+                    viewer.render();
 
                     glfwPollEvents();
                 }

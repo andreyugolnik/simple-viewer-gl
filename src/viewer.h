@@ -35,7 +35,6 @@ public:
 
     bool setInitialImagePath(const char* path);
     void initialize(GLFWwindow* window);
-
     enum class Property
     {
         Infobar,
@@ -51,10 +50,12 @@ public:
     void SetProp(Property prop);
     void SetProp(unsigned char r, unsigned char g, unsigned char b);
 
+    void render();
+    bool isQuitRequested() const { return m_quitRequest; }
+
 public:
     virtual void doProgress(int percent);
 
-    void fnRender();
     void fnResize();
     void fnMouse(float x, float y);
     void fnMouseButtons(int button, int action, int mods);
@@ -85,6 +86,7 @@ private:
 
 private:
     GLFWwindow* m_window = nullptr;
+    bool m_quitRequest = false;
     cVector<float> m_ratio;
     bool m_initialImageLoading;
     float m_scale;

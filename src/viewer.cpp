@@ -120,7 +120,7 @@ void cViewer::SetProp(unsigned char r, unsigned char g, unsigned char b)
     m_checkerBoard->SetColor(r, g, b);
 }
 
-void cViewer::fnRender()
+void cViewer::render()
 {
     //if(m_testFullscreen == true)
     //{
@@ -238,7 +238,7 @@ void cViewer::fnResize()
     updateInfobar();
 
     //printf("framebuffer: %d x %d -> window: %d x %d ratio: %.1f x %.1f\n", width, height, win_w, win_h, m_ratio.x, m_ratio.y);
-    fnRender();
+    render();
 }
 
 cVector<float> cViewer::calculateMousePosition(float x, float y) const
@@ -327,7 +327,7 @@ void cViewer::fnKeyboard(int key, int scancode, int action, int mods)
     switch(key)
     {
     case GLFW_KEY_ESCAPE:
-        exit(0);
+        m_quitRequest = true;
         break;
 
     case GLFW_KEY_I:
@@ -405,21 +405,9 @@ void cViewer::fnKeyboard(int key, int scancode, int action, int mods)
         keyLeft();
         break;
 
+    case GLFW_KEY_L:
     case GLFW_KEY_RIGHT:
         keyRight();
-        break;
-
-    case GLFW_KEY_L:
-        if(mods & GLFW_MOD_CONTROL)
-        {
-            m_angle += 90;
-            m_angle %= 360;
-            calculateScale();
-        }
-        else
-        {
-            keyRight();
-        }
         break;
 
     case GLFW_KEY_K:
@@ -433,12 +421,17 @@ void cViewer::fnKeyboard(int key, int scancode, int action, int mods)
         break;
 
     case GLFW_KEY_R:
-        if(mods & GLFW_MOD_CONTROL)
+        if(mods & GLFW_MOD_SHIFT)
+        {
+            m_angle += 90;
+            m_angle %= 360;
+        }
+        else
         {
             m_angle += 360 - 90;
             m_angle %= 360;
-            calculateScale();
         }
+        calculateScale();
         break;
 
     case GLFW_KEY_PAGE_UP:
