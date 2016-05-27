@@ -22,21 +22,23 @@ Supported formats: PNG, JPEG, BMP, TIFF, GIF, PPM, DDS, BMP, TARGA, PSD, ICO, XW
 
 ##Key bindings##
 
-Key          | Description
--------------|--------------------------------------
-<esc>        | exit
-<space>      | next image
-<backspace>  | previous image
-<+> / <->    | scale image
-<0>          | set scale to 100%
-<enter>      | switch fullscreen / windowed mode
-<ctrl>+<del> | delete image from disk
-<s>          | fit image to window (quick algorithm)
-<v>          | flip vertical
-<c>          | hide / show chequerboard
-<i>          | hide / show on screen info
-<p>          | hide / show pixel info
-<b>          | hide / show border around image
+Key             | Description
+----------------| --------------------------------------
+<esc>           | exit
+<space>         | next image
+<backspace>     | previous image
+<+> / <->       | scale image
+<1>...<0>       | set scale from 100% to 1000%
+<enter>         | switch fullscreen / windowed mode
+<ctrl>+<del>    | delete image from disk
+<r>             | rotate clockwise
+<shift>+<r>     | rotate counterclockwise
+<pgup> / <bgdn> | previous /next subimage
+<s>             | fit image to window (quick algorithm)
+<c>             | hide / show chequerboard
+<i>             | hide / show on screen info
+<p>             | hide / show pixel info
+<b>             | hide / show border around image
 
 ##Download and build##
 
