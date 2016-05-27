@@ -48,7 +48,8 @@ public:
         Border,
         Recursive,
         CenterWindow,
-        AllValid
+        AllValid,
+        WheelZoom,
     };
     void SetProp(Property prop);
     void SetProp(unsigned char r, unsigned char g, unsigned char b);
@@ -99,6 +100,7 @@ private:
     bool m_isWindowed = true;
     bool m_center_window;
     bool m_all_valid;
+    bool m_wheelZoom = false;
     bool m_windowModeChangeRequested = false;
     bool m_fitImage;
     bool m_showBorder;

@@ -126,6 +126,9 @@ void cViewer::SetProp(Property prop)
     case Property::AllValid:
         m_all_valid = true;
         break;
+    case Property::WheelZoom:
+        m_wheelZoom = true;
+        break;
     }
 }
 
@@ -273,7 +276,10 @@ void cViewer::fnMouse(float x, float y)
 void cViewer::fnMouseScroll(float x, float y)
 {
     (void)x;
-    updateScale(y > 0.0f);
+    if(m_wheelZoom)
+    {
+        updateScale(y > 0.0f);
+    }
 }
 
 void cViewer::fnMouseButtons(int button, int action, int mods)

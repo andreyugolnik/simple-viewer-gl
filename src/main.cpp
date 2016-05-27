@@ -153,6 +153,8 @@ int main(int argc, char* argv[])
             viewer.SetProp(cViewer::Property::Recursive);
         else if(strncmp(argv[i], "-a", 2) == 0)
             viewer.SetProp(cViewer::Property::AllValid);
+        else if(strncmp(argv[i], "-wz", 3) == 0)
+            viewer.SetProp(cViewer::Property::WheelZoom);
         else if(strncmp(argv[i], "-C", 2) == 0)
         {
             unsigned int r, g, b;
@@ -224,7 +226,7 @@ void showHelp(const char* name)
     const char* p = strrchr(name, '/');
 
     printf("\nUsage:\n");
-    printf("  %s [OPTION]... FILE\n", (p ? p + 1 : name));
+    printf("  %s [OPTION]... FILE\n", (p != nullptr ? p + 1 : name));
     printf("  -h, --help    show this help;\n");
     printf("  -s            enable scale to window;\n");
     printf("  -cw           center window;\n");
@@ -235,6 +237,7 @@ void showHelp(const char* name)
     printf("  -b            show border around image;\n");
     printf("  -f            start in fullscreen mode;\n");
     printf("  -r            recursive directory scan;\n");
+    printf("  -wz           enable wheel zoom;\n");
     printf("  -C RRGGBB     background color in hex format;\n");
 
     printf("\nAvailable keys:\n");
@@ -242,17 +245,14 @@ void showHelp(const char* name)
     printf("  <space>       next image;\n");
     printf("  <backspace>   previous image;\n");
     printf("  <+> / <->     scale image;\n");
-    printf("  <0>           set scale to 100%%;\n");
+    printf("  <1>...<0>     set scale from 100%% to 1000%%;\n");
     printf("  <pgdn>        next image in multi-page image;\n");
     printf("  <pgup>        previous image in multi-page image;\n");
     printf("  <enter>       switch fullscreen / windowed mode;\n");
-    //printf("  <ctrl>+<b>    set as wallpapper;\n");
     printf("  <ctrl>+<del>  delete image from disk;\n");
     printf("  <s>           fit image to window (quick algorithm);\n");
-    //printf("  <v>           flip vertical;\n");
-    //printf("  <h>           flip horizontal;\n");
-    printf("  <R>           rotate clockwice;\n");
-    printf("  <L>           rotate counter clockwise;\n");
+    printf("  <r>           rotate clockwise;\n");
+    printf("  <shift>+<r>   rotate counterclockwise;\n");
     printf("  <c>           hide / show chequerboard;\n");
     printf("  <i>           hide / show on screen info;\n");
     printf("  <p>           hide / show pixel info;\n");
