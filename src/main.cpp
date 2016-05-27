@@ -75,7 +75,7 @@ void setup(GLFWwindow* window)
     //glfwSwapInterval(1);
 
     glfwSetWindowSizeCallback(window, callbackResize);
-    glfwSetFramebufferSizeCallback(window, callbackResize);
+    //glfwSetFramebufferSizeCallback(window, callbackResize);
     glfwSetWindowPosCallback(window, callbackPosition);
 
     glfwSetWindowRefreshCallback(window, callbackRedraw);

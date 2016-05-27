@@ -40,7 +40,6 @@ cViewer::cViewer()
     , m_mouseLB(false)
     , m_mouseMB(false)
     , m_mouseRB(false)
-    //, m_keyPressed(false)
     , m_angle(0)
 {
     m_loader.reset(new CImageLoader(this));
@@ -81,6 +80,11 @@ void cViewer::setWindow(GLFWwindow* window)
 
     int width, height;
     glfwGetWindowSize(window, &width, &height);
+
+    int frameWidth, frameHeight;
+    glfwGetFramebufferSize(window, &frameWidth, &frameHeight);
+    m_ratio = { (float)frameWidth / width, (float)frameHeight / height };
+
     fnResize(width, height);
 }
 
@@ -214,8 +218,6 @@ void cViewer::fnResize(int width, int height)
     cRenderer::setViewportSize(m_viewport);
 
     m_pixelInfo->setViewportSize(m_viewport);
-
-    m_ratio = { (float)frameWidth / width, (float)frameHeight / height };
 
     m_pixelInfo->setRatio(m_ratio.y);
     updatePixelInfo({ (float)frameWidth, (float)frameHeight });
