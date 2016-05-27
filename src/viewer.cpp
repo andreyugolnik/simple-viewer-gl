@@ -84,6 +84,13 @@ void cViewer::setWindow(GLFWwindow* window)
     fnResize(width, height);
 }
 
+void cViewer::addPaths(const char** paths, int count)
+{
+    m_initialImageLoading = true;
+    m_filesList.reset(new CFilesList(paths[0], m_recursiveDir));
+    m_filesList->setAllValid(m_all_valid);
+}
+
 void cViewer::SetProp(Property prop)
 {
     switch(prop)
@@ -125,35 +132,10 @@ void cViewer::SetProp(unsigned char r, unsigned char g, unsigned char b)
 
 void cViewer::render()
 {
-    //if(m_testFullscreen == true)
-    //{
-        //m_testFullscreen = false;
-
-        ////printf("fullscreen desired, actual: %d x %d\n", width, height);
-        //// if window can't be resized (due WM restriction or limitation) then set size to current window size
-        //// useful in tiled WM
-        //int a_width;
-        //int a_height;
-        ////glfwGetWindowSize(m_window, &a_width, &a_height);
-        //glfwGetFramebufferSize(m_window, &a_width, &a_height);
-
-        //GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-        //const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-
-        ////printf("fullscreen desired: %d x %d, actual: %d x %d\n", mode->width, mode->height, a_width, a_height);
-        //if(mode->width != a_width || mode->height != a_height)
-        //{
-            ////printf("can't set fullscreen mode. scr: %d x %d, win: %d x %d\n", mode->width, mode->height, width, height);
-            //m_isWindowed = true;
-            //centerWindow();
-            //return;
-        //}
-    //}
-
     if(m_initialImageLoading == true)
     {
         m_initialImageLoading = false;
-        loadImage(0);
+        loadImage(0, 0);
     }
 
     m_checkerBoard->Render();
@@ -362,11 +344,11 @@ void cViewer::fnKeyboard(int key, int scancode, int action, int mods)
         break;
 
     case GLFW_KEY_SPACE:
-        loadImage(1);
+        loadImage(1, 0);
         break;
 
     case GLFW_KEY_BACKSPACE:
-        loadImage(-1);
+        loadImage(-1, 0);
         break;
 
     case GLFW_KEY_DELETE:
@@ -658,10 +640,11 @@ bool cViewer::loadImage(int step, int subImage)
         m_filesList->ParseDir();
     }
 
-    const char* path = m_filesList->GetName(step);
+    const char* file = m_filesList->GetName(step);
+
     m_progress->Start();
 
-    const bool result = m_loader->LoadImage(path, subImage);
+    const bool result = m_loader->LoadImage(file, subImage);
 
     createTextures();
 

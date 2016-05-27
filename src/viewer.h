@@ -36,6 +36,8 @@ public:
     bool setInitialImagePath(const char* path);
     void setWindow(GLFWwindow* window);
 
+    void addPaths(const char** paths, int count);
+
     enum class Property
     {
         Infobar,
@@ -52,6 +54,7 @@ public:
     void SetProp(unsigned char r, unsigned char g, unsigned char b);
 
     void render();
+
     bool isWindowModeRequested() const { return m_windowModeChangeRequested; }
     bool isWindowed() const { return m_isWindowed; }
     const cVector<int>& getWindowPosition() const { return m_prevPos; }
@@ -70,7 +73,7 @@ public:
 
 private:
     bool loadSubImage(int subStep);
-    bool loadImage(int step, int subImage = 0);
+    bool loadImage(int step, int subImage);
     void calculateScale();
     void updateScale(bool up);
     void updateFiltering();

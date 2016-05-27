@@ -40,10 +40,10 @@ void callbackRedraw(GLFWwindow* window)
     m_viewer->render();
 }
 
-void callbackMouse(GLFWwindow* window, double x, double y)
+void callbackKeyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     (void)window;
-    m_viewer->fnMouse(x, y);
+    m_viewer->fnKeyboard(key, scancode, action, mods);
 }
 
 void callbackMouseButtons(GLFWwindow* window, int button, int action, int mods)
@@ -52,24 +52,42 @@ void callbackMouseButtons(GLFWwindow* window, int button, int action, int mods)
     m_viewer->fnMouseButtons(button, action, mods);
 }
 
-void callbackKeyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
+void callbackMouse(GLFWwindow* window, double x, double y)
 {
     (void)window;
-    m_viewer->fnKeyboard(key, scancode, action, mods);
+    m_viewer->fnMouse(x, y);
+}
+
+void callbackMouseScroll(GLFWwindow* window, double x, double y)
+{
+    (void)window;
+}
+
+void callbackDrop(GLFWwindow* window, int count, const char** paths)
+{
+    (void)window;
+    m_viewer->addPaths(paths, count);
 }
 
 void setup(GLFWwindow* window)
 {
     glfwMakeContextCurrent(window);
-    glfwSwapInterval(1);
+    //glfwSwapInterval(1);
 
     glfwSetWindowSizeCallback(window, callbackResize);
     glfwSetFramebufferSizeCallback(window, callbackResize);
     glfwSetWindowPosCallback(window, callbackPosition);
+
     glfwSetWindowRefreshCallback(window, callbackRedraw);
-    glfwSetCursorPosCallback(window, callbackMouse);
+
     glfwSetKeyCallback(window, callbackKeyboard);
+
+    glfwSetInputMode(window, GLFW_STICKY_MOUSE_BUTTONS, 1);
     glfwSetMouseButtonCallback(window, callbackMouseButtons);
+    glfwSetCursorPosCallback(window, callbackMouse);
+    glfwSetScrollCallback(window, callbackMouseScroll);
+
+    glfwSetDropCallback(window, callbackDrop);
 }
 
 int main(int argc, char* argv[])

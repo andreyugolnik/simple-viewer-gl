@@ -234,8 +234,8 @@ void cRenderer::setGlobals(const cVector<float>& delta, float angle, float zoom)
     const float w = m_viewportSize.x * z;
     const float h = m_viewportSize.y * z;
 
-    const float x = (delta.x - w * 0.5f);
-    const float y = (delta.y - h * 0.5f);
+    const float x = delta.x - w * 0.5f;
+    const float y = delta.y - h * 0.5f;
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();

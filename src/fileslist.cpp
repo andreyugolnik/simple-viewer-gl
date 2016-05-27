@@ -1,12 +1,16 @@
-/////////////////////////////////////////////////
-//
-// Andrey A. Ugolnik
-// andrey@ugolnik.info
-//
-/////////////////////////////////////////////////
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
 #include "fileslist.h"
-#include <iostream>
+
+#include <algorithm>
+#include <cstdlib>
 #include <dirent.h>
 #include <unistd.h>
 
@@ -17,7 +21,7 @@ CFilesList::CFilesList(const char* file, bool recursive)
     , m_removeCurrent(false)
     , m_allValid(false)
 {
-    if(file != 0)
+    if(file != nullptr)
     {
         m_files.push_back(file);
     }
@@ -38,7 +42,7 @@ bool CFilesList::ParseDir()
 
     // get base directory
     std::string dir, name;
-    size_t pos	= m_files[0].find_last_of('/');
+    size_t pos = m_files[0].find_last_of('/');
     if(std::string::npos != pos)
     {
         dir = m_files[0].substr(0, pos);
@@ -47,7 +51,8 @@ bool CFilesList::ParseDir()
             name = m_files[0].substr(pos + 1);
         }
     }
-    else {
+    else
+    {
         dir = ".";
         name = m_files[0];
     }
@@ -58,7 +63,14 @@ bool CFilesList::ParseDir()
     if(true == scanDirectory(dir))
     {
         // sorting images by names
-        std::sort(m_files.begin(), m_files.end(), CComparator());
+        std::sort(m_files.begin(), m_files.end(), [](const std::string& a, const std::string& b) -> bool
+            {
+                std::string aa(a);
+                std::string bb(b);
+                std::transform(aa.begin(), aa.end(), aa.begin(), tolower);
+                std::transform(bb.begin(), bb.end(), bb.begin(), tolower);
+                return aa < bb;
+            });
 
         // search startup image index in sorted list
         size_t len = name.length();
@@ -93,7 +105,7 @@ bool CFilesList::scanDirectory(const std::string& dir)
     int n = scandir(dir.c_str(), &namelist, filter, alphasort);
     if(n < 0)
     {
-        std::cout << "Can't scan \"" << dir << "\" " << n << "." << std::endl;
+        printf("Can't scan \"%s\" %d.\n", dir.c_str(), n);
         return false;
     }
     else
@@ -124,7 +136,7 @@ bool CFilesList::scanDirectory(const std::string& dir)
         }
         if(count > 0)
         {
-            std::cout << "Scaning \"" << dir << "\" directory... " << count << " images found." << std::endl;
+            printf("Scaning \"%s\" directory... %d images found.\n", dir.c_str(), count);
         }
         free(namelist);
     }
@@ -132,14 +144,10 @@ bool CFilesList::scanDirectory(const std::string& dir)
     return true;
 }
 
-//#if defined(__APPLE__)
-//int CFilesList::filter(struct dirent* p)
-//#else
 int CFilesList::filter(const struct dirent* p)
-//#endif
 {
     // skip . and ..
-#define DOT_OR_DOTDOT(base)	(base[0] == '.' && (base[1] == '\0' || (base[1] == '.' && base[2] == '\0')))
+#define DOT_OR_DOTDOT(base) (base[0] == '.' && (base[1] == '\0' || (base[1] == '.' && base[2] == '\0')))
     if(DOT_OR_DOTDOT(p->d_name))
     {
         return 0;
@@ -196,8 +204,9 @@ const char* CFilesList::GetName(int delta)
         m_removeCurrent = false;
         if(0 == unlink(m_files[m_position].c_str()))
         {
-            std::cout << "File '" << m_files[m_position] << "' has been removed from disk." << std::endl;
+            printf("File '%s' has been removed from disk.\n", m_files[m_position].c_str());
         }
+
         // remove path from list
         m_files.erase(m_files.begin() + m_position);
         if(delta > 0)
