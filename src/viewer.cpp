@@ -240,8 +240,6 @@ void cViewer::fnResize(int width, int height)
 
     m_infoBar->setRatio(m_ratio.y);
     updateInfobar();
-
-    render();
 }
 
 void cViewer::fnPosition(int x, int y)

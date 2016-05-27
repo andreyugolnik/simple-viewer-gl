@@ -34,6 +34,12 @@ void callbackPosition(GLFWwindow* window, int x, int y)
     m_viewer->fnPosition(x, y);
 }
 
+void callbackRedraw(GLFWwindow* window)
+{
+    (void)window;
+    m_viewer->render();
+}
+
 void callbackMouse(GLFWwindow* window, double x, double y)
 {
     (void)window;
@@ -60,6 +66,7 @@ void setup(GLFWwindow* window)
     glfwSetWindowSizeCallback(window, callbackResize);
     glfwSetFramebufferSizeCallback(window, callbackResize);
     glfwSetWindowPosCallback(window, callbackPosition);
+    glfwSetWindowRefreshCallback(window, callbackRedraw);
     glfwSetCursorPosCallback(window, callbackMouse);
     glfwSetKeyCallback(window, callbackKeyboard);
     glfwSetMouseButtonCallback(window, callbackMouseButtons);
