@@ -50,6 +50,8 @@ cViewer::cViewer()
     m_progress.reset(new CProgress());
     m_border.reset(new CImageBorder());
     m_selection.reset(new CSelection());
+
+    m_prevSize = { DEF_WINDOW_W, DEF_WINDOW_H };
 }
 
 cViewer::~cViewer()
@@ -77,7 +79,9 @@ void cViewer::setWindow(GLFWwindow* window)
     m_progress->Init();
     m_selection->Init();
 
-    fnResize();
+    int width, height;
+    glfwGetWindowSize(window, &width, &height);
+    fnResize(width, height);
 }
 
 void cViewer::SetProp(Property prop)
@@ -207,39 +211,44 @@ void cViewer::render()
     glfwSwapBuffers(cRenderer::getWindow());
 }
 
-void cViewer::fnResize()
+void cViewer::fnResize(int width, int height)
 {
     GLFWwindow* window = cRenderer::getWindow();
 
-    int width, height;
-    glfwGetFramebufferSize(window, &width, &height);
-
     if(m_isWindowed)
     {
-        storeWindowPositionSize();
+        m_prevSize = { width, height };
+
+        int x, y;
+        glfwGetWindowPos(window, &x, &y);
+        m_prevPos = { x, y };
     }
 
-    width = (width + 1) & 0xfffffffe;
-    height = (height + 1) & 0xfffffffe;
-    m_viewport = cVector<float>(width, height);
+    int frameWidth, frameHeight;
+    glfwGetFramebufferSize(window, &frameWidth, &frameHeight);
+
+    frameWidth = (frameWidth + 1) & 0xfffffffe;
+    frameHeight = (frameHeight + 1) & 0xfffffffe;
+    m_viewport = cVector<float>(frameWidth, frameHeight);
 
     cRenderer::setViewportSize(m_viewport);
 
     m_pixelInfo->setViewportSize(m_viewport);
 
-    int win_w, win_h;
-    glfwGetWindowSize(window, &win_w, &win_h);
-
-    m_ratio = { (float)width / win_w, (float)height / win_h };
+    m_ratio = { (float)frameWidth / width, (float)frameHeight / height };
 
     m_pixelInfo->setRatio(m_ratio.y);
-    updatePixelInfo({ (float)width, (float)height });
+    updatePixelInfo({ (float)frameWidth, (float)frameHeight });
 
     m_infoBar->setRatio(m_ratio.y);
     updateInfobar();
 
-    //printf("framebuffer: %d x %d -> window: %d x %d ratio: %.1f x %.1f\n", width, height, win_w, win_h, m_ratio.x, m_ratio.y);
     render();
+}
+
+void cViewer::fnPosition(int x, int y)
+{
+    m_prevPos = { x, y };
 }
 
 cVector<float> cViewer::calculateMousePosition(float x, float y) const
@@ -390,14 +399,6 @@ void cViewer::fnKeyboard(int key, int scancode, int action, int mods)
     case GLFW_KEY_ENTER:
         m_isWindowed = !m_isWindowed;
         m_windowModeChangeRequested = true;
-        if(m_isWindowed)
-        {
-            centerWindow();
-        }
-        else
-        {
-            storeWindowPositionSize();
-        }
         break;
 
     case GLFW_KEY_H:
@@ -509,9 +510,7 @@ void cViewer::calculateScale()
         float h = static_cast<float>(m_loader->GetHeight());
         if(m_angle == 90 || m_angle == 270)
         {
-            float t = w;
-            w = h;
-            h = t;
+            std::swap(w, h);
         }
 
         // scale only large images
@@ -601,59 +600,38 @@ void cViewer::updateFiltering()
     }
 }
 
-void cViewer::storeWindowPositionSize()
-{
-    GLFWwindow* window = cRenderer::getWindow();
-
-    {
-        int x;
-        int y;
-        glfwGetWindowPos(window, &x, &y);
-        m_prev_pos = cVector<float>(x, y);
-    }
-
-    {
-        int width;
-        int height;
-        glfwGetWindowSize(window, &width, &height);
-        m_prev_size = cVector<float>(width, height);
-    }
-}
-
 void cViewer::centerWindow()
 {
     GLFWwindow* window = cRenderer::getWindow();
 
     if(m_isWindowed)
     {
-        int winw = m_prev_size.x;
-        int winh = m_prev_size.y;
-        int posx = m_prev_pos.x;
-        int posy = m_prev_pos.y;
-
         if(m_center_window)
         {
             GLFWmonitor* monitor = glfwGetPrimaryMonitor();
             const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
             // calculate window size
-            int w = m_loader->GetWidth();
-            int h = m_loader->GetHeight();
-            int imgw = std::max<int>(w + (m_showBorder ? m_border->GetBorderWidth() * 2 : 0), DEF_WINDOW_W);
-            int imgh = std::max<int>(h + (m_showBorder ? m_border->GetBorderWidth() * 2 : 0), DEF_WINDOW_H);
-            winw = std::min<int>(imgw / m_ratio.x, mode->width);
-            winh = std::min<int>(imgh / m_ratio.y, mode->height);
+            int imgw = m_loader->GetWidth() + (m_showBorder ? m_border->GetBorderWidth() * 2 : 0);
+            int imgh = m_loader->GetHeight() + (m_showBorder ? m_border->GetBorderWidth() * 2 : 0);
+            imgw = std::max<int>(imgw, DEF_WINDOW_W * m_ratio.x);
+            imgh = std::max<int>(imgh, DEF_WINDOW_H * m_ratio.y);
+            m_prevSize =
+            {
+                std::min<int>(imgw / m_ratio.x, mode->width / m_ratio.x),
+                std::min<int>(imgh / m_ratio.y, mode->height / m_ratio.y)
+            };
 
             // calculate window position
-            posx = (mode->width - winw) / 2;
-            posy = (mode->height - winh) / 2;
+            m_prevPos =
+            {
+                (mode->width - m_prevSize.x) / 2,
+                (mode->height - m_prevSize.y) / 2
+            };
+
+            glfwSetWindowSize(window, m_prevSize.x, m_prevSize.y);
+            glfwSetWindowPos(window, m_prevPos.x, m_prevPos.y);
         }
-
-        glfwSetWindowSize(window, winw, winh);
-        glfwSetWindowPos(window, posx, posy);
-
-        m_prev_pos = cVector<float>(posx, posy);
-        m_prev_size = cVector<float>(winw, winh);
 
         calculateScale();
     }

@@ -7,16 +7,15 @@
 *
 \**********************************************/
 
-#ifndef IMAGEBORDER_H_7978ADDAEE195E
-#define IMAGEBORDER_H_7978ADDAEE195E
+#pragma once
 
 #include "renderer.h"
 
-class CImageBorder
+class CImageBorder final
 {
 public:
     CImageBorder();
-    virtual ~CImageBorder();
+    ~CImageBorder();
 
     void SetColor(int r, int g, int b, int a);
     void Render(float x, float y, float w, float h, float scale);
@@ -28,6 +27,4 @@ private:
 private:
     void renderLine(float x, float y, float w, float h);
 };
-
-#endif /* end of include guard: IMAGEBORDER_H_7978ADDAEE195E */
 

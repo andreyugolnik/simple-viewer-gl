@@ -25,9 +25,13 @@ void showHelp(const char* name);
 void callbackResize(GLFWwindow* window, int width, int height)
 {
     (void)window;
-    (void)width;
-    (void)height;
-    m_viewer->fnResize();
+    m_viewer->fnResize(width, height);
+}
+
+void callbackPosition(GLFWwindow* window, int x, int y)
+{
+    (void)window;
+    m_viewer->fnPosition(x, y);
 }
 
 void callbackMouse(GLFWwindow* window, double x, double y)
@@ -55,7 +59,7 @@ void setup(GLFWwindow* window)
 
     glfwSetWindowSizeCallback(window, callbackResize);
     glfwSetFramebufferSizeCallback(window, callbackResize);
-    //glfwSetWindowPosCallback(window, callbackPosition);
+    glfwSetWindowPosCallback(window, callbackPosition);
     glfwSetCursorPosCallback(window, callbackMouse);
     glfwSetKeyCallback(window, callbackKeyboard);
     glfwSetMouseButtonCallback(window, callbackMouseButtons);
@@ -157,10 +161,10 @@ int main(int argc, char* argv[])
                         const bool windowed = viewer.isWindowed();
                         if(windowed)
                         {
-                            const cVector<float>& size = viewer.getWindowSize();
+                            const auto& size = viewer.getWindowSize();
                             newWindow = glfwCreateWindow(size.x, size.y, SimpleViewerTitle, nullptr, window);
 
-                            const cVector<float>& pos = viewer.getWindowPosition();
+                            const auto& pos = viewer.getWindowPosition();
                             glfwSetWindowPos(newWindow, pos.x, pos.y);
                         }
                         else

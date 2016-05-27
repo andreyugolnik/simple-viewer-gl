@@ -55,23 +55,23 @@ public:
     bool isQuitRequested() const { return m_quitRequest; }
     bool isWindowModeRequested() const { return m_windowModeChangeRequested; }
     bool isWindowed() const { return m_isWindowed; }
-    const cVector<float>& getWindowPosition() const { return m_prev_pos; }
-    const cVector<float>& getWindowSize() const { return m_prev_size; }
+    const cVector<int>& getWindowPosition() const { return m_prevPos; }
+    const cVector<int>& getWindowSize() const { return m_prevSize; }
 
 public:
     virtual void doProgress(int percent);
 
-    void fnResize();
+    void fnResize(int width, int height);
+    void centerWindow();
+    void fnPosition(int x, int y);
     void fnMouse(float x, float y);
     void fnMouseButtons(int button, int action, int mods);
     void fnKeyboard(int key, int scancode, int action, int mods);
-    void storeWindowPositionSize();
     void showCursor(bool show);
 
 private:
     bool loadSubImage(int subStep);
     bool loadImage(int step, int subImage = 0);
-    void centerWindow();
     void calculateScale();
     void updateScale(bool up);
     void updateFiltering();
@@ -106,8 +106,8 @@ private:
     cVector<float> m_lastMouse;
     cVector<float> m_camera;
     cVector<float> m_viewport;
-    cVector<float> m_prev_pos;
-    cVector<float> m_prev_size;
+    cVector<int> m_prevPos;
+    cVector<int> m_prevSize;
     int m_angle;
 
     std::vector<CQuadImage*> m_quads;
