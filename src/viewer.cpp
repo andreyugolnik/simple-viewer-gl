@@ -227,8 +227,6 @@ void cViewer::fnResize(int width, int height)
     int frameWidth, frameHeight;
     glfwGetFramebufferSize(window, &frameWidth, &frameHeight);
 
-    frameWidth = (frameWidth + 1) & 0xfffffffe;
-    frameHeight = (frameHeight + 1) & 0xfffffffe;
     m_viewport = cVector<float>(frameWidth, frameHeight);
 
     cRenderer::setViewportSize(m_viewport);
@@ -339,7 +337,7 @@ void cViewer::fnKeyboard(int key, int scancode, int action, int mods)
     switch(key)
     {
     case GLFW_KEY_ESCAPE:
-        m_quitRequest = true;
+        glfwSetWindowShouldClose(cRenderer::getWindow(), 1);
         break;
 
     case GLFW_KEY_I:
@@ -616,21 +614,19 @@ void cViewer::centerWindow()
             int imgh = m_loader->GetHeight() + (m_showBorder ? m_border->GetBorderWidth() * 2 : 0);
             imgw = std::max<int>(imgw, DEF_WINDOW_W * m_ratio.x);
             imgh = std::max<int>(imgh, DEF_WINDOW_H * m_ratio.y);
-            m_prevSize =
-            {
-                std::min<int>(imgw / m_ratio.x, mode->width / m_ratio.x),
-                std::min<int>(imgh / m_ratio.y, mode->height / m_ratio.y)
-            };
+
+            const int width = std::min<int>(imgw / m_ratio.x, mode->width / m_ratio.x);
+            const int height = std::min<int>(imgh / m_ratio.y, mode->height / m_ratio.y);
 
             // calculate window position
-            m_prevPos =
-            {
-                (mode->width - m_prevSize.x) / 2,
-                (mode->height - m_prevSize.y) / 2
-            };
+            const int x = (mode->width - width) / 2;
+            const int y = (mode->height - height) / 2;
 
-            glfwSetWindowSize(window, m_prevSize.x, m_prevSize.y);
-            glfwSetWindowPos(window, m_prevPos.x, m_prevPos.y);
+            glfwSetWindowSize(window, width, height);
+            glfwSetWindowPos(window, x, y);
+
+            m_prevSize = { width, height };
+            m_prevPos = { x, y };
         }
 
         calculateScale();

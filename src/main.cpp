@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
 {
     setlocale(LC_ALL, "");
 
-    printf("%s v2.6\n\n", SimpleViewerTitle);
+    printf("%s v2.7\n\n", SimpleViewerTitle);
     printf("Copyright © 2008-2016 Andrey A. Ugolnik. All Rights Reserved.\n");
     printf("http://www.ugolnik.info\n");
     printf("andrey@ugolnik.info\n\n");
@@ -152,7 +152,7 @@ int main(int argc, char* argv[])
                 setup(window);
                 viewer.setWindow(window);
 
-                while(!glfwWindowShouldClose(window) && !viewer.isQuitRequested())
+                while(!glfwWindowShouldClose(window))
                 {
                     if(viewer.isWindowModeRequested())
                     {
@@ -174,11 +174,11 @@ int main(int argc, char* argv[])
                             newWindow = glfwCreateWindow(mode->width, mode->height, SimpleViewerTitle, monitor, window);
                         }
 
-                        glfwDestroyWindow(window);
-                        window = newWindow;
-
                         setup(newWindow);
                         viewer.setWindow(newWindow);
+
+                        glfwDestroyWindow(window);
+                        window = newWindow;
                     }
 
                     viewer.render();

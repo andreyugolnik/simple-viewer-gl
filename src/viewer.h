@@ -52,7 +52,6 @@ public:
     void SetProp(unsigned char r, unsigned char g, unsigned char b);
 
     void render();
-    bool isQuitRequested() const { return m_quitRequest; }
     bool isWindowModeRequested() const { return m_windowModeChangeRequested; }
     bool isWindowed() const { return m_isWindowed; }
     const cVector<int>& getWindowPosition() const { return m_prevPos; }
@@ -90,7 +89,6 @@ private:
     cVector<float> calculateMousePosition(float x, float y) const;
 
 private:
-    bool m_quitRequest = false;
     cVector<float> m_ratio;
     bool m_initialImageLoading;
     float m_scale;
