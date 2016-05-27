@@ -10,8 +10,9 @@
 #include "renderer.h"
 #include "math/vector.h"
 
-#include <iostream>
+#include <algorithm>
 #include <cmath>
+#include <cstdio>
 
 static GLFWwindow* m_window = nullptr;
 static cVector<float> m_viewportSize;
@@ -29,10 +30,10 @@ void cRenderer::setWindow(GLFWwindow* window)
     int texture_max_size = (int)m_texture_max_size;
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &texture_max_size);
     m_texture_max_size = texture_max_size;
-    std::cout << "Max texture size: " << m_texture_max_size << "x" << m_texture_max_size << "." << std::endl;
+    //printf("Max texture size: %d x %d.\n", m_texture_max_size, m_texture_max_size);
 
     m_npot = glfwExtensionSupported("GL_ARB_texture_non_power_of_two");
-    std::cout << "Non Power of Two extension " << (m_npot ? "available." : "not available.") << std::endl;
+    //printf("Non Power of Two extension %s\n", m_npot ? "available." : "not available.");
 
     glEnable(GL_BLEND);
     glEnable(GL_TEXTURE_2D);
