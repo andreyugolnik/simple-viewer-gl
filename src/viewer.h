@@ -34,7 +34,8 @@ public:
     ~cViewer();
 
     bool setInitialImagePath(const char* path);
-    void initialize(GLFWwindow* window);
+    void setWindow(GLFWwindow* window);
+
     enum class Property
     {
         Infobar,
@@ -52,6 +53,10 @@ public:
 
     void render();
     bool isQuitRequested() const { return m_quitRequest; }
+    bool isWindowModeRequested() const { return m_windowModeChangeRequested; }
+    bool isWindowed() const { return m_isWindowed; }
+    const cVector<float>& getWindowPosition() const { return m_prev_pos; }
+    const cVector<float>& getWindowSize() const { return m_prev_size; }
 
 public:
     virtual void doProgress(int percent);
@@ -60,7 +65,7 @@ public:
     void fnMouse(float x, float y);
     void fnMouseButtons(int button, int action, int mods);
     void fnKeyboard(int key, int scancode, int action, int mods);
-    void storeWindowPositionSize(bool position, bool size);
+    void storeWindowPositionSize();
     void showCursor(bool show);
 
 private:
@@ -85,15 +90,14 @@ private:
     cVector<float> calculateMousePosition(float x, float y) const;
 
 private:
-    GLFWwindow* m_window = nullptr;
     bool m_quitRequest = false;
     cVector<float> m_ratio;
     bool m_initialImageLoading;
     float m_scale;
-    bool m_windowed;
+    bool m_isWindowed = true;
     bool m_center_window;
     bool m_all_valid;
-    bool m_testFullscreen;
+    bool m_windowModeChangeRequested = false;
     bool m_fitImage;
     bool m_showBorder;
     bool m_recursiveDir;

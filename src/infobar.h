@@ -46,7 +46,7 @@ struct sInfoBar
 class CInfoBar final
 {
 public:
-    void Init(GLFWwindow* window);
+    void init();
 
     void setRatio(float ratio);
     float getHeight() const;
@@ -62,7 +62,6 @@ private:
     void createFont();
 
 private:
-    GLFWwindow* m_window = nullptr;
     bool m_visible = true;
     float m_ratio = 1.0f;
     std::string m_bottominfo;

@@ -14,10 +14,8 @@
 const float DesiredHeight = 18;
 const int DesiredFontSize = 12;
 
-void CInfoBar::Init(GLFWwindow* window)
+void CInfoBar::init()
 {
-    m_window = window;
-
     m_bg.reset(new CQuad(0, 0));
     m_bg->SetColor(0, 0, 25, 240);
 
@@ -50,7 +48,7 @@ void CInfoBar::Render()
     {
         int width;
         int height;
-        glfwGetFramebufferSize(m_window, &width, &height);
+        glfwGetFramebufferSize(cRenderer::getWindow(), &width, &height);
 
         const float x = -ceilf(width * 0.5f);
         const float y = ceilf(height * 0.5f);
@@ -96,7 +94,7 @@ void CInfoBar::Update(const sInfoBar& p)
 
     m_bottominfo = title;
 
-    glfwSetWindowTitle(m_window, name);
+    glfwSetWindowTitle(cRenderer::getWindow(), name);
 
     m_ft->Update(m_bottominfo.c_str());
 }

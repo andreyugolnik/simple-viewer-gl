@@ -1,9 +1,11 @@
-/////////////////////////////////////////////////
-//
-// Andrey A. Ugolnik
-// andrey@ugolnik.info
-//
-/////////////////////////////////////////////////
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
 #pragma once
 
@@ -13,7 +15,7 @@
 class CCheckerboard final
 {
 public:
-    void Init(GLFWwindow* window);
+    void init();
 
     void Render();
     void Enable(bool enable = true) { m_enabled = enable; }
@@ -21,7 +23,6 @@ public:
     void SetColor(int r, int g, int b);
 
 private:
-    GLFWwindow* m_window = nullptr;
     bool m_enabled = true;
     GLfloat m_r = 0.0f;
     GLfloat m_g = 0.0f;

@@ -51,7 +51,7 @@ public:
     void Render();
     void Show(bool show = true) { m_visible = show; }
     bool IsVisible() const { return m_visible; }
-    void SetWindowSize(const cVector<float>& size) { m_size = size; }
+    void setViewportSize(const cVector<float>& size) { m_viewportSize = size; }
     void SetCursor(int cursor);
 
 private:
@@ -61,7 +61,7 @@ private:
 private:
     bool m_visible = false;
     float m_ratio = 1.0f;
-    cVector<float> m_size;
+    cVector<float> m_viewportSize;
     sPixelInfo m_pixelInfo;
     std::unique_ptr<CQuad> m_bg;
     std::unique_ptr<CQuadSeries> m_pointer;

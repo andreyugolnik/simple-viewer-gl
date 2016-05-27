@@ -48,6 +48,19 @@ void callbackKeyboard(GLFWwindow* window, int key, int scancode, int action, int
     m_viewer->fnKeyboard(key, scancode, action, mods);
 }
 
+void setup(GLFWwindow* window)
+{
+    glfwMakeContextCurrent(window);
+    glfwSwapInterval(1);
+
+    glfwSetWindowSizeCallback(window, callbackResize);
+    glfwSetFramebufferSizeCallback(window, callbackResize);
+    //glfwSetWindowPosCallback(window, callbackPosition);
+    glfwSetCursorPosCallback(window, callbackMouse);
+    glfwSetKeyCallback(window, callbackKeyboard);
+    glfwSetMouseButtonCallback(window, callbackMouseButtons);
+}
+
 int main(int argc, char* argv[])
 {
     setlocale(LC_ALL, "");
@@ -132,21 +145,39 @@ int main(int argc, char* argv[])
             GLFWwindow* window = glfwCreateWindow(640, 480, SimpleViewerTitle, nullptr, nullptr);
             if(window != nullptr)
             {
-                glfwMakeContextCurrent(window);
-
-                glfwSetWindowSizeCallback(window, callbackResize);
-                glfwSetFramebufferSizeCallback(window, callbackResize);
-                //glfwSetWindowPosCallback(window, callbackPosition);
-                glfwSetCursorPosCallback(window, callbackMouse);
-                glfwSetKeyCallback(window, callbackKeyboard);
-                glfwSetMouseButtonCallback(window, callbackMouseButtons);
-
-                viewer.initialize(window);
+                setup(window);
+                viewer.setWindow(window);
 
                 while(!glfwWindowShouldClose(window) && !viewer.isQuitRequested())
                 {
-                    viewer.render();
+                    if(viewer.isWindowModeRequested())
+                    {
+                        GLFWwindow* newWindow = nullptr;
 
+                        const bool windowed = viewer.isWindowed();
+                        if(windowed)
+                        {
+                            const cVector<float>& size = viewer.getWindowSize();
+                            newWindow = glfwCreateWindow(size.x, size.y, SimpleViewerTitle, nullptr, window);
+
+                            const cVector<float>& pos = viewer.getWindowPosition();
+                            glfwSetWindowPos(newWindow, pos.x, pos.y);
+                        }
+                        else
+                        {
+                            GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+                            const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+                            newWindow = glfwCreateWindow(mode->width, mode->height, SimpleViewerTitle, monitor, window);
+                        }
+
+                        glfwDestroyWindow(window);
+                        window = newWindow;
+
+                        setup(newWindow);
+                        viewer.setWindow(newWindow);
+                    }
+
+                    viewer.render();
                     glfwPollEvents();
                 }
             }

@@ -93,8 +93,8 @@ void CPixelInfo::Render()
             const int frameWidth = m_ft->GetStringWidth() + 2 * BORDER * m_ratio;
             const int frameHeight = (DesiredFontSize * LINES_COUNT[m_pixelInfo.rc.IsSet()] + 2 * BORDER) * m_ratio;
 
-            const int cursor_x = std::min<int>(m_pixelInfo.mouse.x + FRAME_DELTA * m_ratio, m_size.x - frameWidth);
-            const int cursor_y = std::min<int>(m_pixelInfo.mouse.y + FRAME_DELTA * m_ratio, m_size.y - frameHeight);
+            const int cursor_x = std::min<int>(m_pixelInfo.mouse.x + FRAME_DELTA * m_ratio, m_viewportSize.x - frameWidth);
+            const int cursor_y = std::min<int>(m_pixelInfo.mouse.y + FRAME_DELTA * m_ratio, m_viewportSize.y - frameHeight);
 
             m_bg->SetSpriteSize(frameWidth, frameHeight);
             m_bg->Render(cursor_x, cursor_y);

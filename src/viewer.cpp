@@ -30,10 +30,9 @@ const int DEF_WINDOW_H = 200;
 cViewer::cViewer()
     : m_initialImageLoading(true)
     , m_scale(1.0f)
-    , m_windowed(true)
+    , m_isWindowed(true)
     , m_center_window(false)
     , m_all_valid(false)
-    , m_testFullscreen(false)
     , m_fitImage(false)
     , m_showBorder(false)
     , m_recursiveDir(false)
@@ -66,14 +65,14 @@ bool cViewer::setInitialImagePath(const char* path)
     return m_filesList->GetName() != 0;
 }
 
-void cViewer::initialize(GLFWwindow* window)
+void cViewer::setWindow(GLFWwindow* window)
 {
-    m_window = window;
+    m_windowModeChangeRequested = false;
 
-    cRenderer::init();
+    cRenderer::setWindow(window);
 
-    m_checkerBoard->Init(window);
-    m_infoBar->Init(window);
+    m_checkerBoard->init();
+    m_infoBar->init();
     m_pixelInfo->Init();
     m_progress->Init();
     m_selection->Init();
@@ -98,7 +97,7 @@ void cViewer::SetProp(Property prop)
         m_fitImage = true;
         break;
     case Property::Fullscreen:
-        m_windowed = false;
+        m_isWindowed = false;
         break;
     case Property::Border:
         m_showBorder = true;
@@ -141,7 +140,7 @@ void cViewer::render()
         //if(mode->width != a_width || mode->height != a_height)
         //{
             ////printf("can't set fullscreen mode. scr: %d x %d, win: %d x %d\n", mode->width, mode->height, width, height);
-            //m_windowed = true;
+            //m_isWindowed = true;
             //centerWindow();
             //return;
         //}
@@ -205,29 +204,31 @@ void cViewer::render()
     m_infoBar->Render();
     m_pixelInfo->Render();
 
-    glfwSwapBuffers(m_window);
+    glfwSwapBuffers(cRenderer::getWindow());
 }
 
 void cViewer::fnResize()
 {
-    int width, height;
-    glfwGetFramebufferSize(m_window, &width, &height);
+    GLFWwindow* window = cRenderer::getWindow();
 
-    if(m_windowed)
+    int width, height;
+    glfwGetFramebufferSize(window, &width, &height);
+
+    if(m_isWindowed)
     {
-        storeWindowPositionSize(false, true);
+        storeWindowPositionSize();
     }
 
     width = (width + 1) & 0xfffffffe;
     height = (height + 1) & 0xfffffffe;
     m_viewport = cVector<float>(width, height);
 
-    cRenderer::setWindowSize(m_viewport);
+    cRenderer::setViewportSize(m_viewport);
 
-    m_pixelInfo->SetWindowSize(m_viewport);
+    m_pixelInfo->setViewportSize(m_viewport);
 
     int win_w, win_h;
-    glfwGetWindowSize(m_window, &win_w, &win_h);
+    glfwGetWindowSize(window, &win_w, &win_h);
 
     m_ratio = { (float)width / win_w, (float)height / win_h };
 
@@ -284,8 +285,10 @@ void cViewer::fnMouseButtons(int button, int action, int mods)
 {
     (void)mods;
 
+    GLFWwindow* window = cRenderer::getWindow();
+
     double x, y;
-    glfwGetCursorPos(m_window, &x, &y);
+    glfwGetCursorPos(window, &x, &y);
     m_lastMouse = calculateMousePosition(x, y);
 
     switch(button)
@@ -385,18 +388,15 @@ void cViewer::fnKeyboard(int key, int scancode, int action, int mods)
         break;
 
     case GLFW_KEY_ENTER:
-        m_windowed = !m_windowed;
-        if(m_windowed)
+        m_isWindowed = !m_isWindowed;
+        m_windowModeChangeRequested = true;
+        if(m_isWindowed)
         {
             centerWindow();
         }
         else
         {
-            m_testFullscreen = true;
-
-            storeWindowPositionSize(true, true);
-
-            //glutFullScreen();
+            storeWindowPositionSize();
         }
         break;
 
@@ -601,62 +601,62 @@ void cViewer::updateFiltering()
     }
 }
 
-void cViewer::storeWindowPositionSize(bool position, bool size)
+void cViewer::storeWindowPositionSize()
 {
-    if(position)
+    GLFWwindow* window = cRenderer::getWindow();
+
     {
         int x;
         int y;
-        glfwGetWindowPos(m_window, &x, &y);
+        glfwGetWindowPos(window, &x, &y);
         m_prev_pos = cVector<float>(x, y);
     }
 
-    if(size)
     {
         int width;
         int height;
-        //glfwGetWindowSize(m_window, &width, &height);
-        glfwGetFramebufferSize(m_window, &width, &height);
+        glfwGetWindowSize(window, &width, &height);
         m_prev_size = cVector<float>(width, height);
     }
 }
 
 void cViewer::centerWindow()
 {
-    //if(m_windowed)
-    //{
-        //int winw = m_prev_size.x;
-        //int winh = m_prev_size.y;
-        //int posx = m_prev_pos.x;
-        //int posy = m_prev_pos.y;
+    GLFWwindow* window = cRenderer::getWindow();
 
-        //GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-        //const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+    if(m_isWindowed)
+    {
+        int winw = m_prev_size.x;
+        int winh = m_prev_size.y;
+        int posx = m_prev_pos.x;
+        int posy = m_prev_pos.y;
 
-        //if(m_center_window)
-        //{
-            //// calculate window size
-            //int w = m_loader->GetWidth();
-            //int h = m_loader->GetHeight();
-            //int imgw = std::max<int>(w + (m_showBorder ? m_border->GetBorderWidth() * 2 : 0), DEF_WINDOW_W);
-            //int imgh = std::max<int>(h + (m_showBorder ? m_border->GetBorderWidth() * 2 : 0), DEF_WINDOW_H);
-            //winw = std::min<int>(imgw, mode->width);
-            //winh = std::min<int>(imgh, mode->height);
+        if(m_center_window)
+        {
+            GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+            const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
-            //// calculate window position
-            //posx = (mode->width - winw) / 2;
-            //posy = (mode->height - winh) / 2;
-        //}
+            // calculate window size
+            int w = m_loader->GetWidth();
+            int h = m_loader->GetHeight();
+            int imgw = std::max<int>(w + (m_showBorder ? m_border->GetBorderWidth() * 2 : 0), DEF_WINDOW_W);
+            int imgh = std::max<int>(h + (m_showBorder ? m_border->GetBorderWidth() * 2 : 0), DEF_WINDOW_H);
+            winw = std::min<int>(imgw / m_ratio.x, mode->width);
+            winh = std::min<int>(imgh / m_ratio.y, mode->height);
 
-        //glfwSetWindowPos(m_window, posx, posy);
-        //glfwSetWindowSize(m_window, winw, winh);
-        //printf("screen: %d x %d, window %d x %d, pos: %d, %d\n", mode->width, mode->height, winw, winh, posx, posy);
+            // calculate window position
+            posx = (mode->width - winw) / 2;
+            posy = (mode->height - winh) / 2;
+        }
 
-        //m_prev_pos = cVector<float>(posx, posy);
-        //m_prev_size = cVector<float>(winw, winh);
+        glfwSetWindowSize(window, winw, winh);
+        glfwSetWindowPos(window, posx, posy);
 
-        //calculateScale();
-    //}
+        m_prev_pos = cVector<float>(posx, posy);
+        m_prev_size = cVector<float>(winw, winh);
+
+        calculateScale();
+    }
 }
 
 bool cViewer::loadSubImage(int subStep)
@@ -850,7 +850,8 @@ void cViewer::showCursor(bool show)
     if(m_cursorVisible != show)
     {
         m_cursorVisible = show;
-        glfwSetInputMode(m_window, GLFW_CURSOR, show ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_HIDDEN);
+        GLFWwindow* window = cRenderer::getWindow();
+        glfwSetInputMode(window, GLFW_CURSOR, show ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_HIDDEN);
     }
 }
 

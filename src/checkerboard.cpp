@@ -1,23 +1,23 @@
-/////////////////////////////////////////////////
-//
-// Andrey A. Ugolnik
-// andrey@ugolnik.info
-//
-/////////////////////////////////////////////////
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
 #include "checkerboard.h"
-#include <math.h>
+#include <cmath>
 
-const int tex_size = 128;
+const int texSize = 128;
 
-void CCheckerboard::Init(GLFWwindow* window)
+void CCheckerboard::init()
 {
-    m_window = window;
-
-    unsigned char* buffer = new unsigned char[tex_size * tex_size * 3];
+    unsigned char* buffer = new unsigned char[texSize * texSize * 3];
     unsigned char* p = buffer;
     bool checker_height_odd = true;
-    for(int y = 0; y < tex_size; y++)
+    for(int y = 0; y < texSize; y++)
     {
         if(y % 16 == 0)
         {
@@ -25,21 +25,21 @@ void CCheckerboard::Init(GLFWwindow* window)
         }
 
         bool checker_width_odd = checker_height_odd;
-        for(int x = 0; x < tex_size; x++)
+        for(int x = 0; x < texSize; x++)
         {
             if(x % 16 == 0)
             {
                 checker_width_odd = !checker_width_odd;
             }
 
-            unsigned char color	= (checker_width_odd == true ? 0xc8 : 0x7d);
+            unsigned char color = (checker_width_odd == true ? 0xc8 : 0x7d);
             *p++ = color;
             *p++ = color;
             *p++ = color;
         }
     }
 
-    m_cb.reset(new CQuad(tex_size, tex_size, buffer, GL_RGB));
+    m_cb.reset(new CQuad(texSize, texSize, buffer, GL_RGB));
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
@@ -59,8 +59,7 @@ void CCheckerboard::Render()
     {
         int width;
         int height;
-        //glfwGetWindowSize(m_window, &width, &height);
-        glfwGetFramebufferSize(m_window, &width, &height);
+        glfwGetFramebufferSize(cRenderer::getWindow(), &width, &height);
         m_cb->SetSpriteSize(width, height);
         m_cb->Render(-width * 0.5f, -height * 0.5f);
     }

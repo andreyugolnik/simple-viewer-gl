@@ -38,7 +38,8 @@ struct sQuad
 class cRenderer
 {
 public:
-    static void init();
+    static void setWindow(GLFWwindow* window);
+    static GLFWwindow* getWindow();
 
     static GLuint createTexture(const unsigned char* data, unsigned w, unsigned h, GLenum format);
     static void deleteTexture(GLuint tex);
@@ -49,8 +50,8 @@ public:
     static void render(const sLine& quad);
     static void render(const sQuad& quad);
 
-    static void setWindowSize(const cVector<float>& size);
-    static const cVector<float>& getWindowSize();
+    static void setViewportSize(const cVector<float>& size);
+    static const cVector<float>& getViewportSize();
     static void resetGlobals();
     static void setGlobals(const cVector<float>& delta, float angle, float zoom);
 };

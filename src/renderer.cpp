@@ -13,15 +13,19 @@
 #include <iostream>
 #include <cmath>
 
-static cVector<float> m_window_size;
+static GLFWwindow* m_window = nullptr;
+static cVector<float> m_viewportSize;
 static unsigned m_tex = 0;
 static sVertex m_vb[4];
 static unsigned short m_ib[6] = { 0, 1, 2, 0, 2, 3 };
 static bool m_npot = false;
 static unsigned m_texture_max_size = 256;
 
-void cRenderer::init()
+void cRenderer::setWindow(GLFWwindow* window)
 {
+    m_window = window;
+    m_tex = 0;
+
     int texture_max_size = (int)m_texture_max_size;
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &texture_max_size);
     m_texture_max_size = texture_max_size;
@@ -47,6 +51,11 @@ void cRenderer::init()
     glVertexPointer(2, GL_FLOAT, sizeof(sVertex), &m_vb->x);
     glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(sVertex), &m_vb->r);
     glTexCoordPointer(2, GL_FLOAT, sizeof(sVertex), &m_vb->tx);
+}
+
+GLFWwindow* cRenderer::getWindow()
+{
+    return m_window;
 }
 
 GLuint cRenderer::createTexture(const unsigned char* data, unsigned w, unsigned h, GLenum format)
@@ -117,11 +126,11 @@ GLuint cRenderer::createTexture(const unsigned char* data, unsigned w, unsigned 
 
 void cRenderer::deleteTexture(GLuint tex)
 {
-    bindTexture(0);
-    if(tex != 0)
+    if(m_tex == tex)
     {
-        glDeleteTextures(1, &tex);
+        bindTexture(0);
     }
+    glDeleteTextures(1, &tex);
 }
 
 void cRenderer::bindTexture(GLuint tex)
@@ -202,15 +211,15 @@ void cRenderer::render(const sQuad& quad)
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, m_ib);
 }
 
-const cVector<float>& cRenderer::getWindowSize()
+const cVector<float>& cRenderer::getViewportSize()
 {
-    return m_window_size;
+    return m_viewportSize;
 }
 
-void cRenderer::setWindowSize(const cVector<float>& size)
+void cRenderer::setViewportSize(const cVector<float>& size)
 {
     glViewport(0, 0, size.x, size.y);
-    m_window_size = size;
+    m_viewportSize = size;
 }
 
 void cRenderer::resetGlobals()
@@ -221,8 +230,8 @@ void cRenderer::resetGlobals()
 void cRenderer::setGlobals(const cVector<float>& delta, float angle, float zoom)
 {
     const float z = 1.0f / zoom;
-    const float w = m_window_size.x * z;
-    const float h = m_window_size.y * z;
+    const float w = m_viewportSize.x * z;
+    const float h = m_viewportSize.y * z;
 
     const float x = (delta.x - w * 0.5f);
     const float y = (delta.y - h * 0.5f);
