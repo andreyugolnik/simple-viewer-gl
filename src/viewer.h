@@ -97,11 +97,11 @@ private:
     cVector<float> m_ratio;
     bool m_initialImageLoading;
     float m_scale;
-    bool m_isWindowed = true;
-    bool m_center_window;
-    bool m_all_valid;
-    bool m_wheelZoom = false;
-    bool m_windowModeChangeRequested = false;
+    bool m_isWindowed;
+    bool m_centerWindow;
+    bool m_allValid;
+    bool m_wheelZoom;
+    bool m_windowModeChangeRequested;
     bool m_fitImage;
     bool m_showBorder;
     bool m_recursiveDir;
@@ -109,7 +109,6 @@ private:
     bool m_mouseLB, m_mouseMB, m_mouseRB;
     cVector<float> m_lastMouse;
     cVector<float> m_camera;
-    cVector<float> m_viewport;
     cVector<int> m_prevPos;
     cVector<int> m_prevSize;
     int m_angle;

@@ -84,23 +84,21 @@ void CPixelInfo::setPixelInfo(const sPixelInfo& pi)
 
 void CPixelInfo::Render()
 {
-    if(m_visible)
+    m_pointer->Render(m_pixelInfo.mouse.x - 10, m_pixelInfo.mouse.y - 10);
+
+    if(isInsideImage(m_pixelInfo.point))
     {
-        m_pointer->Render(m_pixelInfo.mouse.x - 10, m_pixelInfo.mouse.y - 10);
+        const int frameWidth = m_ft->GetStringWidth() + 2 * BORDER * m_ratio;
+        const int frameHeight = (DesiredFontSize * LINES_COUNT[m_pixelInfo.rc.IsSet()] + 2 * BORDER) * m_ratio;
 
-        if(isInsideImage(m_pixelInfo.point))
-        {
-            const int frameWidth = m_ft->GetStringWidth() + 2 * BORDER * m_ratio;
-            const int frameHeight = (DesiredFontSize * LINES_COUNT[m_pixelInfo.rc.IsSet()] + 2 * BORDER) * m_ratio;
+        const auto& viewport = cRenderer::getViewportSize();
+        const int x = std::min<int>(m_pixelInfo.mouse.x + FRAME_DELTA * m_ratio, viewport.x - frameWidth);
+        const int y = std::min<int>(m_pixelInfo.mouse.y + FRAME_DELTA * m_ratio, viewport.y - frameHeight);
 
-            const int cursor_x = std::min<int>(m_pixelInfo.mouse.x + FRAME_DELTA * m_ratio, m_viewportSize.x - frameWidth);
-            const int cursor_y = std::min<int>(m_pixelInfo.mouse.y + FRAME_DELTA * m_ratio, m_viewportSize.y - frameHeight);
+        m_bg->SetSpriteSize(frameWidth, frameHeight);
+        m_bg->Render(x, y);
 
-            m_bg->SetSpriteSize(frameWidth, frameHeight);
-            m_bg->Render(cursor_x, cursor_y);
-
-            m_ft->Render(cursor_x + BORDER * m_ratio, cursor_y + DesiredFontSize * m_ratio);
-        }
+        m_ft->Render(x + BORDER * m_ratio, y + DesiredFontSize * m_ratio);
     }
 }
 

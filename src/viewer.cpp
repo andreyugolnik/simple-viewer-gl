@@ -31,8 +31,8 @@ cViewer::cViewer()
     : m_initialImageLoading(true)
     , m_scale(1.0f)
     , m_isWindowed(true)
-    , m_center_window(false)
-    , m_all_valid(false)
+    , m_centerWindow(false)
+    , m_allValid(false)
     , m_fitImage(false)
     , m_showBorder(false)
     , m_recursiveDir(false)
@@ -62,7 +62,7 @@ bool cViewer::setInitialImagePath(const char* path)
 {
     m_initialImageLoading = true;
     m_filesList.reset(new CFilesList(path, m_recursiveDir));
-    m_filesList->setAllValid(m_all_valid);
+    m_filesList->setAllValid(m_allValid);
     return m_filesList->GetName() != 0;
 }
 
@@ -86,13 +86,19 @@ void cViewer::setWindow(GLFWwindow* window)
     m_ratio = { (float)frameWidth / width, (float)frameHeight / height };
 
     fnResize(width, height);
+
+    if(m_initialImageLoading == true)
+    {
+        m_initialImageLoading = false;
+        loadImage(0, 0);
+    }
 }
 
 void cViewer::addPaths(const char** paths, int count)
 {
-    m_initialImageLoading = true;
     m_filesList.reset(new CFilesList(paths[0], m_recursiveDir));
-    m_filesList->setAllValid(m_all_valid);
+    m_filesList->setAllValid(m_allValid);
+    loadImage(0, 0);
 }
 
 void cViewer::SetProp(Property prop)
@@ -121,10 +127,10 @@ void cViewer::SetProp(Property prop)
         m_recursiveDir = true;
         break;
     case Property::CenterWindow:
-        m_center_window = true;
+        m_centerWindow = true;
         break;
     case Property::AllValid:
-        m_all_valid = true;
+        m_allValid = true;
         break;
     case Property::WheelZoom:
         m_wheelZoom = true;
@@ -139,17 +145,11 @@ void cViewer::SetProp(unsigned char r, unsigned char g, unsigned char b)
 
 void cViewer::render()
 {
-    if(m_initialImageLoading == true)
-    {
-        m_initialImageLoading = false;
-        loadImage(0, 0);
-    }
-
     m_checkerBoard->Render();
 
     //updateViewportSize();
 
-    cRenderer::setGlobals(cVector<float>(m_camera.x, m_camera.y), m_angle, m_scale);
+    cRenderer::setGlobals(m_camera, m_angle, m_scale);
 
     const unsigned img_w = m_loader->GetWidth();
     const unsigned img_h = m_loader->GetHeight();
@@ -169,7 +169,7 @@ void cViewer::render()
     {
         m_border->Render(-half_w, -half_h, img_w, img_h, m_scale);
     }
-    if(m_pixelInfo->IsVisible())
+    if(m_pixelInfo->IsVisible() && m_angle == 0)
     {
         m_selection->Render(-half_w, -half_h);
     }
@@ -195,7 +195,10 @@ void cViewer::render()
     //}
 
     m_infoBar->Render();
-    m_pixelInfo->Render();
+    if(m_pixelInfo->IsVisible() && m_angle == 0)
+    {
+        m_pixelInfo->Render();
+    }
 
     glfwSwapBuffers(cRenderer::getWindow());
 }
@@ -216,14 +219,10 @@ void cViewer::fnResize(int width, int height)
     int frameWidth, frameHeight;
     glfwGetFramebufferSize(window, &frameWidth, &frameHeight);
 
-    m_viewport = cVector<float>(frameWidth, frameHeight);
-
-    cRenderer::setViewportSize(m_viewport);
-
-    m_pixelInfo->setViewportSize(m_viewport);
+    cRenderer::setViewportSize({ (float)frameWidth, (float)frameHeight });
 
     m_pixelInfo->setRatio(m_ratio.y);
-    updatePixelInfo({ (float)frameWidth, (float)frameHeight });
+    updatePixelInfo(m_lastMouse);
 
     m_infoBar->setRatio(m_ratio.y);
     updateInfobar();
@@ -478,7 +477,8 @@ void cViewer::shiftCamera(const cVector<float>& delta)
     const unsigned w = m_loader->GetWidth();
     const unsigned h = m_loader->GetHeight();
 
-    cVector<float> half = (m_viewport / m_scale + cVector<float>(w, h)) * 0.5f;
+    const auto& viewport = cRenderer::getViewportSize();
+    cVector<float> half = (viewport / m_scale + cVector<float>(w, h)) * 0.5f;
     m_camera.x = std::max<float>(m_camera.x, -half.x);
     m_camera.x = std::min<float>(m_camera.x, half.x);
     m_camera.y = std::max<float>(m_camera.y, -half.y);
@@ -498,26 +498,27 @@ void cViewer::calculateScale()
         }
 
         // scale only large images
-        if(w >= m_viewport.x || h >= m_viewport.y)
+        const auto& viewport = cRenderer::getViewportSize();
+        if(w >= viewport.x || h >= viewport.y)
         {
             float aspect = w / h;
             float new_w = 0;
             float new_h = 0;
-            float dx = w / m_viewport.x;
-            float dy = h / m_viewport.y;
+            float dx = w / viewport.x;
+            float dy = h / viewport.y;
             if(dx > dy)
             {
-                if(w > m_viewport.x)
+                if(w > viewport.x)
                 {
-                    new_w = m_viewport.x;
+                    new_w = viewport.x;
                     new_h = new_w / aspect;
                 }
             }
             else
             {
-                if(h > m_viewport.y)
+                if(h > viewport.y)
                 {
-                    new_h = m_viewport.y;
+                    new_h = viewport.y;
                     new_w = new_h * aspect;
                 }
             }
@@ -590,7 +591,7 @@ void cViewer::centerWindow()
 
     if(m_isWindowed)
     {
-        if(m_center_window)
+        if(m_centerWindow)
         {
             GLFWmonitor* monitor = glfwGetPrimaryMonitor();
             const GLFWvidmode* mode = glfwGetVideoMode(monitor);
@@ -699,7 +700,8 @@ cVector<float> cViewer::screenToImage(const cVector<float>& pos) const
     const float w = m_loader->GetWidth();
     const float h = m_loader->GetHeight();
 
-    return pos + m_camera - (m_viewport / m_scale - cVector<float>(w, h)) * 0.5f;
+    const auto& viewport = cRenderer::getViewportSize();
+    return pos + m_camera - (viewport / m_scale - cVector<float>(w, h)) * 0.5f;
 }
 
 void cViewer::updatePixelInfo(const cVector<float>& pos)
@@ -728,7 +730,7 @@ void cViewer::updatePixelInfo(const cVector<float>& pos)
             pixelInfo.a = bpp == 32 ? color[3] : 255;
         }
 
-        pixelInfo.mouse = (pos - m_viewport / m_scale * 0.5f) * m_scale;
+        pixelInfo.mouse = pos * m_scale;
         pixelInfo.point = point;
         pixelInfo.img_w = w;
         pixelInfo.img_h = h;
@@ -812,7 +814,7 @@ void cViewer::showCursor(bool show)
     {
         m_cursorVisible = show;
         GLFWwindow* window = cRenderer::getWindow();
-        glfwSetInputMode(window, GLFW_CURSOR, show ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_HIDDEN);
+        //glfwSetInputMode(window, GLFW_CURSOR, show ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_HIDDEN);
     }
 }
 

@@ -225,7 +225,16 @@ void cRenderer::setViewportSize(const cVector<float>& size)
 
 void cRenderer::resetGlobals()
 {
-    setGlobals(cVector<float>(0, 0), 0.0f, 1.0f);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(
+            0.0f,
+            0.0f + m_viewportSize.x,
+            0.0f + m_viewportSize.y,
+            0.0f,
+            -1.0f, 1.0f);
+
+    glRotatef(0.0f, 0.0f, 0.0f, -1.0f);
 }
 
 void cRenderer::setGlobals(const cVector<float>& delta, float angle, float zoom)
@@ -244,7 +253,7 @@ void cRenderer::setGlobals(const cVector<float>& delta, float angle, float zoom)
             x + w,
             y + h,
             y,
-            -1.0, 1.0);
+            -1.0f, 1.0f);
 
     glRotatef(angle, 0.0f, 0.0f, -1.0f);
 }
