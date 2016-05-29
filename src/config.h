@@ -9,27 +9,34 @@
 
 #pragma once
 
-#include <memory>
-
-namespace libconfig
+struct sColor
 {
-    class Config;
-}
+    float r, g, b;
+};
 
-class cViewer;
+struct sConfig
+{
+    bool hideInfobar = false;
+    bool showPixelInfo = false;
+    bool hideCheckboard = false;
+    bool fitImage = false;
+    bool showImageBorder = false;
+    bool recursiveScan = false;
+    bool centerWindow = false;
+    bool skipFilter = false;
+    bool wheelZoom = false;
 
-class CConfig final
+    sColor color{ 0.0f, 0.0f, 1.0f };
+};
+
+class cConfig final
 {
 public:
-    CConfig(cViewer* viewer);
-    ~CConfig();
+    void read();
 
-    bool Open();
-    void Read();
+    sConfig& getConfig() { return m_config; }
 
 private:
-    cViewer* m_viewer;
-    bool m_opened;
-    std::unique_ptr<libconfig::Config> m_config;
+    sConfig m_config;
 };
 

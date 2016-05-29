@@ -117,52 +117,40 @@ int main(int argc, char* argv[])
         }
     }
 
-    cViewer viewer;
-    m_viewer = &viewer;
-
-    try
-    {
-        CConfig config(&viewer);
-        if(config.Open() == true)
-        {
-            config.Read();
-        }
-    }
-    catch(...)
-    {
-        printf("Error loading config.\n\n");
-    }
+    cConfig config;
+    config.read();
+    sConfig& c = config.getConfig();
 
     const char* path = nullptr;
 
     for(int i = 1; i < argc; i++)
     {
         if(strncmp(argv[i], "-i", 2) == 0)
-            viewer.SetProp(cViewer::Property::Infobar);
+            c.hideInfobar = true;
         else if(strncmp(argv[i], "-p", 2) == 0)
-            viewer.SetProp(cViewer::Property::PixelInfo);
+            c.showPixelInfo = true;
         else if(strncmp(argv[i], "-cw", 3) == 0)
-            viewer.SetProp(cViewer::Property::CenterWindow);
+            c.centerWindow = true;
         else if(strncmp(argv[i], "-c", 2) == 0)
-            viewer.SetProp(cViewer::Property::Checkers);
+            c.hideCheckboard = true;
         else if(strncmp(argv[i], "-s", 2) == 0)
-            viewer.SetProp(cViewer::Property::FitImage);
-        else if(strncmp(argv[i], "-f", 2) == 0)
-            viewer.SetProp(cViewer::Property::Fullscreen);
+            c.fitImage = true;
+        //else if(strncmp(argv[i], "-f", 2) == 0)
+            //c.fullScreen = true;
         else if(strncmp(argv[i], "-b", 2) == 0)
-            viewer.SetProp(cViewer::Property::Border);
+            c.showImageBorder = true;
         else if(strncmp(argv[i], "-r", 2) == 0)
-            viewer.SetProp(cViewer::Property::Recursive);
+            c.recursiveScan = true;
         else if(strncmp(argv[i], "-a", 2) == 0)
-            viewer.SetProp(cViewer::Property::AllValid);
+            c.skipFilter = true;
         else if(strncmp(argv[i], "-wz", 3) == 0)
-            viewer.SetProp(cViewer::Property::WheelZoom);
+            c.wheelZoom = true;
         else if(strncmp(argv[i], "-C", 2) == 0)
         {
-            unsigned int r, g, b;
+            int r, g, b;
             if(3 == sscanf(argv[i + 1], "%2x%2x%2x", &r, &g, &b))
             {
-                viewer.SetProp(r, g, b);
+                c.color = { r / 255.0f, g / 255.0f, b / 255.0f };
                 i++;
             }
         }
@@ -171,6 +159,9 @@ int main(int argc, char* argv[])
             path = argv[i];
         }
     }
+
+    cViewer viewer(&c);
+    m_viewer = &viewer;
 
     if(viewer.setInitialImagePath(path))
     {

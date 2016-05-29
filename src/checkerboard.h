@@ -17,13 +17,15 @@ class CCheckerboard final
 public:
     void init();
 
-    void Render();
-    void Enable(bool enable = true) { m_enabled = enable; }
-    bool IsEnabled() const { return m_enabled; }
-    void SetColor(int r, int g, int b);
+    void render(bool checkboardEanbled);
+    void setColor(float r, float g, float b)
+    {
+        m_r = r;
+        m_g = g;
+        m_b = b;
+    }
 
 private:
-    bool m_enabled = true;
     GLfloat m_r = 0.0f;
     GLfloat m_g = 0.0f;
     GLfloat m_b = 1.0f;

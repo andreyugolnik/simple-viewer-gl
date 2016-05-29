@@ -8,34 +8,30 @@
 \**********************************************/
 
 #include "viewer.h"
-#include "quadimage.h"
+#include "checkerboard.h"
+#include "config.h"
 #include "fileslist.h"
+#include "imageborder.h"
 #include "imageloader.h"
 #include "infobar.h"
 #include "pixelinfo.h"
-#include "checkerboard.h"
 #include "progress.h"
-#include "imageborder.h"
+#include "quadimage.h"
 #include "selection.h"
 
-#include <math.h>
-#include <iostream>
-#include <stdlib.h>
-#include <string.h>
-#include <assert.h>
+#include <cassert>
+#include <cmath>
+#include <cstdlib>
+#include <string>
 
 const int DEF_WINDOW_W = 200;
 const int DEF_WINDOW_H = 200;
 
-cViewer::cViewer()
-    : m_initialImageLoading(true)
+cViewer::cViewer(sConfig* config)
+    : m_config(config)
+    , m_initialImageLoading(true)
     , m_scale(1.0f)
     , m_isWindowed(true)
-    , m_centerWindow(false)
-    , m_allValid(false)
-    , m_fitImage(false)
-    , m_showBorder(false)
-    , m_recursiveDir(false)
     , m_mouseLB(false)
     , m_mouseMB(false)
     , m_mouseRB(false)
@@ -50,6 +46,8 @@ cViewer::cViewer()
     m_selection.reset(new CSelection());
 
     m_prevSize = { DEF_WINDOW_W, DEF_WINDOW_H };
+
+    applyConfig();
 }
 
 cViewer::~cViewer()
@@ -60,8 +58,8 @@ cViewer::~cViewer()
 bool cViewer::setInitialImagePath(const char* path)
 {
     m_initialImageLoading = true;
-    m_filesList.reset(new CFilesList(path, m_recursiveDir));
-    m_filesList->setAllValid(m_allValid);
+    m_filesList.reset(new CFilesList(path, m_config->recursiveScan));
+    m_filesList->setAllValid(m_config->skipFilter);
     return m_filesList->GetName() != 0;
 }
 
@@ -95,56 +93,23 @@ void cViewer::setWindow(GLFWwindow* window)
 
 void cViewer::addPaths(const char** paths, int count)
 {
-    m_filesList.reset(new CFilesList(paths[0], m_recursiveDir));
-    m_filesList->setAllValid(m_allValid);
+    (void)count;
+
+    m_filesList.reset(new CFilesList(paths[0], m_config->recursiveScan));
+    m_filesList->setAllValid(m_config->skipFilter);
+
     loadImage(0, 0);
 }
 
-void cViewer::SetProp(Property prop)
+void cViewer::applyConfig()
 {
-    switch(prop)
-    {
-    case Property::Infobar:
-        m_infoBar->Show(false);
-        break;
-    case Property::PixelInfo:
-        m_pixelInfo->Show(true);
-        break;
-    case Property::Checkers:
-        m_checkerBoard->Enable(false);
-        break;
-    case Property::FitImage:
-        m_fitImage = true;
-        break;
-    case Property::Fullscreen:
-        m_isWindowed = false;
-        break;
-    case Property::Border:
-        m_showBorder = true;
-        break;
-    case Property::Recursive:
-        m_recursiveDir = true;
-        break;
-    case Property::CenterWindow:
-        m_centerWindow = true;
-        break;
-    case Property::AllValid:
-        m_allValid = true;
-        break;
-    case Property::WheelZoom:
-        m_wheelZoom = true;
-        break;
-    }
-}
-
-void cViewer::SetProp(unsigned char r, unsigned char g, unsigned char b)
-{
-    m_checkerBoard->SetColor(r, g, b);
+    const sColor& c = m_config->color;
+    m_checkerBoard->setColor(c.r, c.g, c.b);
 }
 
 void cViewer::render()
 {
-    m_checkerBoard->Render();
+    m_checkerBoard->render(!m_config->hideCheckboard);
 
     //updateViewportSize();
 
@@ -164,11 +129,11 @@ void cViewer::render()
         quad->Render(x, y);
     }
 
-    if(m_showBorder)
+    if(m_config->showImageBorder)
     {
         m_border->Render(-half_w, -half_h, img_w, img_h, m_scale);
     }
-    if(m_pixelInfo->IsVisible() && m_angle == 0)
+    if(m_config->showPixelInfo && m_angle == 0)
     {
         m_selection->Render(-half_w, -half_h);
     }
@@ -193,8 +158,12 @@ void cViewer::render()
         //}
     //}
 
-    m_infoBar->Render();
-    if(m_pixelInfo->IsVisible() && m_angle == 0)
+    if(m_config->hideInfobar == false)
+    {
+        m_infoBar->Render();
+    }
+
+    if(m_config->showPixelInfo && m_angle == 0)
     {
         m_pixelInfo->Render();
     }
@@ -255,7 +224,7 @@ void cViewer::fnMouse(float x, float y)
         }
     }
 
-    if(m_pixelInfo->IsVisible())
+    if(m_config->showPixelInfo)
     {
         const int cursor = m_selection->GetCursor();
         m_pixelInfo->SetCursor(cursor);
@@ -274,7 +243,7 @@ void cViewer::fnMouse(float x, float y)
 void cViewer::fnMouseScroll(float x, float y)
 {
     (void)x;
-    if(m_wheelZoom)
+    if(m_config->wheelZoom)
     {
         updateScale(y > 0.0f);
     }
@@ -321,18 +290,18 @@ void cViewer::fnKeyboard(int key, int scancode, int action, int mods)
         break;
 
     case GLFW_KEY_I:
-        m_infoBar->Show(!m_infoBar->Visible());
+        m_config->hideInfobar = !m_config->hideInfobar;
         //calculateScale();
         centerWindow();
         break;
 
     case GLFW_KEY_P:
-        enablePixelInfo(!m_pixelInfo->IsVisible());
+        enablePixelInfo(!m_config->showPixelInfo);
         break;
 
     case GLFW_KEY_S:
-        m_fitImage = !m_fitImage;
-        if(m_fitImage == false)
+        m_config->fitImage = !m_config->fitImage;
+        if(m_config->fitImage == false)
         {
             m_scale = 1.0f;
         }
@@ -358,7 +327,7 @@ void cViewer::fnKeyboard(int key, int scancode, int action, int mods)
         break;
 
     case GLFW_KEY_B:
-        m_showBorder = !m_showBorder;
+        m_config->showImageBorder = !m_config->showImageBorder;
         break;
 
     case GLFW_KEY_EQUAL:
@@ -370,7 +339,7 @@ void cViewer::fnKeyboard(int key, int scancode, int action, int mods)
         break;
 
     case GLFW_KEY_C:
-        m_checkerBoard->Enable(!m_checkerBoard->IsEnabled());
+        m_config->hideCheckboard = !m_config->hideCheckboard;
         break;
 
     case GLFW_KEY_ENTER:
@@ -421,12 +390,11 @@ void cViewer::fnKeyboard(int key, int scancode, int action, int mods)
         break;
 
     default:
-        //std::cout << key << std::endl;
         if(key == GLFW_KEY_0)
         {
             m_scale = 10.0f;
             m_camera = { 0.0f, 0.0f };
-            m_fitImage = false;
+            m_config->fitImage = false;
             centerWindow();
             updateInfobar();
             m_selection->setScale(m_scale);
@@ -435,7 +403,7 @@ void cViewer::fnKeyboard(int key, int scancode, int action, int mods)
         {
             m_scale = (float)(key - GLFW_KEY_0);
             m_camera = { 0.0f, 0.0f };
-            m_fitImage = false;
+            m_config->fitImage = false;
             centerWindow();
             updateInfobar();
             m_selection->setScale(m_scale);
@@ -482,7 +450,7 @@ void cViewer::shiftCamera(const cVector<float>& delta)
 
 void cViewer::calculateScale()
 {
-    if(m_fitImage && m_loader->isLoaded())
+    if(m_config->fitImage && m_loader->isLoaded())
     {
         float w = static_cast<float>(m_loader->GetWidth());
         float h = static_cast<float>(m_loader->GetHeight());
@@ -535,7 +503,7 @@ void cViewer::calculateScale()
 // TODO update m_camera_x / m_camera_y according current mouse position
 void cViewer::updateScale(bool up)
 {
-    m_fitImage = false;
+    m_config->fitImage = false;
 
     const int step = 25;
     int scale = std::max<int>(step, ceilf(m_scale * 100.0f));
@@ -585,14 +553,14 @@ void cViewer::centerWindow()
 
     if(m_isWindowed)
     {
-        if(m_centerWindow)
+        if(m_config->centerWindow)
         {
             GLFWmonitor* monitor = glfwGetPrimaryMonitor();
             const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
             // calculate window size
-            int imgw = m_loader->GetWidth() + (m_showBorder ? m_border->GetBorderWidth() * 2 : 0);
-            int imgh = m_loader->GetHeight() + (m_showBorder ? m_border->GetBorderWidth() * 2 : 0);
+            int imgw = m_loader->GetWidth() + (m_config->showImageBorder ? m_border->GetBorderWidth() * 2 : 0);
+            int imgh = m_loader->GetHeight() + (m_config->showImageBorder ? m_border->GetBorderWidth() * 2 : 0);
             imgw = std::max<int>(imgw, DEF_WINDOW_W * m_ratio.x);
             imgh = std::max<int>(imgh, DEF_WINDOW_H * m_ratio.y);
 
@@ -654,7 +622,7 @@ bool cViewer::loadImage(int step, int subImage)
 
     centerWindow();
 
-    enablePixelInfo(m_pixelInfo->IsVisible());
+    enablePixelInfo(m_config->showPixelInfo);
 
     //m_loader->FreeMemory();
 
@@ -744,7 +712,7 @@ void cViewer::createTextures()
         const int pitch   = m_loader->GetPitch();
         const int bytesPP = (m_loader->GetBpp() / 8);
 
-        std::cout << " " << width << " x " << height << ", ";
+        printf(" %d x %d, ", width, height);
 
         int texW, texH;
         cRenderer::calculateTextureSize(&texW, &texH, width, height);
@@ -757,8 +725,7 @@ void cViewer::createTextures()
 
             const int cols = (int)ceilf((float)width / texW);
             const int rows = (int)ceilf((float)height / texH);
-            const size_t quadsCount = cols * rows;
-            std::cout << "textures: " << quadsCount << " (" << cols << " x " << rows << ") required" << std::endl;
+            printf("textures: %d (%d x %d) required\n", cols * rows, cols, rows);
 
             deleteTextures();
 
@@ -838,7 +805,7 @@ void cViewer::enablePixelInfo(bool show)
         updateMousePosition();
         updatePixelInfo(m_lastMouse);
     }
-    m_pixelInfo->Show(show);
+    m_config->showPixelInfo = show;
     showCursor(!show);
 }
 

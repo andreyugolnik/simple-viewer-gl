@@ -46,16 +46,9 @@ void CCheckerboard::init()
     delete[] buffer;
 }
 
-void CCheckerboard::SetColor(int r, int g, int b)
+void CCheckerboard::render(bool checkboardEanbled)
 {
-    m_r = r / 255.0f;
-    m_g = g / 255.0f;
-    m_b = b / 255.0f;
-}
-
-void CCheckerboard::Render()
-{
-    if(m_enabled == true)
+    if(checkboardEanbled)
     {
         int width;
         int height;

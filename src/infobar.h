@@ -54,15 +54,11 @@ public:
     void Update(const sInfoBar& p);
     void Render();
 
-    bool Visible() const { return m_visible; }
-    void Show(bool show = true) { m_visible = show; }
-
 private:
     const char* getHumanSize(float& size);
     void createFont();
 
 private:
-    bool m_visible = true;
     float m_ratio = 1.0f;
     std::string m_bottominfo;
     std::unique_ptr<CQuad> m_bg;

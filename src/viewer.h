@@ -15,44 +15,29 @@
 #include <vector>
 #include <memory>
 
-class CQuadImage;
+class CCheckerboard;
 class CFilesList;
+class CImageBorder;
 class CImageLoader;
 class CInfoBar;
 class CPixelInfo;
-class CCheckerboard;
 class CProgress;
-class CImageBorder;
+class CQuadImage;
 class CSelection;
+struct sConfig;
 
 class GLFWwindow;
 
 class cViewer final : public iCallbacks
 {
 public:
-    cViewer();
+    cViewer(sConfig* config);
     ~cViewer();
 
     bool setInitialImagePath(const char* path);
     void setWindow(GLFWwindow* window);
 
     void addPaths(const char** paths, int count);
-
-    enum class Property
-    {
-        Infobar,
-        PixelInfo,
-        Checkers,
-        FitImage,
-        Fullscreen,
-        Border,
-        Recursive,
-        CenterWindow,
-        AllValid,
-        WheelZoom,
-    };
-    void SetProp(Property prop);
-    void SetProp(unsigned char r, unsigned char g, unsigned char b);
 
     void render();
 
@@ -74,6 +59,7 @@ public:
     void showCursor(bool show);
 
 private:
+    void applyConfig();
     bool loadSubImage(int subStep);
     bool loadImage(int step, int subImage);
     void calculateScale();
@@ -96,17 +82,18 @@ private:
     void enablePixelInfo(bool show);
 
 private:
+    sConfig* m_config;
     cVector<float> m_ratio;
     bool m_initialImageLoading;
     float m_scale;
     bool m_isWindowed;
-    bool m_centerWindow;
-    bool m_allValid;
-    bool m_wheelZoom;
+    //bool m_centerWindow;
+    //bool m_allValid;
+    //bool m_wheelZoom;
     bool m_windowModeChangeRequested;
-    bool m_fitImage;
-    bool m_showBorder;
-    bool m_recursiveDir;
+    //bool m_fitImage;
+    //bool m_showBorder;
+    //bool m_recursiveDir;
     bool m_mouseLB, m_mouseMB, m_mouseRB;
     cVector<float> m_lastMouse;
     cVector<float> m_camera;

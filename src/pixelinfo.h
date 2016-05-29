@@ -49,8 +49,6 @@ public:
 
     void setPixelInfo(const sPixelInfo& pi);
     void Render();
-    void Show(bool show = true) { m_visible = show; }
-    bool IsVisible() const { return m_visible; }
     void SetCursor(int cursor);
 
 private:
@@ -58,7 +56,6 @@ private:
     bool isInsideImage(const cVector<float>& pos) const;
 
 private:
-    bool m_visible = false;
     float m_ratio = 1.0f;
     sPixelInfo m_pixelInfo;
     std::unique_ptr<CQuad> m_bg;

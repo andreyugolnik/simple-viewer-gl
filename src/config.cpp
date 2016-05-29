@@ -10,10 +10,6 @@
 #include "config.h"
 #include "viewer.h"
 
-#if !defined(PATH_MAX)
-#define PATH_MAX 4096 /* # chars in a path name including nul */
-#endif
-
 #if defined(LIBCONFIG_SUPPORT)
 #include <libconfig.h++>
 #endif
@@ -21,25 +17,12 @@
 #include <cstdlib>
 #include <cstdio>
 
-CConfig::CConfig(cViewer* viewer)
-    : m_viewer(viewer)
-    , m_opened(false)
+void cConfig::read()
 {
 #if defined(LIBCONFIG_SUPPORT)
-    m_config.reset(new libconfig::Config());
-#endif
-}
+    libconfig::Config loader;
 
-CConfig::~CConfig()
-{
-}
-
-bool CConfig::Open()
-{
-    m_opened = false;
-
-#if defined(LIBCONFIG_SUPPORT)
-    char path[PATH_MAX];
+    char path[4096];
 
 #if defined(__APPLE__)
     snprintf(path, sizeof(path), "%s/Library/sviewgl/config", getenv("HOME"));
@@ -61,72 +44,49 @@ bool CConfig::Open()
     // try to read config
     try
     {
-        m_config->readFile(path);
+        loader.readFile(path);
     }
     catch(libconfig::FileIOException e)
     {
         printf("Can't open config.\n");
-        return false;
+        return;
     }
     catch(libconfig::ParseException e)
     {
         printf("Can't parse config: %s in line %d\n", e.getError(), e.getLine());
-        return false;
+        return;
     }
-
-    m_opened = true;
-#endif
-
-    return true;
-}
-
-void CConfig::Read()
-{
-#if defined(LIBCONFIG_SUPPORT)
-    if(m_opened == true)
+    catch(...)
     {
-        bool value;
-
-        if(true == m_config->lookupValue("hide_infobar", value) && value == true) {
-            m_viewer->SetProp(cViewer::Property::Infobar);
-        }
-
-        if(true == m_config->lookupValue("show_pixelinfo", value) && value == true) {
-            m_viewer->SetProp(cViewer::Property::PixelInfo);
-        }
-
-        if(true == m_config->lookupValue("hide_checkboard", value) && value == true) {
-            m_viewer->SetProp(cViewer::Property::Checkers);
-        }
-
-        if(true == m_config->lookupValue("fit_image", value) && value == true) {
-            m_viewer->SetProp(cViewer::Property::FitImage);
-        }
-
-        if(true == m_config->lookupValue("start_fullscreen", value) && value == true) {
-            m_viewer->SetProp(cViewer::Property::Fullscreen);
-        }
-
-        if(true == m_config->lookupValue("show_image_border", value) && value == true) {
-            m_viewer->SetProp(cViewer::Property::Border);
-        }
-
-        if(true == m_config->lookupValue("lookup_recursive", value) && value == true) {
-            m_viewer->SetProp(cViewer::Property::Recursive);
-        }
-
-        if(true == m_config->lookupValue("wheel_zoom", value) && value == true) {
-            m_viewer->SetProp(cViewer::Property::WheelZoom);
-        }
-
-        int r, g, b;
-        if(m_config->lookupValue("background_r", r)
-                && m_config->lookupValue("background_g", g)
-                && m_config->lookupValue("background_b", b))
-        {
-            m_viewer->SetProp(r, g, b);
-        }
+        printf("Error loading config.\n\n");
     }
+
+    loader.lookupValue("hide_infobar", m_config.hideInfobar);
+    loader.lookupValue("show_pixelinfo", m_config.showPixelInfo);
+    loader.lookupValue("hide_checkboard", m_config.hideCheckboard);
+    loader.lookupValue("fit_image", m_config.fitImage);
+    //loader.lookupValue("start_fullscreen", m_config.startFullscreen);
+    loader.lookupValue("show_image_border", m_config.showImageBorder);
+    loader.lookupValue("lookup_recursive", m_config.recursiveScan);
+    loader.lookupValue("center_window", m_config.centerWindow);
+    loader.lookupValue("lookup_recursive", m_config.recursiveScan);
+    loader.lookupValue("skip_filter", m_config.skipFilter);
+    loader.lookupValue("wheel_zoom", m_config.wheelZoom);
+
+    int value;
+    if(loader.lookupValue("background_r", value))
+    {
+        m_config.color.r = value / 255.0f;
+    }
+    if(loader.lookupValue("background_g", value))
+    {
+        m_config.color.g = value / 255.0f;
+    }
+    if(loader.lookupValue("background_b", value))
+    {
+        m_config.color.b = value / 255.0f;
+    }
+
 #endif
 }
 

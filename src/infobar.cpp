@@ -39,24 +39,21 @@ void CInfoBar::createFont()
 
 float CInfoBar::getHeight() const
 {
-    return m_visible ? m_ratio * DesiredHeight : 0.0f;
+    return m_ratio * DesiredHeight;
 }
 
 void CInfoBar::Render()
 {
-    if(m_visible == true)
-    {
-        int width;
-        int height;
-        glfwGetFramebufferSize(cRenderer::getWindow(), &width, &height);
+    int width;
+    int height;
+    glfwGetFramebufferSize(cRenderer::getWindow(), &width, &height);
 
-        const float x = 0.0f;
-        const float y = height;
-        m_bg->SetSpriteSize(width, DesiredHeight * m_ratio);
-        m_bg->Render(x, y - DesiredHeight * m_ratio);
+    const float x = 0.0f;
+    const float y = height;
+    m_bg->SetSpriteSize(width, DesiredHeight * m_ratio);
+    m_bg->Render(x, y - DesiredHeight * m_ratio);
 
-        m_ft->Render(x, y - (DesiredHeight - DesiredFontSize) * m_ratio);
-    }
+    m_ft->Render(x, y - (DesiredHeight - DesiredFontSize) * m_ratio);
 }
 
 void CInfoBar::Update(const sInfoBar& p)
