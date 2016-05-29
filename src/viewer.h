@@ -93,6 +93,7 @@ private:
     cVector<float> screenToImage(const cVector<float>& pos) const;
     cVector<float> calculateMousePosition(float x, float y) const;
     void updateMousePosition();
+    void enablePixelInfo(bool show);
 
 private:
     cVector<float> m_ratio;

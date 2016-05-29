@@ -327,16 +327,7 @@ void cViewer::fnKeyboard(int key, int scancode, int action, int mods)
         break;
 
     case GLFW_KEY_P:
-        {
-            const bool show = m_pixelInfo->IsVisible() == false;
-            if(show)
-            {
-                updateMousePosition();
-                updatePixelInfo(m_lastMouse);
-            }
-            m_pixelInfo->Show(show);
-            showCursor(!show);
-        }
+        enablePixelInfo(!m_pixelInfo->IsVisible());
         break;
 
     case GLFW_KEY_S:
@@ -663,7 +654,7 @@ bool cViewer::loadImage(int step, int subImage)
 
     centerWindow();
 
-    updatePixelInfo(m_lastMouse);
+    enablePixelInfo(m_pixelInfo->IsVisible());
 
     //m_loader->FreeMemory();
 
@@ -838,5 +829,16 @@ void cViewer::updateMousePosition()
     double x, y;
     glfwGetCursorPos(window, &x, &y);
     m_lastMouse = calculateMousePosition(x, y);
+}
+
+void cViewer::enablePixelInfo(bool show)
+{
+    if(show)
+    {
+        updateMousePosition();
+        updatePixelInfo(m_lastMouse);
+    }
+    m_pixelInfo->Show(show);
+    showCursor(!show);
 }
 
