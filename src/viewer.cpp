@@ -36,7 +36,6 @@ cViewer::cViewer()
     , m_fitImage(false)
     , m_showBorder(false)
     , m_recursiveDir(false)
-    , m_cursorVisible(true)
     , m_mouseLB(false)
     , m_mouseMB(false)
     , m_mouseRB(false)
@@ -285,11 +284,7 @@ void cViewer::fnMouseButtons(int button, int action, int mods)
 {
     (void)mods;
 
-    GLFWwindow* window = cRenderer::getWindow();
-
-    double x, y;
-    glfwGetCursorPos(window, &x, &y);
-    m_lastMouse = calculateMousePosition(x, y);
+    updateMousePosition();
 
     switch(button)
     {
@@ -332,8 +327,16 @@ void cViewer::fnKeyboard(int key, int scancode, int action, int mods)
         break;
 
     case GLFW_KEY_P:
-        m_pixelInfo->Show(!m_pixelInfo->IsVisible());
-        showCursor(!m_pixelInfo->IsVisible());
+        {
+            const bool show = m_pixelInfo->IsVisible() == false;
+            if(show)
+            {
+                updateMousePosition();
+                updatePixelInfo(m_lastMouse);
+            }
+            m_pixelInfo->Show(show);
+            showCursor(!show);
+        }
         break;
 
     case GLFW_KEY_S:
@@ -810,12 +813,8 @@ void cViewer::createTextures()
 
 void cViewer::showCursor(bool show)
 {
-    if(m_cursorVisible != show)
-    {
-        m_cursorVisible = show;
-        GLFWwindow* window = cRenderer::getWindow();
-        //glfwSetInputMode(window, GLFW_CURSOR, show ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_HIDDEN);
-    }
+    GLFWwindow* window = cRenderer::getWindow();
+    glfwSetInputMode(window, GLFW_CURSOR, show ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_HIDDEN);
 }
 
 void cViewer::deleteTextures()
@@ -830,5 +829,14 @@ void cViewer::deleteTextures()
 void cViewer::doProgress(int percent)
 {
     m_progress->Render(percent);
+}
+
+void cViewer::updateMousePosition()
+{
+    GLFWwindow* window = cRenderer::getWindow();
+
+    double x, y;
+    glfwGetCursorPos(window, &x, &y);
+    m_lastMouse = calculateMousePosition(x, y);
 }
 

@@ -92,6 +92,7 @@ private:
     void shiftCamera(const cVector<float>& delta);
     cVector<float> screenToImage(const cVector<float>& pos) const;
     cVector<float> calculateMousePosition(float x, float y) const;
+    void updateMousePosition();
 
 private:
     cVector<float> m_ratio;
@@ -105,7 +106,6 @@ private:
     bool m_fitImage;
     bool m_showBorder;
     bool m_recursiveDir;
-    bool m_cursorVisible;
     bool m_mouseLB, m_mouseMB, m_mouseRB;
     cVector<float> m_lastMouse;
     cVector<float> m_camera;
