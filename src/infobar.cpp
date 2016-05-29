@@ -50,8 +50,8 @@ void CInfoBar::Render()
         int height;
         glfwGetFramebufferSize(cRenderer::getWindow(), &width, &height);
 
-        const float x = -ceilf(width * 0.5f);
-        const float y = ceilf(height * 0.5f);
+        const float x = 0.0f;
+        const float y = height;
         m_bg->SetSpriteSize(width, DesiredHeight * m_ratio);
         m_bg->Render(x, y - DesiredHeight * m_ratio);
 

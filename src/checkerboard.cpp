@@ -61,7 +61,7 @@ void CCheckerboard::Render()
         int height;
         glfwGetFramebufferSize(cRenderer::getWindow(), &width, &height);
         m_cb->SetSpriteSize(width, height);
-        m_cb->Render(-width * 0.5f, -height * 0.5f);
+        m_cb->Render(0.0f, 0.0f);
     }
     else
     {
