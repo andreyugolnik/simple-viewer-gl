@@ -18,6 +18,8 @@
 #include <cstdio>
 
 static const char* SimpleViewerTitle = "Simple Viewer GL";
+static const float SimpleViewerVersion = 2.7f;
+
 static cViewer* m_viewer = nullptr;
 
 void showHelp(const char* name);
@@ -95,7 +97,7 @@ int main(int argc, char* argv[])
 {
     setlocale(LC_ALL, "");
 
-    printf("%s v2.7\n\n", SimpleViewerTitle);
+    printf("%s v%.2f\n\n", SimpleViewerTitle, SimpleViewerVersion);
     printf("Copyright © 2008-2016 Andrey A. Ugolnik. All Rights Reserved.\n");
     printf("http://www.ugolnik.info\n");
     printf("andrey@ugolnik.info\n\n");
