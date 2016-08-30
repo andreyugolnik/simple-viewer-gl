@@ -88,6 +88,7 @@ ADD_EXECUTABLE( sviewgl
     src/formats/formattiff.cpp
     src/formats/formatxwd.cpp
     src/formats/helpers.cpp
+    src/formats/raw_header.cpp
     src/formats/rle.cpp
     src/ftstring.cpp
     src/ftsymbol.cpp

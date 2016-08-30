@@ -47,7 +47,7 @@ CImageLoader::CImageLoader(iCallbacks* callbacks)
     m_formats[TYPE_XWD].reset(new CFormatXwd(nullptr, "xwd"));
     m_formats[TYPE_DDS].reset(new CFormatDds(nullptr, "dds"));
     m_formats[TYPE_RAWOLD].reset(new cFormatRawOld(nullptr, "raw"));
-    m_formats[TYPE_RAW].reset(new cFormatRaw(nullptr, "raw"));
+    m_formats[TYPE_RAW].reset(new cFormatRaw(nullptr, "rw0.1"));
     m_formats[TYPE_PPM].reset(new cFormatPpm(nullptr, "ppm"));
     m_formats[TYPE_PVR].reset(new cFormatPvr(nullptr, "pvr"));
     m_formats[TYPE_SCR].reset(new cFormatScr(nullptr, "scr"));
