@@ -26,6 +26,7 @@ enum eImageType
     TYPE_TIF,
     TYPE_XWD,
     TYPE_DDS,
+    TYPE_RAWOLD,
     TYPE_RAW,
     TYPE_PPM,
     TYPE_PVR,

@@ -7,75 +7,68 @@
 *
 \**********************************************/
 
-#include "formatraw.h"
+#include "formatraw_old.h"
 #include "helpers.h"
 #include "file.h"
 #include "rle.h"
 
 #include <cstring>
 
-static const char RawId[] = { 'R', 'A', 'W', 'v' };
-static const char VersionId[] = { 0, 0, 0, 1 };
+static const char Id[] = { 'R', 'A', 'W', 'I' };
 
-struct Header
+enum eFormat
+{
+    FORMAT_UNKNOWN,
+    FORMAT_RGB,
+    FORMAT_RGBA,
+    FORMAT_RGB_RLE,
+    FORMAT_RGBA_RLE,
+    FORMAT_RGB_RLE4,
+    FORMAT_RGBA_RLE4
+};
+
+struct sHeader
 {
     unsigned id;
-    unsigned version;
-
-    enum class Format : unsigned
-    {
-        ALPHA,
-        RGB,
-        RGBA,
-    };
-    Format format;
-
-    enum class Compression : unsigned
-    {
-        NONE,
-        RLE,
-        RLE4,
-    };
-    Compression compression;
-
     unsigned w;
     unsigned h;
+    unsigned format;
     unsigned data_size;
 };
 
-static bool isValidFormat(const Header& header, unsigned file_size)
+static bool isValidFormat(const sHeader& header, unsigned file_size)
 {
-    if(header.data_size + sizeof(Header) == file_size)
+    if(header.data_size + sizeof(sHeader) == file_size)
     {
         const char* id = (const char*)&header.id;
-        return (id[0] == RawId[0] && id[1] == RawId[1] && id[2] == RawId[2] && id[3] == RawId[3]);
+        return (id[0] == Id[0] && id[1] == Id[1] && id[2] == Id[2] && id[3] == Id[3]);
     }
     return false;
 }
 
 
 
-cFormatRaw::cFormatRaw(const char* lib, const char* name)
+cFormatRawOld::cFormatRawOld(const char* lib, const char* name)
     : CFormat(lib, name)
 {
 }
 
-cFormatRaw::~cFormatRaw()
+cFormatRawOld::~cFormatRawOld()
 {
 }
 
-bool cFormatRaw::isSupported(cFile& file, Buffer& buffer) const
+bool cFormatRawOld::isSupported(cFile& file, Buffer& buffer) const
 {
-    if(!readBuffer(file, buffer, sizeof(Header)))
+    if(!readBuffer(file, buffer, sizeof(sHeader)))
     {
         return false;
     }
 
-    const Header& header = *(Header*)&buffer[0];
+    const sHeader& header = *(sHeader*)&buffer[0];
     return isValidFormat(header, file.getSize());
 }
 
-//bool cFormatRaw::isRawFormat(const char* name)
+//bool cFormatRawOld::isRawFormat(const char* name)
 //{
     //cFile file;
     //if(!file.open(name))
@@ -83,7 +76,7 @@ bool cFormatRaw::isSupported(cFile& file, Buffer& buffer) const
         //return false;
     //}
 
-    //Header header;
+    //sHeader header;
     //if(sizeof(header) != file.read(&header, sizeof(header)))
     //{
         //return false;
@@ -92,7 +85,7 @@ bool cFormatRaw::isSupported(cFile& file, Buffer& buffer) const
     //return isValidFormat(header, file.getSize());
 //}
 
-bool cFormatRaw::Load(const char* filename, unsigned /*subImage*/)
+bool cFormatRawOld::Load(const char* filename, unsigned /*subImage*/)
 {
     cFile file;
     if(!file.open(filename))
@@ -102,10 +95,10 @@ bool cFormatRaw::Load(const char* filename, unsigned /*subImage*/)
 
     m_size = file.getSize();
 
-    Header header;
+    sHeader header;
     if(sizeof(header) != file.read(&header, sizeof(header)))
     {
-        printf("not valid RAWv format\n");
+        printf("not valid RAW format\n");
         return false;
     }
 
@@ -114,35 +107,40 @@ bool cFormatRaw::Load(const char* filename, unsigned /*subImage*/)
         return false;
     }
 
+    bool rle = true;
     unsigned bytespp = 0;
     switch(header.format)
     {
-    case Header::Format::ALPHA:
-        bytespp = 1;
-        m_format = GL_ALPHA;
-        break;
-    case Header::Format::RGB:
+    case FORMAT_RGB:
         bytespp = 3;
-        m_format = GL_RGB;
+        rle = false;
         break;
-    case Header::Format::RGBA:
+    case FORMAT_RGBA:
         bytespp = 4;
-        m_format = GL_RGBA;
+        rle = false;
+        break;
+    case FORMAT_RGB_RLE:
+    case FORMAT_RGB_RLE4:
+        bytespp = 3;
+        break;
+    case FORMAT_RGBA_RLE:
+    case FORMAT_RGBA_RLE4:
+        bytespp = 4;
         break;
     default:
         printf("unknown RAW format\n");
         return false;
     }
-
     m_bpp = m_bppImage = bytespp * 8;
+    m_format = (bytespp == 3 ? GL_RGB : GL_RGBA);
     m_width = header.w;
     m_height = header.h;
     m_pitch = m_width * bytespp;
     m_bitmap.resize(m_pitch * m_height);
 
-    m_info = "RAWv format";
+    m_info = "'WE' Group RAW format";
 
-    if(header.compression != Header::Compression::NONE)
+    if(rle)
     {
         std::vector<unsigned char> rle(header.data_size);
         if(header.data_size != file.read(&rle[0], header.data_size))
@@ -154,7 +152,7 @@ bool cFormatRaw::Load(const char* filename, unsigned /*subImage*/)
 
         cRLE decoder;
         unsigned decoded = 0;
-        if(header.compression == Header::Compression::RLE4)
+        if(header.format == FORMAT_RGB_RLE4 || header.format == FORMAT_RGBA_RLE4)
         {
             decoded = decoder.decodeBy4((unsigned*)&rle[0], rle.size() / 4, (unsigned*)&m_bitmap[0], m_bitmap.size() / 4);
         }

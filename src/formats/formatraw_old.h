@@ -11,11 +11,11 @@
 
 #include "format.h"
 
-class cFormatRaw final : public CFormat
+class cFormatRawOld final : public CFormat
 {
 public:
-    cFormatRaw(const char* lib, const char* name);
-    ~cFormatRaw();
+    cFormatRawOld(const char* lib, const char* name);
+    ~cFormatRawOld();
 
     bool Load(const char* filename, unsigned subImage);
     bool isSupported(cFile& file, Buffer& buffer) const;

@@ -18,6 +18,7 @@
 #include "formats/formatxwd.h"
 #include "formats/formatdds.h"
 #include "formats/formatraw.h"
+#include "formats/formatraw_old.h"
 #include "formats/formatppm.h"
 #include "formats/formatpvr.h"
 #include "formats/formatscr.h"
@@ -45,6 +46,7 @@ CImageLoader::CImageLoader(iCallbacks* callbacks)
     m_formats[TYPE_TIF].reset(new CFormatTiff("libtiff", "tiff"));
     m_formats[TYPE_XWD].reset(new CFormatXwd(nullptr, "xwd"));
     m_formats[TYPE_DDS].reset(new CFormatDds(nullptr, "dds"));
+    m_formats[TYPE_RAWOLD].reset(new cFormatRawOld(nullptr, "raw"));
     m_formats[TYPE_RAW].reset(new cFormatRaw(nullptr, "raw"));
     m_formats[TYPE_PPM].reset(new cFormatPpm(nullptr, "ppm"));
     m_formats[TYPE_PVR].reset(new cFormatPvr(nullptr, "pvr"));
@@ -219,6 +221,10 @@ eImageType CImageLoader::getType(const char* name)
     if(m_formats[TYPE_RAW]->isSupported(file, buffer))
     {
         return TYPE_RAW;
+    }
+    if(m_formats[TYPE_RAWOLD]->isSupported(file, buffer))
+    {
+        return TYPE_RAWOLD;
     }
     if(m_formats[TYPE_PVR]->isSupported(file, buffer))
     {
