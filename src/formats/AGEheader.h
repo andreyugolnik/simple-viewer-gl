@@ -8,7 +8,7 @@
 
 #pragma once
 
-namespace RAW
+namespace AGE
 {
 
 enum class Format : unsigned
@@ -16,6 +16,8 @@ enum class Format : unsigned
     ALPHA,
     RGB,
     RGBA,
+
+    Count
 };
 
 enum class Compression : unsigned
@@ -23,6 +25,9 @@ enum class Compression : unsigned
     NONE,
     RLE,
     RLE4,
+    ZLIB,
+
+    Count
 };
 
 struct Header
@@ -37,5 +42,8 @@ struct Header
 
 void filEmpty(Header& header);
 bool isRawHeader(const Header& header);
+
+const char* FormatToStr(Format format);
+const char* CompressionToStr(Compression compression);
 
 }

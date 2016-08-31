@@ -5,8 +5,7 @@
 //
 /////////////////////////////////////////////////
 
-#ifndef IMAGELOADER_H
-#define IMAGELOADER_H
+#pragma once
 
 #include "formats/format.h"
 #include <memory>
@@ -26,8 +25,8 @@ enum eImageType
     TYPE_TIF,
     TYPE_XWD,
     TYPE_DDS,
-    TYPE_RAWOLD,
     TYPE_RAW,
+    TYPE_AGE,
     TYPE_PPM,
     TYPE_PVR,
     TYPE_SCR,
@@ -37,11 +36,11 @@ enum eImageType
     TYPES_COUNT
 };
 
-class CImageLoader
+class CImageLoader final
 {
 public:
     CImageLoader(iCallbacks* callbacks);
-    virtual ~CImageLoader();
+    ~CImageLoader();
 
     bool LoadImage(const char* path, unsigned subImage);
     bool isLoaded() const;
@@ -70,6 +69,3 @@ private:
     eImageType m_type;
     std::unique_ptr<CFormat> m_formats[TYPES_COUNT];
 };
-
-#endif // IMAGELOADER_H
-

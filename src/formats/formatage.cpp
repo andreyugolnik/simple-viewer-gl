@@ -7,68 +7,46 @@
 *
 \**********************************************/
 
-#include "formatraw_old.h"
+#include "formatage.h"
 #include "helpers.h"
 #include "file.h"
+#include "AGEheader.h"
 #include "rle.h"
 
 #include <cstring>
 
-static const char Id[] = { 'R', 'A', 'W', 'I' };
-
-enum eFormat
+static bool isValidFormat(const AGE::Header& header, unsigned file_size)
 {
-    FORMAT_UNKNOWN,
-    FORMAT_RGB,
-    FORMAT_RGBA,
-    FORMAT_RGB_RLE,
-    FORMAT_RGBA_RLE,
-    FORMAT_RGB_RLE4,
-    FORMAT_RGBA_RLE4
-};
-
-struct sHeader
-{
-    unsigned id;
-    unsigned w;
-    unsigned h;
-    unsigned format;
-    unsigned data_size;
-};
-
-static bool isValidFormat(const sHeader& header, unsigned file_size)
-{
-    if(header.data_size + sizeof(sHeader) == file_size)
+    if(header.data_size + sizeof(AGE::Header) == file_size)
     {
-        const char* id = (const char*)&header.id;
-        return (id[0] == Id[0] && id[1] == Id[1] && id[2] == Id[2] && id[3] == Id[3]);
+        return AGE::isRawHeader(header);
     }
     return false;
 }
 
 
 
-cFormatRawOld::cFormatRawOld(const char* lib, const char* name)
+cFormatAge::cFormatAge(const char* lib, const char* name)
     : CFormat(lib, name)
 {
 }
 
-cFormatRawOld::~cFormatRawOld()
+cFormatAge::~cFormatAge()
 {
 }
 
-bool cFormatRawOld::isSupported(cFile& file, Buffer& buffer) const
+bool cFormatAge::isSupported(cFile& file, Buffer& buffer) const
 {
-    if(!readBuffer(file, buffer, sizeof(sHeader)))
+    if(!readBuffer(file, buffer, sizeof(AGE::Header)))
     {
         return false;
     }
 
-    const sHeader& header = *(sHeader*)&buffer[0];
+    const AGE::Header& header = *(AGE::Header*)&buffer[0];
     return isValidFormat(header, file.getSize());
 }
 
-//bool cFormatRawOld::isRawFormat(const char* name)
+//bool cFormatAge::isRawFormat(const char* name)
 //{
     //cFile file;
     //if(!file.open(name))
@@ -76,7 +54,7 @@ bool cFormatRawOld::isSupported(cFile& file, Buffer& buffer) const
         //return false;
     //}
 
-    //sHeader header;
+    //Header header;
     //if(sizeof(header) != file.read(&header, sizeof(header)))
     //{
         //return false;
@@ -85,7 +63,7 @@ bool cFormatRawOld::isSupported(cFile& file, Buffer& buffer) const
     //return isValidFormat(header, file.getSize());
 //}
 
-bool cFormatRawOld::Load(const char* filename, unsigned /*subImage*/)
+bool cFormatAge::Load(const char* filename, unsigned /*subImage*/)
 {
     cFile file;
     if(!file.open(filename))
@@ -95,10 +73,10 @@ bool cFormatRawOld::Load(const char* filename, unsigned /*subImage*/)
 
     m_size = file.getSize();
 
-    sHeader header;
+    AGE::Header header;
     if(sizeof(header) != file.read(&header, sizeof(header)))
     {
-        printf("not valid RAW format\n");
+        printf("not valid Rw 0.1 format\n");
         return false;
     }
 
@@ -107,40 +85,35 @@ bool cFormatRawOld::Load(const char* filename, unsigned /*subImage*/)
         return false;
     }
 
-    bool rle = true;
     unsigned bytespp = 0;
     switch(header.format)
     {
-    case FORMAT_RGB:
+    case AGE::Format::ALPHA:
+        bytespp = 1;
+        m_format = GL_ALPHA;
+        break;
+    case AGE::Format::RGB:
         bytespp = 3;
-        rle = false;
+        m_format = GL_RGB;
         break;
-    case FORMAT_RGBA:
+    case AGE::Format::RGBA:
         bytespp = 4;
-        rle = false;
-        break;
-    case FORMAT_RGB_RLE:
-    case FORMAT_RGB_RLE4:
-        bytespp = 3;
-        break;
-    case FORMAT_RGBA_RLE:
-    case FORMAT_RGBA_RLE4:
-        bytespp = 4;
+        m_format = GL_RGBA;
         break;
     default:
-        printf("unknown RAW format\n");
+        printf("unknown AGE format\n");
         return false;
     }
+
     m_bpp = m_bppImage = bytespp * 8;
-    m_format = (bytespp == 3 ? GL_RGB : GL_RGBA);
     m_width = header.w;
     m_height = header.h;
     m_pitch = m_width * bytespp;
     m_bitmap.resize(m_pitch * m_height);
 
-    m_info = "'WE' Group RAW format";
+    m_info = "RAWv format";
 
-    if(rle)
+    if(header.compression != AGE::Compression::NONE)
     {
         std::vector<unsigned char> rle(header.data_size);
         if(header.data_size != file.read(&rle[0], header.data_size))
@@ -152,7 +125,7 @@ bool cFormatRawOld::Load(const char* filename, unsigned /*subImage*/)
 
         cRLE decoder;
         unsigned decoded = 0;
-        if(header.format == FORMAT_RGB_RLE4 || header.format == FORMAT_RGBA_RLE4)
+        if(header.compression == AGE::Compression::RLE4)
         {
             decoded = decoder.decodeBy4((unsigned*)&rle[0], rle.size() / 4, (unsigned*)&m_bitmap[0], m_bitmap.size() / 4);
         }

@@ -70,9 +70,11 @@ ADD_EXECUTABLE( sviewgl
     src/checkerboard.cpp
     src/config.cpp
     src/fileslist.cpp
+    src/formats/AGEheader.cpp
     src/formats/file.cpp
     src/formats/file_zlib.cpp
     src/formats/format.cpp
+    src/formats/formatage.cpp
     src/formats/formatcommon.cpp
     src/formats/formatdds.cpp
     src/formats/formatgif.cpp
@@ -83,12 +85,10 @@ ADD_EXECUTABLE( sviewgl
     src/formats/formatpsd.cpp
     src/formats/formatpvr.cpp
     src/formats/formatraw.cpp
-    src/formats/formatraw_old.cpp
     src/formats/formatscr.cpp
     src/formats/formattiff.cpp
     src/formats/formatxwd.cpp
     src/formats/helpers.cpp
-    src/formats/raw_header.cpp
     src/formats/rle.cpp
     src/ftstring.cpp
     src/ftsymbol.cpp
