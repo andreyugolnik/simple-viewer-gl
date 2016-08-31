@@ -71,6 +71,7 @@ ADD_EXECUTABLE( sviewgl
     src/config.cpp
     src/fileslist.cpp
     src/formats/AGEheader.cpp
+    src/formats/ZlibDecoder.cpp
     src/formats/file.cpp
     src/formats/file_zlib.cpp
     src/formats/format.cpp

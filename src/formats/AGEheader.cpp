@@ -8,6 +8,7 @@
 
 #include "AGEheader.h"
 
+#include <cassert>
 #include <cstring>
 
 namespace AGE
@@ -33,6 +34,7 @@ const char* FormatToStr(Format format)
         "rgb",
         "rgba",
     };
+    static_assert(sizeof(Names)/sizeof(Names[0]) == (unsigned)Format::Count, "AGE::Formats missmatch");
 
     return Names[(unsigned)format];
 }
@@ -46,6 +48,7 @@ const char* CompressionToStr(Compression compression)
         "rle4",
         "zlib",
     };
+    static_assert(sizeof(Names)/sizeof(Names[0]) == (unsigned)Compression::Count, "AGE::Compression missmatch");
 
     return Names[(unsigned)compression];
 }

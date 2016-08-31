@@ -8,9 +8,10 @@
 \**********************************************/
 
 #include "formatage.h"
-#include "helpers.h"
-#include "file.h"
 #include "AGEheader.h"
+#include "ZlibDecoder.h"
+#include "file.h"
+#include "helpers.h"
 #include "rle.h"
 
 #include <cstring>
@@ -42,8 +43,8 @@ bool cFormatAge::isSupported(cFile& file, Buffer& buffer) const
         return false;
     }
 
-    const AGE::Header& header = *(AGE::Header*)&buffer[0];
-    return isValidFormat(header, file.getSize());
+    auto header = (const AGE::Header*)&buffer[0];
+    return isValidFormat(*header, file.getSize());
 }
 
 //bool cFormatAge::isRawFormat(const char* name)
@@ -76,7 +77,7 @@ bool cFormatAge::Load(const char* filename, unsigned /*subImage*/)
     AGE::Header header;
     if(sizeof(header) != file.read(&header, sizeof(header)))
     {
-        printf("not valid Rw 0.1 format\n");
+        printf("not valid AGE image format\n");
         return false;
     }
 
@@ -111,32 +112,46 @@ bool cFormatAge::Load(const char* filename, unsigned /*subImage*/)
     m_pitch = m_width * bytespp;
     m_bitmap.resize(m_pitch * m_height);
 
-    m_info = "RAWv format";
+    m_info = "AGE image format";
 
     if(header.compression != AGE::Compression::NONE)
     {
-        std::vector<unsigned char> rle(header.data_size);
-        if(header.data_size != file.read(&rle[0], header.data_size))
+        std::vector<unsigned char> in(header.data_size);
+        if(header.data_size != file.read(&in[0], header.data_size))
         {
             return false;
         }
 
         progress(50);
 
-        cRLE decoder;
         unsigned decoded = 0;
-        if(header.compression == AGE::Compression::RLE4)
+
+        if(header.compression == AGE::Compression::ZLIB)
         {
-            decoded = decoder.decodeBy4((unsigned*)&rle[0], rle.size() / 4, (unsigned*)&m_bitmap[0], m_bitmap.size() / 4);
+            cZlibDecoder decoder;
+            decoded = decoder.decode(&in[0], in.size(), &m_bitmap[0], m_bitmap.size());
+            if(!decoded)
+            {
+                printf("error decode ZLIB\n");
+                return false;
+            }
         }
         else
         {
-            decoded = decoder.decode(&rle[0], rle.size(), &m_bitmap[0], m_bitmap.size());
-        }
-        if(!decoded)
-        {
-            printf("error decode RLE\n");
-            return false;
+            cRLE decoder;
+            if(header.compression == AGE::Compression::RLE4)
+            {
+                decoded = decoder.decodeBy4((unsigned*)&in[0], in.size() / 4, (unsigned*)&m_bitmap[0], m_bitmap.size() / 4);
+            }
+            else
+            {
+                decoded = decoder.decode(&in[0], in.size(), &m_bitmap[0], m_bitmap.size());
+            }
+            if(!decoded)
+            {
+                printf("error decode RLE\n");
+                return false;
+            }
         }
 
         progress(100);
