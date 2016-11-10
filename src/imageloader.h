@@ -8,7 +8,9 @@
 #pragma once
 
 #include "formats/format.h"
+
 #include <memory>
+#include <string>
 
 class iCallbacks;
 
@@ -53,7 +55,7 @@ public:
     unsigned GetBitmapFormat() const;
     unsigned GetBpp() const;
     unsigned GetImageBpp() const;
-    long GetSize() const;
+    long GetFileSize() const;
     size_t GetSizeMem() const;
     unsigned GetSub() const;
     unsigned GetSubCount() const;
@@ -62,10 +64,12 @@ public:
 private:
     CImageLoader();
     eImageType getType(const char* name);
+    bool LoadImage(const char* path, eImageType type, unsigned subImage);
 
 private:
     iCallbacks* m_callbacks;
     CFormat* m_image;
     eImageType m_type;
+    std::string m_path;
     std::unique_ptr<CFormat> m_formats[TYPES_COUNT];
 };

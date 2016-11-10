@@ -23,12 +23,10 @@
 #include "formats/formatpvr.h"
 #include "formats/formatscr.h"
 
-#include <iostream>
 #include <algorithm>
+#include <cassert>
+#include <iostream>
 #include <string>
-#include <assert.h>
-
-static std::string m_path;
 
 CImageLoader::CImageLoader(iCallbacks* callbacks)
     : m_callbacks(callbacks)
@@ -61,47 +59,51 @@ CImageLoader::~CImageLoader()
 
 bool CImageLoader::LoadImage(const char* path, unsigned subImage)
 {
-    while(path != nullptr)
+    if(path != nullptr && m_path == path)
     {
-        if(!m_path.empty() && m_path == path)
+        if(!m_image->m_bitmap.empty())
         {
-            if(!m_image->m_bitmap.empty())
+            if(GetSub() != subImage)
             {
-                if(GetSub() != subImage)
-                {
-                    return m_image->Load(path, subImage);
-                    break;
-                }
-
-                return true; // image already loaded
+                return m_image->Load(path, subImage);
             }
-        }
 
-        const eImageType type = getType(path);
-        if(m_type != type)
-        {
-            m_type = type;
-            FreeMemory();
-        }
-
-        m_path = path;
-        m_image = m_formats[type].get();
-        m_image->setCallbacks(m_callbacks);
-
-        const bool result = m_image->Load(path, subImage);
-        if(!result)
-        {
-            FreeMemory();
-
-            m_type = TYPE_NOTAVAILABLE;
-            m_image = m_formats[m_type].get();
-            m_image->Load(path, subImage);
-
-            return false;
+            return true; // image already loaded
         }
     }
 
+    const eImageType type = getType(path);
+    if(m_type != type)
+    {
+        m_type = type;
+        FreeMemory();
+    }
+
+    if (LoadImage(path, type, subImage))
+    {
+        return true;
+    }
+
+    FreeMemory();
+    LoadImage(path, TYPE_NOTAVAILABLE, subImage);
+
     return false;
+}
+
+bool CImageLoader::LoadImage(const char* path, eImageType type, unsigned subImage)
+{
+    m_path.clear();
+    if (path != nullptr)
+    {
+        m_path = path;
+    }
+
+    m_type = type;
+
+    m_image = m_formats[type].get();
+    m_image->setCallbacks(m_callbacks);
+    const bool result = m_image->Load(path, subImage);
+    return result;
 }
 
 bool CImageLoader::isLoaded() const
@@ -116,7 +118,7 @@ unsigned char* CImageLoader::GetBitmap() const
     {
         return &m_image->m_bitmap[0];
     }
-    return 0;
+    return nullptr;
 }
 
 void CImageLoader::FreeMemory()
@@ -164,8 +166,7 @@ unsigned CImageLoader::GetImageBpp() const
     return m_image->m_bppImage;
 }
 
-// file size on disk
-long CImageLoader::GetSize() const
+long CImageLoader::GetFileSize() const
 {
     assert(m_image != nullptr);
     return m_image->m_size;
@@ -200,7 +201,7 @@ const char* CImageLoader::getImageType() const
     {
         return m_image->m_formatName.c_str();
     }
-    return 0;
+    return nullptr;
 }
 
 struct sFormatExt
@@ -256,11 +257,11 @@ eImageType CImageLoader::getType(const char* name)
             { ".scr",  TYPE_SCR },
         };
 
-        for(size_t i = 0; i < sizeof(format) / sizeof(format[0]); i++)
+        for(auto& fmt : format)
         {
-            if(s.substr(pos) == format[i].ext)
+            if(s.substr(pos) == fmt.ext)
             {
-                return format[i].format;
+                return fmt.format;
             }
         }
 

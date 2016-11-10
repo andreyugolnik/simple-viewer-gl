@@ -56,10 +56,20 @@ void CInfoBar::Render()
     m_ft->Render(x, y - (DesiredHeight - DesiredFontSize) * m_ratio);
 }
 
+static const char* GetName(const char* path)
+{
+    if (path != nullptr)
+    {
+        const char* n = strrchr(path, '/');
+        return n != nullptr ? n + 1 : path;
+    }
+
+    return "n/a";
+}
+
 void CInfoBar::Update(const sInfoBar& p)
 {
-    const char* n = strrchr(p.path, '/');
-    const char* name = n ? n + 1 : p.path;
+    const char* name = GetName(p.path);
 
     char idx_img[20] = { 0 };
     if(p.files_count > 1)

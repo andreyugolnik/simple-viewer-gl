@@ -646,7 +646,7 @@ void cViewer::updateInfobar()
         s.bpp         = m_loader->GetImageBpp();
         s.sub_image   = m_loader->GetSub();
         s.sub_count   = m_loader->GetSubCount();
-        s.file_size   = m_loader->GetSize();
+        s.file_size   = m_loader->GetFileSize();
         s.mem_size    = m_loader->GetSizeMem();
         s.type        = m_loader->getImageType();
     }
