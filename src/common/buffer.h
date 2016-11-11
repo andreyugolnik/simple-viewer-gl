@@ -7,14 +7,8 @@
 *
 \**********************************************/
 
-#ifndef CALLBACKS_H_ERD3QPKI
-#define CALLBACKS_H_ERD3QPKI
+#pragma once
 
-class iCallbacks
-{
-public:
-    virtual void doProgress(int percent) = 0;
-};
+#include <vector>
 
-#endif /* end of include guard: CALLBACKS_H_ERD3QPKI */
-
+typedef std::vector<unsigned char> Buffer;

@@ -8,7 +8,8 @@
 \**********************************************/
 
 #include "formatjpeg.h"
-#include "file.h"
+#include "../common/bitmap_description.h"
+#include "../common/file.h"
 
 #include <cstring>
 #include <jpeglib.h>
@@ -25,9 +26,9 @@ CFormatJpeg::~CFormatJpeg()
 
 typedef struct my_error_mgr
 {
-    struct jpeg_error_mgr pub;	/* "public" fields */
-    jmp_buf setjmp_buffer;	/* for return to caller */
-} *my_error_ptr;
+    struct jpeg_error_mgr pub;  /* "public" fields */
+    jmp_buf setjmp_buffer;  /* for return to caller */
+}* my_error_ptr;
 
 void my_error_exit(j_common_ptr cinfo)
 {
@@ -36,21 +37,21 @@ void my_error_exit(j_common_ptr cinfo)
 
     // Always display the message.
     // We could postpone this until after returning, if we chose.
-    (*cinfo->err->output_message) (cinfo);
+    (*cinfo->err->output_message)(cinfo);
 
     // Return control to the setjmp point
     longjmp(myerr->setjmp_buffer, 1);
 }
 
-bool CFormatJpeg::Load(const char* filename, unsigned /*subImage*/)
+bool CFormatJpeg::Load(const char* filename, sBitmapDescription& desc)
 {
     cFile file;
-    if(!file.open(filename))
+    if (!file.open(filename))
     {
         return false;
     }
 
-    m_size = file.getSize();
+    desc.size = file.getSize();
 
     // Step 1: allocate and initialize JPEG decompression object
 
@@ -68,7 +69,7 @@ bool CFormatJpeg::Load(const char* filename, unsigned /*subImage*/)
     cinfo.err = jpeg_std_error(&jerr.pub);
     jerr.pub.error_exit = my_error_exit;
     // Establish the setjmp return context for my_error_exit to use.
-    if(setjmp(jerr.setjmp_buffer))
+    if (setjmp(jerr.setjmp_buffer))
     {
         // If we get here, the JPEG code has signaled an error.
         // We need to clean up the JPEG object, close the input file, and return.
@@ -88,18 +89,18 @@ bool CFormatJpeg::Load(const char* filename, unsigned /*subImage*/)
 
     /* Step 4: set parameters for decompression */
 
-    cinfo.out_color_space = JCS_RGB;	// convert to RGB
+    cinfo.out_color_space = JCS_RGB;    // convert to RGB
 
     /* Step 5: Start decompressor */
     jpeg_start_decompress(&cinfo);
 
-    m_width = cinfo.output_width;
-    m_height = cinfo.output_height;
-    m_pitch = cinfo.output_width * cinfo.output_components;
-    m_bpp = cinfo.output_components * 8;
-    m_bppImage = cinfo.num_components * 8;
-    m_bitmap.resize(m_pitch * m_height);
-    m_format = GL_RGB;
+    desc.width = cinfo.output_width;
+    desc.height = cinfo.output_height;
+    desc.pitch = cinfo.output_width * cinfo.output_components;
+    desc.bpp = cinfo.output_components * 8;
+    desc.bppImage = cinfo.num_components * 8;
+    desc.bitmap.resize(desc.pitch * desc.height);
+    desc.format = GL_RGB;
 
     /* Step 6: while (scan lines remain to be read) */
     /*           jpeg_read_scanlines(...); */
@@ -108,8 +109,8 @@ bool CFormatJpeg::Load(const char* filename, unsigned /*subImage*/)
      * loop counter, so that we don't have to keep track ourselves.
      */
     int row_stride = cinfo.output_width * cinfo.output_components;
-    unsigned char* p = &m_bitmap[0];
-    while(cinfo.output_scanline < cinfo.output_height)
+    unsigned char* p = &desc.bitmap[0];
+    while (cinfo.output_scanline < cinfo.output_height)
     {
         /* jpeg_read_scanlines expects an array of pointers to scanlines.
          * Here the array is only one element long, but you could ask for
@@ -118,8 +119,7 @@ bool CFormatJpeg::Load(const char* filename, unsigned /*subImage*/)
         jpeg_read_scanlines(&cinfo, &p, 1);
         p += row_stride;
 
-        int percent = (int)(100.0f * cinfo.output_scanline / cinfo.output_height);
-        progress(percent);
+        updateProgress((float)cinfo.output_scanline / cinfo.output_height);
     }
 
     /* Step 7: Finish decompression */
@@ -143,4 +143,3 @@ bool CFormatJpeg::Load(const char* filename, unsigned /*subImage*/)
 
     return true;
 }
-

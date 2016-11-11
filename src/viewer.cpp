@@ -84,10 +84,10 @@ void cViewer::setWindow(GLFWwindow* window)
 
     fnResize(width, height);
 
-    if(m_initialImageLoading == true)
+    if (m_initialImageLoading == true)
     {
         m_initialImageLoading = false;
-        loadImage(0, 0);
+        loadImage(0);
     }
 }
 
@@ -98,7 +98,7 @@ void cViewer::addPaths(const char** paths, int count)
     m_filesList.reset(new CFilesList(paths[0], m_config->recursiveScan));
     m_filesList->setAllValid(m_config->skipFilter);
 
-    loadImage(0, 0);
+    loadImage(0);
 }
 
 void cViewer::applyConfig()
@@ -120,7 +120,7 @@ void cViewer::render()
 
     const float half_w = ceilf(img_w * 0.5f);
     const float half_h = ceilf(img_h * 0.5f);
-    for(size_t i = 0, size = m_quads.size(); i < size; i++)
+    for (size_t i = 0, size = m_quads.size(); i < size; i++)
     {
         CQuadImage* quad = m_quads[i];
         const float x = quad->GetCol() * quad->GetTexWidth() - half_w;
@@ -129,11 +129,11 @@ void cViewer::render()
         quad->Render(x, y);
     }
 
-    if(m_config->showImageBorder)
+    if (m_config->showImageBorder)
     {
         m_border->Render(-half_w, -half_h, img_w, img_h, m_scale);
     }
-    if(m_config->showPixelInfo && m_angle == 0)
+    if (m_config->showPixelInfo && m_angle == 0)
     {
         m_selection->Render(-half_w, -half_h);
     }
@@ -141,29 +141,29 @@ void cViewer::render()
 
     //if(m_showBorder == true)
     //{
-        //switch(m_angle)
-        //{
-        //case 0:
-            //m_border->Render(m_camera_x, m_camera_y, img_w, img_h, m_scale);
-            //break;
-        //case 90:
-            //m_border->Render(m_camera_x, m_camera_y, img_h, -img_w, m_scale);
-            //break;
-        //case 180:
-            //m_border->Render(m_camera_x, m_camera_y, -img_w, -img_h, m_scale);
-            //break;
-        //case 270:
-            //m_border->Render(m_camera_x, m_camera_y, -img_h, img_w, m_scale);
-            //break;
-        //}
+    //switch(m_angle)
+    //{
+    //case 0:
+    //m_border->Render(m_camera_x, m_camera_y, img_w, img_h, m_scale);
+    //break;
+    //case 90:
+    //m_border->Render(m_camera_x, m_camera_y, img_h, -img_w, m_scale);
+    //break;
+    //case 180:
+    //m_border->Render(m_camera_x, m_camera_y, -img_w, -img_h, m_scale);
+    //break;
+    //case 270:
+    //m_border->Render(m_camera_x, m_camera_y, -img_h, img_w, m_scale);
+    //break;
+    //}
     //}
 
-    if(m_config->hideInfobar == false)
+    if (m_config->hideInfobar == false)
     {
         m_infoBar->Render();
     }
 
-    if(m_config->showPixelInfo && m_angle == 0)
+    if (m_config->showPixelInfo && m_angle == 0)
     {
         m_pixelInfo->Render();
     }
@@ -175,7 +175,7 @@ void cViewer::fnResize(int width, int height)
 {
     GLFWwindow* window = cRenderer::getWindow();
 
-    if(m_isWindowed)
+    if (m_isWindowed)
     {
         m_prevSize = { width, height };
 
@@ -213,18 +213,18 @@ void cViewer::fnMouse(float x, float y)
 {
     const cVector<float> pos(calculateMousePosition(x, y));
 
-    if(m_mouseMB || m_mouseRB)
+    if (m_mouseMB || m_mouseRB)
     {
         const cVector<float> diff(m_lastMouse - pos);
         m_lastMouse = pos;
 
-        if(diff != cVector<float>())
+        if (diff != cVector<float>())
         {
             shiftCamera(diff);
         }
     }
 
-    if(m_config->showPixelInfo)
+    if (m_config->showPixelInfo)
     {
         const int cursor = m_selection->GetCursor();
         m_pixelInfo->SetCursor(cursor);
@@ -243,7 +243,7 @@ void cViewer::fnMouse(float x, float y)
 void cViewer::fnMouseScroll(float x, float y)
 {
     (void)x;
-    if(m_config->wheelZoom)
+    if (m_config->wheelZoom)
     {
         updateScale(y > 0.0f);
     }
@@ -255,7 +255,7 @@ void cViewer::fnMouseButtons(int button, int action, int mods)
 
     updateMousePosition();
 
-    switch(button)
+    switch (button)
     {
     case GLFW_MOUSE_BUTTON_LEFT:
         m_mouseLB = (action == GLFW_PRESS);
@@ -278,12 +278,12 @@ void cViewer::fnMouseButtons(int button, int action, int mods)
 void cViewer::fnKeyboard(int key, int scancode, int action, int mods)
 {
     (void)scancode;
-    if(action != GLFW_PRESS)
+    if (action != GLFW_PRESS)
     {
         return;
     }
 
-    switch(key)
+    switch (key)
     {
     case GLFW_KEY_ESCAPE:
         glfwSetWindowShouldClose(cRenderer::getWindow(), 1);
@@ -301,7 +301,7 @@ void cViewer::fnKeyboard(int key, int scancode, int action, int mods)
 
     case GLFW_KEY_S:
         m_config->fitImage = !m_config->fitImage;
-        if(m_config->fitImage == false)
+        if (m_config->fitImage == false)
         {
             m_scale = 1.0f;
         }
@@ -312,15 +312,15 @@ void cViewer::fnKeyboard(int key, int scancode, int action, int mods)
         break;
 
     case GLFW_KEY_SPACE:
-        loadImage(1, 0);
+        loadImage(1);
         break;
 
     case GLFW_KEY_BACKSPACE:
-        loadImage(-1, 0);
+        loadImage(-1);
         break;
 
     case GLFW_KEY_DELETE:
-        if(mods & GLFW_MOD_CONTROL)
+        if (mods & GLFW_MOD_CONTROL)
         {
             m_filesList->RemoveFromDisk();
         }
@@ -368,7 +368,7 @@ void cViewer::fnKeyboard(int key, int scancode, int action, int mods)
         break;
 
     case GLFW_KEY_R:
-        if(mods & GLFW_MOD_SHIFT)
+        if (mods & GLFW_MOD_SHIFT)
         {
             m_angle += 90;
             m_angle %= 360;
@@ -390,7 +390,7 @@ void cViewer::fnKeyboard(int key, int scancode, int action, int mods)
         break;
 
     default:
-        if(key == GLFW_KEY_0)
+        if (key == GLFW_KEY_0)
         {
             m_scale = 10.0f;
             m_camera = { 0.0f, 0.0f };
@@ -399,7 +399,7 @@ void cViewer::fnKeyboard(int key, int scancode, int action, int mods)
             updateInfobar();
             m_selection->setScale(m_scale);
         }
-        else if(key >= GLFW_KEY_1 && key <= GLFW_KEY_9)
+        else if (key >= GLFW_KEY_1 && key <= GLFW_KEY_9)
         {
             m_scale = (float)(key - GLFW_KEY_0);
             m_camera = { 0.0f, 0.0f };
@@ -450,27 +450,27 @@ void cViewer::shiftCamera(const cVector<float>& delta)
 
 void cViewer::calculateScale()
 {
-    if(m_config->fitImage && m_loader->isLoaded())
+    if (m_config->fitImage && m_loader->isLoaded())
     {
         float w = static_cast<float>(m_loader->GetWidth());
         float h = static_cast<float>(m_loader->GetHeight());
-        if(m_angle == 90 || m_angle == 270)
+        if (m_angle == 90 || m_angle == 270)
         {
             std::swap(w, h);
         }
 
         // scale only large images
         const auto& viewport = cRenderer::getViewportSize();
-        if(w >= viewport.x || h >= viewport.y)
+        if (w >= viewport.x || h >= viewport.y)
         {
             float aspect = w / h;
             float new_w = 0;
             float new_h = 0;
             float dx = w / viewport.x;
             float dy = h / viewport.y;
-            if(dx > dy)
+            if (dx > dy)
             {
-                if(w > viewport.x)
+                if (w > viewport.x)
                 {
                     new_w = viewport.x;
                     new_h = new_w / aspect;
@@ -478,13 +478,13 @@ void cViewer::calculateScale()
             }
             else
             {
-                if(h > viewport.y)
+                if (h > viewport.y)
                 {
                     new_h = viewport.y;
                     new_w = new_h * aspect;
                 }
             }
-            if(new_w != 0 && new_h != 0)
+            if (new_w != 0 && new_h != 0)
             {
                 //m_scale = static_cast<float>((angle == 0 || angle == 180) ? new_w : new_h) / w;
                 m_scale = new_w / w;
@@ -510,13 +510,13 @@ void cViewer::updateScale(bool up)
     scale /= 25;
     scale *= 25;
 
-    if(up == true)
+    if (up == true)
     {
         scale += step;
     }
     else
     {
-        if(scale > step)
+        if (scale > step)
         {
             scale -= step;
         }
@@ -531,16 +531,16 @@ void cViewer::updateScale(bool up)
 void cViewer::updateFiltering()
 {
     const int scale = (int)(m_scale * 100);
-    if(scale % 100 == 0 && m_scale >= 1.0f)
+    if (scale % 100 == 0 && m_scale >= 1.0f)
     {
-        for(size_t i = 0, size = m_quads.size(); i < size; i++)
+        for (size_t i = 0, size = m_quads.size(); i < size; i++)
         {
             m_quads[i]->useFilter(false);
         }
     }
     else
     {
-        for(size_t i = 0, size = m_quads.size(); i < size; i++)
+        for (size_t i = 0, size = m_quads.size(); i < size; i++)
         {
             m_quads[i]->useFilter(true);
         }
@@ -551,9 +551,9 @@ void cViewer::centerWindow()
 {
     GLFWwindow* window = cRenderer::getWindow();
 
-    if(m_isWindowed)
+    if (m_isWindowed)
     {
-        if(m_config->centerWindow)
+        if (m_config->centerWindow)
         {
             GLFWmonitor* monitor = glfwGetPrimaryMonitor();
             const GLFWvidmode* mode = glfwGetVideoMode(monitor);
@@ -582,26 +582,9 @@ void cViewer::centerWindow()
     }
 }
 
-bool cViewer::loadSubImage(int subStep)
+void cViewer::loadImage(int step)
 {
-    const int subCount = (int)m_loader->GetSubCount();
-    int subImage = (int)m_loader->GetSub() + subStep;
-
-    if(subImage < 0)
-    {
-        subImage = subCount - 1;
-    }
-    else if(subImage >= subCount)
-    {
-        subImage = 0;
-    }
-
-    return loadImage(0, subImage);
-}
-
-bool cViewer::loadImage(int step, int subImage)
-{
-    if(step != 0)
+    if (step != 0)
     {
         m_scale = 1;
         m_angle = 0;
@@ -613,7 +596,7 @@ bool cViewer::loadImage(int step, int subImage)
 
     m_progress->Start();
 
-    const bool result = m_loader->LoadImage(file, subImage);
+    m_loader->LoadImage(file);
 
     createTextures();
 
@@ -623,10 +606,25 @@ bool cViewer::loadImage(int step, int subImage)
     centerWindow();
 
     enablePixelInfo(m_config->showPixelInfo);
+}
 
-    //m_loader->FreeMemory();
+void cViewer::loadSubImage(int subStep)
+{
+    const int subCount = (int)m_loader->GetSubCount();
+    int subImage = (int)m_loader->GetSub() + subStep;
 
-    return result;
+    if (subImage < 0)
+    {
+        subImage = subCount - 1;
+    }
+    else if (subImage >= subCount)
+    {
+        subImage = 0;
+    }
+
+    m_loader->LoadSubImage(subImage);
+    createTextures();
+    updateInfobar();
 }
 
 void cViewer::updateInfobar()
@@ -639,7 +637,7 @@ void cViewer::updateInfobar()
     s.index       = m_filesList->GetIndex();
     s.files_count = m_filesList->GetCount();
 
-    if(m_loader->isLoaded())
+    if (m_loader->isLoaded())
     {
         s.width       = m_loader->GetWidth();
         s.height      = m_loader->GetHeight();
@@ -668,7 +666,7 @@ cVector<float> cViewer::screenToImage(const cVector<float>& pos) const
 
 void cViewer::updatePixelInfo(const cVector<float>& pos)
 {
-    if(m_loader->isLoaded())
+    if (m_loader->isLoaded())
     {
         const int w = m_loader->GetWidth();
         const int h = m_loader->GetHeight();
@@ -680,7 +678,7 @@ void cViewer::updatePixelInfo(const cVector<float>& pos)
         sPixelInfo pixelInfo;
 
         // TODO check pixel format (RGB or BGR)
-        if(x >= 0 && y >= 0 && x <= w && y <= h)
+        if (x >= 0 && y >= 0 && x <= w && y <= h)
         {
             const int bpp = m_loader->GetBpp();
             const int pitch = m_loader->GetPitch();
@@ -703,8 +701,8 @@ void cViewer::updatePixelInfo(const cVector<float>& pos)
 
 void cViewer::createTextures()
 {
-    unsigned char* bitmap = m_loader->GetBitmap();
-    if(bitmap)
+    auto bitmap = m_loader->GetBitmap();
+    if (bitmap != nullptr)
     {
         const int width   = m_loader->GetWidth();
         const int height  = m_loader->GetHeight();
@@ -712,7 +710,7 @@ void cViewer::createTextures()
         const int pitch   = m_loader->GetPitch();
         const int bytesPP = (m_loader->GetBpp() / 8);
 
-        printf(" %d x %d, ", width, height);
+        // printf(" %d x %d, ", width, height);
 
         int texW, texH;
         cRenderer::calculateTextureSize(&texW, &texH, width, height);
@@ -725,7 +723,7 @@ void cViewer::createTextures()
 
             const int cols = (int)ceilf((float)width / texW);
             const int rows = (int)ceilf((float)height / texH);
-            printf("textures: %d (%d x %d) required\n", cols * rows, cols, rows);
+            // printf("textures: %d (%d x %d) required\n", cols * rows, cols, rows);
 
             deleteTextures();
 
@@ -733,11 +731,11 @@ void cViewer::createTextures()
 
             unsigned idx = 0;
             int height2 = height;
-            for(int row = 0; row < rows; row++)
+            for (int row = 0; row < rows; row++)
             {
                 int width2 = width;
                 unsigned h = (height2 > texH ? texH : height2);
-                for(int col = 0; col < cols; col++)
+                for (int col = 0; col < cols; col++)
                 {
                     unsigned w = (width2 > texW ? texW : width2);
                     width2 -= w;
@@ -745,7 +743,7 @@ void cViewer::createTextures()
                     unsigned dx = col * texPitch;
                     unsigned dy = row * texH;
                     unsigned count = w * bytesPP;
-                    for(unsigned line = 0; line < h; line++)
+                    for (unsigned line = 0; line < h; line++)
                     {
                         const unsigned src = dx + (dy + line) * pitch;
                         const unsigned dst = line * texPitch;
@@ -777,14 +775,14 @@ void cViewer::showCursor(bool show)
 
 void cViewer::deleteTextures()
 {
-    for(size_t i = 0, size = m_quads.size(); i < size; i++)
+    for (size_t i = 0, size = m_quads.size(); i < size; i++)
     {
         delete m_quads[i];
     }
     m_quads.clear();
 }
 
-void cViewer::doProgress(int percent)
+void cViewer::doProgress(float percent)
 {
     m_progress->Render(percent);
 }
@@ -800,7 +798,7 @@ void cViewer::updateMousePosition()
 
 void cViewer::enablePixelInfo(bool show)
 {
-    if(show)
+    if (show)
     {
         updateMousePosition();
         updatePixelInfo(m_lastMouse);
@@ -808,4 +806,3 @@ void cViewer::enablePixelInfo(bool show)
     m_config->showPixelInfo = show;
     showCursor(!show);
 }
-

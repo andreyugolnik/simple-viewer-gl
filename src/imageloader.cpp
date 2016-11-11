@@ -1,27 +1,30 @@
-/////////////////////////////////////////////////
-//
-// Andrey A. Ugolnik
-// andrey@ugolnik.info
-//
-/////////////////////////////////////////////////
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
 #include "imageloader.h"
-#include "notavailable.h"
-#include "formats/file.h"
+#include "common/bitmap_description.h"
+#include "common/file.h"
+#include "formats/formatage.h"
 #include "formats/formatcommon.h"
-#include "formats/formatjpeg.h"
-#include "formats/formatpsd.h"
-#include "formats/formatpng.h"
+#include "formats/formatdds.h"
 #include "formats/formatgif.h"
 #include "formats/formatico.h"
+#include "formats/formatjpeg.h"
+#include "formats/formatpng.h"
+#include "formats/formatppm.h"
+#include "formats/formatpsd.h"
+#include "formats/formatpvr.h"
+#include "formats/formatraw.h"
+#include "formats/formatscr.h"
 #include "formats/formattiff.h"
 #include "formats/formatxwd.h"
-#include "formats/formatdds.h"
-#include "formats/formatage.h"
-#include "formats/formatraw.h"
-#include "formats/formatppm.h"
-#include "formats/formatpvr.h"
-#include "formats/formatscr.h"
+#include "notavailable.h"
 
 #include <algorithm>
 #include <cassert>
@@ -29,175 +32,139 @@
 #include <string>
 
 CImageLoader::CImageLoader(iCallbacks* callbacks)
-    : m_image(nullptr)
-    , m_type(TYPES_COUNT)
 {
 #if defined(IMLIB2_SUPPORT)
-    m_formats[TYPE_COMMON].reset(new CFormatCommon("libImlib2", "ImLib2", callbacks));
+    m_formats[(unsigned)eImageType::COMMON].reset(new CFormatCommon("libImlib2", "ImLib2", callbacks));
 #endif
-    m_formats[TYPE_JPG].reset(new CFormatJpeg("libjpeg", "jpeg", callbacks));
-    m_formats[TYPE_PSD].reset(new CFormatPsd(nullptr, "psd", callbacks));
-    m_formats[TYPE_PNG].reset(new CFormatPng("libpng", "png", callbacks));
-    m_formats[TYPE_GIF].reset(new CFormatGif("libgif", "gif", callbacks));
-    m_formats[TYPE_ICO].reset(new CFormatIco(nullptr, "ico", callbacks));
-    m_formats[TYPE_TIF].reset(new CFormatTiff("libtiff", "tiff", callbacks));
-    m_formats[TYPE_XWD].reset(new CFormatXwd(nullptr, "xwd", callbacks));
-    m_formats[TYPE_DDS].reset(new CFormatDds(nullptr, "dds", callbacks));
-    m_formats[TYPE_RAW].reset(new cFormatRaw(nullptr, "raw", callbacks));
-    m_formats[TYPE_AGE].reset(new cFormatAge(nullptr, "age", callbacks));
-    m_formats[TYPE_PPM].reset(new cFormatPpm(nullptr, "ppm", callbacks));
-    m_formats[TYPE_PVR].reset(new cFormatPvr(nullptr, "pvr", callbacks));
-    m_formats[TYPE_SCR].reset(new cFormatScr(nullptr, "scr", callbacks));
+    m_formats[(unsigned)eImageType::JPG].reset(new CFormatJpeg("libjpeg", "jpeg", callbacks));
+    m_formats[(unsigned)eImageType::PSD].reset(new CFormatPsd(nullptr, "psd", callbacks));
+    m_formats[(unsigned)eImageType::PNG].reset(new CFormatPng("libpng", "png", callbacks));
+    m_formats[(unsigned)eImageType::GIF].reset(new CFormatGif("libgif", "gif", callbacks));
+    m_formats[(unsigned)eImageType::ICO].reset(new CFormatIco(nullptr, "ico", callbacks));
+    m_formats[(unsigned)eImageType::TIF].reset(new CFormatTiff("libtiff", "tiff", callbacks));
+    m_formats[(unsigned)eImageType::XWD].reset(new CFormatXwd(nullptr, "xwd", callbacks));
+    m_formats[(unsigned)eImageType::DDS].reset(new CFormatDds(nullptr, "dds", callbacks));
+    m_formats[(unsigned)eImageType::RAW].reset(new cFormatRaw(nullptr, "raw", callbacks));
+    m_formats[(unsigned)eImageType::AGE].reset(new cFormatAge(nullptr, "age", callbacks));
+    m_formats[(unsigned)eImageType::PPM].reset(new cFormatPpm(nullptr, "ppm", callbacks));
+    m_formats[(unsigned)eImageType::PVR].reset(new cFormatPvr(nullptr, "pvr", callbacks));
+    m_formats[(unsigned)eImageType::SCR].reset(new cFormatScr(nullptr, "scr", callbacks));
 
-    m_formats[TYPE_NOTAVAILABLE].reset(new CNotAvailable());
+    m_formats[(unsigned)eImageType::NOTAVAILABLE].reset(new CNotAvailable());
 }
 
 CImageLoader::~CImageLoader()
 {
 }
 
-bool CImageLoader::LoadImage(const char* path, unsigned subImage)
+void CImageLoader::LoadImage(const char* path)
 {
-    if(path != nullptr && m_path == path)
-    {
-        if(!m_image->m_bitmap.empty())
-        {
-            if(GetSub() != subImage)
-            {
-                return m_image->Load(path, subImage);
-            }
+    FreeMemory();
 
-            return true; // image already loaded
+    if (path != nullptr)
+    {
+        const eImageType type = getType(path);
+        m_image = m_formats[(unsigned)type].get();
+        if (m_image->Load(path, m_desc))
+        {
+            return;
         }
     }
 
-    const eImageType type = getType(path);
-    if(m_type != type)
-    {
-        m_type = type;
-        FreeMemory();
-    }
-
-    if (LoadImage(path, type, subImage))
-    {
-        return true;
-    }
-
-    FreeMemory();
-    LoadImage(path, TYPE_NOTAVAILABLE, subImage);
-
-    return false;
+    m_image = m_formats[(unsigned)eImageType::NOTAVAILABLE].get();
+    m_image->Load(path, m_desc);
 }
 
-bool CImageLoader::LoadImage(const char* path, eImageType type, unsigned subImage)
+void CImageLoader::LoadSubImage(unsigned subImage)
 {
-    m_path.clear();
-    if (path != nullptr)
-    {
-        m_path = path;
-    }
-
-    m_type = type;
-
-    m_image = m_formats[type].get();
-    const bool result = m_image->Load(path, subImage);
-    return result;
+    assert(m_image != nullptr);
+    m_image->LoadSubImage(subImage, m_desc);
 }
 
 bool CImageLoader::isLoaded() const
 {
-    return m_image != nullptr && !m_image->m_bitmap.empty();
+    return !m_desc.bitmap.empty();
 }
 
-unsigned char* CImageLoader::GetBitmap() const
+const unsigned char* CImageLoader::GetBitmap() const
 {
-    assert(m_image != nullptr);
-    if(!m_image->m_bitmap.empty())
+    if (!m_desc.bitmap.empty())
     {
-        return &m_image->m_bitmap[0];
+        return &m_desc.bitmap[0];
     }
     return nullptr;
 }
 
 void CImageLoader::FreeMemory()
 {
-    if(m_image != nullptr)
-    {
-        m_image->FreeMemory();
-        m_path.clear();
-    }
+    m_desc.bitmap.clear();
+    m_desc.format   = GL_RGB;
+    m_desc.bpp      = 0;
+    m_desc.pitch    = 0;
+    m_desc.width    = 0;
+    m_desc.height   = 0;
+    m_desc.bppImage = 0; 
+    m_desc.size     = -1;
+    m_desc.subImage = 0;
+    m_desc.subCount = 0;
+    m_desc.info.clear();
 }
 
 unsigned CImageLoader::GetWidth() const
 {
-    assert(m_image != nullptr);
-    return m_image->m_width;
+    return m_desc.width;
 }
 
 unsigned CImageLoader::GetHeight() const
 {
-    assert(m_image != nullptr);
-    return m_image->m_height;
+    return m_desc.height;
 }
 
 unsigned CImageLoader::GetPitch() const
 {
-    assert(m_image != nullptr);
-    return m_image->m_pitch;
+    return m_desc.pitch;
 }
 
 unsigned CImageLoader::GetBitmapFormat() const
 {
-    assert(m_image != nullptr);
-    return m_image->m_format;
+    return m_desc.format;
 }
 
 unsigned CImageLoader::GetBpp() const
 {
-    assert(m_image != nullptr);
-    return m_image->m_bpp;
+    return m_desc.bpp;
 }
 
 unsigned CImageLoader::GetImageBpp() const
 {
-    assert(m_image != nullptr);
-    return m_image->m_bppImage;
+    return m_desc.bppImage;
 }
 
 long CImageLoader::GetFileSize() const
 {
-    assert(m_image != nullptr);
-    return m_image->m_size;
+    return m_desc.size;
 }
 
 size_t CImageLoader::GetSizeMem() const
 {
-    assert(m_image != nullptr);
-    return m_image->m_bitmap.size();
+    return m_desc.bitmap.size();
 }
 
 unsigned CImageLoader::GetSub() const
 {
-    assert(m_image != nullptr);
-    return m_image->m_subImage;
+    return m_desc.subImage;
 }
 
 unsigned CImageLoader::GetSubCount() const
 {
-    assert(m_image);
-    if(m_image != nullptr)
-    {
-        return m_image->m_subCount;
-    }
-    return 0;
+    return m_desc.subCount;
 }
 
 const char* CImageLoader::getImageType() const
 {
-    assert(m_image);
-    if(m_image != nullptr)
+    if (m_image != nullptr)
     {
-        return m_image->m_formatName.c_str();
+        return m_image->getFormatName();
     }
     return nullptr;
 }
@@ -211,63 +178,62 @@ struct sFormatExt
 eImageType CImageLoader::getType(const char* name)
 {
     cFile file;
-    if(!file.open(name))
+    if (!file.open(name))
     {
-        return TYPE_NOTAVAILABLE;
+        return eImageType::NOTAVAILABLE;
     }
 
     Buffer buffer;
-    if(m_formats[TYPE_AGE]->isSupported(file, buffer))
+    if (m_formats[(unsigned)eImageType::AGE]->isSupported(file, buffer))
     {
-        return TYPE_AGE;
+        return eImageType::AGE;
     }
-    if(m_formats[TYPE_RAW]->isSupported(file, buffer))
+    if (m_formats[(unsigned)eImageType::RAW]->isSupported(file, buffer))
     {
-        return TYPE_RAW;
+        return eImageType::RAW;
     }
-    if(m_formats[TYPE_PVR]->isSupported(file, buffer))
+    if (m_formats[(unsigned)eImageType::PVR]->isSupported(file, buffer))
     {
-        return TYPE_PVR;
+        return eImageType::PVR;
     }
 
     std::string s(name);
 
     // skip file without extension
     const size_t pos = s.find_last_of('.');
-    if(std::string::npos != pos)
+    if (std::string::npos != pos)
     {
         // skip non image file (detect by extension)
         std::transform(s.begin(), s.end(), s.begin(), tolower);
 
         static const sFormatExt format[] =
         {
-            { ".jpeg", TYPE_JPG },
-            { ".jpg",  TYPE_JPG },
-            { ".psd",  TYPE_PSD },
-            { ".png",  TYPE_PNG },
-            { ".gif",  TYPE_GIF },
-            { ".ico",  TYPE_ICO },
-            { ".tiff", TYPE_TIF },
-            { ".tif",  TYPE_TIF },
-            { ".xwd",  TYPE_XWD },
-            { ".dds",  TYPE_DDS },
-            { ".ppm",  TYPE_PPM },
-            { ".scr",  TYPE_SCR },
+            { ".jpeg", eImageType::JPG },
+            { ".jpg",  eImageType::JPG },
+            { ".psd",  eImageType::PSD },
+            { ".png",  eImageType::PNG },
+            { ".gif",  eImageType::GIF },
+            { ".ico",  eImageType::ICO },
+            { ".tiff", eImageType::TIF },
+            { ".tif",  eImageType::TIF },
+            { ".xwd",  eImageType::XWD },
+            { ".dds",  eImageType::DDS },
+            { ".ppm",  eImageType::PPM },
+            { ".scr",  eImageType::SCR },
         };
 
-        for(auto& fmt : format)
+        for (auto& fmt : format)
         {
-            if(s.substr(pos) == fmt.ext)
+            if (s.substr(pos) == fmt.ext)
             {
                 return fmt.format;
             }
         }
 
 #if defined(IMLIB2_SUPPORT)
-        return TYPE_COMMON;
+        return eImageType::COMMON;
 #endif
     }
 
-    return TYPE_NOTAVAILABLE;
+    return eImageType::NOTAVAILABLE;
 }
-

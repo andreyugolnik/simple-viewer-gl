@@ -25,7 +25,7 @@ void CProgress::Start()
     //m_loadingTime = glutGet(GLUT_ELAPSED_TIME);
 }
 
-void CProgress::Render(int percent)
+void CProgress::Render(float percent)
 {
     //if(m_loadingTime + 600 < glutGet(GLUT_ELAPSED_TIME))
     //{

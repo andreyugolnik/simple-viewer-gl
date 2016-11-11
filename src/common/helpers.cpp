@@ -10,6 +10,9 @@
 #include "helpers.h"
 #include "file.h"
 
+namespace helpers
+{
+
 uint16_t read_uint16(uint8_t* p)
 {
     return (p[0] << 8) | p[1];
@@ -55,3 +58,4 @@ bool readBuffer(cFileInterface& file, Buffer& buffer, unsigned desired_size)
     return desired_size <= buffer.size();
 }
 
+} // namespace helpers

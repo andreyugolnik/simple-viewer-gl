@@ -7,19 +7,24 @@
 *
 \**********************************************/
 
-#ifndef FORMATTIFF_H
-#define FORMATTIFF_H
+#pragma once
 
 #include "format.h"
 
-class CFormatTiff : public CFormat
+#include <string>
+
+class CFormatTiff final : public CFormat
 {
 public:
     CFormatTiff(const char* lib, const char* name, iCallbacks* callbacks);
-    virtual ~CFormatTiff();
+    ~CFormatTiff();
 
-    virtual bool Load(const char* filename, unsigned subImage = 0);
+    virtual bool Load(const char* filename, sBitmapDescription& desc) override;
+    virtual bool LoadSubImage(unsigned subImage, sBitmapDescription& desc) override;
+
+private:
+    bool load(unsigned subImage, sBitmapDescription& desc);
+
+private:
+    std::string m_filename;
 };
-
-#endif // FORMATTIFF_H
-

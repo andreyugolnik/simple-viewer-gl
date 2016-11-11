@@ -8,7 +8,8 @@
 \**********************************************/
 
 #include "formattiff.h"
-#include "file.h"
+#include "../common/bitmap_description.h"
+#include "../common/file.h"
 
 #include <cstring>
 #include <tiffio.h>
@@ -22,45 +23,56 @@ CFormatTiff::~CFormatTiff()
 {
 }
 
-bool CFormatTiff::Load(const char* filename, unsigned subImage)
+bool CFormatTiff::Load(const char* filename, sBitmapDescription& desc)
+{
+    m_filename = filename;
+    return load(0, desc);
+}
+
+bool CFormatTiff::LoadSubImage(unsigned subImage, sBitmapDescription& desc)
+{
+    return load(subImage, desc);
+}
+
+bool CFormatTiff::load(unsigned subImage, sBitmapDescription& desc)
 {
     cFile file;
-    if(!file.open(filename))
+    if (!file.open(m_filename.c_str()))
     {
         return false;
     }
 
-    m_size = file.getSize();
+    desc.size = file.getSize();
 
     file.close();
 
     bool result = false;
 
-    TIFF* tif = TIFFOpen(filename, "r");
-    if(tif != 0)
+    TIFF* tif = TIFFOpen(m_filename.c_str(), "r");
+    if (tif != 0)
     {
         // read count of pages in image
-        m_subCount = TIFFNumberOfDirectories(tif);
-        m_subImage = std::min(subImage, m_subCount - 1);
+        desc.subCount = TIFFNumberOfDirectories(tif);
+        desc.subImage = std::min(subImage, desc.subCount - 1);
 
         // set desired page
-        if(TIFFSetDirectory(tif, m_subImage) != 0)
+        if (TIFFSetDirectory(tif, desc.subImage) != 0)
         {
             TIFFRGBAImage img;
-            if(TIFFRGBAImageBegin(&img, tif, 0, NULL) != 0)
+            if (TIFFRGBAImageBegin(&img, tif, 0, NULL) != 0)
             {
-                m_width = img.width;
-                m_height = img.height;
-                m_pitch = m_width * sizeof(uint32);
-                m_bitmap.resize(m_pitch * m_height);
-                m_bpp = 32;
-                m_bppImage = img.bitspersample * img.samplesperpixel;
-                m_format = GL_RGBA;
+                desc.width = img.width;
+                desc.height = img.height;
+                desc.pitch = desc.width * sizeof(uint32);
+                desc.bitmap.resize(desc.pitch * desc.height);
+                desc.bpp = 32;
+                desc.bppImage = img.bitspersample * img.samplesperpixel;
+                desc.format = GL_RGBA;
 
                 // set desired orientation
                 img.req_orientation = ORIENTATION_TOPLEFT;
 
-                if(TIFFRGBAImageGet(&img, (uint32*)&m_bitmap[0], m_width, m_height) != 0)
+                if (TIFFRGBAImageGet(&img, (uint32*)&desc.bitmap[0], desc.width, desc.height) != 0)
                 {
                     result = true;
                 }
@@ -69,11 +81,10 @@ bool CFormatTiff::Load(const char* filename, unsigned subImage)
         }
     }
 
-    if(tif != 0)
+    if (tif != 0)
     {
         TIFFClose(tif);
     }
 
     return result;
 }
-

@@ -17,8 +17,7 @@ public:
     cFormatRaw(const char* lib, const char* name, iCallbacks* callbacks);
     ~cFormatRaw();
 
-    bool Load(const char* filename, unsigned subImage);
-    bool isSupported(cFile& file, Buffer& buffer) const;
+    virtual bool Load(const char* filename, sBitmapDescription& desc) override;
+    virtual bool isSupported(cFile& file, Buffer& buffer) const override;
     //bool isRawFormat(const char* name);
 };
-

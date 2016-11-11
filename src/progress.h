@@ -17,7 +17,7 @@ class CProgress final
 public:
     void Init();
     void Start();
-    void Render(int percent);
+    void Render(float percent);
 
 private:
     int m_loadingTime = 0;

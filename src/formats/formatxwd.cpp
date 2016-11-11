@@ -8,8 +8,9 @@
 \**********************************************/
 
 #include "formatxwd.h"
-#include "file.h"
-#include "helpers.h"
+#include "../common/bitmap_description.h"
+#include "../common/file.h"
+#include "../common/helpers.h"
 
 #include <cstring>
 
@@ -89,7 +90,7 @@ CFormatXwd::~CFormatXwd()
 {
 }
 
-bool CFormatXwd::Load(const char* filename, unsigned /*subImage*/)
+bool CFormatXwd::Load(const char* filename, sBitmapDescription& desc)
 {
     cFile file;
     if(!file.open(filename))
@@ -104,7 +105,7 @@ bool CFormatXwd::Load(const char* filename, unsigned /*subImage*/)
         return false;
     }
 
-    swap_uint32s((uint8_t*)&common, sizeof(common));
+    helpers::swap_uint32s((uint8_t*)&common, sizeof(common));
     printf("\n");
     printf(" HeaderSize: %u\n" , common.HeaderSize);
     printf(" FileVersion: %u\n", common.FileVersion);
@@ -120,7 +121,7 @@ bool CFormatXwd::Load(const char* filename, unsigned /*subImage*/)
             printf("Can't read XWD header\n");
             return false;
         }
-        swap_uint32s((uint8_t*)&header, sizeof(header));
+        helpers::swap_uint32s((uint8_t*)&header, sizeof(header));
 
         printf(" PixmapFormat: %u\n"      , header.PixmapFormat);
         printf(" DisplayType: %u\n"       , header.DisplayType);
@@ -135,7 +136,7 @@ bool CFormatXwd::Load(const char* filename, unsigned /*subImage*/)
         printf(" WindowBorderWidth: %u\n" , header.WindowBorderWidth);
         printf(" WindowNumColors: %u\n"   , header.WindowNumColors);
 
-        return loadX10(header, file);
+        return loadX10(header, file, desc);
     }
     else if(common.HeaderSize == sizeof(X11WindowDump) && common.FileVersion == 0x07)
     {
@@ -145,7 +146,7 @@ bool CFormatXwd::Load(const char* filename, unsigned /*subImage*/)
             printf("Can't read XWD header\n");
             return false;
         }
-        swap_uint32s((uint8_t*)&header, sizeof(header));
+        helpers::swap_uint32s((uint8_t*)&header, sizeof(header));
 
         printf(" PixmapFormat: %u\n"      , header.PixmapFormat);
         printf(" PixmapDepth: %u\n"       , header.PixmapDepth);
@@ -171,19 +172,19 @@ bool CFormatXwd::Load(const char* filename, unsigned /*subImage*/)
         printf(" WindowY: %u\n"           , header.WindowY);
         printf(" WindowBorderWidth: %u\n" , header.WindowBorderWidth);
 
-        return loadX11(header, file);
+        return loadX11(header, file, desc);
     }
 
     printf("Invalid XWD file version\n");
     return false;
 }
 
-bool CFormatXwd::loadX10(const X10WindowDump& header, cFile& file)
+bool CFormatXwd::loadX10(const X10WindowDump& header, cFile& file, sBitmapDescription& desc)
 {
     return false;
 }
 
-bool CFormatXwd::loadX11(const X11WindowDump& header, cFile& file)
+bool CFormatXwd::loadX11(const X11WindowDump& header, cFile& file, sBitmapDescription& desc)
 {
     std::vector<X11ColorMap> colors(header.ColorMapEntries);
     const unsigned color_map_size = sizeof(X11ColorMap) * header.ColorMapEntries;
@@ -193,16 +194,16 @@ bool CFormatXwd::loadX11(const X11WindowDump& header, cFile& file)
         return false;
     }
 
-    m_size     = file.getSize();
-    m_width    = header.PixmapWidth;
-    m_height   = header.PixmapHeight;
-    m_bpp      = header.BitsPerPixel;
-    m_bppImage = header.BitsPerPixel;
-    m_pitch    = header.BytesPerLine;
-    m_format   = GL_RGB;
-    m_bitmap.resize(m_pitch * m_height);
+    desc.size     = file.getSize();
+    desc.width    = header.PixmapWidth;
+    desc.height   = header.PixmapHeight;
+    desc.bpp      = header.BitsPerPixel;
+    desc.bppImage = header.BitsPerPixel;
+    desc.pitch    = header.BytesPerLine;
+    desc.format   = GL_RGB;
+    desc.bitmap.resize(desc.pitch * desc.height);
 
-    if(m_bitmap.size() != file.read(&m_bitmap[0], m_bitmap.size()))
+    if(desc.bitmap.size() != file.read(&desc.bitmap[0], desc.bitmap.size()))
     {
         printf("Can't read pixmap\n");
         return false;

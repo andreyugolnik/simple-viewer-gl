@@ -8,8 +8,9 @@
 \**********************************************/
 
 #include "formatpvr.h"
-#include "file_zlib.h"
-#include "helpers.h"
+#include "../common/bitmap_description.h"
+#include "../common/file_zlib.h"
+#include "../common/helpers.h"
 
 #include <cstring>
 
@@ -184,7 +185,7 @@ static bool isZpvr(cFile& file)
 
 bool cFormatPvr::isSupported(cFile& file, Buffer& buffer) const
 {
-    if(!readBuffer(file, buffer, 4))
+    if(!helpers::readBuffer(file, buffer, 4))
     {
         return false;
     }
@@ -192,7 +193,7 @@ bool cFormatPvr::isSupported(cFile& file, Buffer& buffer) const
     return (::memcmp(&buffer[0], "ZPVR", 4) == 0 || ::memcmp(&buffer[0], "PVR", 3) == 0);
 }
 
-bool cFormatPvr::Load(const char* filename, unsigned /*subImage*/)
+bool cFormatPvr::Load(const char* filename, sBitmapDescription& desc)
 {
     cFile file;
     if(!file.open(filename))
@@ -200,18 +201,18 @@ bool cFormatPvr::Load(const char* filename, unsigned /*subImage*/)
         return false;
     }
 
-    m_size = file.getSize();
+    desc.size = file.getSize();
 
     if(isZpvr(file))
     {
         cFileZlib zip(&file);
-        return readPvr(zip);
+        return readPvr(zip, desc);
     }
     file.seek(0, SEEK_SET);
-    return readPvr(file);
+    return readPvr(file, desc);
 }
 
-bool cFormatPvr::readPvr(cFileInterface& file)
+bool cFormatPvr::readPvr(cFileInterface& file, sBitmapDescription& desc)
 {
     PVRTexHeader header;
     if(sizeof(header) != file.read(&header, sizeof(header)))
@@ -249,47 +250,47 @@ bool cFormatPvr::readPvr(cFileInterface& file)
         {
         case (uint64_t)PVRPixelFormat::RGB888:
             bytes    = 3;
-            m_format = GL_RGB;
+            desc.format = GL_RGB;
             break;
         case (uint64_t)PVRPixelFormat::RGBA8888:
             bytes    = 4;
-            m_format = GL_RGBA;
+            desc.format = GL_RGBA;
             break;
         case (uint64_t)PVRPixelFormat::BGRA8888:
             bytes    = 4;
-            m_format = GL_BGRA;
+            desc.format = GL_BGRA;
             break;
         case (uint64_t)PVRPixelFormat::RGB565:
             bytes    = 2;
-            m_format = GL_UNSIGNED_SHORT_5_6_5;
+            desc.format = GL_UNSIGNED_SHORT_5_6_5;
             break;
         case (uint64_t)PVRPixelFormat::RGBA4444:
             bytes    = 2;
-            m_format = GL_UNSIGNED_SHORT_4_4_4_4;
+            desc.format = GL_UNSIGNED_SHORT_4_4_4_4;
             break;
         case (uint64_t)PVRPixelFormat::ARGB4444:
             bytes    = 2;
-            m_format = GL_UNSIGNED_SHORT_4_4_4_4;
+            desc.format = GL_UNSIGNED_SHORT_4_4_4_4;
             break;
         case (uint64_t)PVRPixelFormat::RGBA5551:
             bytes    = 2;
-            m_format = GL_UNSIGNED_SHORT_5_5_5_1;
+            desc.format = GL_UNSIGNED_SHORT_5_5_5_1;
             break;
         case (uint64_t)PVRPixelFormat::ARGB1555:
             bytes    = 2;
-            m_format = GL_UNSIGNED_SHORT_5_5_5_1;
+            desc.format = GL_UNSIGNED_SHORT_5_5_5_1;
             break;
         case (uint64_t)PVRPixelFormat::LA8:
             bytes    = 2;
-            m_format = GL_LUMINANCE_ALPHA;
+            desc.format = GL_LUMINANCE_ALPHA;
             break;
         case (uint64_t)PVRPixelFormat::A8:
             bytes    = 1;
-            m_format = GL_ALPHA;
+            desc.format = GL_ALPHA;
             break;
         case (uint64_t)PVRPixelFormat::L8:
             bytes    = 1;
-            m_format = GL_LUMINANCE;
+            desc.format = GL_LUMINANCE;
             break;
         }
     }
@@ -316,15 +317,15 @@ bool cFormatPvr::readPvr(cFileInterface& file)
         //}
     }
 
-    m_bpp      = bytes * 8;
-    m_bppImage = bytes * 8;
-    m_width    = header.width;
-    m_height   = header.height;
-    m_pitch    = m_width * bytes;
+    desc.bpp      = bytes * 8;
+    desc.bppImage = bytes * 8;
+    desc.width    = header.width;
+    desc.height   = header.height;
+    desc.pitch    = desc.width * bytes;
 
-    const unsigned size = m_pitch * m_height;
-    m_bitmap.resize(size);
-    if(size != file.read(&m_bitmap[0], size))
+    const unsigned size = desc.pitch * desc.height;
+    desc.bitmap.resize(size);
+    if(size != file.read(&desc.bitmap[0], size))
     {
         printf("Unexpected EOF.\n");
         return false;
@@ -338,36 +339,36 @@ bool cFormatPvr::readPvr(cFileInterface& file)
         //case (uint64_t)PVRPixelFormat::RGBA4444:
             //if((flags & PVRConversionFlags::RGBA44442ARGB4444) != 0)
             //{
-                ////ConvertRgba4444ToArgb4444Inplace(&m_bitmap[0], header.width, header.height);
-                ////m_format = GL_UNSIGNED_SHORT_4_4_4_4;
+                ////ConvertRgba4444ToArgb4444Inplace(&desc.bitmap[0], header.width, header.height);
+                ////desc.format = GL_UNSIGNED_SHORT_4_4_4_4;
             //}
             //if((flags & PVRConversionFlags::RGBA44442RGBA8888) != 0)
             //{
-                ////ConvertRgba4444ToRgba8888(m_bitmap, header.width, header.height);
-                ////m_bpp    = 32;
-                ////m_pitch  = m_width * 4;
-                ////m_format = GL_RGBA;
+                ////ConvertRgba4444ToRgba8888(desc.bitmap, header.width, header.height);
+                ////desc.bpp    = 32;
+                ////desc.pitch  = desc.width * 4;
+                ////desc.format = GL_RGBA;
             //}
             //break;
 
         //case (uint64_t)PVRPixelFormat::RGB565:
             //if((flags & PVRConversionFlags::RGB5652RGBA8888) != 0)
             //{
-                ////_dataPointer = ConvertRgb565ToRgba8888(&m_bitmap[0], header.width, header.height);
-                ////m_format = GL_RGBA;
+                ////_dataPointer = ConvertRgb565ToRgba8888(&desc.bitmap[0], header.width, header.height);
+                ////desc.format = GL_RGBA;
             //}
             //break;
 
         //case (uint64_t)PVRPixelFormat::RGBA5551:
             //if((flags & PVRConversionFlags::RGBA55512ARGB1555) != 0)
             //{
-                ////ConvertRgba5551ToArgb1555Inplace(&m_bitmap[0], header.width, header.height);
-                ////m_format = GL_UNSIGNED_SHORT_5_5_5_1;
+                ////ConvertRgba5551ToArgb1555Inplace(&desc.bitmap[0], header.width, header.height);
+                ////desc.format = GL_UNSIGNED_SHORT_5_5_5_1;
             //}
             //if((flags & PVRConversionFlags::RGBA55512RGBA8888) != 0)
             //{
-                ////_dataPointer = ConvertRgba5551ToRgba8888(&m_bitmap[0], header.width, header.height);
-                ////m_format = GL_RGBA;
+                ////_dataPointer = ConvertRgba5551ToRgba8888(&desc.bitmap[0], header.width, header.height);
+                ////desc.format = GL_RGBA;
             //}
             //break;
         //}

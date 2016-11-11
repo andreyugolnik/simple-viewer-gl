@@ -8,7 +8,8 @@
 \**********************************************/
 
 #include "formatppm.h"
-#include "file.h"
+#include "../common/bitmap_description.h"
+#include "../common/file.h"
 
 #include <cstring>
 #include <iostream>
@@ -22,7 +23,7 @@ cFormatPpm::~cFormatPpm()
 {
 }
 
-bool cFormatPpm::Load(const char* filename, unsigned /*subImage*/)
+bool cFormatPpm::Load(const char* filename, sBitmapDescription& desc)
 {
     cFile file;
     if(!file.open(filename))
@@ -30,7 +31,7 @@ bool cFormatPpm::Load(const char* filename, unsigned /*subImage*/)
         return false;
     }
 
-    m_size = file.getSize();
+    desc.size = file.getSize();
 
     bool result = false;
     char* line = 0;
@@ -52,18 +53,18 @@ bool cFormatPpm::Load(const char* filename, unsigned /*subImage*/)
                 int h = 0;
                 if(2 == sscanf(line, "%d %d\n", &w, &h))
                 {
-                    m_width = w;
-                    m_height = h;
+                    desc.width = w;
+                    desc.height = h;
                 }
                 else
                 {
                     sscanf(line, "%d\n", &w);
-                    m_width = w;
+                    desc.width = w;
 
                     if(getline(&line, &len, (FILE*)file.getHandle()) != -1)
                     {
                         sscanf(line, "%d\n", &h);
-                        m_height = h;
+                        desc.height = h;
                     }
                 }
 
@@ -76,24 +77,24 @@ bool cFormatPpm::Load(const char* filename, unsigned /*subImage*/)
                 switch(format)
                 {
                 case 1: // 1-ascii
-                    result = readAscii1(file, w, h);
+                    result = readAscii1(file, w, h, desc);
                     break;
                 case 4: // 1-raw
-                    result = readRaw1(file, w, h);
+                    result = readRaw1(file, w, h, desc);
                     break;
 
                 case 2: // 8-ascii
-                    result = readAscii8(file, w, h);
+                    result = readAscii8(file, w, h, desc);
                     break;
                 case 5: // 8-raw
-                    result = readRaw8(file, w, h);
+                    result = readRaw8(file, w, h, desc);
                     break;
 
                 case 3: // 24-ascii
-                    result = readAscii24(file, w, h);
+                    result = readAscii24(file, w, h, desc);
                     break;
                 case 6: // 24-raw
-                    result = readRaw24(file, w, h);
+                    result = readRaw24(file, w, h, desc);
                     break;
                 }
 
@@ -106,33 +107,33 @@ bool cFormatPpm::Load(const char* filename, unsigned /*subImage*/)
     return result;
 }
 
-bool cFormatPpm::readAscii1(cFile& file, int w, int h)
+bool cFormatPpm::readAscii1(cFile& file, int w, int h, sBitmapDescription& desc)
 {
     return false;
 }
 
-bool cFormatPpm::readRaw1(cFile& file, int w, int h)
+bool cFormatPpm::readRaw1(cFile& file, int w, int h, sBitmapDescription& desc)
 {
     return false;
 }
 
-bool cFormatPpm::readAscii8(cFile& file, int w, int h)
+bool cFormatPpm::readAscii8(cFile& file, int w, int h, sBitmapDescription& desc)
 {
     return false;
 }
 
-bool cFormatPpm::readRaw8(cFile& file, int w, int h)
+bool cFormatPpm::readRaw8(cFile& file, int w, int h, sBitmapDescription& desc)
 {
     return false;
 }
 
-bool cFormatPpm::readAscii24(cFile& file, int w, int h)
+bool cFormatPpm::readAscii24(cFile& file, int w, int h, sBitmapDescription& desc)
 {
     const int bpp = 24;
-    m_bpp = m_bppImage = bpp;
-    m_pitch = w * bpp / 8;
-    const size_t components = h * m_pitch;
-    m_bitmap.resize(components);
+    desc.bpp = desc.bppImage = bpp;
+    desc.pitch = w * bpp / 8;
+    const size_t components = h * desc.pitch;
+    desc.bitmap.resize(components);
 
     size_t idx = 0;
     char* line = 0;
@@ -140,19 +141,19 @@ bool cFormatPpm::readAscii24(cFile& file, int w, int h)
     while(getline(&line, &len, (FILE*)file.getHandle()) != -1)
     {
         const int val = atoi(line);
-        m_bitmap[idx++] = val;
+        desc.bitmap[idx++] = val;
     }
-    return idx == m_bitmap.size();
+    return idx == desc.bitmap.size();
 }
 
-bool cFormatPpm::readRaw24(cFile& file, int w, int h)
+bool cFormatPpm::readRaw24(cFile& file, int w, int h, sBitmapDescription& desc)
 {
     const int bpp = 24;
-    m_bpp = m_bppImage = bpp;
-    m_pitch = w * bpp / 8;
-    const size_t components = h * m_pitch;
-    m_bitmap.resize(components);
+    desc.bpp = desc.bppImage = bpp;
+    desc.pitch = w * bpp / 8;
+    const size_t components = h * desc.pitch;
+    desc.bitmap.resize(components);
 
-    return components == file.read(&m_bitmap[0], components);
+    return components == file.read(&desc.bitmap[0], components);
 }
 

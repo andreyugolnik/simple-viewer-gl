@@ -9,13 +9,8 @@
 
 #pragma once
 
-#include "formats/format.h"
-
-class CNotAvailable : public CFormat
+class iCallbacks
 {
 public:
-    CNotAvailable();
-    virtual ~CNotAvailable();
-
-    virtual bool Load(const char* filename, sBitmapDescription& desc) override;
+    virtual void doProgress(float percent) = 0;
 };

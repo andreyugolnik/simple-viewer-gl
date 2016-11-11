@@ -7,8 +7,7 @@
 *
 \**********************************************/
 
-#ifndef FORMATPPM_H_4GX8MCRJ
-#define FORMATPPM_H_4GX8MCRJ
+#pragma once
 
 #include "format.h"
 
@@ -20,18 +19,15 @@ public:
     cFormatPpm(const char* lib, const char* name, iCallbacks* callbacks);
     virtual ~cFormatPpm();
 
-    virtual bool Load(const char* filename, unsigned subImage = 0);
+    virtual bool Load(const char* filename, sBitmapDescription& desc) override;
 
 private:
-    bool readAscii1(cFile& file, int w, int h);
-    bool readRaw1(cFile& file, int w, int h);
+    bool readAscii1(cFile& file, int w, int h, sBitmapDescription& desc);
+    bool readRaw1(cFile& file, int w, int h, sBitmapDescription& desc);
 
-    bool readAscii8(cFile& file, int w, int h);
-    bool readRaw8(cFile& file, int w, int h);
+    bool readAscii8(cFile& file, int w, int h, sBitmapDescription& desc);
+    bool readRaw8(cFile& file, int w, int h, sBitmapDescription& desc);
 
-    bool readAscii24(cFile& file, int w, int h);
-    bool readRaw24(cFile& file, int w, int h);
+    bool readAscii24(cFile& file, int w, int h, sBitmapDescription& desc);
+    bool readRaw24(cFile& file, int w, int h, sBitmapDescription& desc);
 };
-
-#endif /* end of include guard: FORMATPPM_H_4GX8MCRJ */
-

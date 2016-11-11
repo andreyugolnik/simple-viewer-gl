@@ -68,12 +68,13 @@ ENDIF()
 
 ADD_EXECUTABLE( sviewgl
     src/checkerboard.cpp
+    src/common/ZlibDecoder.cpp
+    src/common/file.cpp
+    src/common/file_zlib.cpp
+    src/common/helpers.cpp
     src/config.cpp
     src/fileslist.cpp
     src/formats/AGEheader.cpp
-    src/formats/ZlibDecoder.cpp
-    src/formats/file.cpp
-    src/formats/file_zlib.cpp
     src/formats/format.cpp
     src/formats/formatage.cpp
     src/formats/formatcommon.cpp
@@ -89,7 +90,6 @@ ADD_EXECUTABLE( sviewgl
     src/formats/formatscr.cpp
     src/formats/formattiff.cpp
     src/formats/formatxwd.cpp
-    src/formats/helpers.cpp
     src/formats/rle.cpp
     src/ftstring.cpp
     src/ftsymbol.cpp

@@ -11,6 +11,8 @@
 
 #include "format.h"
 
+#include <string>
+
 struct GifColorType;
 
 class CFormatGif final : public CFormat
@@ -19,8 +21,13 @@ public:
     CFormatGif(const char* lib, const char* name, iCallbacks* callbacks);
     virtual ~CFormatGif();
 
-    virtual bool Load(const char* filename, unsigned subImage = 0);
+    virtual bool Load(const char* filename, sBitmapDescription& desc) override;
+    virtual bool LoadSubImage(unsigned subImage, sBitmapDescription& desc) override;
 
 private:
-    void putPixel(int pos, const GifColorType* color, bool transparent);
+    bool load(unsigned subImage, sBitmapDescription& desc);
+    void putPixel(sBitmapDescription& desc, int pos, const GifColorType* color, bool transparent);
+
+private:
+    std::string m_filename;
 };

@@ -8,7 +8,8 @@
 \**********************************************/
 
 #include "formatgif.h"
-#include "file.h"
+#include "../common/bitmap_description.h"
+#include "../common/file.h"
 
 #include <cstring>
 #include <iostream>
@@ -23,60 +24,71 @@ CFormatGif::~CFormatGif()
 {
 }
 
-bool CFormatGif::Load(const char* filename, unsigned subImage)
+bool CFormatGif::Load(const char* filename, sBitmapDescription& desc)
+{
+    m_filename = filename;
+    return load(0, desc);
+}
+
+bool CFormatGif::LoadSubImage(unsigned subImage, sBitmapDescription& desc)
+{
+    return load(subImage, desc);
+}
+
+bool CFormatGif::load(unsigned subImage, sBitmapDescription& desc)
 {
     cFile file;
-    if(!file.open(filename))
+    if (!file.open(m_filename.c_str()))
     {
         return false;
     }
 
-    m_size = file.getSize();
+    desc.size = file.getSize();
     file.close();
 
-    GifFileType* gif_file = DGifOpenFileName(filename);
-    if(gif_file == 0)
+    GifFileType* gif_file = DGifOpenFileName(m_filename.c_str());
+    if (gif_file == 0)
     {
         std::cout << "Error Opening GIF image" << std::endl;
         return false;
     }
 
     int res = DGifSlurp(gif_file);
-    if(res != GIF_OK || gif_file->ImageCount < 1)
+    if (res != GIF_OK || gif_file->ImageCount < 1)
     {
         std::cout << "Error Opening GIF image" << std::endl;
         DGifCloseFile(gif_file);
         return false;
     }
 
-    m_subImage = std::max<unsigned>(subImage, 0);
-    m_subImage = std::min<unsigned>(m_subImage, gif_file->ImageCount - 1);
-    m_subCount = gif_file->ImageCount;
+    desc.subImage = std::max<unsigned>(subImage, 0);
+    desc.subImage = std::min<unsigned>(desc.subImage, gif_file->ImageCount - 1);
+    desc.subCount = gif_file->ImageCount;
 
-    const SavedImage* image = &gif_file->SavedImages[m_subImage];
+    const SavedImage* image = &gif_file->SavedImages[desc.subImage];
 
     // place next frame abov previous
-    if(!m_subImage || m_bitmap.empty())
+    if (!desc.subImage || desc.bitmap.empty())
     {
-        m_width = gif_file->SWidth;
-        m_height = gif_file->SHeight;
-        m_pitch = gif_file->SWidth * 4;
-        m_bpp = 32;
-        m_bppImage = 8;//gif_file->Image.ColorMap->BitsPerPixel;
-        m_bitmap.resize(m_pitch * m_height);
-        memset(&m_bitmap[0], 0, m_bitmap.size());
-        m_format = GL_RGBA;
+        desc.width = gif_file->SWidth;
+        desc.height = gif_file->SHeight;
+        desc.pitch = gif_file->SWidth * 4;
+        desc.bpp = 32;
+        desc.bppImage = 8;//gif_file->Image.ColorMap->BitsPerPixel;
+        desc.bitmap.resize(desc.pitch * desc.height);
+        memset(&desc.bitmap[0], 0, desc.bitmap.size());
+        desc.format = GL_RGBA;
     }
 
     // look for the transparent color extension
-    int	transparent = -1;
-    for(int i = 0; i < image->ExtensionBlockCount; i++)
+    int transparent = -1;
+    for (int i = 0; i < image->ExtensionBlockCount; i++)
     {
         ExtensionBlock* eb = image->ExtensionBlocks + i;
-        if(eb->Function == 0xF9 && eb->ByteCount == 4)
+        if (eb->Function == 0xF9 && eb->ByteCount == 4)
         {
             bool has_transparency = ((eb->Bytes[0] & 1) == 1);
-            if(has_transparency)
+            if (has_transparency)
             {
                 transparent = eb->Bytes[3];
             }
@@ -84,39 +96,38 @@ bool CFormatGif::Load(const char* filename, unsigned subImage)
     }
 
     const ColorMapObject* cmap = image->ImageDesc.ColorMap;
-    if(cmap == 0)
+    if (cmap == 0)
     {
         cmap = gif_file->SColorMap;
     }
     //if(cmap->ColorCount != (1 << cmap->BitsPerPixel))
     //{
-        //std::cout << "Invalid ColorMap" << std::endl;
-        //DGifCloseFile(gif_file);
-        //return false;
+    //std::cout << "Invalid ColorMap" << std::endl;
+    //DGifCloseFile(gif_file);
+    //return false;
     //}
     const int width = image->ImageDesc.Width;
     const int height = image->ImageDesc.Height;
 
-    if(image->ImageDesc.Interlace)
+    if (image->ImageDesc.Interlace)
     {
         // Need to perform 4 passes on the images:
-        const int interlacedOffset[] = { 0, 4, 2, 1 };	// The way Interlaced image should
-        const int interlacedJumps[] = { 8, 8, 4, 2 };	// be read - offsets and jumps...
+        const int interlacedOffset[] = { 0, 4, 2, 1 };  // The way Interlaced image should
+        const int interlacedJumps[] = { 8, 8, 4, 2 };   // be read - offsets and jumps...
         int interlaced_y = 0;
 
-        for(int i = 0; i < 4; i++)
+        for (int i = 0; i < 4; i++)
         {
-            for(int y = interlacedOffset[i]; y < height; y += interlacedJumps[i])
+            for (int y = interlacedOffset[i]; y < height; y += interlacedJumps[i])
             {
-                for(int x = 0; x < width; x++)
+                for (int x = 0; x < width; x++)
                 {
                     int index = image->RasterBits[interlaced_y * width + x];
-                    int pos = (y + image->ImageDesc.Top) * m_pitch + (x + image->ImageDesc.Left) * 4;
-                    putPixel(pos, &cmap->Colors[index], (transparent == index));
+                    int pos = (y + image->ImageDesc.Top) * desc.pitch + (x + image->ImageDesc.Left) * 4;
+                    putPixel(desc, pos, &cmap->Colors[index], (transparent == index));
                 }
 
-                int percent = static_cast<int>(100.0f * interlaced_y / height);
-                progress(percent);
+                updateProgress((float)interlaced_y / height);
 
                 interlaced_y++;
             }
@@ -124,47 +135,45 @@ bool CFormatGif::Load(const char* filename, unsigned subImage)
     }
     else
     {
-        for(int y = 0; y < height; y++)
+        for (int y = 0; y < height; y++)
         {
-            for(int x = 0; x < width; x++)
+            for (int x = 0; x < width; x++)
             {
                 int index = image->RasterBits[y * width + x];
-                int pos = (y + image->ImageDesc.Top) * m_pitch + (x + image->ImageDesc.Left) * 4;
-                putPixel(pos, &cmap->Colors[index], (transparent == index));
+                int pos = (y + image->ImageDesc.Top) * desc.pitch + (x + image->ImageDesc.Left) * 4;
+                putPixel(desc, pos, &cmap->Colors[index], (transparent == index));
             }
 
-            int percent = static_cast<int>(100.0f * y / height);
-            progress(percent);
+            updateProgress((float)y / height);
         }
     }
 
-    // UndefinedRecordType		- something is wrong!
-    // ScreenDescRecordType	- screen information. As the screen info is automatically read in when the file is open, this should not happen.
-    // ImageDescRecordType		- next record is an image descriptor.
-    // ExtensionRecordType		- next record is extension block.
-    // TerminateRecordType		- last record reached, can close the file.
-    //	GifRecordType recordType;
-    //	if(GIF_ERROR == DGifGetRecordType(gif_file, &recordType)) {
-    //		DGifCloseFile(gif_file);
-    //		std::cout << "Error Opening GIF image" << std::endl;
-    //		return false;
-    //	}
+    // UndefinedRecordType      - something is wrong!
+    // ScreenDescRecordType - screen information. As the screen info is automatically read in when the file is open, this should not happen.
+    // ImageDescRecordType      - next record is an image descriptor.
+    // ExtensionRecordType      - next record is extension block.
+    // TerminateRecordType      - last record reached, can close the file.
+    //  GifRecordType recordType;
+    //  if(GIF_ERROR == DGifGetRecordType(gif_file, &recordType)) {
+    //      DGifCloseFile(gif_file);
+    //      std::cout << "Error Opening GIF image" << std::endl;
+    //      return false;
+    //  }
     //
-    //	std::cout << "Record Type" << (int)recordType << std::endl;
+    //  std::cout << "Record Type" << (int)recordType << std::endl;
 
     DGifCloseFile(gif_file);
 
     return true;
 }
 
-void CFormatGif::putPixel(int pos, const GifColorType* color, bool transparent)
+void CFormatGif::putPixel(sBitmapDescription& desc, int pos, const GifColorType* color, bool transparent)
 {
-    if(!m_subImage || !transparent)
+    if (!desc.subImage || !transparent)
     {
-        m_bitmap[pos + 0] = color->Red;
-        m_bitmap[pos + 1] = color->Green;
-        m_bitmap[pos + 2] = color->Blue;
-        m_bitmap[pos + 3] = (transparent ? 0 : 255);
+        desc.bitmap[pos + 0] = color->Red;
+        desc.bitmap[pos + 1] = color->Green;
+        desc.bitmap[pos + 2] = color->Blue;
+        desc.bitmap[pos + 3] = (transparent ? 0 : 255);
     }
 }
-

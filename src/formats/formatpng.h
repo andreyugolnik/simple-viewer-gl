@@ -7,19 +7,15 @@
 *
 \**********************************************/
 
-#ifndef FORMATPNG_H
-#define FORMATPNG_H
+#pragma once
 
 #include "format.h"
 
-class CFormatPng : public CFormat
+class CFormatPng final : public CFormat
 {
 public:
     CFormatPng(const char* lib, const char* name, iCallbacks* callbacks);
     virtual ~CFormatPng();
 
-    virtual bool Load(const char* filename, unsigned subImage = 0);
+    virtual bool Load(const char* filename, sBitmapDescription& desc) override;
 };
-
-#endif // FORMATPNG_H
-

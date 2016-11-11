@@ -8,8 +8,9 @@
 \**********************************************/
 
 #include "formatraw.h"
-#include "helpers.h"
-#include "file.h"
+#include "../common/bitmap_description.h"
+#include "../common/file.h"
+#include "../common/helpers.h"
 #include "rle.h"
 
 #include <cstring>
@@ -38,7 +39,7 @@ struct sHeader
 
 static bool isValidFormat(const sHeader& header, unsigned file_size)
 {
-    if(header.data_size + sizeof(sHeader) == file_size)
+    if (header.data_size + sizeof(sHeader) == file_size)
     {
         const char* id = (const char*)&header.id;
         return (id[0] == Id[0] && id[1] == Id[1] && id[2] == Id[2] && id[3] == Id[3]);
@@ -59,7 +60,7 @@ cFormatRaw::~cFormatRaw()
 
 bool cFormatRaw::isSupported(cFile& file, Buffer& buffer) const
 {
-    if(!readBuffer(file, buffer, sizeof(sHeader)))
+    if (!helpers::readBuffer(file, buffer, sizeof(sHeader)))
     {
         return false;
     }
@@ -70,46 +71,46 @@ bool cFormatRaw::isSupported(cFile& file, Buffer& buffer) const
 
 //bool cFormatRaw::isRawFormat(const char* name)
 //{
-    //cFile file;
-    //if(!file.open(name))
-    //{
-        //return false;
-    //}
-
-    //sHeader header;
-    //if(sizeof(header) != file.read(&header, sizeof(header)))
-    //{
-        //return false;
-    //}
-
-    //return isValidFormat(header, file.getSize());
+//cFile file;
+//if(!file.open(name))
+//{
+//return false;
 //}
 
-bool cFormatRaw::Load(const char* filename, unsigned /*subImage*/)
+//sHeader header;
+//if(sizeof(header) != file.read(&header, sizeof(header)))
+//{
+//return false;
+//}
+
+//return isValidFormat(header, file.getSize());
+//}
+
+bool cFormatRaw::Load(const char* filename, sBitmapDescription& desc)
 {
     cFile file;
-    if(!file.open(filename))
+    if (!file.open(filename))
     {
         return false;
     }
 
-    m_size = file.getSize();
+    desc.size = file.getSize();
 
     sHeader header;
-    if(sizeof(header) != file.read(&header, sizeof(header)))
+    if (sizeof(header) != file.read(&header, sizeof(header)))
     {
         printf("not valid RAW format\n");
         return false;
     }
 
-    if(!isValidFormat(header, m_size))
+    if (!isValidFormat(header, desc.size))
     {
         return false;
     }
 
     bool rle = true;
     unsigned bytespp = 0;
-    switch(header.format)
+    switch (header.format)
     {
     case FORMAT_RGB:
         bytespp = 3;
@@ -131,56 +132,54 @@ bool cFormatRaw::Load(const char* filename, unsigned /*subImage*/)
         printf("unknown RAW format\n");
         return false;
     }
-    m_bpp = m_bppImage = bytespp * 8;
-    m_format = (bytespp == 3 ? GL_RGB : GL_RGBA);
-    m_width = header.w;
-    m_height = header.h;
-    m_pitch = m_width * bytespp;
-    m_bitmap.resize(m_pitch * m_height);
+    desc.bpp = desc.bppImage = bytespp * 8;
+    desc.format = (bytespp == 3 ? GL_RGB : GL_RGBA);
+    desc.width = header.w;
+    desc.height = header.h;
+    desc.pitch = desc.width * bytespp;
+    desc.bitmap.resize(desc.pitch * desc.height);
 
-    m_info = "'WE' Group RAW format";
+    desc.info = "AGE RAW format";
 
-    if(rle)
+    if (rle)
     {
         std::vector<unsigned char> rle(header.data_size);
-        if(header.data_size != file.read(&rle[0], header.data_size))
+        if (header.data_size != file.read(&rle[0], header.data_size))
         {
             return false;
         }
 
-        progress(50);
+        updateProgress(0.5f);
 
         cRLE decoder;
         unsigned decoded = 0;
-        if(header.format == FORMAT_RGB_RLE4 || header.format == FORMAT_RGBA_RLE4)
+        if (header.format == FORMAT_RGB_RLE4 || header.format == FORMAT_RGBA_RLE4)
         {
-            decoded = decoder.decodeBy4((unsigned*)&rle[0], rle.size() / 4, (unsigned*)&m_bitmap[0], m_bitmap.size() / 4);
+            decoded = decoder.decodeBy4((unsigned*)&rle[0], rle.size() / 4, (unsigned*)&desc.bitmap[0], desc.bitmap.size() / 4);
         }
         else
         {
-            decoded = decoder.decode(&rle[0], rle.size(), &m_bitmap[0], m_bitmap.size());
+            decoded = decoder.decode(&rle[0], rle.size(), &desc.bitmap[0], desc.bitmap.size());
         }
-        if(!decoded)
+        if (!decoded)
         {
             printf("error decode RLE\n");
             return false;
         }
 
-        progress(100);
+        updateProgress(1.0f);
     }
     else
     {
-        for(unsigned y = 0; y < m_height; y++)
+        for (unsigned y = 0; y < desc.height; y++)
         {
-            if(m_pitch != file.read(&m_bitmap[y * m_pitch], m_pitch))
+            if (desc.pitch != file.read(&desc.bitmap[y * desc.pitch], desc.pitch))
             {
                 return false;
             }
-            int percent = (int)(100.0f * y / m_height);
-            progress(percent);
+            updateProgress((float)y / desc.height);
         }
     }
 
     return true;
 }
-

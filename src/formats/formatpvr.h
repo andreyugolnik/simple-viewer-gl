@@ -7,25 +7,21 @@
 *
 \**********************************************/
 
-#ifndef FORMATPVR_H_BD4C879BFA
-#define FORMATPVR_H_BD4C879BFA
+#pragma once
 
 #include "format.h"
 
 class cFileInterface;
 
-class cFormatPvr : public CFormat
+class cFormatPvr final : public CFormat
 {
 public:
     cFormatPvr(const char* lib, const char* name, iCallbacks* callbacks);
-    virtual ~cFormatPvr();
+    ~cFormatPvr();
 
-    virtual bool isSupported(cFile& file, Buffer& buffer) const;
-    virtual bool Load(const char* filename, unsigned subImage = 0);
+    virtual bool isSupported(cFile& file, Buffer& buffer) const override;
+    virtual bool Load(const char* filename, sBitmapDescription& desc) override;
 
 private:
-    bool readPvr(cFileInterface& file);
+    bool readPvr(cFileInterface& file, sBitmapDescription& desc);
 };
-
-#endif // FORMATPVR_H_BD4C879BFA
-

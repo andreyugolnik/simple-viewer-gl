@@ -17,5 +17,5 @@ public:
     CFormatDds(const char* lib, const char* name, iCallbacks* callbacks);
     virtual ~CFormatDds();
 
-    virtual bool Load(const char* filename, unsigned subImage = 0);
+    virtual bool Load(const char* filename, sBitmapDescription& desc) override;
 };

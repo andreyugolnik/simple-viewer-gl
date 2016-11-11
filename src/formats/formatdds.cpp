@@ -8,7 +8,8 @@
 \**********************************************/
 
 #include "formatdds.h"
-#include "file.h"
+#include "../common/bitmap_description.h"
+#include "../common/file.h"
 
 #include <cassert>
 #include <cstdlib>
@@ -190,40 +191,40 @@ struct DDS_HEADER
 
 //struct dds_colorkey
 //{
-    //unsigned dwColorSpaceLowValue;
-    //unsigned dwColorSpaceHighValue;
+//unsigned dwColorSpaceLowValue;
+//unsigned dwColorSpaceHighValue;
 //};
 
 //struct dds_header
 //{
-    //unsigned magic;
-    //unsigned dwSize;
-    //unsigned dwFlags;
-    //unsigned dwHeight;
-    //unsigned dwWidth;
-    //long lPitch;
-    //unsigned dwDepth;
-    //unsigned dwMipMapCount;
-    //unsigned dwAlphaBitDepth;
-    //unsigned dwReserved;
-    //void* lpSurface;
-    //dds_colorkey ddckCKDestOverlay;
-    //dds_colorkey ddckCKDestBlt;
-    //dds_colorkey ddckCKSrcOverlay;
-    //dds_colorkey ddckCKSrcBlt;
-    //unsigned dwPFSize;
-    //unsigned dwPFFlags;
-    //unsigned dwFourCC;
-    //unsigned dwRGBBitCount;
-    //unsigned dwRBitMask;
-    //unsigned dwGBitMask;
-    //unsigned dwBBitMask;
-    //unsigned dwRGBAlphaBitMask;
-    //unsigned dwCaps;
-    //unsigned dwCaps2;
-    //unsigned dwCaps3;
-    //unsigned dwVolumeDepth;
-    //unsigned dwTextureStage;
+//unsigned magic;
+//unsigned dwSize;
+//unsigned dwFlags;
+//unsigned dwHeight;
+//unsigned dwWidth;
+//long lPitch;
+//unsigned dwDepth;
+//unsigned dwMipMapCount;
+//unsigned dwAlphaBitDepth;
+//unsigned dwReserved;
+//void* lpSurface;
+//dds_colorkey ddckCKDestOverlay;
+//dds_colorkey ddckCKDestBlt;
+//dds_colorkey ddckCKSrcOverlay;
+//dds_colorkey ddckCKSrcBlt;
+//unsigned dwPFSize;
+//unsigned dwPFFlags;
+//unsigned dwFourCC;
+//unsigned dwRGBBitCount;
+//unsigned dwRBitMask;
+//unsigned dwGBitMask;
+//unsigned dwBBitMask;
+//unsigned dwRGBAlphaBitMask;
+//unsigned dwCaps;
+//unsigned dwCaps2;
+//unsigned dwCaps3;
+//unsigned dwVolumeDepth;
+//unsigned dwTextureStage;
 //};
 
 struct dds_color
@@ -275,7 +276,7 @@ static const char* formatToStirng(DDS_FORMAT fmt)
         "RGB", "RGBA", "DXT1", "DXT2", "DXT3", "DXT4", "DXT5", "DXT10"
     };
 
-    if(fmt != DDS_ERROR)
+    if (fmt != DDS_ERROR)
     {
         return formats[fmt];
     }
@@ -292,46 +293,46 @@ CFormatDds::~CFormatDds()
 {
 }
 
-bool CFormatDds::Load(const char* filename, unsigned /*subImage*/)
+bool CFormatDds::Load(const char* filename, sBitmapDescription& desc)
 {
     cFile file;
-    if(!file.open(filename))
+    if (!file.open(filename))
     {
         return false;
     }
 
-    m_size = file.getSize();
+    desc.size = file.getSize();
 
     DDS_HEADER header;
-    if(sizeof(header) != file.read(&header, sizeof(header)))
+    if (sizeof(header) != file.read(&header, sizeof(header)))
     {
         printf("error load DDS file \"%s\": wrong header size\n", filename);
         return false;
     }
 
     const unsigned DDS_MAGIC = ('D' | 'D' << 8 | 'S' << 16 | ' ' << 24);
-    if(header.dwMagic != DDS_MAGIC
-            || header.dwSize != 124
-            || !(header.dwFlags & DDSD_CAPS)
-            || !(header.dwFlags & DDSD_HEIGHT)
-            || !(header.dwFlags & DDSD_WIDTH)
-            || !(header.dwFlags & DDSD_PIXELFORMAT)
-      )
+    if (header.dwMagic != DDS_MAGIC
+        || header.dwSize != 124
+        || !(header.dwFlags & DDSD_CAPS)
+        || !(header.dwFlags & DDSD_HEIGHT)
+        || !(header.dwFlags & DDSD_WIDTH)
+        || !(header.dwFlags & DDSD_PIXELFORMAT)
+       )
     {
         printf("error load DDS file \"%s\": wrong header\n", filename);
         return 0;
     }
 
-    m_width  = header.dwWidth;
-    m_height = header.dwHeight;
+    desc.width  = header.dwWidth;
+    desc.height = header.dwHeight;
 
     DDS_FORMAT format = DDS_ERROR;
     DDS_HEADER_DXT10 header10;
-    if(header.ddspf.dwFlags == DDPF_FOURCC)
+    if (header.ddspf.dwFlags == DDPF_FOURCC)
     {
-        if(header.ddspf.dwFourCC == ('D' | 'X' << 8 | '1' << 16 | '0' << 24))
+        if (header.ddspf.dwFourCC == ('D' | 'X' << 8 | '1' << 16 | '0' << 24))
         {
-            if(sizeof(header) != file.read(&header10, sizeof(header10)))
+            if (sizeof(header) != file.read(&header10, sizeof(header10)))
             {
                 printf("error load DDS file \"%s\": wrong DX10 header size\n", filename);
                 return false;
@@ -340,17 +341,27 @@ bool CFormatDds::Load(const char* filename, unsigned /*subImage*/)
         }
         else
         {
-            switch(header.ddspf.dwFourCC)
+            switch (header.ddspf.dwFourCC)
             {
-            case ('D' | 'X' << 8 | 'T' << 16 | '1' << 24): format = DDS_DXT1; break;
-            case ('D' | 'X' << 8 | 'T' << 16 | '2' << 24): format = DDS_DXT2; break;
-            case ('D' | 'X' << 8 | 'T' << 16 | '3' << 24): format = DDS_DXT3; break;
-            case ('D' | 'X' << 8 | 'T' << 16 | '4' << 24): format = DDS_DXT4; break;
-            case ('D' | 'X' << 8 | 'T' << 16 | '5' << 24): format = DDS_DXT5; break;
+            case ('D' | 'X' << 8 | 'T' << 16 | '1' << 24):
+                format = DDS_DXT1;
+                break;
+            case ('D' | 'X' << 8 | 'T' << 16 | '2' << 24):
+                format = DDS_DXT2;
+                break;
+            case ('D' | 'X' << 8 | 'T' << 16 | '3' << 24):
+                format = DDS_DXT3;
+                break;
+            case ('D' | 'X' << 8 | 'T' << 16 | '4' << 24):
+                format = DDS_DXT4;
+                break;
+            case ('D' | 'X' << 8 | 'T' << 16 | '5' << 24):
+                format = DDS_DXT5;
+                break;
             }
         }
     }
-    else if(header.ddspf.dwFlags & DDPF_RGB && header.ddspf.dwFlags & DDPF_ALPHAPIXELS)
+    else if (header.ddspf.dwFlags & DDPF_RGB && header.ddspf.dwFlags & DDPF_ALPHAPIXELS)
     {
         format = DDS_RGBA;
     }
@@ -359,7 +370,7 @@ bool CFormatDds::Load(const char* filename, unsigned /*subImage*/)
         format = DDS_RGB;
     }
 
-    if(format == DDS_ERROR)
+    if (format == DDS_ERROR)
     {
         printf("error load DDS file \"%s\": unknown format 0x%x RGB %d\n", filename, header.ddspf.dwFlags, header.ddspf.dwRGBBitCount);
         return 0;
@@ -367,28 +378,28 @@ bool CFormatDds::Load(const char* filename, unsigned /*subImage*/)
 
     printf("format: %s\n", formatToStirng(format));
 
-    const unsigned data_size = m_size - file.getOffset();
+    const unsigned data_size = desc.size - file.getOffset();
     unsigned char* buffer = new unsigned char[data_size];
     unsigned char* src = buffer;
-    if(data_size != file.read(src, data_size))
+    if (data_size != file.read(src, data_size))
     {
         printf("error load DDS file \"%s\": wrong data size.\n", filename);
         return 0;
     }
 
-    if(format == DDS_RGB)
+    if (format == DDS_RGB)
     {
-        m_format = GL_RGB;
-        m_bpp = 24;
-        m_bppImage = 24;
-        m_pitch = m_width * 3;
-        const unsigned size = m_pitch * m_height;
-        m_bitmap.resize(size);
-        unsigned char* dest = &m_bitmap[0];
+        desc.format = GL_RGB;
+        desc.bpp = 24;
+        desc.bppImage = 24;
+        desc.pitch = desc.width * 3;
+        const unsigned size = desc.pitch * desc.height;
+        desc.bitmap.resize(size);
+        unsigned char* dest = &desc.bitmap[0];
 
-        for(unsigned y = 0; y < m_height; y++)
+        for (unsigned y = 0; y < desc.height; y++)
         {
-            for(unsigned x = 0; x < m_width; x++)
+            for (unsigned x = 0; x < desc.width; x++)
             {
                 *dest++ = *src++;
                 *dest++ = *src++;
@@ -396,19 +407,19 @@ bool CFormatDds::Load(const char* filename, unsigned /*subImage*/)
             }
         }
     }
-    else if(format == DDS_RGBA)
+    else if (format == DDS_RGBA)
     {
-        m_format = GL_RGBA;
-        m_bpp = 32;
-        m_bppImage = 32;
-        m_pitch = m_width * 4;
-        const unsigned size = m_pitch * m_height;
-        m_bitmap.resize(size);
-        unsigned char* dest = &m_bitmap[0];
+        desc.format = GL_RGBA;
+        desc.bpp = 32;
+        desc.bppImage = 32;
+        desc.pitch = desc.width * 4;
+        const unsigned size = desc.pitch * desc.height;
+        desc.bitmap.resize(size);
+        unsigned char* dest = &desc.bitmap[0];
 
-        for(unsigned y = 0; y < m_height; y++)
+        for (unsigned y = 0; y < desc.height; y++)
         {
-            for(unsigned x = 0; x < m_width; x++)
+            for (unsigned x = 0; x < desc.width; x++)
             {
                 *dest++ = *src++;
                 *dest++ = *src++;
@@ -419,29 +430,29 @@ bool CFormatDds::Load(const char* filename, unsigned /*subImage*/)
     }
     else
     {
-        m_format = GL_RGBA;
-        m_bpp = 32;
-        m_bppImage = 32;
-        m_pitch = m_width * 4;
-        const unsigned size = m_pitch * m_height;
-        m_bitmap.resize(size);
+        desc.format = GL_RGBA;
+        desc.bpp = 32;
+        desc.bppImage = 32;
+        desc.pitch = desc.width * 4;
+        const unsigned size = desc.pitch * desc.height;
+        desc.bitmap.resize(size);
 
-        for(unsigned y = 0; y < m_height; y += 4)
+        for (unsigned y = 0; y < desc.height; y += 4)
         {
-            for(unsigned x = 0; x < m_width; x += 4)
+            for (unsigned x = 0; x < desc.width; x += 4)
             {
                 unsigned long long alpha = 0;
                 unsigned a0 = 0;
                 unsigned a1 = 0;
                 dds_color color[4];
-                if(format == DDS_DXT3)
+                if (format == DDS_DXT3)
                 {
                     alpha = *(unsigned long long*)src;
                     src += 8;
                 }
-                else if(format == DDS_DXT5)
+                else if (format == DDS_DXT5)
                 {
-                    alpha =  (*(unsigned long long*)src) >> 16;
+                    alpha = (*(unsigned long long*)src) >> 16;
                     a0 = src[0];
                     a1 = src[1];
                     src += 8;
@@ -455,7 +466,7 @@ bool CFormatDds::Load(const char* filename, unsigned /*subImage*/)
                 color[1].r = ((c1 >> 11) & 0x1f) << 3;
                 color[1].g = ((c1 >>  5) & 0x3f) << 2;
                 color[1].b = ((c1 >>  0) & 0x1f) << 3;
-                if(c0 > c1)
+                if (c0 > c1)
                 {
                     color[2].r = (color[0].r * 2 + color[1].r) / 3;
                     color[2].g = (color[0].g * 2 + color[1].g) / 3;
@@ -474,32 +485,47 @@ bool CFormatDds::Load(const char* filename, unsigned /*subImage*/)
                     color[3].b = 0;
                 }
 
-                for(unsigned i = 0; i < 4; i++)
+                for (unsigned i = 0; i < 4; i++)
                 {
                     unsigned index = *src++;
-                    unsigned char* dest = &m_bitmap[0] + (m_width * (y + i) + x) * 4;
-                    for(unsigned j = 0; j < 4; j++)
+                    unsigned char* dest = &desc.bitmap[0] + (desc.width * (y + i) + x) * 4;
+                    for (unsigned j = 0; j < 4; j++)
                     {
                         *dest++ = color[index & 0x03].r;
                         *dest++ = color[index & 0x03].g;
                         *dest++ = color[index & 0x03].b;
-                        if(format == DDS_DXT1)
+                        if (format == DDS_DXT1)
                         {
                             *dest++ = ((index & 0x03) == 3 && c0 <= c1) ? 0 : 255;
                         }
-                        else if(format == DDS_DXT3)
+                        else if (format == DDS_DXT3)
                         {
                             *dest++ = (alpha & 0x0f) << 4;
                             alpha >>= 4;
                         }
-                        else if(format == DDS_DXT5)
+                        else if (format == DDS_DXT5)
                         {
                             unsigned a = alpha & 0x07;
-                            if(a == 0) *dest++ = a0;
-                            else if(a == 1) *dest++ = a1;
-                            else if(a0 > a1) *dest++ = ((8 - a) * a0 + (a - 1) * a1) / 7;
-                            else if(a > 5) *dest++ = (a == 6) ? 0 : 255;
-                            else *dest++ = ((6 - a) * a0 + (a - 1) * a1) / 5;
+                            if (a == 0)
+                            {
+                                *dest++ = a0;
+                            }
+                            else if (a == 1)
+                            {
+                                *dest++ = a1;
+                            }
+                            else if (a0 > a1)
+                            {
+                                *dest++ = ((8 - a) * a0 + (a - 1) * a1) / 7;
+                            }
+                            else if (a > 5)
+                            {
+                                *dest++ = (a == 6) ? 0 : 255;
+                            }
+                            else
+                            {
+                                *dest++ = ((6 - a) * a0 + (a - 1) * a1) / 5;
+                            }
                             alpha >>= 3;
                         }
                         else
@@ -518,4 +544,3 @@ bool CFormatDds::Load(const char* filename, unsigned /*subImage*/)
 
     return true;
 }
-

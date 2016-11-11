@@ -7,19 +7,15 @@
 *
 \**********************************************/
 
-#ifndef FORMATPSD_H
-#define FORMATPSD_H
+#pragma once
 
 #include "format.h"
 
-class CFormatPsd : public CFormat
+class CFormatPsd final : public CFormat
 {
 public:
     CFormatPsd(const char* lib, const char* name, iCallbacks* callbacks);
     virtual ~CFormatPsd();
 
-    virtual bool Load(const char* filename, unsigned subImage = 0);
+    virtual bool Load(const char* filename, sBitmapDescription& desc) override;
 };
-
-#endif // FORMATPSD_H
-

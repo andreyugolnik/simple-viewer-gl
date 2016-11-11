@@ -9,8 +9,8 @@
 
 #pragma once
 
+#include "common/callbacks.h"
 #include "math/vector.h"
-#include "callbacks.h"
 
 #include <vector>
 #include <memory>
@@ -41,13 +41,25 @@ public:
 
     void render();
 
-    bool isWindowModeRequested() const { return m_windowModeChangeRequested; }
-    bool isWindowed() const { return m_isWindowed; }
-    const cVector<int>& getWindowPosition() const { return m_prevPos; }
-    const cVector<int>& getWindowSize() const { return m_prevSize; }
+    bool isWindowModeRequested() const
+    {
+        return m_windowModeChangeRequested;
+    }
+    bool isWindowed() const
+    {
+        return m_isWindowed;
+    }
+    const cVector<int>& getWindowPosition() const
+    {
+        return m_prevPos;
+    }
+    const cVector<int>& getWindowSize() const
+    {
+        return m_prevSize;
+    }
 
 public:
-    virtual void doProgress(int percent);
+    virtual void doProgress(float percent) override;
 
     void fnResize(int width, int height);
     void centerWindow();
@@ -60,8 +72,8 @@ public:
 
 private:
     void applyConfig();
-    bool loadSubImage(int subStep);
-    bool loadImage(int step, int subImage);
+    void loadSubImage(int subStep);
+    void loadImage(int step);
     void calculateScale();
     void updateScale(bool up);
     void updateFiltering();
@@ -112,4 +124,3 @@ private:
     std::unique_ptr<CImageBorder> m_border;
     std::unique_ptr<CSelection> m_selection;
 };
-

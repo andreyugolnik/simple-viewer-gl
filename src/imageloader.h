@@ -1,41 +1,43 @@
-/////////////////////////////////////////////////
-//
-// Andrey A. Ugolnik
-// andrey@ugolnik.info
-//
-/////////////////////////////////////////////////
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
 #pragma once
 
 #include "formats/format.h"
+#include "common/bitmap_description.h"
 
 #include <memory>
-#include <string>
 
 class iCallbacks;
 
-enum eImageType
+enum class eImageType
 {
 #if defined(IMLIB2_SUPPORT)
-    TYPE_COMMON,
+    COMMON,
 #endif
-    TYPE_JPG,
-    TYPE_PSD,
-    TYPE_PNG,
-    TYPE_GIF,
-    TYPE_ICO,
-    TYPE_TIF,
-    TYPE_XWD,
-    TYPE_DDS,
-    TYPE_RAW,
-    TYPE_AGE,
-    TYPE_PPM,
-    TYPE_PVR,
-    TYPE_SCR,
+    JPG,
+    PSD,
+    PNG,
+    GIF,
+    ICO,
+    TIF,
+    XWD,
+    DDS,
+    RAW,
+    AGE,
+    PPM,
+    PVR,
+    SCR,
 
-    TYPE_NOTAVAILABLE,
+    NOTAVAILABLE,
 
-    TYPES_COUNT
+    COUNT
 };
 
 class CImageLoader final
@@ -44,10 +46,11 @@ public:
     CImageLoader(iCallbacks* callbacks);
     ~CImageLoader();
 
-    bool LoadImage(const char* path, unsigned subImage);
+    void LoadImage(const char* path);
+    void LoadSubImage(unsigned subImage);
     bool isLoaded() const;
 
-    unsigned char* GetBitmap() const;
+    const unsigned char* GetBitmap() const;
     void FreeMemory();
     unsigned GetWidth() const;
     unsigned GetHeight() const;
@@ -64,11 +67,9 @@ public:
 private:
     CImageLoader();
     eImageType getType(const char* name);
-    bool LoadImage(const char* path, eImageType type, unsigned subImage);
 
 private:
-    CFormat* m_image;
-    eImageType m_type;
-    std::string m_path;
-    std::unique_ptr<CFormat> m_formats[TYPES_COUNT];
+    CFormat* m_image = nullptr;
+    std::unique_ptr<CFormat> m_formats[(unsigned)eImageType::COUNT];
+    sBitmapDescription m_desc;
 };

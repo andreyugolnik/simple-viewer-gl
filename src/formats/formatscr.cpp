@@ -8,7 +8,9 @@
 \**********************************************/
 
 #include "formatscr.h"
-#include "file.h"
+#include "../common/bitmap_description.h"
+#include "../common/file.h"
+
 #include <cstring>
 #include <cstdint>
 
@@ -56,7 +58,7 @@ struct sPixelRGB
         };
 
         const unsigned bright = (attribute & 0x40) >> 3;
-        if(!isSet)
+        if (!isSet)
         {
             attribute >>= 3;
         }
@@ -68,7 +70,7 @@ struct sPixelRGB
 
 void putEightPixels(sPixelRGB* out, const unsigned char pixels, const unsigned char attribute)
 {
-    for(unsigned i = 0; i < 8; i++)
+    for (unsigned i = 0; i < 8; i++)
     {
         const unsigned bit = 0x80 >> i;
         const bool isSet = pixels & bit;
@@ -79,11 +81,11 @@ void putEightPixels(sPixelRGB* out, const unsigned char pixels, const unsigned c
 
 void fillThird(const unsigned char* zxPixels, const unsigned char* zxColors, sPixelRGB* out)
 {
-    for(unsigned y = 0; y < 64; y++)
+    for (unsigned y = 0; y < 64; y++)
     {
         const unsigned line = (y * 8) % 64 + (y * 8) / 64;
         sPixelRGB* startLine = &out[line * 256];
-        for(unsigned x = 0; x < 256 / 8; x++)
+        for (unsigned x = 0; x < 256 / 8; x++)
         {
             const unsigned char pixels = *zxPixels;
             const unsigned char attribute = zxColors[(y % 8) * 32 + x];
@@ -93,44 +95,41 @@ void fillThird(const unsigned char* zxPixels, const unsigned char* zxColors, sPi
     }
 }
 
-bool cFormatScr::Load(const char* filename, unsigned subImage)
+bool cFormatScr::Load(const char* filename, sBitmapDescription& desc)
 {
-    (void)subImage;
-
     cFile file;
-    if(!file.open(filename))
+    if (!file.open(filename))
     {
         return false;
     }
 
-    m_size = file.getSize();
+    desc.size = file.getSize();
 
     std::vector<unsigned char> scr(6912);
-    if(scr.size() != file.read(&scr[0], scr.size()))
+    if (scr.size() != file.read(&scr[0], scr.size()))
     {
         printf("invalid size of ZX-Spectrum screen\n");
         return false;
     }
 
-    m_width  = 256;
-    m_height = 192;
+    desc.width  = 256;
+    desc.height = 192;
 
-    m_pitch = m_width * 3;
-    m_bitmap.resize(m_pitch * m_height);
+    desc.pitch = desc.width * 3;
+    desc.bitmap.resize(desc.pitch * desc.height);
 
-    for(unsigned i = 0; i < 3; i++)
+    for (unsigned i = 0; i < 3; i++)
     {
         const unsigned char* zxPixels = &scr[2048 * i];
         const unsigned char* zxColors = &scr[6144 + 256 * i];
-        sPixelRGB* out = (sPixelRGB*)&m_bitmap[m_pitch * 64 * i];
+        sPixelRGB* out = (sPixelRGB*)&desc.bitmap[desc.pitch * 64 * i];
         fillThird(zxPixels, zxColors, out);
     }
 
-    m_bppImage = 1;
+    desc.bppImage = 1;
 
-    m_bpp = 24;
-    m_format = GL_RGB;
+    desc.bpp = 24;
+    desc.format = GL_RGB;
 
     return true;
 }
-

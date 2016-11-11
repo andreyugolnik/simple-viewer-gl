@@ -8,7 +8,8 @@
 \**********************************************/
 
 #include "formatico.h"
-#include "file.h"
+#include "../common/bitmap_description.h"
+#include "../common/file.h"
 
 #include <cstring>
 #include <cmath>
@@ -59,14 +60,14 @@ struct IcoBmpInfoHeader
 // Size = NumberOfColors * 4 bytes.
 struct IcoColors
 {
-    uint8_t red;		// red component
-    uint8_t green;	// green component
-    uint8_t blue;		// blue component
-    uint8_t reserved;	// = 0
+    uint8_t red;      // red component
+    uint8_t green;    // green component
+    uint8_t blue;     // blue component
+    uint8_t reserved; // = 0
 };
 
-//		uint8_t xormask;	// DIB bits for XOR mask
-//		uint8_t andmask;	// DIB bits for AND mask
+// uint8_t xormask; // DIB bits for XOR mask
+// uint8_t andmask; // DIB bits for AND mask
 #pragma pack(pop)
 
 struct PngRaw
@@ -99,15 +100,26 @@ CFormatIco::~CFormatIco()
 {
 }
 
-bool CFormatIco::Load(const char* filename, unsigned subImage)
+bool CFormatIco::Load(const char* filename, sBitmapDescription& desc)
+{
+    m_filename = filename;
+    return load(0, desc);
+}
+
+bool CFormatIco::LoadSubImage(unsigned subImage, sBitmapDescription& desc)
+{
+    return load(subImage, desc);
+}
+
+bool CFormatIco::load(unsigned subImage, sBitmapDescription& desc)
 {
     cFile file;
-    if(!file.open(filename))
+    if(!file.open(m_filename.c_str()))
     {
         return false;
     }
 
-    m_size = file.getSize();
+    desc.size = file.getSize();
 
     IcoHeader header;
     if(sizeof(header) != file.read(&header, sizeof(header)))
@@ -139,23 +151,23 @@ bool CFormatIco::Load(const char* filename, unsigned subImage)
 
     if(image->colors == 0 && image->width == 0 && image->height == 0)
     {
-        result = loadPngFrame(file, image);
+        result = loadPngFrame(desc, file, image);
     }
     else
     {
-        result = loadOrdinaryFrame(file, image);
+        result = loadOrdinaryFrame(desc, file, image);
     }
 
     delete[] images;
 
     // store frame number and frames count after reset again
-    m_subImage = subImage;
-    m_subCount = header.count;
+    desc.subImage = subImage;
+    desc.subCount = header.count;
 
     return result;
 }
 
-bool CFormatIco::loadPngFrame(cFile& file, const IcoDirentry* image)
+bool CFormatIco::loadPngFrame(sBitmapDescription& desc, cFile& file, const IcoDirentry* image)
 {
     uint8_t* p = new uint8_t[image->size];
 
@@ -208,7 +220,7 @@ bool CFormatIco::loadPngFrame(cFile& file, const IcoDirentry* image)
     png_read_info(png, info);
 
     // get real bits per pixel
-    m_bppImage = png_get_bit_depth(png, info) * png_get_channels(png, info);
+    desc.bppImage = png_get_bit_depth(png, info) * png_get_channels(png, info);
 
     //if(info->color_type == PNG_COLOR_TYPE_PALETTE)
     uint8_t color_type = png_get_color_type(png, info);
@@ -241,10 +253,10 @@ bool CFormatIco::loadPngFrame(cFile& file, const IcoDirentry* image)
     //	int number_of_passes	= png_set_interlace_handling(png);
     png_read_update_info(png, info);
 
-    m_width = png_get_image_width(png, info);
-    m_height =png_get_image_height(png, info);
-    m_pitch = png_get_rowbytes(png, info);
-    m_bpp = png_get_bit_depth(png, info) * png_get_channels(png, info);
+    desc.width = png_get_image_width(png, info);
+    desc.height =png_get_image_height(png, info);
+    desc.pitch = png_get_rowbytes(png, info);
+    desc.bpp = png_get_bit_depth(png, info) * png_get_channels(png, info);
 
     // read file
     if(setjmp(png_jmpbuf(png)) != 0)
@@ -255,61 +267,59 @@ bool CFormatIco::loadPngFrame(cFile& file, const IcoDirentry* image)
     }
 
     // create buffer and read data
-    png_bytep* row_pointers = new png_bytep[m_height];
-    for(unsigned y = 0; y < m_height; y++)
+    png_bytep* row_pointers = new png_bytep[desc.height];
+    for(unsigned y = 0; y < desc.height; y++)
     {
-        row_pointers[y] = new png_byte[m_pitch];
+        row_pointers[y] = new png_byte[desc.pitch];
     }
     png_read_image(png, row_pointers);
 
     // create BGRA buffer and decode image data
-    m_bitmap.resize(m_pitch * m_height);
+    desc.bitmap.resize(desc.pitch * desc.height);
 
     color_type = png_get_color_type(png, info);
     if(color_type == PNG_COLOR_TYPE_RGB)
     {
-        m_format = GL_RGB;
-        for(unsigned y = 0; y < m_height; y++)
+        desc.format = GL_RGB;
+        for(unsigned y = 0; y < desc.height; y++)
         {
-            unsigned dst = y * m_pitch;
-            for(unsigned x = 0; x < m_width; x++)
+            unsigned dst = y * desc.pitch;
+            for(unsigned x = 0; x < desc.width; x++)
             {
                 unsigned dx = x * 3;
-                m_bitmap[dst + dx + 0] = *(row_pointers[y] + dx + 0);
-                m_bitmap[dst + dx + 1] = *(row_pointers[y] + dx + 1);
-                m_bitmap[dst + dx + 2] = *(row_pointers[y] + dx + 2);
+                desc.bitmap[dst + dx + 0] = *(row_pointers[y] + dx + 0);
+                desc.bitmap[dst + dx + 1] = *(row_pointers[y] + dx + 1);
+                desc.bitmap[dst + dx + 2] = *(row_pointers[y] + dx + 2);
             }
 
-            int percent = (int)(100.0f * y / m_height);
-            progress(percent);
+            updateProgress((float)y / desc.height);
 
             delete[] row_pointers[y];
         }
     }
     else if(color_type == PNG_COLOR_TYPE_RGB_ALPHA)
     {
-        m_format = GL_RGBA;
-        for(unsigned y = 0; y < m_height; y++)
+        desc.format = GL_RGBA;
+        for(unsigned y = 0; y < desc.height; y++)
         {
-            unsigned dst = y * m_pitch;
-            for(unsigned x = 0; x < m_width; x++)
+            unsigned dst = y * desc.pitch;
+            for(unsigned x = 0; x < desc.width; x++)
             {
                 unsigned dx = x * 4;
-                m_bitmap[dst + dx + 0] = *(row_pointers[y] + dx + 0);
-                m_bitmap[dst + dx + 1] = *(row_pointers[y] + dx + 1);
-                m_bitmap[dst + dx + 2] = *(row_pointers[y] + dx + 2);
-                m_bitmap[dst + dx + 3] = *(row_pointers[y] + dx + 3);
+                desc.bitmap[dst + dx + 0] = *(row_pointers[y] + dx + 0);
+                desc.bitmap[dst + dx + 1] = *(row_pointers[y] + dx + 1);
+                desc.bitmap[dst + dx + 2] = *(row_pointers[y] + dx + 2);
+                desc.bitmap[dst + dx + 3] = *(row_pointers[y] + dx + 3);
             }
 
-            int percent = (int)(100.0f * y / m_height);
-            progress(percent);
+            updateProgress((float)y / desc.height);
 
             delete[] row_pointers[y];
         }
     }
     else
     {
-        for(unsigned y = 0; y < m_height; y++)
+        for(unsigned y = 0; y < desc.height; y++)
         {
             delete[] row_pointers[y];
         }
@@ -324,7 +334,7 @@ bool CFormatIco::loadPngFrame(cFile& file, const IcoDirentry* image)
 }
 
 // load frame in ordinary format
-bool CFormatIco::loadOrdinaryFrame(cFile& file, const IcoDirentry* image)
+bool CFormatIco::loadOrdinaryFrame(sBitmapDescription& desc, cFile& file, const IcoDirentry* image)
 {
     file.seek(image->offset, SEEK_SET);
     uint8_t* p = new uint8_t[image->size];
@@ -335,21 +345,21 @@ bool CFormatIco::loadOrdinaryFrame(cFile& file, const IcoDirentry* image)
     }
 
     IcoBmpInfoHeader* imgHeader = (IcoBmpInfoHeader*)p;
-    m_width = imgHeader->width;
-    m_height = imgHeader->height / 2;	// xor mask + and mask
-    m_pitch = m_width * 4;
-    m_bpp = 32;
-    m_bppImage = imgHeader->bits;
-    m_format = GL_RGBA;
+    desc.width = imgHeader->width;
+    desc.height = imgHeader->height / 2;	// xor mask + and mask
+    desc.pitch = desc.width * 4;
+    desc.bpp = 32;
+    desc.bppImage = imgHeader->bits;
+    desc.format = GL_RGBA;
 
-    int pitch = calcIcoPitch();
+    int pitch = calcIcoPitch(desc.bppImage, desc.width);
     if(pitch == -1)
     {
         delete[] p;
         return false;
     }
 
-    m_bitmap.resize(m_pitch * m_height);
+    desc.bitmap.resize(desc.pitch * desc.height);
 
     //	std::cout << std::endl;
     //	std::cout << "--- IcoBmpInfoHeader ---" << std::endl;
@@ -361,133 +371,129 @@ bool CFormatIco::loadOrdinaryFrame(cFile& file, const IcoDirentry* image)
     //	std::cout << "imagesize: " << (int)imgHeader->imagesize << "." << std::endl;
 
 
-    int colors = image->colors == 0 ? (1 << m_bppImage) : image->colors;
+    int colors = image->colors == 0 ? (1 << desc.bppImage) : image->colors;
     uint32_t* palette = (uint32_t*)&p[imgHeader->size];
     uint8_t* xorMask = &p[imgHeader->size + colors * 4];
-    uint8_t* andMask = &p[imgHeader->size + colors * 4 + m_height * pitch];
+    uint8_t* andMask = &p[imgHeader->size + colors * 4 + desc.height * pitch];
 
-    switch(m_bppImage)
+    switch(desc.bppImage)
     {
     case 1:
-        for(unsigned y = 0; y < m_height; y++)
+        for(unsigned y = 0; y < desc.height; y++)
         {
-            for(unsigned x = 0; x < m_width; x++)
+            for(unsigned x = 0; x < desc.width; x++)
             {
-                uint32_t color = palette[getBit(xorMask, y * m_width + x)];
+                uint32_t color = palette[getBit(xorMask, y * desc.width + x, desc.width)];
 
-                unsigned idx = (m_height - y - 1) * m_pitch + x * 4;
+                unsigned idx = (desc.height - y - 1) * desc.pitch + x * 4;
 
-                m_bitmap[idx + 0] = ((uint8_t*)(&color))[2];
-                m_bitmap[idx + 1] = ((uint8_t*)(&color))[1];
-                m_bitmap[idx + 2] = ((uint8_t*)(&color))[0];
+                desc.bitmap[idx + 0] = ((uint8_t*)(&color))[2];
+                desc.bitmap[idx + 1] = ((uint8_t*)(&color))[1];
+                desc.bitmap[idx + 2] = ((uint8_t*)(&color))[0];
 
-                if(getBit(andMask, y * m_width + x))
+                if(getBit(andMask, y * desc.width + x, desc.width))
                 {
-                    m_bitmap[idx + 3] = 0;
+                    desc.bitmap[idx + 3] = 0;
                 }
                 else
                 {
-                    m_bitmap[idx + 3] = 255;
+                    desc.bitmap[idx + 3] = 255;
                 }
 
-                int percent	= (int)(100.0f * m_height * m_width / (y * m_width + x));
-                progress(percent);
+                updateProgress((float)desc.height * desc.width / (y * desc.width + x));
             }
         }
         break;
 
     case 4:
-        for(unsigned y = 0; y < m_height; y++)
+        for(unsigned y = 0; y < desc.height; y++)
         {
-            for(unsigned x = 0; x < m_width; x++)
+            for(unsigned x = 0; x < desc.width; x++)
             {
-                uint32_t color = palette[getNibble(xorMask, y * m_width + x)];
+                uint32_t color = palette[getNibble(xorMask, y * desc.width + x, desc.width)];
 
-                unsigned idx = (m_height - y - 1) * m_pitch + x * 4;
+                unsigned idx = (desc.height - y - 1) * desc.pitch + x * 4;
 
-                m_bitmap[idx + 0] = ((uint8_t*)(&color))[2];
-                m_bitmap[idx + 1] = ((uint8_t*)(&color))[1];
-                m_bitmap[idx + 2] = ((uint8_t*)(&color))[0];
+                desc.bitmap[idx + 0] = ((uint8_t*)(&color))[2];
+                desc.bitmap[idx + 1] = ((uint8_t*)(&color))[1];
+                desc.bitmap[idx + 2] = ((uint8_t*)(&color))[0];
 
-                if(getBit(andMask, y * m_width + x))
+                if(getBit(andMask, y * desc.width + x, desc.width))
                 {
-                    m_bitmap[idx + 3] = 0;
+                    desc.bitmap[idx + 3] = 0;
                 }
                 else
                 {
-                    m_bitmap[idx + 3] = 255;
+                    desc.bitmap[idx + 3] = 255;
                 }
 
-                int percent	= (int)(100.0f * m_height * m_width / (y * m_width + x));
-                progress(percent);
+                updateProgress((float)desc.height * desc.width / (y * desc.width + x));
             }
         }
         break;
 
     case 8:
-        for(unsigned y = 0; y < m_height; y++)
+        for(unsigned y = 0; y < desc.height; y++)
         {
-            for(unsigned x = 0; x < m_width; x++)
+            for(unsigned x = 0; x < desc.width; x++)
             {
-                uint32_t color = palette[getByte(xorMask, y * m_width + x)];
+                uint32_t color = palette[getByte(xorMask, y * desc.width + x, desc.width)];
 
-                unsigned idx = (m_height - y - 1) * m_pitch + x * 4;
+                unsigned idx = (desc.height - y - 1) * desc.pitch + x * 4;
 
-                m_bitmap[idx + 0] = ((uint8_t*)(&color))[2];
-                m_bitmap[idx + 1] = ((uint8_t*)(&color))[1];
-                m_bitmap[idx + 2] = ((uint8_t*)(&color))[0];
+                desc.bitmap[idx + 0] = ((uint8_t*)(&color))[2];
+                desc.bitmap[idx + 1] = ((uint8_t*)(&color))[1];
+                desc.bitmap[idx + 2] = ((uint8_t*)(&color))[0];
 
-                if(getBit(andMask, y * m_width + x))
+                if(getBit(andMask, y * desc.width + x, desc.width))
                 {
-                    m_bitmap[idx + 3] = 0;
+                    desc.bitmap[idx + 3] = 0;
                 }
                 else
                 {
-                    m_bitmap[idx + 3] = 255;
+                    desc.bitmap[idx + 3] = 255;
                 }
 
-                int percent = (int)(100.0f * m_height * m_width / (y * m_width + x));
-                progress(percent);
+                updateProgress((float)desc.height * desc.width / (y * desc.width + x));
             }
         }
         break;
 
     default:
         {
-            unsigned bpp = m_bppImage / 8;
-            for(unsigned y = 0; y < m_height; y++)
+            unsigned bpp = desc.bppImage / 8;
+            for(unsigned y = 0; y < desc.height; y++)
             {
 
                 uint8_t* row = xorMask + pitch * y;
 
-                for(unsigned x = 0; x < m_width; x++)
+                for(unsigned x = 0; x < desc.width; x++)
                 {
-                    unsigned idx = (m_height - y - 1) * m_pitch + x * 4;
+                    unsigned idx = (desc.height - y - 1) * desc.pitch + x * 4;
 
-                    m_bitmap[idx + 0] = row[2];
-                    m_bitmap[idx + 1] = row[1];
-                    m_bitmap[idx + 2] = row[0];
+                    desc.bitmap[idx + 0] = row[2];
+                    desc.bitmap[idx + 1] = row[1];
+                    desc.bitmap[idx + 2] = row[0];
 
-                    if(m_bppImage < 32)
+                    if(desc.bppImage < 32)
                     {
-                        if(getBit(andMask, y * m_width + x))
+                        if(getBit(andMask, y * desc.width + x, desc.width))
                         {
-                            m_bitmap[idx + 3] = 0;
+                            desc.bitmap[idx + 3] = 0;
                         }
                         else
                         {
-                            m_bitmap[idx + 3] = 255;
+                            desc.bitmap[idx + 3] = 255;
                         }
                     }
                     else
                     {
-                        m_bitmap[idx + 3] = row[3];
+                        desc.bitmap[idx + 3] = row[3];
                     }
 
                     row += bpp;
 
-                    int percent = (int)(100.0f * m_height * m_width / (y * m_width + x));
-                    progress(percent);
+                    updateProgress((float)desc.height * desc.width / (y * desc.width + x));
                 }
             }
         }
@@ -499,57 +505,57 @@ bool CFormatIco::loadOrdinaryFrame(cFile& file, const IcoDirentry* image)
     return true;
 }
 
-int CFormatIco::calcIcoPitch()
+int CFormatIco::calcIcoPitch(unsigned bppImage, unsigned width)
 {
-    switch(m_bppImage)
+    switch(bppImage)
     {
     case 1:
-        if((m_width % 32) == 0)
-            return m_width / 8;
-        return 4 * (m_width / 32 + 1);
+        if((width % 32) == 0)
+            return width / 8;
+        return 4 * (width / 32 + 1);
 
     case 4:
-        if((m_width % 8) == 0)
-            return m_width / 2;
-        return 4 * (m_width / 8 + 1);
+        if((width % 8) == 0)
+            return width / 2;
+        return 4 * (width / 8 + 1);
 
     case 8:
-        if((m_width % 4) == 0)
-            return m_width;
-        return 4 * (m_width / 4 + 1);
+        if((width % 4) == 0)
+            return width;
+        return 4 * (width / 4 + 1);
 
     case 24:
-        if(((m_width * 3) % 4) == 0)
-            return m_width * 3;
-        return 4 * (m_width * 3 / 4 + 1);
+        if(((width * 3) % 4) == 0)
+            return width * 3;
+        return 4 * (width * 3 / 4 + 1);
 
     case 32:
-        return m_width * 4;
+        return width * 4;
 
     default:
-        printf("Invalid bits count: %u\n", m_bppImage);
-        return -1;	//m_width * (m_bppImage / 8);
+        printf("Invalid bits count: %u\n", bppImage);
+        return -1; //width * (bppImage / 8);
     }
 }
 
-int CFormatIco::getBit(const uint8_t* data, int bit)
+int CFormatIco::getBit(const uint8_t* data, int bit, unsigned width)
 {
     // width per line in multiples of 32 bits
-    int width32 = (m_width % 32 == 0 ? m_width / 32 : m_width / 32 + 1);
-    int line = bit / m_width;
-    int offset = bit % m_width;
+    int width32 = (width % 32 == 0 ? width / 32 : width / 32 + 1);
+    int line = bit / width;
+    int offset = bit % width;
 
     int result = (data[line * width32 * 4 + offset / 8] & (1 << (7 - (offset % 8))));
 
     return (result ? 1 : 0);
 }
 
-int CFormatIco::getNibble(const uint8_t* data, int nibble)
+int CFormatIco::getNibble(const uint8_t* data, int nibble, unsigned width)
 {
     // width per line in multiples of 32 bits
-    int width32 = (m_width % 8 == 0 ? m_width / 8 : m_width / 8 + 1);
-    int line = nibble / m_width;
-    int offset = nibble % m_width;
+    int width32 = (width % 8 == 0 ? width / 8 : width / 8 + 1);
+    int line = nibble / width;
+    int offset = nibble % width;
 
     int result = (data[line * width32 * 4 + offset / 2] & (0x0F << (4 * (1 - offset % 2))));
 
@@ -561,12 +567,12 @@ int CFormatIco::getNibble(const uint8_t* data, int nibble)
     return result;
 }
 
-int CFormatIco::getByte(const uint8_t* data, int byte)
+int CFormatIco::getByte(const uint8_t* data, int byte, unsigned width)
 {
     // width per line in multiples of 32 bits
-    int width32 = (m_width % 4 == 0 ? m_width / 4 : m_width / 4 + 1);
-    int line = byte / m_width;
-    int offset = byte % m_width;
+    int width32 = (width % 4 == 0 ? width / 4 : width / 4 + 1);
+    int line = byte / width;
+    int offset = byte % width;
 
     return data[line * width32 * 4 + offset];
 }

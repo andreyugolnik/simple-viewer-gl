@@ -7,19 +7,15 @@
 *
 \**********************************************/
 
-#ifndef FORMATJPEG_H
-#define FORMATJPEG_H
+#pragma once
 
 #include "format.h"
 
-class CFormatJpeg : public CFormat
+class CFormatJpeg final : public CFormat
 {
 public:
     CFormatJpeg(const char* lib, const char* name, iCallbacks* callbacks);
     virtual ~CFormatJpeg();
 
-    virtual bool Load(const char* filename, unsigned subImage = 0);
+    virtual bool Load(const char* filename, sBitmapDescription& desc) override;
 };
-
-#endif // FORMATJPEG_H
-
