@@ -14,8 +14,8 @@
 #include <string.h>
 #include <iostream>
 
-CFormatPng::CFormatPng(const char* lib, const char* name)
-    : CFormat(lib, name)
+CFormatPng::CFormatPng(const char* lib, const char* name, iCallbacks* callbacks)
+    : CFormat(lib, name, callbacks)
 {
 }
 

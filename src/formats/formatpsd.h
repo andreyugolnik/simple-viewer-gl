@@ -15,7 +15,7 @@
 class CFormatPsd : public CFormat
 {
 public:
-    CFormatPsd(const char* lib, const char* name);
+    CFormatPsd(const char* lib, const char* name, iCallbacks* callbacks);
     virtual ~CFormatPsd();
 
     virtual bool Load(const char* filename, unsigned subImage = 0);

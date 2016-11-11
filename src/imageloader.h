@@ -67,7 +67,6 @@ private:
     bool LoadImage(const char* path, eImageType type, unsigned subImage);
 
 private:
-    iCallbacks* m_callbacks;
     CFormat* m_image;
     eImageType m_type;
     std::string m_path;

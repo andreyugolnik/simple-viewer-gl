@@ -135,8 +135,8 @@ static void decodeRle(uint8_t* dst, const uint8_t* src, uint32_t lineLength)
     }
 }
 
-CFormatPsd::CFormatPsd(const char* lib, const char* name)
-    : CFormat(lib, name)
+CFormatPsd::CFormatPsd(const char* lib, const char* name, iCallbacks* callbacks)
+    : CFormat(lib, name, callbacks)
 {
 }
 

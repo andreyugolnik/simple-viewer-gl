@@ -14,11 +14,10 @@
 class cFormatAge final : public CFormat
 {
 public:
-    cFormatAge(const char* lib, const char* name);
+    cFormatAge(const char* lib, const char* name, iCallbacks* callbacks);
     ~cFormatAge();
 
     bool Load(const char* filename, unsigned subImage);
     bool isSupported(cFile& file, Buffer& buffer) const;
     //bool isRawFormat(const char* name);
 };
-

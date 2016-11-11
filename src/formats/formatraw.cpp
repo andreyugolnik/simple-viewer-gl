@@ -48,8 +48,8 @@ static bool isValidFormat(const sHeader& header, unsigned file_size)
 
 
 
-cFormatRaw::cFormatRaw(const char* lib, const char* name)
-    : CFormat(lib, name)
+cFormatRaw::cFormatRaw(const char* lib, const char* name, iCallbacks* callbacks)
+    : CFormat(lib, name, callbacks)
 {
 }
 

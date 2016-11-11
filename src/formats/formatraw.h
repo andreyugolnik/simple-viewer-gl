@@ -14,7 +14,7 @@
 class cFormatRaw final : public CFormat
 {
 public:
-    cFormatRaw(const char* lib, const char* name);
+    cFormatRaw(const char* lib, const char* name, iCallbacks* callbacks);
     ~cFormatRaw();
 
     bool Load(const char* filename, unsigned subImage);

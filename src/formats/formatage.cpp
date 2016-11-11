@@ -27,8 +27,8 @@ static bool isValidFormat(const AGE::Header& header, unsigned file_size)
 
 
 
-cFormatAge::cFormatAge(const char* lib, const char* name)
-    : CFormat(lib, name)
+cFormatAge::cFormatAge(const char* lib, const char* name, iCallbacks* callbacks)
+    : CFormat(lib, name, callbacks)
 {
 }
 

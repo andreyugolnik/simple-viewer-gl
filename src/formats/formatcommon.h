@@ -7,17 +7,16 @@
 *
 \**********************************************/
 
-#ifndef FORMATCOMMON_H_CE3HRGR7
-#define FORMATCOMMON_H_CE3HRGR7
+#pragma once
 
 #if defined(IMLIB2_SUPPORT)
 
 #include "format.h"
 
-class CFormatCommon : public CFormat
+class CFormatCommon final : public CFormat
 {
 public:
-    CFormatCommon(const char* lib, const char* name);
+    CFormatCommon(const char* lib, const char* name, iCallbacks* callbacks);
     virtual ~CFormatCommon();
 
     virtual bool Load(const char* filename, unsigned subImage = 0);
@@ -25,6 +24,3 @@ public:
 };
 
 #endif
-
-#endif /* end of include guard: FORMATCOMMON_H_CE3HRGR7 */
-

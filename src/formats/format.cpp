@@ -14,8 +14,8 @@
 #include <dlfcn.h>
 #include <cassert>
 
-CFormat::CFormat(const char* libName, const char* formatName)
-    : m_callbacks(nullptr)
+CFormat::CFormat(const char* libName, const char* formatName, iCallbacks* callbacks)
+    : m_callbacks(callbacks)
     , m_percent(-1)
     , m_formatName(formatName)
     , m_lib(nullptr)

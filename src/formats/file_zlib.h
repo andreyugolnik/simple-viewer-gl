@@ -7,8 +7,7 @@
 *
 \**********************************************/
 
-#ifndef FILE_ZLIB_H_BC5BA91A
-#define FILE_ZLIB_H_BC5BA91A
+#pragma once
 
 #include "file.h"
 
@@ -31,6 +30,3 @@ protected:
     z_stream_s* m_zipStream;
     std::vector<uint8_t> m_buffer;
 };
-
-#endif /* end of include guard: FILE_ZLIB_H_BC5BA91A */
-

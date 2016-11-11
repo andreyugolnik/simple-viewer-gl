@@ -20,7 +20,7 @@ class cFile;
 class CFormatXwd : public CFormat
 {
 public:
-    CFormatXwd(const char* lib, const char* name);
+    CFormatXwd(const char* lib, const char* name, iCallbacks* callbacks);
     virtual ~CFormatXwd();
 
     virtual bool Load(const char* filename, unsigned subImage = 0);

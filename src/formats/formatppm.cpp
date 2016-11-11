@@ -13,8 +13,8 @@
 #include <cstring>
 #include <iostream>
 
-cFormatPpm::cFormatPpm(const char* lib, const char* name)
-    : CFormat(lib, name)
+cFormatPpm::cFormatPpm(const char* lib, const char* name, iCallbacks* callbacks)
+    : CFormat(lib, name, callbacks)
 {
 }
 

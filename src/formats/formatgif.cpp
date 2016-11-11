@@ -14,8 +14,8 @@
 #include <iostream>
 #include <gif_lib.h>
 
-CFormatGif::CFormatGif(const char* lib, const char* name)
-    : CFormat(lib, name)
+CFormatGif::CFormatGif(const char* lib, const char* name, iCallbacks* callbacks)
+    : CFormat(lib, name, callbacks)
 {
 }
 

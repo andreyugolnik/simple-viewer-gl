@@ -12,8 +12,8 @@
 #include <cstring>
 #include <cstdint>
 
-cFormatScr::cFormatScr(const char* lib, const char* name)
-    : CFormat(lib, name)
+cFormatScr::cFormatScr(const char* lib, const char* name, iCallbacks* callbacks)
+    : CFormat(lib, name, callbacks)
 {
 }
 

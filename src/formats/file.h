@@ -7,8 +7,7 @@
 *
 \**********************************************/
 
-#ifndef FILE_H_CY5JPMLW
-#define FILE_H_CY5JPMLW
+#pragma once
 
 #include <cstdint>
 
@@ -44,6 +43,3 @@ protected:
     void* m_file;
     long m_size;
 };
-
-#endif /* end of include guard: FILE_H_CY5JPMLW */
-

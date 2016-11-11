@@ -1,25 +1,21 @@
-/////////////////////////////////////////////////
-//
-// Andrey A. Ugolnik
-// andrey@ugolnik.info
-//
-/////////////////////////////////////////////////
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
-#ifndef FORMATDDS_H
-#define FORMATDDS_H
+#pragma once
 
 #include "format.h"
 
-class CFormatDds : public CFormat
+class CFormatDds final : public CFormat
 {
 public:
-    CFormatDds(const char* lib, const char* name);
+    CFormatDds(const char* lib, const char* name, iCallbacks* callbacks);
     virtual ~CFormatDds();
 
     virtual bool Load(const char* filename, unsigned subImage = 0);
-
-private:
 };
-
-#endif // FORMATDDS_H
-

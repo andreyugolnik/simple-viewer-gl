@@ -25,12 +25,11 @@ class CFormat
     friend class CImageLoader;
 
 public:
-    CFormat(const char* libName, const char* formatName);
+    CFormat(const char* libName, const char* formatName, iCallbacks* callbacks);
     virtual ~CFormat();
 
     virtual void dumpFormat();
 
-    virtual void setCallbacks(iCallbacks* callbacks) { m_callbacks = callbacks; }
     virtual bool isSupported(cFile& /*file*/, Buffer& /*buffer*/) const { return false; }
 
     virtual bool Load(const char* filename, unsigned subImage = 0) = 0;

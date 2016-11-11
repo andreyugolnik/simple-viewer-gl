@@ -80,8 +80,8 @@ struct X11ColorMap
     uint8_t Padding;      /* WORD-align padding */
 };
 
-CFormatXwd::CFormatXwd(const char* lib, const char* name)
-    : CFormat(lib, name)
+CFormatXwd::CFormatXwd(const char* lib, const char* name, iCallbacks* callbacks)
+    : CFormat(lib, name, callbacks)
 {
 }
 

@@ -1,16 +1,19 @@
-/////////////////////////////////////////////////
-//
-// Andrey A. Ugolnik
-// andrey@ugolnik.info
-//
-/////////////////////////////////////////////////
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
 #include "formatdds.h"
 #include "file.h"
-#include <string.h>
-#include <assert.h>
+
+#include <cassert>
+#include <cstdlib>
+#include <cstring>
 #include <iostream>
-#include <stdlib.h>
 
 // microsoft
 enum DXGI_FORMAT
@@ -280,8 +283,8 @@ static const char* formatToStirng(DDS_FORMAT fmt)
     return "Unknown format";
 }
 
-CFormatDds::CFormatDds(const char* lib, const char* name)
-    : CFormat(lib, name)
+CFormatDds::CFormatDds(const char* lib, const char* name, iCallbacks* callbacks)
+    : CFormat(lib, name, callbacks)
 {
 }
 

@@ -14,8 +14,8 @@
 #include <jpeglib.h>
 #include <setjmp.h>
 
-CFormatJpeg::CFormatJpeg(const char* lib, const char* name)
-    : CFormat(lib, name)
+CFormatJpeg::CFormatJpeg(const char* lib, const char* name, iCallbacks* callbacks)
+    : CFormat(lib, name, callbacks)
 {
 }
 

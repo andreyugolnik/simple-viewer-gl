@@ -29,26 +29,25 @@
 #include <string>
 
 CImageLoader::CImageLoader(iCallbacks* callbacks)
-    : m_callbacks(callbacks)
-    , m_image(nullptr)
+    : m_image(nullptr)
     , m_type(TYPES_COUNT)
 {
 #if defined(IMLIB2_SUPPORT)
-    m_formats[TYPE_COMMON].reset(new CFormatCommon("libImlib2", "ImLib2"));
+    m_formats[TYPE_COMMON].reset(new CFormatCommon("libImlib2", "ImLib2", callbacks));
 #endif
-    m_formats[TYPE_JPG].reset(new CFormatJpeg("libjpeg", "jpeg"));
-    m_formats[TYPE_PSD].reset(new CFormatPsd(nullptr, "psd"));
-    m_formats[TYPE_PNG].reset(new CFormatPng("libpng", "png"));
-    m_formats[TYPE_GIF].reset(new CFormatGif("libgif", "gif"));
-    m_formats[TYPE_ICO].reset(new CFormatIco(nullptr, "ico"));
-    m_formats[TYPE_TIF].reset(new CFormatTiff("libtiff", "tiff"));
-    m_formats[TYPE_XWD].reset(new CFormatXwd(nullptr, "xwd"));
-    m_formats[TYPE_DDS].reset(new CFormatDds(nullptr, "dds"));
-    m_formats[TYPE_RAW].reset(new cFormatRaw(nullptr, "raw"));
-    m_formats[TYPE_AGE].reset(new cFormatAge(nullptr, "age"));
-    m_formats[TYPE_PPM].reset(new cFormatPpm(nullptr, "ppm"));
-    m_formats[TYPE_PVR].reset(new cFormatPvr(nullptr, "pvr"));
-    m_formats[TYPE_SCR].reset(new cFormatScr(nullptr, "scr"));
+    m_formats[TYPE_JPG].reset(new CFormatJpeg("libjpeg", "jpeg", callbacks));
+    m_formats[TYPE_PSD].reset(new CFormatPsd(nullptr, "psd", callbacks));
+    m_formats[TYPE_PNG].reset(new CFormatPng("libpng", "png", callbacks));
+    m_formats[TYPE_GIF].reset(new CFormatGif("libgif", "gif", callbacks));
+    m_formats[TYPE_ICO].reset(new CFormatIco(nullptr, "ico", callbacks));
+    m_formats[TYPE_TIF].reset(new CFormatTiff("libtiff", "tiff", callbacks));
+    m_formats[TYPE_XWD].reset(new CFormatXwd(nullptr, "xwd", callbacks));
+    m_formats[TYPE_DDS].reset(new CFormatDds(nullptr, "dds", callbacks));
+    m_formats[TYPE_RAW].reset(new cFormatRaw(nullptr, "raw", callbacks));
+    m_formats[TYPE_AGE].reset(new cFormatAge(nullptr, "age", callbacks));
+    m_formats[TYPE_PPM].reset(new cFormatPpm(nullptr, "ppm", callbacks));
+    m_formats[TYPE_PVR].reset(new cFormatPvr(nullptr, "pvr", callbacks));
+    m_formats[TYPE_SCR].reset(new cFormatScr(nullptr, "scr", callbacks));
 
     m_formats[TYPE_NOTAVAILABLE].reset(new CNotAvailable());
 }
@@ -101,7 +100,6 @@ bool CImageLoader::LoadImage(const char* path, eImageType type, unsigned subImag
     m_type = type;
 
     m_image = m_formats[type].get();
-    m_image->setCallbacks(m_callbacks);
     const bool result = m_image->Load(path, subImage);
     return result;
 }

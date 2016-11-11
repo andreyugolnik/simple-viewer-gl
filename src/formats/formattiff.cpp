@@ -13,8 +13,8 @@
 #include <cstring>
 #include <tiffio.h>
 
-CFormatTiff::CFormatTiff(const char* lib, const char* name)
-    : CFormat(lib, name)
+CFormatTiff::CFormatTiff(const char* lib, const char* name, iCallbacks* callbacks)
+    : CFormat(lib, name, callbacks)
 {
 }
 

@@ -17,7 +17,7 @@ class cFile;
 class cFormatPpm : public CFormat
 {
 public:
-    cFormatPpm(const char* lib, const char* name);
+    cFormatPpm(const char* lib, const char* name, iCallbacks* callbacks);
     virtual ~cFormatPpm();
 
     virtual bool Load(const char* filename, unsigned subImage = 0);

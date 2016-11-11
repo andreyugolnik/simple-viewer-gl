@@ -160,8 +160,8 @@ struct PVRTexHeader
 
 
 
-cFormatPvr::cFormatPvr(const char* lib, const char* name)
-    : CFormat(lib, name)
+cFormatPvr::cFormatPvr(const char* lib, const char* name, iCallbacks* callbacks)
+    : CFormat(lib, name, callbacks)
 {
 }
 

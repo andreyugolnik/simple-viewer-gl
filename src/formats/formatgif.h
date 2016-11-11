@@ -7,17 +7,16 @@
 *
 \**********************************************/
 
-#ifndef FORMATGIF_H
-#define FORMATGIF_H
+#pragma once
 
 #include "format.h"
 
 struct GifColorType;
 
-class CFormatGif : public CFormat
+class CFormatGif final : public CFormat
 {
 public:
-    CFormatGif(const char* lib, const char* name);
+    CFormatGif(const char* lib, const char* name, iCallbacks* callbacks);
     virtual ~CFormatGif();
 
     virtual bool Load(const char* filename, unsigned subImage = 0);
@@ -25,6 +24,3 @@ public:
 private:
     void putPixel(int pos, const GifColorType* color, bool transparent);
 };
-
-#endif // FORMATGIF_H
-

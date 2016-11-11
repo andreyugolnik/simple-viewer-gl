@@ -7,18 +7,17 @@
 *
 \**********************************************/
 
-#ifndef FORMATICO_H
-#define FORMATICO_H
+#pragma once
 
 #include "format.h"
 
 class cFile;
 struct IcoDirentry;
 
-class CFormatIco : public CFormat
+class CFormatIco final : public CFormat
 {
 public:
-    CFormatIco(const char* lib, const char* name);
+    CFormatIco(const char* lib, const char* name, iCallbacks* callbacks);
     virtual ~CFormatIco();
 
     virtual bool Load(const char* filename, unsigned subImage = 0);
@@ -31,6 +30,3 @@ private:
     int getNibble(const uint8_t* data, int nibble);
     int getByte(const uint8_t* data, int byte);
 };
-
-#endif // FORMATICO_H
-

@@ -24,8 +24,8 @@ static int callbackProgress(void* /*p*/, char percent, int /*a*/, int /*b*/, int
     return 1;
 }
 
-CFormatCommon::CFormatCommon(const char* lib, const char* name)
-    : CFormat(lib, name)
+CFormatCommon::CFormatCommon(const char* lib, const char* name, iCallbacks* callbacks)
+    : CFormat(lib, name, callbacks)
 {
     g_this = this;
     imlib_context_set_progress_function(callbackProgress);

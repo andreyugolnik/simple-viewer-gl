@@ -14,7 +14,7 @@
 class cFormatScr final : public CFormat
 {
 public:
-    cFormatScr(const char* lib, const char* name);
+    cFormatScr(const char* lib, const char* name, iCallbacks* callbacks);
     virtual ~cFormatScr();
 
     virtual bool Load(const char* filename, unsigned subImage = 0) override;

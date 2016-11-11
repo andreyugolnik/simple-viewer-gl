@@ -90,8 +90,8 @@ static void readPngData(png_structp /*png*/, png_bytep out, png_size_t count)
 }
 
 
-CFormatIco::CFormatIco(const char* lib, const char* name)
-    : CFormat(lib, name)
+CFormatIco::CFormatIco(const char* lib, const char* name, iCallbacks* callbacks)
+    : CFormat(lib, name, callbacks)
 {
 }
 
