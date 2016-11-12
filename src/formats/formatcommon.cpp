@@ -10,17 +10,17 @@
 #if defined(IMLIB2_SUPPORT)
 
 #include "formatcommon.h"
-#include "file.h"
+#include "../common/bitmap_description.h"
+#include "../common/file.h"
 
 #include <cstring>
 #include <Imlib2.h>
 
-static Imlib_Image m_image = 0;
-static CFormatCommon* g_this = 0;
+static CFormatCommon* g_this = nullptr;
 
 static int callbackProgress(void* /*p*/, char percent, int /*a*/, int /*b*/, int /*c*/, int /*d*/)
 {
-    g_this->progress(percent);
+    g_this->updateProgress(percent * 0.01f);
     return 1;
 }
 
@@ -29,11 +29,12 @@ CFormatCommon::CFormatCommon(const char* lib, const char* name, iCallbacks* call
 {
     g_this = this;
     imlib_context_set_progress_function(callbackProgress);
-    imlib_context_set_progress_granularity(10);	// update progress each 10%
+    imlib_context_set_progress_granularity(10); // update progress each 10%
 }
 
 CFormatCommon::~CFormatCommon()
 {
+    g_this = nullptr;
 }
 
 static const char* toErrorString(unsigned id)
@@ -57,60 +58,50 @@ static const char* toErrorString(unsigned id)
         "unknow"
     };
 
-    if(id < sizeof(errors) / sizeof(errors[0]))
+    if (id < sizeof(errors) / sizeof(errors[0]))
     {
         return errors[id];
     }
     return "not listed";
 }
 
-bool CFormatCommon::Load(const char* filename, unsigned /*subImage*/)
+bool CFormatCommon::Load(const char* filename, sBitmapDescription& desc)
 {
     cFile file;
-    if(!file.open(filename))
+    if (!file.open(filename))
     {
         return false;
     }
 
-    m_size = file.getSize();
+    desc.size = file.getSize();
 
     // try to load image from disk
     Imlib_Load_Error error_return;
-    m_image = imlib_load_image_with_error_return(filename, &error_return);
-    if(m_image == 0)
+    Imlib_Image image = imlib_load_image_with_error_return(filename, &error_return);
+    if (image == nullptr)
     {
         printf(": error loading file '%s' (error %s)\n"
-                , filename
-                , toErrorString(error_return));
+               , filename
+               , toErrorString(error_return));
         return false;
     }
 
-    imlib_context_set_image(m_image);
+    imlib_context_set_image(image);
 
-    m_width = imlib_image_get_width();
-    m_height = imlib_image_get_height();
-    m_pitch = 4 * m_width;
-    m_bpp = 32; // Imlib2 always has 32-bit buffer, but sometimes alpha not used
-    m_bppImage = (imlib_image_has_alpha() == 1 ? 32 : 24);
+    desc.width = imlib_image_get_width();
+    desc.height = imlib_image_get_height();
+    desc.pitch = 4 * desc.width;
+    desc.bpp = 32; // Imlib2 always has 32-bit buffer, but sometimes alpha not used
+    desc.bppImage = (imlib_image_has_alpha() == 1 ? 32 : 24);
 
-    m_bitmap.resize(m_pitch * m_height);
-    memcpy(&m_bitmap[0], imlib_image_get_data_for_reading_only(), m_bitmap.size());
+    desc.bitmap.resize(desc.pitch * desc.height);
+    memcpy(&desc.bitmap[0], imlib_image_get_data_for_reading_only(), desc.bitmap.size());
 
-    m_format = GL_BGRA;
+    desc.format = GL_BGRA;
+
+    imlib_free_image();
 
     return true;
 }
 
-void CFormatCommon::FreeMemory()
-{
-    if(m_image)
-    {
-        imlib_free_image();
-        m_image = 0;
-    }
-
-    CFormat::FreeMemory();
-}
-
 #endif
-

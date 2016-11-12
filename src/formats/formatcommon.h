@@ -17,10 +17,9 @@ class CFormatCommon final : public CFormat
 {
 public:
     CFormatCommon(const char* lib, const char* name, iCallbacks* callbacks);
-    virtual ~CFormatCommon();
+    ~CFormatCommon();
 
-    virtual bool Load(const char* filename, unsigned subImage = 0);
-    virtual void FreeMemory();
+    virtual bool Load(const char* filename, sBitmapDescription& desc) override;
 };
 
 #endif
