@@ -37,6 +37,7 @@ cViewer::cViewer(sConfig* config)
     , m_mouseRB(false)
     , m_angle(0)
 {
+    m_image.reset(new cQuadImage());
     m_loader.reset(new CImageLoader(this));
     m_checkerBoard.reset(new CCheckerboard());
     m_infoBar.reset(new CInfoBar());
@@ -52,7 +53,7 @@ cViewer::cViewer(sConfig* config)
 
 cViewer::~cViewer()
 {
-    deleteTextures();
+    m_image->clear();
 }
 
 bool cViewer::setInitialImagePath(const char* path)
@@ -72,7 +73,7 @@ void cViewer::setWindow(GLFWwindow* window)
     m_checkerBoard->init();
     m_infoBar->init();
     m_pixelInfo->Init();
-    m_progress->Init();
+    m_progress->init();
     m_selection->Init();
 
     int width, height;
@@ -115,23 +116,14 @@ void cViewer::render()
 
     cRenderer::setGlobals(m_camera, m_angle, m_scale);
 
-    const unsigned img_w = m_loader->GetWidth();
-    const unsigned img_h = m_loader->GetHeight();
+    m_image->render();
 
-    const float half_w = ceilf(img_w * 0.5f);
-    const float half_h = ceilf(img_h * 0.5f);
-    for (size_t i = 0, size = m_quads.size(); i < size; i++)
-    {
-        CQuadImage* quad = m_quads[i];
-        const float x = quad->GetCol() * quad->GetTexWidth() - half_w;
-        const float y = quad->GetRow() * quad->GetTexHeight() - half_h;
-
-        quad->Render(x, y);
-    }
+    const float half_w = ceilf(m_image->getWidth() * 0.5f);
+    const float half_h = ceilf(m_image->getHeight() * 0.5f);
 
     if (m_config->showImageBorder)
     {
-        m_border->Render(-half_w, -half_h, img_w, img_h, m_scale);
+        m_border->Render(-half_w, -half_h, m_image->getWidth(), m_image->getHeight(), m_scale);
     }
     if (m_config->showPixelInfo && m_angle == 0)
     {
@@ -168,7 +160,36 @@ void cViewer::render()
         m_pixelInfo->Render();
     }
 
+    m_progress->render();
+
     glfwSwapBuffers(cRenderer::getWindow());
+
+    if (m_imagePrepared == true)
+    {
+        m_imagePrepared = false;
+
+        const unsigned width = m_loader->GetWidth();
+        const unsigned height = m_loader->GetHeight();
+        m_image->setBuffer(width, height, m_loader->GetPitch()
+                           , m_loader->GetBitmapFormat(), m_loader->GetBpp() / 8
+                           , m_loader->GetBitmap());
+
+        m_selection->SetImageDimension(width, height);
+        updateInfobar();
+        centerWindow();
+        enablePixelInfo(m_config->showPixelInfo);
+    }
+
+    if (m_image->isUploading())
+    {
+        const bool isDone = m_image->upload();
+        m_progress->setProgress(0.5f + m_image->getProgress() * 0.5f);
+
+        if (isDone)
+        {
+            m_progress->hide();
+        }
+    }
 }
 
 void cViewer::fnResize(int width, int height)
@@ -436,11 +457,8 @@ void cViewer::shiftCamera(const cVector<float>& delta)
 {
     m_camera += delta;
 
-    const unsigned w = m_loader->GetWidth();
-    const unsigned h = m_loader->GetHeight();
-
     const auto& viewport = cRenderer::getViewportSize();
-    cVector<float> half = (viewport / m_scale + cVector<float>(w, h)) * 0.5f;
+    cVector<float> half = (viewport / m_scale + cVector<float>(m_image->getWidth(), m_image->getHeight())) * 0.5f;
     m_camera.x = std::max<float>(m_camera.x, -half.x);
     m_camera.x = std::min<float>(m_camera.x, half.x);
     m_camera.y = std::max<float>(m_camera.y, -half.y);
@@ -452,8 +470,8 @@ void cViewer::calculateScale()
 {
     if (m_config->fitImage && m_loader->isLoaded())
     {
-        float w = static_cast<float>(m_loader->GetWidth());
-        float h = static_cast<float>(m_loader->GetHeight());
+        float w = static_cast<float>(m_image->getWidth());
+        float h = static_cast<float>(m_image->getHeight());
         if (m_angle == 90 || m_angle == 270)
         {
             std::swap(w, h);
@@ -533,17 +551,11 @@ void cViewer::updateFiltering()
     const int scale = (int)(m_scale * 100);
     if (scale % 100 == 0 && m_scale >= 1.0f)
     {
-        for (size_t i = 0, size = m_quads.size(); i < size; i++)
-        {
-            m_quads[i]->useFilter(false);
-        }
+        m_image->useFilter(false);
     }
     else
     {
-        for (size_t i = 0, size = m_quads.size(); i < size; i++)
-        {
-            m_quads[i]->useFilter(true);
-        }
+        m_image->useFilter(true);
     }
 }
 
@@ -559,8 +571,8 @@ void cViewer::centerWindow()
             const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
             // calculate window size
-            int imgw = m_loader->GetWidth() + (m_config->showImageBorder ? m_border->GetBorderWidth() * 2 : 0);
-            int imgh = m_loader->GetHeight() + (m_config->showImageBorder ? m_border->GetBorderWidth() * 2 : 0);
+            int imgw = m_image->getWidth() + (m_config->showImageBorder ? m_border->GetBorderWidth() * 2 : 0);
+            int imgh = m_image->getHeight() + (m_config->showImageBorder ? m_border->GetBorderWidth() * 2 : 0);
             imgw = std::max<int>(imgw, DEF_WINDOW_W * m_ratio.x);
             imgh = std::max<int>(imgh, DEF_WINDOW_H * m_ratio.y);
 
@@ -584,47 +596,26 @@ void cViewer::centerWindow()
 
 void cViewer::loadImage(int step)
 {
+    m_filesList->ParseDir();
+
     if (step != 0)
     {
         m_scale = 1;
         m_angle = 0;
         m_camera = cVector<float>(0, 0);
-        m_filesList->ParseDir();
     }
 
     const char* file = m_filesList->GetName(step);
-
-    m_progress->Start();
-
     m_loader->LoadImage(file);
-
-    createTextures();
-
-    m_selection->SetImageDimension(m_loader->GetWidth(), m_loader->GetHeight());
-    updateInfobar();
-
-    centerWindow();
-
-    enablePixelInfo(m_config->showPixelInfo);
 }
 
 void cViewer::loadSubImage(int subStep)
 {
+    assert(subStep == -1 || subStep == 1);
     const int subCount = (int)m_loader->GetSubCount();
-    int subImage = (int)m_loader->GetSub() + subStep;
-
-    if (subImage < 0)
-    {
-        subImage = subCount - 1;
-    }
-    else if (subImage >= subCount)
-    {
-        subImage = 0;
-    }
+    int subImage = (subCount + (int)m_loader->GetSub() + subStep) % subCount;
 
     m_loader->LoadSubImage(subImage);
-    createTextures();
-    updateInfobar();
 }
 
 void cViewer::updateInfobar()
@@ -657,20 +648,14 @@ void cViewer::updateInfobar()
 
 cVector<float> cViewer::screenToImage(const cVector<float>& pos) const
 {
-    const float w = m_loader->GetWidth();
-    const float h = m_loader->GetHeight();
-
     const auto& viewport = cRenderer::getViewportSize();
-    return pos + m_camera - (viewport / m_scale - cVector<float>(w, h)) * 0.5f;
+    return pos + m_camera - (viewport / m_scale - cVector<float>(m_image->getWidth(), m_image->getHeight())) * 0.5f;
 }
 
 void cViewer::updatePixelInfo(const cVector<float>& pos)
 {
     if (m_loader->isLoaded())
     {
-        const int w = m_loader->GetWidth();
-        const int h = m_loader->GetHeight();
-
         const cVector<float> point = screenToImage(pos);
         const int x = (int)point.x;
         const int y = (int)point.y;
@@ -678,7 +663,7 @@ void cViewer::updatePixelInfo(const cVector<float>& pos)
         sPixelInfo pixelInfo;
 
         // TODO check pixel format (RGB or BGR)
-        if (x >= 0 && y >= 0 && x <= w && y <= h)
+        if (x >= 0 && y >= 0 && (unsigned)x <= m_image->getWidth() && (unsigned)y <= m_image->getHeight())
         {
             const int bpp = m_loader->GetBpp();
             const int pitch = m_loader->GetPitch();
@@ -692,78 +677,10 @@ void cViewer::updatePixelInfo(const cVector<float>& pos)
 
         pixelInfo.mouse = pos * m_scale;
         pixelInfo.point = point;
-        pixelInfo.img_w = w;
-        pixelInfo.img_h = h;
+        pixelInfo.img_w = m_image->getWidth();
+        pixelInfo.img_h = m_image->getHeight();
         pixelInfo.rc    = m_selection->GetRect();
         m_pixelInfo->setPixelInfo(pixelInfo);
-    }
-}
-
-void cViewer::createTextures()
-{
-    auto bitmap = m_loader->GetBitmap();
-    if (bitmap != nullptr)
-    {
-        const int width   = m_loader->GetWidth();
-        const int height  = m_loader->GetHeight();
-        const int format  = m_loader->GetBitmapFormat();
-        const int pitch   = m_loader->GetPitch();
-        const int bytesPP = (m_loader->GetBpp() / 8);
-
-        // printf(" %d x %d, ", width, height);
-
-        int texW, texH;
-        cRenderer::calculateTextureSize(&texW, &texH, width, height);
-        //if(texW > 0 && texH > 0)
-        {
-            // texture pitch should be multiple by 4
-            const unsigned texPitch = (unsigned)ceilf(texW * bytesPP / 4.0f) * 4;
-            //const unsigned line = texW * bytesPP;
-            //const unsigned texPitch = line + (line % 4) * 4;
-
-            const int cols = (int)ceilf((float)width / texW);
-            const int rows = (int)ceilf((float)height / texH);
-            // printf("textures: %d (%d x %d) required\n", cols * rows, cols, rows);
-
-            deleteTextures();
-
-            unsigned char* buffer = new unsigned char[texPitch * texH];
-
-            unsigned idx = 0;
-            int height2 = height;
-            for (int row = 0; row < rows; row++)
-            {
-                int width2 = width;
-                unsigned h = (height2 > texH ? texH : height2);
-                for (int col = 0; col < cols; col++)
-                {
-                    unsigned w = (width2 > texW ? texW : width2);
-                    width2 -= w;
-
-                    unsigned dx = col * texPitch;
-                    unsigned dy = row * texH;
-                    unsigned count = w * bytesPP;
-                    for (unsigned line = 0; line < h; line++)
-                    {
-                        const unsigned src = dx + (dy + line) * pitch;
-                        const unsigned dst = line * texPitch;
-                        memcpy(&buffer[dst], &bitmap[src], count);
-                    }
-
-                    CQuadImage* quad = new CQuadImage(texW, texH, buffer, format);
-                    quad->SetCell(col, row);
-                    quad->SetSpriteSize(w, h);
-                    quad->useFilter(false);
-
-                    m_quads.push_back(quad);
-
-                    idx++;
-                }
-                height2 -= h;
-            }
-
-            delete[] buffer;
-        }
     }
 }
 
@@ -773,18 +690,20 @@ void cViewer::showCursor(bool show)
     glfwSetInputMode(window, GLFW_CURSOR, show ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_HIDDEN);
 }
 
-void cViewer::deleteTextures()
+void cViewer::startLoading()
 {
-    for (size_t i = 0, size = m_quads.size(); i < size; i++)
-    {
-        delete m_quads[i];
-    }
-    m_quads.clear();
+    m_progress->show();
+    m_imagePrepared = false;
 }
 
-void cViewer::doProgress(float percent)
+void cViewer::doProgress(float progress)
 {
-    m_progress->Render(percent);
+    m_progress->setProgress(progress * 0.5f);
+}
+
+void cViewer::endLoading()
+{
+    m_imagePrepared = true;
 }
 
 void cViewer::updateMousePosition()

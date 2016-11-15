@@ -86,7 +86,7 @@ bool cFormatRaw::isSupported(cFile& file, Buffer& buffer) const
 //return isValidFormat(header, file.getSize());
 //}
 
-bool cFormatRaw::Load(const char* filename, sBitmapDescription& desc)
+bool cFormatRaw::LoadImpl(const char* filename, sBitmapDescription& desc)
 {
     cFile file;
     if (!file.open(filename))

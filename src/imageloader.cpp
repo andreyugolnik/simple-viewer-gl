@@ -9,6 +9,7 @@
 
 #include "imageloader.h"
 #include "common/bitmap_description.h"
+#include "common/callbacks.h"
 #include "common/file.h"
 #include "formats/formatage.h"
 #include "formats/formatcommon.h"
@@ -32,6 +33,7 @@
 #include <string>
 
 CImageLoader::CImageLoader(iCallbacks* callbacks)
+    : m_callbacks(callbacks)
 {
 #if defined(IMLIB2_SUPPORT)
     m_formats[(unsigned)eImageType::COMMON].reset(new CFormatCommon("libImlib2", "ImLib2", callbacks));
@@ -55,12 +57,12 @@ CImageLoader::CImageLoader(iCallbacks* callbacks)
 
 CImageLoader::~CImageLoader()
 {
+    stop();
+    clear();
 }
 
-void CImageLoader::LoadImage(const char* path)
+void CImageLoader::Load(const char* path)
 {
-    FreeMemory();
-
     if (path != nullptr)
     {
         const eImageType type = getType(path);
@@ -75,10 +77,31 @@ void CImageLoader::LoadImage(const char* path)
     m_image->Load(path, m_desc);
 }
 
+void CImageLoader::LoadImage(const char* path)
+{
+    stop();
+    clear();
+
+    m_loader = std::thread([this](const char* path)
+    {
+        m_callbacks->startLoading();
+        Load(path);
+        m_callbacks->endLoading();
+    }, path);
+}
+
 void CImageLoader::LoadSubImage(unsigned subImage)
 {
     assert(m_image != nullptr);
-    m_image->LoadSubImage(subImage, m_desc);
+
+    stop();
+
+    m_loader = std::thread([this](unsigned subImage)
+    {
+        m_callbacks->startLoading();
+        m_image->LoadSubImage(subImage, m_desc);
+        m_callbacks->endLoading();
+    }, subImage);
 }
 
 bool CImageLoader::isLoaded() const
@@ -95,7 +118,19 @@ const unsigned char* CImageLoader::GetBitmap() const
     return nullptr;
 }
 
-void CImageLoader::FreeMemory()
+void CImageLoader::stop()
+{
+    if (m_loader.joinable())
+    {
+        if (m_image != nullptr)
+        {
+            m_image->stop();
+        }
+        m_loader.join();
+    }
+}
+
+void CImageLoader::clear()
 {
     m_desc.bitmap.clear();
     m_desc.format   = GL_RGB;
@@ -103,7 +138,7 @@ void CImageLoader::FreeMemory()
     m_desc.pitch    = 0;
     m_desc.width    = 0;
     m_desc.height   = 0;
-    m_desc.bppImage = 0; 
+    m_desc.bppImage = 0;
     m_desc.size     = -1;
     m_desc.subImage = 0;
     m_desc.subCount = 0;

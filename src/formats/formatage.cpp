@@ -65,7 +65,7 @@ bool cFormatAge::isSupported(cFile& file, Buffer& buffer) const
 //return isValidFormat(header, file.getSize());
 //}
 
-bool cFormatAge::Load(const char* filename, sBitmapDescription& desc)
+bool cFormatAge::LoadImpl(const char* filename, sBitmapDescription& desc)
 {
     cFile file;
     if (!file.open(filename))

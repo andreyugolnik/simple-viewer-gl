@@ -19,10 +19,10 @@ public:
     CFormatTiff(const char* lib, const char* name, iCallbacks* callbacks);
     ~CFormatTiff();
 
-    virtual bool Load(const char* filename, sBitmapDescription& desc) override;
-    virtual bool LoadSubImage(unsigned subImage, sBitmapDescription& desc) override;
-
 private:
+    bool LoadImpl(const char* filename, sBitmapDescription& desc) override;
+    bool LoadSubImageImpl(unsigned subImage, sBitmapDescription& desc) override;
+
     bool load(unsigned subImage, sBitmapDescription& desc);
 
 private:

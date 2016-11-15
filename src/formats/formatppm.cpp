@@ -23,7 +23,7 @@ cFormatPpm::~cFormatPpm()
 {
 }
 
-bool cFormatPpm::Load(const char* filename, sBitmapDescription& desc)
+bool cFormatPpm::LoadImpl(const char* filename, sBitmapDescription& desc)
 {
     cFile file;
     if(!file.open(filename))

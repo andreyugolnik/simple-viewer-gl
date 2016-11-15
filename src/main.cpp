@@ -24,51 +24,43 @@ static cViewer* m_viewer = nullptr;
 
 void showHelp(const char* name);
 
-void callbackResize(GLFWwindow* window, int width, int height)
+void callbackResize(GLFWwindow* /*window*/, int width, int height)
 {
-    (void)window;
     m_viewer->fnResize(width, height);
 }
 
-void callbackPosition(GLFWwindow* window, int x, int y)
+void callbackPosition(GLFWwindow* /*window*/, int x, int y)
 {
-    (void)window;
     m_viewer->fnPosition(x, y);
 }
 
-void callbackRedraw(GLFWwindow* window)
+void callbackRedraw(GLFWwindow* /*window*/)
 {
-    (void)window;
     m_viewer->render();
 }
 
-void callbackKeyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
+void callbackKeyboard(GLFWwindow* /*window*/, int key, int scancode, int action, int mods)
 {
-    (void)window;
     m_viewer->fnKeyboard(key, scancode, action, mods);
 }
 
-void callbackMouseButtons(GLFWwindow* window, int button, int action, int mods)
+void callbackMouseButtons(GLFWwindow* /*window*/, int button, int action, int mods)
 {
-    (void)window;
     m_viewer->fnMouseButtons(button, action, mods);
 }
 
-void callbackMouse(GLFWwindow* window, double x, double y)
+void callbackMouse(GLFWwindow* /*window*/, double x, double y)
 {
-    (void)window;
     m_viewer->fnMouse(x, y);
 }
 
-void callbackMouseScroll(GLFWwindow* window, double x, double y)
+void callbackMouseScroll(GLFWwindow* /*window*/, double x, double y)
 {
-    (void)window;
     m_viewer->fnMouseScroll(x, y);
 }
 
-void callbackDrop(GLFWwindow* window, int count, const char** paths)
+void callbackDrop(GLFWwindow* /*window*/, int count, const char** paths)
 {
-    (void)window;
     m_viewer->addPaths(paths, count);
 }
 

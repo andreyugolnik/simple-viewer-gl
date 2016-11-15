@@ -43,7 +43,7 @@ void my_error_exit(j_common_ptr cinfo)
     longjmp(myerr->setjmp_buffer, 1);
 }
 
-bool CFormatJpeg::Load(const char* filename, sBitmapDescription& desc)
+bool CFormatJpeg::LoadImpl(const char* filename, sBitmapDescription& desc)
 {
     cFile file;
     if (!file.open(filename))
@@ -110,7 +110,7 @@ bool CFormatJpeg::Load(const char* filename, sBitmapDescription& desc)
      */
     int row_stride = cinfo.output_width * cinfo.output_components;
     unsigned char* p = &desc.bitmap[0];
-    while (cinfo.output_scanline < cinfo.output_height)
+    while (cinfo.output_scanline < cinfo.output_height && m_stop == false)
     {
         /* jpeg_read_scanlines expects an array of pointers to scanlines.
          * Here the array is only one element long, but you could ask for

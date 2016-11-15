@@ -44,7 +44,7 @@ public:
     static GLuint createTexture(const unsigned char* data, unsigned w, unsigned h, GLenum format);
     static void deleteTexture(GLuint tex);
     static void bindTexture(GLuint tex);
-    static void calculateTextureSize(int* tex_w, int* tex_h, int img_w, int img_h);
+    static unsigned calculateTextureSize(unsigned size);
     static void setColor(sLine* line, int r, int g, int b, int a);
     static void setColor(sQuad* quad, int r, int g, int b, int a);
     static void render(const sLine& quad);

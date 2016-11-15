@@ -95,7 +95,7 @@ void fillThird(const unsigned char* zxPixels, const unsigned char* zxColors, sPi
     }
 }
 
-bool cFormatScr::Load(const char* filename, sBitmapDescription& desc)
+bool cFormatScr::LoadImpl(const char* filename, sBitmapDescription& desc)
 {
     cFile file;
     if (!file.open(filename))

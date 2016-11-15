@@ -47,6 +47,18 @@ CFormat::~CFormat()
     }
 }
 
+bool CFormat::Load(const char* filename, sBitmapDescription& desc)
+{
+    m_stop = false;
+    return LoadImpl(filename, desc);
+}
+
+bool CFormat::LoadSubImage(unsigned subImage, sBitmapDescription& desc)
+{
+    m_stop = false;
+    return LoadSubImageImpl(subImage, desc);
+}
+
 void CFormat::dumpFormat()
 {
     switch (m_support)

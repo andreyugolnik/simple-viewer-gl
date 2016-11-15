@@ -22,10 +22,10 @@ public:
     CFormatIco(const char* lib, const char* name, iCallbacks* callbacks);
     ~CFormatIco();
 
-    virtual bool Load(const char* filename, sBitmapDescription& desc) override;
-    virtual bool LoadSubImage(unsigned subImage, sBitmapDescription& desc) override;
-
 private:
+    virtual bool LoadImpl(const char* filename, sBitmapDescription& desc) override;
+    virtual bool LoadSubImageImpl(unsigned subImage, sBitmapDescription& desc) override;
+
     bool load(unsigned subImage, sBitmapDescription& desc);
     bool loadOrdinaryFrame(sBitmapDescription& desc, cFile& file, const IcoDirentry* image);
     bool loadPngFrame(sBitmapDescription& desc, cFile& file, const IcoDirentry* image);

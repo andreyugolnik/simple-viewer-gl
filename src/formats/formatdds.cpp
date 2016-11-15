@@ -293,7 +293,7 @@ CFormatDds::~CFormatDds()
 {
 }
 
-bool CFormatDds::Load(const char* filename, sBitmapDescription& desc)
+bool CFormatDds::LoadImpl(const char* filename, sBitmapDescription& desc)
 {
     cFile file;
     if (!file.open(filename))

@@ -13,6 +13,7 @@
 #include "common/bitmap_description.h"
 
 #include <memory>
+#include <thread>
 
 class iCallbacks;
 
@@ -51,7 +52,6 @@ public:
     bool isLoaded() const;
 
     const unsigned char* GetBitmap() const;
-    void FreeMemory();
     unsigned GetWidth() const;
     unsigned GetHeight() const;
     unsigned GetPitch() const;
@@ -65,10 +65,15 @@ public:
     const char* getImageType() const;
 
 private:
-    CImageLoader();
+    void stop();
+    void clear();
     eImageType getType(const char* name);
+    void Load(const char* path);
 
 private:
+    iCallbacks* m_callbacks;
+
+    std::thread m_loader;
     CFormat* m_image = nullptr;
     std::unique_ptr<CFormat> m_formats[(unsigned)eImageType::COUNT];
     sBitmapDescription m_desc;

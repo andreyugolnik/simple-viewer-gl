@@ -24,7 +24,7 @@ CFormatPng::~CFormatPng()
 {
 }
 
-bool CFormatPng::Load(const char* filename, sBitmapDescription& desc)
+bool CFormatPng::LoadImpl(const char* filename, sBitmapDescription& desc)
 {
     cFile file;
     if (!file.open(filename))

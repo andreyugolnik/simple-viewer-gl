@@ -9,7 +9,8 @@ SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
 #SET( CMAKE_CXX_COMPILER "g++" )
 #SET( CMAKE_C_COMPILER "gcc" )
-SET( CMAKE_CXX_FLAGS "-std=c++11" )
+# SET( CMAKE_CXX_FLAGS "-std=c++11 -O0 -g" )
+SET( CMAKE_CXX_FLAGS "-std=c++11 -O2" )
 
 find_package(PkgConfig REQUIRED)
 pkg_search_module(GLFW REQUIRED glfw3)

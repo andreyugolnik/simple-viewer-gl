@@ -22,7 +22,7 @@ CNotAvailable::~CNotAvailable()
 {
 }
 
-bool CNotAvailable::Load(const char* filename, sBitmapDescription& desc)
+bool CNotAvailable::LoadImpl(const char* filename, sBitmapDescription& desc)
 {
     (void)filename;
 

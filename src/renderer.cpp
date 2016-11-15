@@ -20,17 +20,17 @@ static unsigned m_tex = 0;
 static sVertex m_vb[4];
 static unsigned short m_ib[6] = { 0, 1, 2, 0, 2, 3 };
 static bool m_npot = false;
-static unsigned m_texture_max_size = 256;
+static unsigned MaxTextureSize = 1024;
 
 void cRenderer::setWindow(GLFWwindow* window)
 {
     m_window = window;
     m_tex = 0;
 
-    int texture_max_size = (int)m_texture_max_size;
+    int texture_max_size = (int)MaxTextureSize;
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &texture_max_size);
-    m_texture_max_size = texture_max_size;
-    //printf("Max texture size: %d x %d.\n", m_texture_max_size, m_texture_max_size);
+    MaxTextureSize = std::min<unsigned>(MaxTextureSize, texture_max_size);
+    //printf("Max texture size: %d x %d.\n", MaxTextureSize, MaxTextureSize);
 
     m_npot = glfwExtensionSupported("GL_ARB_texture_non_power_of_two");
     //printf("Non Power of Two extension %s\n", m_npot ? "available." : "not available.");
@@ -143,7 +143,7 @@ void cRenderer::bindTexture(GLuint tex)
     }
 }
 
-static int nextPOT(int n, bool npot)
+static unsigned nextPOT(unsigned n, bool npot)
 {
     if(npot)
     {
@@ -159,13 +159,9 @@ static int nextPOT(int n, bool npot)
     return n + 1;
 }
 
-void cRenderer::calculateTextureSize(int* tex_w, int* tex_h, int img_w, int img_h)
+unsigned cRenderer::calculateTextureSize(unsigned size)
 {
-    const int tw = std::min<int>(m_texture_max_size, nextPOT(img_w, m_npot));
-    const int th = std::min<int>(m_texture_max_size, nextPOT(img_h, m_npot));
-    //std::cout << "  select texture size: " << tw << " x " << th << std::endl;
-    *tex_w = tw;
-    *tex_h = th;
+    return std::min<unsigned>(MaxTextureSize, nextPOT(size, m_npot));
 }
 
 void cRenderer::setColor(sLine* line, int r, int g, int b, int a)

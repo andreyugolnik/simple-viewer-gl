@@ -1,8 +1,8 @@
 /**********************************************\
 *
-*  Andrey A. Ugolnik
-*  Tiny Orange
-*  http://www.tinyorange.com
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
 *  andrey@ugolnik.info
 *
 \**********************************************/
@@ -18,7 +18,7 @@ struct sXwdCommon
 {
     uint32_t HeaderSize;        /* Header size in bytes */
     uint32_t FileVersion;       /* X10 XWD file version (always 06h) */
-                                /* X11 XWD file version (always 07h) */
+    /* X11 XWD file version (always 07h) */
 };
 
 struct X10WindowDump : sXwdCommon
@@ -90,16 +90,16 @@ CFormatXwd::~CFormatXwd()
 {
 }
 
-bool CFormatXwd::Load(const char* filename, sBitmapDescription& desc)
+bool CFormatXwd::LoadImpl(const char* filename, sBitmapDescription& desc)
 {
     cFile file;
-    if(!file.open(filename))
+    if (!file.open(filename))
     {
         return false;
     }
 
     sXwdCommon common;
-    if(sizeof(common) != file.read(&common, sizeof(common)))
+    if (sizeof(common) != file.read(&common, sizeof(common)))
     {
         printf("Can't read XWD header\n");
         return false;
@@ -113,10 +113,10 @@ bool CFormatXwd::Load(const char* filename, sBitmapDescription& desc)
 
     file.seek(0, SEEK_SET);
 
-    if(common.HeaderSize == sizeof(X10WindowDump) && common.FileVersion == 0x06)
+    if (common.HeaderSize == sizeof(X10WindowDump) && common.FileVersion == 0x06)
     {
         X10WindowDump header;
-        if(sizeof(header) != file.read(&header, sizeof(header)))
+        if (sizeof(header) != file.read(&header, sizeof(header)))
         {
             printf("Can't read XWD header\n");
             return false;
@@ -138,10 +138,10 @@ bool CFormatXwd::Load(const char* filename, sBitmapDescription& desc)
 
         return loadX10(header, file, desc);
     }
-    else if(common.HeaderSize == sizeof(X11WindowDump) && common.FileVersion == 0x07)
+    else if (common.HeaderSize == sizeof(X11WindowDump) && common.FileVersion == 0x07)
     {
         X11WindowDump header;
-        if(sizeof(header) != file.read(&header, sizeof(header)))
+        if (sizeof(header) != file.read(&header, sizeof(header)))
         {
             printf("Can't read XWD header\n");
             return false;
@@ -188,7 +188,7 @@ bool CFormatXwd::loadX11(const X11WindowDump& header, cFile& file, sBitmapDescri
 {
     std::vector<X11ColorMap> colors(header.ColorMapEntries);
     const unsigned color_map_size = sizeof(X11ColorMap) * header.ColorMapEntries;
-    if(color_map_size != file.read(&colors[0], color_map_size))
+    if (color_map_size != file.read(&colors[0], color_map_size))
     {
         printf("Can't read colormap\n");
         return false;
@@ -203,7 +203,7 @@ bool CFormatXwd::loadX11(const X11WindowDump& header, cFile& file, sBitmapDescri
     desc.format   = GL_RGB;
     desc.bitmap.resize(desc.pitch * desc.height);
 
-    if(desc.bitmap.size() != file.read(&desc.bitmap[0], desc.bitmap.size()))
+    if (desc.bitmap.size() != file.read(&desc.bitmap[0], desc.bitmap.size()))
     {
         printf("Can't read pixmap\n");
         return false;
@@ -211,4 +211,3 @@ bool CFormatXwd::loadX11(const X11WindowDump& header, cFile& file, sBitmapDescri
 
     return true;
 }
-

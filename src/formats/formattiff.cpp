@@ -23,13 +23,13 @@ CFormatTiff::~CFormatTiff()
 {
 }
 
-bool CFormatTiff::Load(const char* filename, sBitmapDescription& desc)
+bool CFormatTiff::LoadImpl(const char* filename, sBitmapDescription& desc)
 {
     m_filename = filename;
     return load(0, desc);
 }
 
-bool CFormatTiff::LoadSubImage(unsigned subImage, sBitmapDescription& desc)
+bool CFormatTiff::LoadSubImageImpl(unsigned subImage, sBitmapDescription& desc)
 {
     return load(subImage, desc);
 }

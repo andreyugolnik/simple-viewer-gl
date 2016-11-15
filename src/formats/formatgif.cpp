@@ -24,13 +24,13 @@ CFormatGif::~CFormatGif()
 {
 }
 
-bool CFormatGif::Load(const char* filename, sBitmapDescription& desc)
+bool CFormatGif::LoadImpl(const char* filename, sBitmapDescription& desc)
 {
     m_filename = filename;
     return load(0, desc);
 }
 
-bool CFormatGif::LoadSubImage(unsigned subImage, sBitmapDescription& desc)
+bool CFormatGif::LoadSubImageImpl(unsigned subImage, sBitmapDescription& desc)
 {
     return load(subImage, desc);
 }

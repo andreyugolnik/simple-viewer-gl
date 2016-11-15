@@ -15,7 +15,8 @@ class CFormatJpeg final : public CFormat
 {
 public:
     CFormatJpeg(const char* lib, const char* name, iCallbacks* callbacks);
-    virtual ~CFormatJpeg();
+    ~CFormatJpeg();
 
-    virtual bool Load(const char* filename, sBitmapDescription& desc) override;
+private:
+    bool LoadImpl(const char* filename, sBitmapDescription& desc) override;
 };

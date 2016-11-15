@@ -22,11 +22,10 @@ class CImageLoader;
 class CInfoBar;
 class CPixelInfo;
 class CProgress;
-class CQuadImage;
 class CSelection;
-struct sConfig;
-
 class GLFWwindow;
+class cQuadImage;
+struct sConfig;
 
 class cViewer final : public iCallbacks
 {
@@ -59,7 +58,9 @@ public:
     }
 
 public:
-    virtual void doProgress(float percent) override;
+    virtual void startLoading() override;
+    virtual void doProgress(float progress) override;
+    virtual void endLoading() override;
 
     void fnResize(int width, int height);
     void centerWindow();
@@ -78,9 +79,6 @@ private:
     void updateScale(bool up);
     void updateFiltering();
     void updateInfobar();
-    void createTextures();
-    void deleteTextures();
-    void calculateTextureSize(int* texW, int* texH, int imgW, int imgH);
     void updatePixelInfo(const cVector<float>& pos);
 
     void keyUp();
@@ -97,6 +95,7 @@ private:
     sConfig* m_config;
     cVector<float> m_ratio;
     bool m_initialImageLoading;
+    bool m_imagePrepared = false;
     float m_scale;
     bool m_isWindowed;
     //bool m_centerWindow;
@@ -113,8 +112,7 @@ private:
     cVector<int> m_prevSize;
     int m_angle;
 
-    std::vector<CQuadImage*> m_quads;
-
+    std::unique_ptr<cQuadImage> m_image;
     std::unique_ptr<CFilesList> m_filesList;
     std::unique_ptr<CImageLoader> m_loader;
     std::unique_ptr<CInfoBar> m_infoBar;

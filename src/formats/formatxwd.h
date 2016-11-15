@@ -1,8 +1,8 @@
 /**********************************************\
 *
-*  Andrey A. Ugolnik
-*  Tiny Orange
-*  http://www.tinyorange.com
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
 *  andrey@ugolnik.info
 *
 \**********************************************/
@@ -22,9 +22,9 @@ public:
     CFormatXwd(const char* lib, const char* name, iCallbacks* callbacks);
     ~CFormatXwd();
 
-    virtual bool Load(const char* filename, sBitmapDescription& desc) override;
-
 private:
+    bool LoadImpl(const char* filename, sBitmapDescription& desc) override;
+
     bool loadX10(const X10WindowDump& header, cFile& file, sBitmapDescription& desc);
     bool loadX11(const X11WindowDump& header, cFile& file, sBitmapDescription& desc);
 };

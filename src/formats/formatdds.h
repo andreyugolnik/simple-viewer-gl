@@ -15,7 +15,8 @@ class CFormatDds final : public CFormat
 {
 public:
     CFormatDds(const char* lib, const char* name, iCallbacks* callbacks);
-    virtual ~CFormatDds();
+    ~CFormatDds();
 
-    virtual bool Load(const char* filename, sBitmapDescription& desc) override;
+private:
+    bool LoadImpl(const char* filename, sBitmapDescription& desc) override;
 };

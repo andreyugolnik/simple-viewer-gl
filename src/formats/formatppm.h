@@ -13,15 +13,15 @@
 
 class cFile;
 
-class cFormatPpm : public CFormat
+class cFormatPpm final : public CFormat
 {
 public:
     cFormatPpm(const char* lib, const char* name, iCallbacks* callbacks);
-    virtual ~cFormatPpm();
-
-    virtual bool Load(const char* filename, sBitmapDescription& desc) override;
+    ~cFormatPpm();
 
 private:
+    bool LoadImpl(const char* filename, sBitmapDescription& desc) override;
+
     bool readAscii1(cFile& file, int w, int h, sBitmapDescription& desc);
     bool readRaw1(cFile& file, int w, int h, sBitmapDescription& desc);
 

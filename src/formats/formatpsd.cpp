@@ -186,7 +186,7 @@ void fromRgba(unsigned char* bitmap, const uint32_t* r, const uint32_t* g, const
     }
 }
 
-bool CFormatPsd::Load(const char* filename, sBitmapDescription& desc)
+bool CFormatPsd::LoadImpl(const char* filename, sBitmapDescription& desc)
 {
     cFile file;
     if (!file.open(filename))

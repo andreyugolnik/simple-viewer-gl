@@ -1,12 +1,13 @@
-/////////////////////////////////////////////////
-//
-// Andrey A. Ugolnik
-// andrey@ugolnik.info
-//
-/////////////////////////////////////////////////
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
-#ifndef QUAD_H_2EC1CE8300E563
-#define QUAD_H_2EC1CE8300E563
+#pragma once
 
 #include "renderer.h"
 
@@ -21,10 +22,25 @@ public:
     virtual void SetSpriteSize(float w, float h);
     virtual void Render(float x, float y);
     virtual void RenderEx(float x, float y, float w, float h, int rot = 0);
-    virtual float GetWidth() const { return m_w; }
-    virtual float GetHeight() const { return m_h; }
-    virtual float GetTexWidth() const { return m_tw; }
-    virtual float GetTexHeight() const { return m_th; }
+
+    virtual float GetWidth() const
+    {
+        return m_w;
+    }
+    virtual float GetHeight() const
+    {
+        return m_h;
+    }
+
+    virtual float GetTexWidth() const
+    {
+        return m_tw;
+    }
+    virtual float GetTexHeight() const
+    {
+        return m_th;
+    }
+
     virtual void useFilter(bool filter);
 
 protected:
@@ -32,10 +48,4 @@ protected:
     float m_w, m_h; // sprite width / height
     sQuad m_quad;
     bool m_filter;
-
-private:
-    CQuad();
 };
-
-#endif /* end of include guard: QUAD_H_2EC1CE8300E563 */
-

@@ -29,11 +29,8 @@ public:
         return false;
     }
 
-    virtual bool Load(const char* filename, sBitmapDescription& desc) = 0;
-    virtual bool LoadSubImage(unsigned /*subImage*/, sBitmapDescription& /*desc*/)
-    {
-        return false;
-    }
+    bool Load(const char* filename, sBitmapDescription& desc);
+    bool LoadSubImage(unsigned subImage, sBitmapDescription& desc);
 
     void updateProgress(float percent);
 
@@ -42,10 +39,22 @@ public:
         return m_formatName;
     }
 
+    virtual void stop()
+    {
+        m_stop = true;
+    }
+
     virtual void dumpFormat();
 
 protected:
     CFormat(const char* libName, const char* formatName, iCallbacks* callbacks);
+
+private:
+    virtual bool LoadImpl(const char* filename, sBitmapDescription& desc) = 0;
+    virtual bool LoadSubImageImpl(unsigned /*subImage*/, sBitmapDescription& /*desc*/)
+    {
+        return false;
+    }
 
 private:
     const char* m_formatName;
@@ -54,6 +63,7 @@ private:
 
 protected:
     void* m_lib = nullptr;
+    bool m_stop = false;
 
     enum class eSupport
     {

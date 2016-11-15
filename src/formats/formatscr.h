@@ -17,5 +17,6 @@ public:
     cFormatScr(const char* lib, const char* name, iCallbacks* callbacks);
     ~cFormatScr();
 
-    virtual bool Load(const char* filename, sBitmapDescription& desc) override;
+private:
+    bool LoadImpl(const char* filename, sBitmapDescription& desc) override;
 };

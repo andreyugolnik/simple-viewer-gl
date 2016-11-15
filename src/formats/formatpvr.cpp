@@ -193,7 +193,7 @@ bool cFormatPvr::isSupported(cFile& file, Buffer& buffer) const
     return (::memcmp(&buffer[0], "ZPVR", 4) == 0 || ::memcmp(&buffer[0], "PVR", 3) == 0);
 }
 
-bool cFormatPvr::Load(const char* filename, sBitmapDescription& desc)
+bool cFormatPvr::LoadImpl(const char* filename, sBitmapDescription& desc)
 {
     cFile file;
     if(!file.open(filename))

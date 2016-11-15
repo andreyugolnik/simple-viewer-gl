@@ -1,15 +1,16 @@
-/////////////////////////////////////////////////
-//
-// Andrey A. Ugolnik
-// andrey@ugolnik.info
-//
-/////////////////////////////////////////////////
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
 #include "quad.h"
 
-#include <iostream>
-#include <math.h>
-#include <stdio.h>
+#include <cmath>
+#include <cstdio>
 
 CQuad::CQuad(unsigned tw, unsigned th, const unsigned char* data, GLenum bitmapFormat)
     : m_tw(tw)
@@ -85,7 +86,7 @@ void CQuad::Render(float x, float y)
 
 void CQuad::RenderEx(float x, float y, float w, float h, int angle)
 {
-    if(angle == 0)
+    if (angle == 0)
     {
         m_quad.v[0].x = x;
         m_quad.v[0].y = y;
@@ -104,12 +105,12 @@ void CQuad::RenderEx(float x, float y, float w, float h, int angle)
 
         m_quad.v[0].x = x;
         m_quad.v[0].y = y;
-        m_quad.v[1].x = x + w*c;
-        m_quad.v[1].y = y + w*s;
-        m_quad.v[2].x = x + w*c - h*s;
-        m_quad.v[2].y = y + w*s + h*c;
-        m_quad.v[3].x = x - h*s;
-        m_quad.v[3].y = y + h*c;
+        m_quad.v[1].x = x + w * c;
+        m_quad.v[1].y = y + w * s;
+        m_quad.v[2].x = x + w * c - h * s;
+        m_quad.v[2].y = y + w * s + h * c;
+        m_quad.v[3].x = x - h * s;
+        m_quad.v[3].y = y + h * c;
     }
 
     cRenderer::render(m_quad);
@@ -117,7 +118,7 @@ void CQuad::RenderEx(float x, float y, float w, float h, int angle)
 
 void CQuad::useFilter(bool filter)
 {
-    if(m_filter != filter)
+    if (m_filter != filter)
     {
         m_filter = filter;
 
@@ -126,4 +127,3 @@ void CQuad::useFilter(bool filter)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter ? GL_LINEAR : GL_NEAREST);
     }
 }
-

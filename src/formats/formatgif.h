@@ -19,12 +19,12 @@ class CFormatGif final : public CFormat
 {
 public:
     CFormatGif(const char* lib, const char* name, iCallbacks* callbacks);
-    virtual ~CFormatGif();
-
-    virtual bool Load(const char* filename, sBitmapDescription& desc) override;
-    virtual bool LoadSubImage(unsigned subImage, sBitmapDescription& desc) override;
+    ~CFormatGif();
 
 private:
+    bool LoadImpl(const char* filename, sBitmapDescription& desc) override;
+    bool LoadSubImageImpl(unsigned subImage, sBitmapDescription& desc) override;
+
     bool load(unsigned subImage, sBitmapDescription& desc);
     void putPixel(sBitmapDescription& desc, int pos, const GifColorType* color, bool transparent);
 

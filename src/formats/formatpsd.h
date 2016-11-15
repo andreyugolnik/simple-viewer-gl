@@ -15,7 +15,8 @@ class CFormatPsd final : public CFormat
 {
 public:
     CFormatPsd(const char* lib, const char* name, iCallbacks* callbacks);
-    virtual ~CFormatPsd();
+    ~CFormatPsd();
 
-    virtual bool Load(const char* filename, sBitmapDescription& desc) override;
+private:
+    bool LoadImpl(const char* filename, sBitmapDescription& desc) override;
 };

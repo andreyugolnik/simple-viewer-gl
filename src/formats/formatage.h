@@ -17,6 +17,8 @@ public:
     cFormatAge(const char* lib, const char* name, iCallbacks* callbacks);
     ~cFormatAge();
 
-    bool Load(const char* filename, sBitmapDescription& desc) override;
     bool isSupported(cFile& file, Buffer& buffer) const override;
+
+private:
+    bool LoadImpl(const char* filename, sBitmapDescription& desc) override;
 };
