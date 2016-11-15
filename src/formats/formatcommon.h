@@ -19,7 +19,8 @@ public:
     CFormatCommon(const char* lib, const char* name, iCallbacks* callbacks);
     ~CFormatCommon();
 
-    virtual bool Load(const char* filename, sBitmapDescription& desc) override;
+private:
+    bool LoadImpl(const char* filename, sBitmapDescription& desc) override;
 };
 
 #endif

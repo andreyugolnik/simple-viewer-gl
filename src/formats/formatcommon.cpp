@@ -65,7 +65,7 @@ static const char* toErrorString(unsigned id)
     return "not listed";
 }
 
-bool CFormatCommon::Load(const char* filename, sBitmapDescription& desc)
+bool CFormatCommon::LoadImpl(const char* filename, sBitmapDescription& desc)
 {
     cFile file;
     if (!file.open(filename))

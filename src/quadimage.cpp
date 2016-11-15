@@ -12,6 +12,7 @@
 
 #include <cassert>
 #include <cmath>
+#include <cstring>
 
 cQuadImage::cQuadImage()
 {
