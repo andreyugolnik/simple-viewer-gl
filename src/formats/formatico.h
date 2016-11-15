@@ -24,9 +24,9 @@ public:
 
 private:
     virtual bool LoadImpl(const char* filename, sBitmapDescription& desc) override;
-    virtual bool LoadSubImageImpl(unsigned subImage, sBitmapDescription& desc) override;
+    virtual bool LoadSubImageImpl(unsigned current, sBitmapDescription& desc) override;
 
-    bool load(unsigned subImage, sBitmapDescription& desc);
+    bool load(unsigned current, sBitmapDescription& desc);
     bool loadOrdinaryFrame(sBitmapDescription& desc, cFile& file, const IcoDirentry* image);
     bool loadPngFrame(sBitmapDescription& desc, cFile& file, const IcoDirentry* image);
     int calcIcoPitch(unsigned bppImage, unsigned width);

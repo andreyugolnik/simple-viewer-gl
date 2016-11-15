@@ -106,12 +106,12 @@ bool CFormatIco::LoadImpl(const char* filename, sBitmapDescription& desc)
     return load(0, desc);
 }
 
-bool CFormatIco::LoadSubImageImpl(unsigned subImage, sBitmapDescription& desc)
+bool CFormatIco::LoadSubImageImpl(unsigned current, sBitmapDescription& desc)
 {
-    return load(subImage, desc);
+    return load(current, desc);
 }
 
-bool CFormatIco::load(unsigned subImage, sBitmapDescription& desc)
+bool CFormatIco::load(unsigned current, sBitmapDescription& desc)
 {
     cFile file;
     if (!file.open(m_filename.c_str()))
@@ -133,9 +133,9 @@ bool CFormatIco::load(unsigned subImage, sBitmapDescription& desc)
         return false;
     }
 
-    subImage = std::max<unsigned>(subImage, 0);
-    subImage = std::min<unsigned>(subImage, header.count - 1);
-    const IcoDirentry* image = &images[subImage];
+    current = std::max<unsigned>(current, 0);
+    current = std::min<unsigned>(current, header.count - 1);
+    const IcoDirentry* image = &images[current];
     //  std::cout << std::endl;
     //  std::cout << "--- IcoDirentry ---" << std::endl;
     //  std::cout << "width: " << (int)image->width << "." << std::endl;
@@ -158,8 +158,8 @@ bool CFormatIco::load(unsigned subImage, sBitmapDescription& desc)
     }
 
     // store frame number and frames count after reset again
-    desc.subImage = subImage;
-    desc.subCount = header.count;
+    desc.images = header.count;
+    desc.current = current;
 
     return result;
 }

@@ -24,7 +24,7 @@ void CInfoBar::init()
 
 void CInfoBar::setRatio(float ratio)
 {
-    if(m_ratio != ratio)
+    if (m_ratio != ratio)
     {
         m_ratio = ratio;
         createFont();
@@ -72,15 +72,15 @@ void CInfoBar::Update(const sInfoBar& p)
     const char* name = GetName(p.path);
 
     char idx_img[20] = { 0 };
-    if(p.files_count > 1)
+    if (p.files_count > 1)
     {
         snprintf(idx_img, sizeof(idx_img), "%d out %d | ", p.index + 1, p.files_count);
     }
 
     char sub_image[20] = { 0 };
-    if(p.sub_count > 1)
+    if (p.images > 1)
     {
-        snprintf(sub_image, sizeof(sub_image), " | %d / %d", p.sub_image + 1, p.sub_count);
+        snprintf(sub_image, sizeof(sub_image), " | %d / %d", p.current + 1, p.images);
     }
 
     float file_size = p.file_size;
@@ -90,14 +90,14 @@ void CInfoBar::Update(const sInfoBar& p)
 
     char title[1000] = { 0 };
     snprintf(title, sizeof(title)
-            , "%s%s%s | %s | %d x %d x %d bpp (%d%%) | mem: %.1f %s (%.1f %s)"
-            , idx_img
-            , name
-            , sub_image
-            , p.type
-            , p.width, p.height, p.bpp, (int)(100.0f * p.scale)
-            , file_size, file_s.c_str()
-            , mem_size, mem_s.c_str());
+             , "%s%s%s | %s | %d x %d x %d bpp (%d%%) | mem: %.1f %s (%.1f %s)"
+             , idx_img
+             , name
+             , sub_image
+             , p.type
+             , p.width, p.height, p.bpp, (int)(100.0f * p.scale)
+             , file_size, file_s.c_str()
+             , mem_size, mem_s.c_str());
 
     m_bottominfo = title;
 
@@ -110,11 +110,10 @@ const char* CInfoBar::getHumanSize(float& size)
 {
     static const char* s[] = { "B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB" };
     int idx = 0;
-    for( ; size > 1024.0f; size /= 1024.0f)
+    for (; size > 1024.0f; size /= 1024.0f)
     {
         idx++;
     }
 
     return s[idx];
 }
-

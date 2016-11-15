@@ -30,12 +30,12 @@ bool CFormatGif::LoadImpl(const char* filename, sBitmapDescription& desc)
     return load(0, desc);
 }
 
-bool CFormatGif::LoadSubImageImpl(unsigned subImage, sBitmapDescription& desc)
+bool CFormatGif::LoadSubImageImpl(unsigned current, sBitmapDescription& desc)
 {
-    return load(subImage, desc);
+    return load(current, desc);
 }
 
-bool CFormatGif::load(unsigned subImage, sBitmapDescription& desc)
+bool CFormatGif::load(unsigned current, sBitmapDescription& desc)
 {
     cFile file;
     if (!file.open(m_filename.c_str()))
@@ -61,14 +61,14 @@ bool CFormatGif::load(unsigned subImage, sBitmapDescription& desc)
         return false;
     }
 
-    desc.subImage = std::max<unsigned>(subImage, 0);
-    desc.subImage = std::min<unsigned>(desc.subImage, gif_file->ImageCount - 1);
-    desc.subCount = gif_file->ImageCount;
+    desc.images = gif_file->ImageCount;
+    desc.current = std::max<unsigned>(current, 0);
+    desc.current = std::min<unsigned>(desc.current, desc.images - 1);
 
-    const SavedImage* image = &gif_file->SavedImages[desc.subImage];
+    const SavedImage* image = &gif_file->SavedImages[desc.current];
 
     // place next frame abov previous
-    if (!desc.subImage || desc.bitmap.empty())
+    if (!desc.current || desc.bitmap.empty())
     {
         desc.width = gif_file->SWidth;
         desc.height = gif_file->SHeight;
@@ -169,7 +169,7 @@ bool CFormatGif::load(unsigned subImage, sBitmapDescription& desc)
 
 void CFormatGif::putPixel(sBitmapDescription& desc, int pos, const GifColorType* color, bool transparent)
 {
-    if (!desc.subImage || !transparent)
+    if (!desc.current || !transparent)
     {
         desc.bitmap[pos + 0] = color->Red;
         desc.bitmap[pos + 1] = color->Green;

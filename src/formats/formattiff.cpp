@@ -29,12 +29,12 @@ bool CFormatTiff::LoadImpl(const char* filename, sBitmapDescription& desc)
     return load(0, desc);
 }
 
-bool CFormatTiff::LoadSubImageImpl(unsigned subImage, sBitmapDescription& desc)
+bool CFormatTiff::LoadSubImageImpl(unsigned current, sBitmapDescription& desc)
 {
-    return load(subImage, desc);
+    return load(current, desc);
 }
 
-bool CFormatTiff::load(unsigned subImage, sBitmapDescription& desc)
+bool CFormatTiff::load(unsigned current, sBitmapDescription& desc)
 {
     cFile file;
     if (!file.open(m_filename.c_str()))
@@ -52,11 +52,11 @@ bool CFormatTiff::load(unsigned subImage, sBitmapDescription& desc)
     if (tif != 0)
     {
         // read count of pages in image
-        desc.subCount = TIFFNumberOfDirectories(tif);
-        desc.subImage = std::min(subImage, desc.subCount - 1);
+        desc.images = TIFFNumberOfDirectories(tif);
+        desc.current = std::min(current, desc.images - 1);
 
         // set desired page
-        if (TIFFSetDirectory(tif, desc.subImage) != 0)
+        if (TIFFSetDirectory(tif, desc.current) != 0)
         {
             TIFFRGBAImage img;
             if (TIFFRGBAImageBegin(&img, tif, 0, NULL) != 0)

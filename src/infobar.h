@@ -16,31 +16,18 @@
 
 struct sInfoBar
 {
-    sInfoBar()
-        : path(0)
-        , type(0)
-        , index(0)
-        , width(0)
-        , height(0)
-        , bpp(0)
-        , scale(0)
-        , sub_image(0)
-        , sub_count(0)
-        , file_size(0)
-        , mem_size(0)
-        , files_count(0)
-    {
-    }
-
-    const char* path;
-    const char* type;
-    int index;
-    int width, height, bpp;
+    const char* path = nullptr;
+    const char* type = nullptr;
+    unsigned index;
+    unsigned width;
+    unsigned height;
+    unsigned bpp;
     float scale;
-    int sub_image, sub_count;
+    unsigned images;
+    unsigned current;
     long file_size;
     size_t mem_size;
-    int files_count;
+    unsigned files_count;
 };
 
 class CInfoBar final
@@ -64,4 +51,3 @@ private:
     std::unique_ptr<CQuad> m_bg;
     std::unique_ptr<CFTString> m_ft;
 };
-

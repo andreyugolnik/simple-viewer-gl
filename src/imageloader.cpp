@@ -86,6 +86,10 @@ void CImageLoader::LoadImage(const char* path)
     {
         m_callbacks->startLoading();
         Load(path);
+        if (m_desc.images == 0)
+        {
+            m_desc.images = 1;
+        }
         m_callbacks->endLoading();
     }, path);
 }
@@ -140,8 +144,8 @@ void CImageLoader::clear()
     m_desc.height   = 0;
     m_desc.bppImage = 0;
     m_desc.size     = -1;
-    m_desc.subImage = 0;
-    m_desc.subCount = 0;
+    m_desc.images   = 0;
+    m_desc.current  = 0;
     m_desc.info.clear();
 }
 
@@ -185,14 +189,14 @@ size_t CImageLoader::GetSizeMem() const
     return m_desc.bitmap.size();
 }
 
-unsigned CImageLoader::GetSub() const
+unsigned CImageLoader::getCurrent() const
 {
-    return m_desc.subImage;
+    return m_desc.current;
 }
 
-unsigned CImageLoader::GetSubCount() const
+unsigned CImageLoader::getImages() const
 {
-    return m_desc.subCount;
+    return m_desc.images;
 }
 
 const char* CImageLoader::getImageType() const

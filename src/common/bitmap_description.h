@@ -28,8 +28,8 @@ struct sBitmapDescription
     unsigned bppImage = 0;  // bit per pixel of original image
     long size         = -1; // file size on disk
 
-    unsigned subImage = 0;
-    unsigned subCount = 0;
+    unsigned images   = 0;
+    unsigned current  = 0;
 
     std::string info;       // additional info, such as EXIF
 };

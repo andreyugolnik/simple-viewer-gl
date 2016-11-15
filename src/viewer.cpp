@@ -605,6 +605,7 @@ void cViewer::loadImage(int step)
         m_camera = cVector<float>(0, 0);
     }
 
+    m_image->clear();
     const char* file = m_filesList->GetName(step);
     m_loader->LoadImage(file);
 }
@@ -612,10 +613,14 @@ void cViewer::loadImage(int step)
 void cViewer::loadSubImage(int subStep)
 {
     assert(subStep == -1 || subStep == 1);
-    const int subCount = (int)m_loader->GetSubCount();
-    int subImage = (subCount + (int)m_loader->GetSub() + subStep) % subCount;
 
-    m_loader->LoadSubImage(subImage);
+    const unsigned current = m_loader->getCurrent();
+    const unsigned total = m_loader->getImages();
+    const unsigned next = (current + total + subStep) % total;
+    if (current != next)
+    {
+        m_loader->LoadSubImage(next);
+    }
 }
 
 void cViewer::updateInfobar()
@@ -633,8 +638,8 @@ void cViewer::updateInfobar()
         s.width       = m_loader->GetWidth();
         s.height      = m_loader->GetHeight();
         s.bpp         = m_loader->GetImageBpp();
-        s.sub_image   = m_loader->GetSub();
-        s.sub_count   = m_loader->GetSubCount();
+        s.images      = m_loader->getImages();
+        s.current     = m_loader->getCurrent();
         s.file_size   = m_loader->GetFileSize();
         s.mem_size    = m_loader->GetSizeMem();
         s.type        = m_loader->getImageType();

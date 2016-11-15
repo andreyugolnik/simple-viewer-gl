@@ -60,8 +60,8 @@ public:
     unsigned GetImageBpp() const;
     long GetFileSize() const;
     size_t GetSizeMem() const;
-    unsigned GetSub() const;
-    unsigned GetSubCount() const;
+    unsigned getCurrent() const;
+    unsigned getImages() const;
     const char* getImageType() const;
 
 private:
