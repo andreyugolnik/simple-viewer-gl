@@ -9,8 +9,9 @@
 
 #pragma once
 
-#include "quad.h"
 #include <memory>
+
+class CQuad;
 
 class CProgress final
 {
@@ -37,6 +38,14 @@ public:
 private:
     float m_visible = false;
     float m_progress = 0.0f;
-    std::unique_ptr<CQuad> m_loading;
-    std::unique_ptr<CQuad> m_square;
+
+    unsigned m_index;
+    float m_time;
+    float m_alpha;
+    struct sDot
+    {
+        float alpha;
+        std::unique_ptr<CQuad> dot;
+    };
+    sDot m_dot[4];
 };
