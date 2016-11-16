@@ -1,12 +1,13 @@
-/////////////////////////////////////////////////
-//
-// Andrey A. Ugolnik
-// andrey@ugolnik.info
-//
-/////////////////////////////////////////////////
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
-#ifndef QUADSERIES_H
-#define QUADSERIES_H
+#pragma once
 
 #include "quad.h"
 
@@ -22,10 +23,4 @@ public:
 private:
     unsigned m_count;
     unsigned m_frame;
-
-private:
-    CQuadSeries();
 };
-
-#endif // QUADSERIES_H
-
