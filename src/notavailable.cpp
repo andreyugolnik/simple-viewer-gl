@@ -22,10 +22,8 @@ CNotAvailable::~CNotAvailable()
 {
 }
 
-bool CNotAvailable::LoadImpl(const char* filename, sBitmapDescription& desc)
+bool CNotAvailable::LoadImpl(const char* /*filename*/, sBitmapDescription& desc)
 {
-    (void)filename;
-
     desc.format   = imgNa.bytes_per_pixel == 3 ? GL_RGB : GL_RGBA;
     desc.width    = imgNa.width;
     desc.height   = imgNa.height;
