@@ -60,8 +60,6 @@ void cQuadImage::clearOld()
 
 void cQuadImage::setBuffer(unsigned width, unsigned height, unsigned pitch, unsigned format, unsigned bytesPP, const unsigned char* image)
 {
-    moveToOld();
-
     m_texWidth = cRenderer::calculateTextureSize(width);
     m_texHeight = cRenderer::calculateTextureSize(height);
 
@@ -73,6 +71,8 @@ void cQuadImage::setBuffer(unsigned width, unsigned height, unsigned pitch, unsi
     m_cols = (unsigned)ceilf((float)width / m_texWidth);
     m_rows = (unsigned)ceilf((float)height / m_texHeight);
     // printf("textures: %d (%d x %d) required\n", m_cols * m_rows, m_cols, m_rows);
+
+    moveToOld();
 
     m_width = width;
     m_height = height;
@@ -182,6 +182,23 @@ void cQuadImage::render()
 void cQuadImage::moveToOld()
 {
     clearOld();
+
+    for (size_t i = 0, size = m_chunks.size(); i < size; )
+    {
+        const auto& chunk = m_chunks[i];
+        if (chunk.col >= m_cols || chunk.row >= m_rows)
+        {
+            // printf("removed: %u x %u\n", chunk.col, chunk.row);
+            delete chunk.quad;
+            m_chunks[i] = m_chunks[--size];
+            m_chunks.pop_back();
+        }
+        else
+        {
+            i++;
+        }
+    }
+
     m_chunksOld = m_chunks;
     m_chunks.clear();
 }

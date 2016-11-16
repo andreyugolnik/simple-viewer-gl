@@ -168,6 +168,10 @@ void cViewer::render()
     {
         m_imagePrepared = false;
 
+        m_scale = 1;
+        m_angle = 0;
+        m_camera = cVector<float>(0, 0);
+
         const unsigned width = m_loader->GetWidth();
         const unsigned height = m_loader->GetHeight();
         m_image->setBuffer(width, height, m_loader->GetPitch()
@@ -598,14 +602,6 @@ void cViewer::loadImage(int step)
 {
     m_filesList->ParseDir();
 
-    if (step != 0)
-    {
-        m_scale = 1;
-        m_angle = 0;
-        m_camera = cVector<float>(0, 0);
-    }
-
-    // m_image->clear();
     const char* file = m_filesList->GetName(step);
     m_loader->LoadImage(file);
 }
