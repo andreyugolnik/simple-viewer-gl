@@ -39,6 +39,11 @@ public:
     }
 
 private:
+    void moveToOld();
+    void clearOld();
+    CQuad* findAndRemoveOld(unsigned col, unsigned row);
+
+private:
     unsigned m_texWidth = 0;
     unsigned m_texHeight = 0;
     unsigned m_texPitch = 0;
@@ -59,6 +64,7 @@ private:
         CQuad* quad;
     };
     std::vector<sChunk> m_chunks;
+    std::vector<sChunk> m_chunksOld;
 
     std::vector<unsigned char> m_buffer;
 };

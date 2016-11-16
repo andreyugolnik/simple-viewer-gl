@@ -15,11 +15,13 @@
 CQuad::CQuad(unsigned tw, unsigned th, const unsigned char* data, GLenum bitmapFormat)
     : m_tw(tw)
     , m_th(th)
+    , m_format(bitmapFormat)
     , m_w(tw)
     , m_h(th)
     , m_filter(true)
 {
-    m_quad.tex = cRenderer::createTexture(data, m_w, m_h, bitmapFormat);
+    m_quad.tex = cRenderer::createTexture();
+    setData(data);
 
     // by deafult set whole texture size
     SetSpriteSize(tw, th);
@@ -28,6 +30,11 @@ CQuad::CQuad(unsigned tw, unsigned th, const unsigned char* data, GLenum bitmapF
 CQuad::~CQuad()
 {
     cRenderer::deleteTexture(m_quad.tex);
+}
+
+void CQuad::setData(const unsigned char* data)
+{
+    cRenderer::setData(m_quad.tex, data, m_tw, m_th, m_format);
 }
 
 void CQuad::SetColor(int r, int g, int b, int a)

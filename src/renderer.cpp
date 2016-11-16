@@ -59,17 +59,11 @@ GLFWwindow* cRenderer::getWindow()
     return m_window;
 }
 
-GLuint cRenderer::createTexture(const unsigned char* data, unsigned w, unsigned h, GLenum format)
+void cRenderer::setData(GLuint tex, const unsigned char* data, unsigned w, unsigned h, GLenum format)
 {
-    GLuint tex = 0;
-    if(data)
-    {
-        glGenTextures(1, &tex);
-    }
-
     bindTexture(tex);
 
-    if(data)
+    if (tex != 0 && data != nullptr)
     {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -79,55 +73,69 @@ GLuint cRenderer::createTexture(const unsigned char* data, unsigned w, unsigned 
         //std::cout << "creating " << tw << " x " << th << " texture" << std::endl;
         GLenum type = 0;
         GLint fmt = format;
-        if(format == GL_RGB || format == GL_BGR)
+        if (format == GL_RGB || format == GL_BGR)
         {
             fmt    = GL_RGB;
             type   = GL_UNSIGNED_BYTE;
         }
-        else if(format == GL_RGBA || format == GL_BGRA)
+        else if (format == GL_RGBA || format == GL_BGRA)
         {
             fmt    = GL_RGBA;
             type   = GL_UNSIGNED_BYTE;
         }
-        else if(format == GL_UNSIGNED_SHORT_4_4_4_4)
+        else if (format == GL_UNSIGNED_SHORT_4_4_4_4)
         {
             format = GL_RGBA;
             fmt    = GL_RGBA;
             type   = GL_UNSIGNED_SHORT_4_4_4_4;
         }
-        else if(format == GL_UNSIGNED_SHORT_5_6_5)
+        else if (format == GL_UNSIGNED_SHORT_5_6_5)
         {
             format = GL_RGB;
             fmt    = GL_RGB;
             type   = GL_UNSIGNED_SHORT_5_6_5;
         }
-        else if(format == GL_UNSIGNED_SHORT_5_5_5_1)
+        else if (format == GL_UNSIGNED_SHORT_5_5_5_1)
         {
             format = GL_RGBA;
             fmt    = GL_RGBA;
             type   = GL_UNSIGNED_SHORT_5_5_5_1;
         }
-        else if(format == GL_LUMINANCE || format == GL_LUMINANCE_ALPHA || format == GL_ALPHA)
+        else if (format == GL_LUMINANCE || format == GL_LUMINANCE_ALPHA || format == GL_ALPHA)
         {
             type   = GL_UNSIGNED_BYTE;
         }
 
         glTexImage2D(GL_TEXTURE_2D, 0, fmt, w, h, 0, format, type, data);
-
-        GLenum e = glGetError();
-        if(GL_NO_ERROR != e)
-        {
-            //const GLubyte* s   = gluErrorString(e);
-            printf("can't update texture %u: 0x%x\n", tex, e);
-        }
+        checkError("setData");
     }
+}
+
+GLuint cRenderer::createTexture()
+{
+    GLuint tex = 0;
+    glGenTextures(1, &tex);
+    checkError("createTexture");
 
     return tex;
 }
 
+bool cRenderer::checkError(const char* msg)
+{
+    bool result = false;
+    for (GLenum e = glGetError(); e != GL_NO_ERROR; e = glGetError())
+    {
+        result = true;
+        //const GLubyte* s   = gluErrorString(e);
+        printf("%s : 0x%x\n", msg, e);
+    }
+
+    return result;
+}
+
 void cRenderer::deleteTexture(GLuint tex)
 {
-    if(m_tex == tex)
+    if (m_tex == tex)
     {
         bindTexture(0);
     }
@@ -136,7 +144,7 @@ void cRenderer::deleteTexture(GLuint tex)
 
 void cRenderer::bindTexture(GLuint tex)
 {
-    if(m_tex != tex)
+    if (m_tex != tex)
     {
         m_tex = tex;
         glBindTexture(GL_TEXTURE_2D, m_tex);
@@ -145,7 +153,7 @@ void cRenderer::bindTexture(GLuint tex)
 
 static unsigned nextPOT(unsigned n, bool npot)
 {
-    if(npot)
+    if (npot)
     {
         return n;
     }
@@ -166,7 +174,7 @@ unsigned cRenderer::calculateTextureSize(unsigned size)
 
 void cRenderer::setColor(sLine* line, int r, int g, int b, int a)
 {
-    for(unsigned i = 0; i < 2; i++)
+    for (unsigned i = 0; i < 2; i++)
     {
         line->v[i].r = r;
         line->v[i].g = g;
@@ -177,7 +185,7 @@ void cRenderer::setColor(sLine* line, int r, int g, int b, int a)
 
 void cRenderer::setColor(sQuad* quad, int r, int g, int b, int a)
 {
-    for(unsigned i = 0; i < 4; i++)
+    for (unsigned i = 0; i < 4; i++)
     {
         quad->v[i].r = r;
         quad->v[i].g = g;
@@ -224,11 +232,11 @@ void cRenderer::resetGlobals()
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glOrtho(
-            0.0f,
-            0.0f + m_viewportSize.x,
-            0.0f + m_viewportSize.y,
-            0.0f,
-            -1.0f, 1.0f);
+        0.0f,
+        0.0f + m_viewportSize.x,
+        0.0f + m_viewportSize.y,
+        0.0f,
+        -1.0f, 1.0f);
 
     glRotatef(0.0f, 0.0f, 0.0f, -1.0f);
 }
@@ -245,12 +253,11 @@ void cRenderer::setGlobals(const cVector<float>& delta, float angle, float zoom)
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glOrtho(
-            x,
-            x + w,
-            y + h,
-            y,
-            -1.0f, 1.0f);
+        x,
+        x + w,
+        y + h,
+        y,
+        -1.0f, 1.0f);
 
     glRotatef(angle, 0.0f, 0.0f, -1.0f);
 }
-

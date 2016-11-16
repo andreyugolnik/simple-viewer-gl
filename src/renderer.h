@@ -41,12 +41,15 @@ public:
     static void setWindow(GLFWwindow* window);
     static GLFWwindow* getWindow();
 
-    static GLuint createTexture(const unsigned char* data, unsigned w, unsigned h, GLenum format);
+    static GLuint createTexture();
+    static void setData(GLuint tex, const unsigned char* data, unsigned w, unsigned h, GLenum format);
     static void deleteTexture(GLuint tex);
     static void bindTexture(GLuint tex);
+
     static unsigned calculateTextureSize(unsigned size);
     static void setColor(sLine* line, int r, int g, int b, int a);
     static void setColor(sQuad* quad, int r, int g, int b, int a);
+
     static void render(const sLine& quad);
     static void render(const sQuad& quad);
 
@@ -54,5 +57,7 @@ public:
     static const cVector<float>& getViewportSize();
     static void resetGlobals();
     static void setGlobals(const cVector<float>& delta, float angle, float zoom);
+
+    static bool checkError(const char* msg);
 };
 

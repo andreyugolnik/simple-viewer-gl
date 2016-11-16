@@ -289,13 +289,9 @@ void CFTString::generate()
 
     if(m_quad.tex == 0)
     {
-        m_quad.tex = cRenderer::createTexture((unsigned char*)&buffer[0], m_texW, m_texH, GL_RGBA);
+        m_quad.tex = cRenderer::createTexture();
     }
-    else
-    {
-        cRenderer::bindTexture(m_quad.tex);
-        glTexImage2D(GL_TEXTURE_2D, 0, 4, m_texW, m_texH, 0, GL_RGBA, GL_UNSIGNED_BYTE, &buffer[0]);
-    }
+    cRenderer::setData(m_quad.tex, (unsigned char*)&buffer[0], m_texW, m_texH, GL_RGBA);
 
     SymbolsIt it2 = m_mapSymbol.begin();
     for( ; it2 != m_mapSymbol.end(); ++it2)

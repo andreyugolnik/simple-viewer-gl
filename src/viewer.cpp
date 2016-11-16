@@ -605,7 +605,7 @@ void cViewer::loadImage(int step)
         m_camera = cVector<float>(0, 0);
     }
 
-    m_image->clear();
+    // m_image->clear();
     const char* file = m_filesList->GetName(step);
     m_loader->LoadImage(file);
 }

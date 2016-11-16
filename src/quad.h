@@ -17,11 +17,21 @@ public:
     CQuad(unsigned tw, unsigned th, const unsigned char* data = 0, GLenum bitmapFormat = GL_RGB);
     virtual ~CQuad();
 
+    virtual void setData(const unsigned char* data);
     virtual void SetColor(int r, int g, int b, int a);
     virtual void SetTextureRect(float x, float y, float w, float h);
     virtual void SetSpriteSize(float w, float h);
     virtual void Render(float x, float y);
     virtual void RenderEx(float x, float y, float w, float h, int rot = 0);
+
+    virtual unsigned GetTexWidth() const
+    {
+        return m_tw;
+    }
+    virtual unsigned GetTexHeight() const
+    {
+        return m_th;
+    }
 
     virtual float GetWidth() const
     {
@@ -32,20 +42,24 @@ public:
         return m_h;
     }
 
-    virtual float GetTexWidth() const
-    {
-        return m_tw;
-    }
-    virtual float GetTexHeight() const
-    {
-        return m_th;
-    }
-
     virtual void useFilter(bool filter);
 
+    GLenum getFormat() const
+    {
+        return m_format;
+    }
+
 protected:
-    float m_tw, m_th; // texture width / height
-    float m_w, m_h; // sprite width / height
-    sQuad m_quad;
+    // texture size
+    unsigned m_tw;
+    unsigned m_th;
+    GLenum m_format;
+
+    // sprite size
+    float m_w;
+    float m_h;
+
     bool m_filter;
+
+    sQuad m_quad;
 };

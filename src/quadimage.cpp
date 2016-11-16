@@ -38,17 +38,29 @@ void cQuadImage::clear()
     m_bytesPP = 0;
     m_image = nullptr;
 
+    clearOld();
+
     for (auto& chunk : m_chunks)
     {
         delete chunk.quad;
     }
     m_chunks.clear();
+
     m_buffer.resize(0);
+}
+
+void cQuadImage::clearOld()
+{
+    for (auto& chunk : m_chunksOld)
+    {
+        delete chunk.quad;
+    }
+    m_chunksOld.clear();
 }
 
 void cQuadImage::setBuffer(unsigned width, unsigned height, unsigned pitch, unsigned format, unsigned bytesPP, const unsigned char* image)
 {
-    clear();
+    moveToOld();
 
     m_texWidth = cRenderer::calculateTextureSize(width);
     m_texHeight = cRenderer::calculateTextureSize(height);
@@ -97,7 +109,19 @@ bool cQuadImage::upload()
         memcpy(&m_buffer[dst], &m_image[src], count);
     }
 
-    CQuad* quad = new CQuad(m_texWidth, m_texHeight, &m_buffer[0], m_format);
+    CQuad* quad = findAndRemoveOld(col, row);
+    if (quad == nullptr
+        || quad->GetTexWidth() != m_texWidth || quad->GetTexHeight() != m_texHeight
+        || quad->getFormat() != m_format)
+    {
+        delete quad;
+        quad = new CQuad(m_texWidth, m_texHeight, &m_buffer[0], m_format);
+    }
+    else
+    {
+        quad->setData(&m_buffer[0]);
+    }
+
     quad->SetSpriteSize(w, h);
     quad->useFilter(false);
 
@@ -106,6 +130,7 @@ bool cQuadImage::upload()
     const bool isDone = isUploading() == false;
     if (isDone)
     {
+        clearOld();
         m_buffer.resize(0);
     }
 
@@ -136,6 +161,15 @@ void cQuadImage::render()
     const float halfHeight = ceilf(m_height * 0.5f);
     const unsigned texWidth = m_texWidth;
     const unsigned texHeight = m_texHeight;
+
+    for (const auto& chunk : m_chunksOld)
+    {
+        const float x = chunk.col * texWidth - halfWidth;
+        const float y = chunk.row * texHeight - halfHeight;
+
+        chunk.quad->Render(x, y);
+    }
+
     for (const auto& chunk : m_chunks)
     {
         const float x = chunk.col * texWidth - halfWidth;
@@ -143,4 +177,30 @@ void cQuadImage::render()
 
         chunk.quad->Render(x, y);
     }
+}
+
+void cQuadImage::moveToOld()
+{
+    clearOld();
+    m_chunksOld = m_chunks;
+    m_chunks.clear();
+}
+
+CQuad* cQuadImage::findAndRemoveOld(unsigned col, unsigned row)
+{
+    CQuad* quad = nullptr;
+
+    for (size_t i = 0, size = m_chunksOld.size(); i < size; i++)
+    {
+        const auto& chunk = m_chunksOld[i];
+        if (chunk.col == col && chunk.row == row)
+        {
+            quad = chunk.quad;
+            m_chunksOld[i] = m_chunksOld.back();
+            m_chunksOld.pop_back();
+            break;
+        }
+    }
+
+    return quad;
 }
