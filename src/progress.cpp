@@ -14,10 +14,14 @@
 #include <cmath>
 
 const float dotSize = 14.0f;
-const float distance = dotSize + 2.0f;
+const float gap = 1.0f;
+const float distance = dotSize + 2 * gap;
 
 void CProgress::init()
 {
+    m_back.reset(new CQuad(distance * 2, distance * 2));
+    m_back->SetColor(0, 0, 0, 255);
+
     for(auto& dot : m_dot)
     {
         dot.dot.reset(new CQuad(dotSize, dotSize));
@@ -44,6 +48,8 @@ void CProgress::render()
         const float pos_x = w - distance * 2;
         const float pos_y = h - distance * 2;
 
+        m_back->Render(pos_x, pos_y);
+
         static const unsigned idx[4] = { 0, 1, 3, 2 };
         for(size_t i = 0; i < sizeof(m_dot)/sizeof(m_dot[0]); i++)
         {
@@ -54,9 +60,9 @@ void CProgress::render()
                 const float alphaSpeed = 255.0f * 2.0f;
                 alpha = std::max<float>(0.0f, alpha - dt * alphaSpeed);
                 dot.alpha = alpha;
-                dot.dot->SetColor(255.0f, 255.0f, 255.0f, alpha);
-                const float x = pos_x + (idx[i] % 2) * distance;
-                const float y = pos_y + (idx[i] / 2) * distance;
+                dot.dot->SetColor(255, 255, 255, alpha);
+                const float x = pos_x + (idx[i] % 2) * distance + gap;
+                const float y = pos_y + (idx[i] / 2) * distance + gap;
                 dot.dot->Render(x, y);
             }
         }
