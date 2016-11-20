@@ -47,13 +47,8 @@ You can browse the source code repository on GitHub or get a copy using git with
 git clone https://bitbucket.org/andreyu/simple-viewer-gl.git
 ```
 
-Under Linux **sviewgl** is built using the command:
 ```
-$ make linux
-```
-And under OS X:
-```
-$ make osx
+$ make release
 ```
 
 ##Dependencies##
