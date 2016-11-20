@@ -152,7 +152,7 @@ void cViewer::render()
 
     if (m_config->hideInfobar == false)
     {
-        m_infoBar->Render();
+        m_infoBar->render();
     }
 
     if (m_config->showPixelInfo && m_angle == 0)
@@ -623,7 +623,7 @@ void cViewer::updateInfobar()
 {
     calculateScale();
 
-    sInfoBar s;
+    CInfoBar::sInfo s;
     s.path        = m_filesList->GetName(0);
     s.scale       = m_scale;
     s.index       = m_filesList->GetIndex();
@@ -644,7 +644,7 @@ void cViewer::updateInfobar()
     {
         s.type        = "unknown";
     }
-    m_infoBar->Update(s);
+    m_infoBar->setInfo(s);
 }
 
 cVector<float> cViewer::screenToImage(const cVector<float>& pos) const

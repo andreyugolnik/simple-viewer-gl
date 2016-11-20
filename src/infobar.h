@@ -14,22 +14,6 @@
 #include <string>
 #include <memory>
 
-struct sInfoBar
-{
-    const char* path = nullptr;
-    const char* type = nullptr;
-    unsigned index;
-    unsigned width;
-    unsigned height;
-    unsigned bpp;
-    float scale;
-    unsigned images;
-    unsigned current;
-    long file_size;
-    size_t mem_size;
-    unsigned files_count;
-};
-
 class CInfoBar final
 {
 public:
@@ -38,8 +22,24 @@ public:
     void setRatio(float ratio);
     float getHeight() const;
 
-    void Update(const sInfoBar& p);
-    void Render();
+    struct sInfo
+    {
+        const char* path = nullptr;
+        const char* type = nullptr;
+        unsigned index = 0;
+        unsigned width = 0;
+        unsigned height = 0;
+        unsigned bpp = 0;
+        float scale = 0.0f;
+        unsigned images = 0;
+        unsigned current = 0;
+        long file_size = 0;
+        size_t mem_size = 0;
+        unsigned files_count = 0;
+    };
+
+    void setInfo(const sInfo& p);
+    void render();
 
 private:
     const char* getHumanSize(float& size);

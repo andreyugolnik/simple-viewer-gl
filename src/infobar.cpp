@@ -42,7 +42,7 @@ float CInfoBar::getHeight() const
     return m_ratio * DesiredHeight;
 }
 
-void CInfoBar::Render()
+void CInfoBar::render()
 {
     int width;
     int height;
@@ -67,7 +67,7 @@ static const char* GetName(const char* path)
     return "n/a";
 }
 
-void CInfoBar::Update(const sInfoBar& p)
+void CInfoBar::setInfo(const sInfo& p)
 {
     const char* name = GetName(p.path);
 
