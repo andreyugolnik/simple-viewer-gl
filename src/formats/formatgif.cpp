@@ -35,6 +35,32 @@ bool CFormatGif::LoadSubImageImpl(unsigned current, sBitmapDescription& desc)
     return load(current, desc);
 }
 
+static GifFileType* OpenFile(const char* path)
+{
+#if GIFLIB_MAJOR == 4
+    auto gifFile = DGifOpenFileName(path);
+#else
+    int errorCode = 0;
+    auto gifFile = DGifOpenFileName(path, &errorCode);
+    (void)errorCode;
+#endif
+
+    return gifFile;
+}
+
+static int CloseFile(GifFileType* gifFile)
+{
+#if GIFLIB_MAJOR == 4
+    auto result = DGifCloseFile(gifFile);
+#else
+    int errorCode = 0;
+    auto result = DGifCloseFile(gifFile, &errorCode);
+    (void)errorCode;
+#endif
+
+    return result;
+}
+
 bool CFormatGif::load(unsigned current, sBitmapDescription& desc)
 {
     cFile file;
@@ -46,11 +72,7 @@ bool CFormatGif::load(unsigned current, sBitmapDescription& desc)
     desc.size = file.getSize();
     file.close();
 
-#if GIFLIB_MAJOR == 4
-    GifFileType* gif_file = DGifOpenFileName(m_filename.c_str());
-#else
-    GifFileType* gif_file = DGifOpenFileName(m_filename.c_str(), nullptr);
-#endif
+    auto gif_file = OpenFile(m_filename.c_str());
     if (gif_file == 0)
     {
         std::cout << "Error Opening GIF image" << std::endl;
@@ -61,7 +83,7 @@ bool CFormatGif::load(unsigned current, sBitmapDescription& desc)
     if (res != GIF_OK || gif_file->ImageCount < 1)
     {
         std::cout << "Error Opening GIF image" << std::endl;
-        DGifCloseFile(gif_file);
+        CloseFile(gif_file);
         return false;
     }
 
@@ -107,7 +129,7 @@ bool CFormatGif::load(unsigned current, sBitmapDescription& desc)
     //if(cmap->ColorCount != (1 << cmap->BitsPerPixel))
     //{
     //std::cout << "Invalid ColorMap" << std::endl;
-    //DGifCloseFile(gif_file);
+    //CloseFile(gif_file);
     //return false;
     //}
     const int width = image->ImageDesc.Width;
@@ -159,18 +181,14 @@ bool CFormatGif::load(unsigned current, sBitmapDescription& desc)
     // TerminateRecordType      - last record reached, can close the file.
     //  GifRecordType recordType;
     //  if(GIF_ERROR == DGifGetRecordType(gif_file, &recordType)) {
-    //      DGifCloseFile(gif_file);
+    //      CloseFile(gif_file);
     //      std::cout << "Error Opening GIF image" << std::endl;
     //      return false;
     //  }
     //
     //  std::cout << "Record Type" << (int)recordType << std::endl;
 
-#if GIFLIB_MAJOR == 4
-    DGifCloseFile(gif_file);
-#else
-    DGifCloseFile(gif_file, nullptr);
-#endif
+    CloseFile(gif_file);
 
     return true;
 }
