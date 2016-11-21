@@ -37,12 +37,12 @@ bool CFormatGif::LoadSubImageImpl(unsigned current, sBitmapDescription& desc)
 
 static GifFileType* OpenFile(const char* path)
 {
-#if GIFLIB_MAJOR == 4
-    auto gifFile = DGifOpenFileName(path);
-#else
+#if GIFLIB_MAJOR >= 5
     int errorCode = 0;
     auto gifFile = DGifOpenFileName(path, &errorCode);
     (void)errorCode;
+#else
+    auto gifFile = DGifOpenFileName(path);
 #endif
 
     return gifFile;
@@ -50,12 +50,12 @@ static GifFileType* OpenFile(const char* path)
 
 static int CloseFile(GifFileType* gifFile)
 {
-#if GIFLIB_MAJOR == 4
-    auto result = DGifCloseFile(gifFile);
-#else
+#if GIFLIB_MAJOR >= 5
     int errorCode = 0;
     auto result = DGifCloseFile(gifFile, &errorCode);
     (void)errorCode;
+#else
+    auto result = DGifCloseFile(gifFile);
 #endif
 
     return result;
