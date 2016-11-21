@@ -1,15 +1,14 @@
-Build with cmake under Linux:
+Build under Linux and macOS:
 
-$ mkdir build
-$ cd build
-$ cmake ../projects/linux
-$ make
-
-Or just make inside simple-viewer-gl directory.
+$ make release
 
 Optional copy executable in to /usr/bin:
 
 $ cp sviewgl /usr/bin
+
+Or symlink it:
+
+$ ln -s sviewgl /usr/bin/sviewgl
 
 Example of config in config.example file.
 Copy it to $XDG_CONFIG_HOME/sviewgl/config
