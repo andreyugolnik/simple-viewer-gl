@@ -46,7 +46,11 @@ bool CFormatGif::load(unsigned current, sBitmapDescription& desc)
     desc.size = file.getSize();
     file.close();
 
+#if GIFLIB_MAJOR == 4
     GifFileType* gif_file = DGifOpenFileName(m_filename.c_str());
+#else
+    GifFileType* gif_file = DGifOpenFileName(m_filename.c_str(), nullptr);
+#endif
     if (gif_file == 0)
     {
         std::cout << "Error Opening GIF image" << std::endl;
@@ -162,7 +166,11 @@ bool CFormatGif::load(unsigned current, sBitmapDescription& desc)
     //
     //  std::cout << "Record Type" << (int)recordType << std::endl;
 
+#if GIFLIB_MAJOR == 4
     DGifCloseFile(gif_file);
+#else
+    DGifCloseFile(gif_file, nullptr);
+#endif
 
     return true;
 }
