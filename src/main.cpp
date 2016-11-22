@@ -18,7 +18,7 @@
 #include <cstdio>
 
 static const char* SimpleViewerTitle = "Simple Viewer GL";
-static const float SimpleViewerVersion = 2.7f;
+static const float SimpleViewerVersion = 2.71f;
 
 static cViewer* m_viewer = nullptr;
 
@@ -94,15 +94,9 @@ int main(int argc, char* argv[])
     printf("http://www.ugolnik.info\n");
     printf("andrey@ugolnik.info\n\n");
 
-    if(argc < 2)
+    for (int i = 1; i < argc; i++)
     {
-        showHelp(argv[0]);
-        return 0;
-    }
-
-    for(int i = 1; i < argc; i++)
-    {
-        if(!strncmp(argv[i], "-h", 2) || !strncmp(argv[i], "--help", 6))
+        if (!strncmp(argv[i], "-h", 2) || !strncmp(argv[i], "--help", 6))
         {
             showHelp(argv[0]);
             return 0;
@@ -115,32 +109,50 @@ int main(int argc, char* argv[])
 
     const char* path = nullptr;
 
-    for(int i = 1; i < argc; i++)
+    for (int i = 1; i < argc; i++)
     {
-        if(strncmp(argv[i], "-i", 2) == 0)
+        if (strncmp(argv[i], "-i", 2) == 0)
+        {
             c.hideInfobar = true;
-        else if(strncmp(argv[i], "-p", 2) == 0)
+        }
+        else if (strncmp(argv[i], "-p", 2) == 0)
+        {
             c.showPixelInfo = true;
-        else if(strncmp(argv[i], "-cw", 3) == 0)
+        }
+        else if (strncmp(argv[i], "-cw", 3) == 0)
+        {
             c.centerWindow = true;
-        else if(strncmp(argv[i], "-c", 2) == 0)
+        }
+        else if (strncmp(argv[i], "-c", 2) == 0)
+        {
             c.hideCheckboard = true;
-        else if(strncmp(argv[i], "-s", 2) == 0)
+        }
+        else if (strncmp(argv[i], "-s", 2) == 0)
+        {
             c.fitImage = true;
+        }
         //else if(strncmp(argv[i], "-f", 2) == 0)
-            //c.fullScreen = true;
-        else if(strncmp(argv[i], "-b", 2) == 0)
+        //c.fullScreen = true;
+        else if (strncmp(argv[i], "-b", 2) == 0)
+        {
             c.showImageBorder = true;
-        else if(strncmp(argv[i], "-r", 2) == 0)
+        }
+        else if (strncmp(argv[i], "-r", 2) == 0)
+        {
             c.recursiveScan = true;
-        else if(strncmp(argv[i], "-a", 2) == 0)
+        }
+        else if (strncmp(argv[i], "-a", 2) == 0)
+        {
             c.skipFilter = true;
-        else if(strncmp(argv[i], "-wz", 3) == 0)
+        }
+        else if (strncmp(argv[i], "-wz", 3) == 0)
+        {
             c.wheelZoom = true;
-        else if(strncmp(argv[i], "-C", 2) == 0)
+        }
+        else if (strncmp(argv[i], "-C", 2) == 0)
         {
             int r, g, b;
-            if(3 == sscanf(argv[i + 1], "%2x%2x%2x", &r, &g, &b))
+            if (3 == sscanf(argv[i + 1], "%2x%2x%2x", &r, &g, &b))
             {
                 c.color = { r / 255.0f, g / 255.0f, b / 255.0f };
                 i++;
@@ -155,52 +167,52 @@ int main(int argc, char* argv[])
     cViewer viewer(&c);
     m_viewer = &viewer;
 
-    if(viewer.setInitialImagePath(path))
+    viewer.setInitialImagePath(path);
+
+    if (glfwInit())
     {
-        if(glfwInit())
+        GLFWwindow* window = glfwCreateWindow(640, 480, SimpleViewerTitle, nullptr, nullptr);
+        if (window != nullptr)
         {
-            GLFWwindow* window = glfwCreateWindow(640, 480, SimpleViewerTitle, nullptr, nullptr);
-            if(window != nullptr)
+            setup(window);
+            viewer.setWindow(window);
+            viewer.loadImage(0);
+
+            while (!glfwWindowShouldClose(window))
             {
-                setup(window);
-                viewer.setWindow(window);
-
-                while(!glfwWindowShouldClose(window))
+                if (viewer.isWindowModeRequested())
                 {
-                    if(viewer.isWindowModeRequested())
+                    GLFWwindow* newWindow = nullptr;
+
+                    const bool windowed = viewer.isWindowed();
+                    if (windowed)
                     {
-                        GLFWwindow* newWindow = nullptr;
+                        const auto& size = viewer.getWindowSize();
+                        newWindow = glfwCreateWindow(size.x, size.y, SimpleViewerTitle, nullptr, window);
 
-                        const bool windowed = viewer.isWindowed();
-                        if(windowed)
-                        {
-                            const auto& size = viewer.getWindowSize();
-                            newWindow = glfwCreateWindow(size.x, size.y, SimpleViewerTitle, nullptr, window);
-
-                            const auto& pos = viewer.getWindowPosition();
-                            glfwSetWindowPos(newWindow, pos.x, pos.y);
-                        }
-                        else
-                        {
-                            GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-                            const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-                            newWindow = glfwCreateWindow(mode->width, mode->height, SimpleViewerTitle, monitor, window);
-                        }
-
-                        setup(newWindow);
-                        viewer.setWindow(newWindow);
-
-                        glfwDestroyWindow(window);
-                        window = newWindow;
+                        const auto& pos = viewer.getWindowPosition();
+                        glfwSetWindowPos(newWindow, pos.x, pos.y);
+                    }
+                    else
+                    {
+                        GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+                        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+                        newWindow = glfwCreateWindow(mode->width, mode->height, SimpleViewerTitle, monitor, window);
                     }
 
-                    viewer.render();
-                    glfwPollEvents();
-                }
-            }
+                    setup(newWindow);
+                    viewer.setWindow(newWindow);
 
-            glfwTerminate();
+                    glfwDestroyWindow(window);
+                    window = newWindow;
+                }
+
+                viewer.render();
+                glfwPollEvents();
+            }
         }
+
+        glfwTerminate();
     }
 
     return 0;
@@ -244,4 +256,3 @@ void showHelp(const char* name)
     printf("  <b>           hide / show border around image;\n");
     printf("\n");
 }
-

@@ -15,15 +15,20 @@ template<typename T>
 class CRect final
 {
 public:
-    CRect() :
-        m_isSet(false), x1(0), y1(0), x2(0), y2(0)
+    CRect()
+        : m_isSet(false)
+        , x1(static_cast<T>(0))
+        , y1(static_cast<T>(0))
+        , x2(static_cast<T>(0))
+        , y2(static_cast<T>(0))
     { }
 
-    CRect(T _x1, T _y1, T _x2, T _y2) :
-        m_isSet(true), x1(_x1), y1(_y1), x2(_x2), y2(_y2)
-    { }
-
-    virtual ~CRect()
+    CRect(T _x1, T _y1, T _x2, T _y2)
+        : m_isSet(true)
+        , x1(_x1)
+        , y1(_y1)
+        , x2(_x2)
+        , y2(_y2)
     { }
 
     void Clear()
@@ -66,20 +71,20 @@ public:
 
     void Encapsulate(T x, T y)
     {
-        if(m_isSet == false)
+        if (m_isSet)
+        {
+            x1 = x < x1 ? x : x1;
+            x2 = x > x2 ? x : x2;
+            y1 = y < y1 ? y : y1;
+            y2 = y > y2 ? y : y2;
+        }
+        else
         {
             m_isSet = true;
             x1 = x;
             x2 = x;
             y1 = y;
             y2 = y;
-        }
-        else
-        {
-            if(x < x1) x1 = x;
-            if(x > x2) x2 = x;
-            if(y < y1) y1 = y;
-            if(y > y2) y2 = y;
         }
     }
 
@@ -90,8 +95,8 @@ public:
 
     bool Intersect(const CRect<T>* rc) const
     {
-        if(fabs(x1 + x2 - rc->x1 - rc->x2) < (x2 - x1 + rc->x2 - rc->x1) &&
-                fabs(y1 + y2 - rc->y1 - rc->y2) < (y2 - y1 + rc->y2 - rc->y1))
+        if (fabs(x1 + x2 - rc->x1 - rc->x2) < (x2 - x1 + rc->x2 - rc->x1) &&
+            fabs(y1 + y2 - rc->y1 - rc->y2) < (y2 - y1 + rc->y2 - rc->y1))
         {
             return true;
         }
@@ -100,33 +105,25 @@ public:
 
     T GetWidth() const
     {
-        if(x2 >= x1)
-        {
-            return x2 - x1;
-        }
-        return x1 - x2;
+        return (x2 >= x1) ? (x2 - x1) : (x1 - x2);
     }
 
     T GetHeight() const
     {
-        if(y2 >= y1)
-        {
-            return y2 - y1;
-        }
-        return y1 - y2;
+        return (y2 >= y1) ? (y2 - y1) : (y1 - y2);
     }
 
     void Normalize()
     {
-        if(x1 > x2)
+        if (x1 > x2)
         {
-            T x = x2;
+            auto x = x2;
             x2 = x1;
             x1 = x;
         }
-        if(y1 > y2)
+        if (y1 > y2)
         {
-            T y = y2;
+            auto y = y2;
             y2 = y1;
             y1 = y;
         }
@@ -134,7 +131,7 @@ public:
 
     CRect& operator=(const CRect<T>& rc)
     {
-        if(&rc != this)
+        if (&rc != this)
         {
             m_isSet = rc.m_isSet;
             x1 = rc.x1;
@@ -149,6 +146,8 @@ private:
     bool m_isSet;
 
 public:
-    T x1, y1, x2, y2;
+    T x1;
+    T y1;
+    T x2;
+    T y2;
 };
-

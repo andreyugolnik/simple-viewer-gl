@@ -14,16 +14,16 @@
 #include <dirent.h>
 #include <unistd.h>
 
-CFilesList::CFilesList(const char* file, bool recursive)
-    : m_listCreated(false)
+CFilesList::CFilesList(const char* initialFile, bool allValid, bool recursive)
+    : m_initialFile(initialFile)
+    , m_allValid(allValid)
     , m_recursive(recursive)
-    , m_position(0)
     , m_removeCurrent(false)
-    , m_allValid(false)
+    , m_position(0)
 {
-    if(file != nullptr)
+    if (initialFile != nullptr)
     {
-        m_files.push_back(file);
+        addFile(initialFile);
     }
 }
 
@@ -31,124 +31,118 @@ CFilesList::~CFilesList()
 {
 }
 
-bool CFilesList::ParseDir()
+std::string GetBaseDir(const char* path)
 {
-    if(m_listCreated == true)
+    std::string dir = path;
+    size_t pos = dir.find_last_of('/');
+    if (std::string::npos != pos)
     {
-        return true;
-    }
-
-    std::string initial_file = m_files[0];
-
-    // get base directory
-    std::string dir, name;
-    size_t pos = m_files[0].find_last_of('/');
-    if(std::string::npos != pos)
-    {
-        dir = m_files[0].substr(0, pos);
-        if(pos + 1 != std::string::npos)
-        {
-            name = m_files[0].substr(pos + 1);
-        }
+        dir = dir.substr(0, pos);
     }
     else
     {
         dir = ".";
-        name = m_files[0];
     }
 
-    // remove initial image from list (it will be added again below)
-    m_files.clear();
-
-    if(true == scanDirectory(dir))
-    {
-        // sorting images by names
-        std::sort(m_files.begin(), m_files.end(), [](const std::string& a, const std::string& b) -> bool
-            {
-                std::string aa(a);
-                std::string bb(b);
-                std::transform(aa.begin(), aa.end(), aa.begin(), tolower);
-                std::transform(bb.begin(), bb.end(), bb.begin(), tolower);
-                return aa < bb;
-            });
-
-        // search startup image index in sorted list
-        size_t len = name.length();
-        size_t count = m_files.size();
-        for(size_t i = 0; i < count; i++)
-        {
-            size_t slen	= m_files[i].length();
-            if(slen >= len && m_files[i].substr(slen - len, len) == name)
-            {
-                m_position = i;
-                break;
-            }
-        }
-
-        // push back initial file
-        if(count == 0)
-        {
-            m_files.push_back(initial_file);
-        }
-
-        m_listCreated = true;
-
-        return true;
-    }
-
-    return false;
+    return dir;
 }
 
-bool CFilesList::scanDirectory(const std::string& dir)
+void CFilesList::parseDir()
+{
+    if (m_initialFile != nullptr)
+    {
+        m_files.clear();
+
+        scanDirectory(GetBaseDir(m_initialFile));
+
+        sortList();
+        locateFile(m_initialFile);
+
+        m_initialFile = nullptr;
+    }
+}
+
+void CFilesList::addFile(const char* path)
+{
+    m_files.push_back(path);
+}
+
+void CFilesList::sortList()
+{
+    std::sort(m_files.begin(), m_files.end(), [](const std::string & a, const std::string & b) -> bool
+    {
+        std::string aa(a);
+        std::string bb(b);
+        std::transform(aa.begin(), aa.end(), aa.begin(), tolower);
+        std::transform(bb.begin(), bb.end(), bb.begin(), tolower);
+        return aa < bb;
+    });
+}
+
+void CFilesList::locateFile(const char* path)
+{
+    std::string name = path;
+
+    size_t len = name.length();
+    size_t count = m_files.size();
+    for (size_t i = 0; i < count; i++)
+    {
+        size_t slen = m_files[i].length();
+        if (slen >= len && m_files[i].substr(slen - len, len) == name)
+        {
+            m_position = i;
+            break;
+        }
+    }
+}
+
+void CFilesList::scanDirectory(const std::string& root)
 {
     struct dirent** namelist;
-    int n = scandir(dir.c_str(), &namelist, filter, alphasort);
-    if(n < 0)
+    int n = scandir(root.c_str(), &namelist, filter, alphasort);
+    if (n < 0)
     {
-        printf("Can't scan \"%s\" %d.\n", dir.c_str(), n);
-        return false;
+        printf("Can't scan \"%s\" %d.\n", root.c_str(), n);
     }
     else
     {
-        int count = 0;
-        while(n--)
+        size_t count = 0;
+        while (n--)
         {
-            std::string path(dir);
+            std::string path(root);
             path += "/";
             path += namelist[n]->d_name;
 
             // skip non non readable files/dirs
-            DIR* d = opendir(path.c_str());
-            if(d != 0)
+            DIR* dir = opendir(path.c_str());
+            if (dir != nullptr)
             {
-                closedir(d);
-                if(m_recursive == true)
+                closedir(dir);
+                if (m_recursive == true)
                 {
                     scanDirectory(path);
                 }
             }
-            else if(isValidExt(path) == true)
+            else if (isValidExt(path) == true)
             {
                 m_files.push_back(path);
                 count++;
             }
             free(namelist[n]);
         }
-        if(count > 0)
+        if (count > 0)
         {
-            printf("Scaning \"%s\" directory... %d images found.\n", dir.c_str(), count);
+            printf("Scaning \"%s\" directory... %zu images found.\n", root.c_str(), count);
         }
         free(namelist);
     }
-
-    return true;
 }
 
 int CFilesList::filter(const struct dirent* p)
 {
     // skip . and ..
 #define DOT_OR_DOTDOT(base) (base[0] == '.' && (base[1] == '\0' || (base[1] == '.' && base[2] == '\0')))
-    if(DOT_OR_DOTDOT(p->d_name))
+    if (DOT_OR_DOTDOT(p->d_name))
     {
         return 0;
     }
@@ -158,7 +152,7 @@ int CFilesList::filter(const struct dirent* p)
 
 bool CFilesList::isValidExt(const std::string& path)
 {
-    if(m_allValid)
+    if (m_allValid)
     {
         return true;
     }
@@ -167,8 +161,8 @@ bool CFilesList::isValidExt(const std::string& path)
     std::transform(s.begin(), s.end(), s.begin(), tolower);
 
     // skip file without extension
-    size_t pos	= s.find_last_of('.');
-    if(std::string::npos == pos)
+    size_t pos  = s.find_last_of('.');
+    if (std::string::npos == pos)
     {
         return false;
     }
@@ -186,9 +180,9 @@ bool CFilesList::isValidExt(const std::string& path)
         ".xwd", ".dds", ".raw", ".ppm", ".pvr", ".pvrtc",
         ".scr"
     };
-    for(size_t i = 0; i < sizeof(ext) / sizeof(ext[0]); i++)
+    for (size_t i = 0; i < sizeof(ext) / sizeof(ext[0]); i++)
     {
-        if(s.substr(pos) == ext[i])
+        if (s.substr(pos) == ext[i])
         {
             return true;
         }
@@ -199,35 +193,40 @@ bool CFilesList::isValidExt(const std::string& path)
 
 const char* CFilesList::GetName(int delta)
 {
-    if(delta != 0 && m_removeCurrent == true)
+    if (delta != 0)
     {
-        m_removeCurrent = false;
-        if(0 == unlink(m_files[m_position].c_str()))
-        {
-            printf("File '%s' has been removed from disk.\n", m_files[m_position].c_str());
-        }
+        parseDir();
 
-        // remove path from list
-        m_files.erase(m_files.begin() + m_position);
-        if(delta > 0)
+        if (m_removeCurrent == true)
         {
-            delta = 0;
+            m_removeCurrent = false;
+            if (0 == unlink(m_files[m_position].c_str()))
+            {
+                printf("File '%s' has been removed from disk.\n", m_files[m_position].c_str());
+            }
+
+            // remove path from list
+            m_files.erase(m_files.begin() + m_position);
+            if (delta > 0)
+            {
+                delta = 0;
+            }
         }
     }
 
     size_t count = m_files.size();
-    if(count > 0)
+    if (count > 0)
     {
-        if(delta == 0 && count == 1 && isValidExt(m_files[m_position]) == false)
-        {
-            if(false == ParseDir())
-            {
-                return 0;
-            }
-        }
+        // if (delta == 0 && count == 1 && isValidExt(m_files[m_position]) == false)
+        // {
+        // if (false == ParseDir())
+        // {
+        // return nullptr;
+        // }
+        // }
 
         m_position += delta;
-        if(m_position < 0)
+        if (m_position < 0)
         {
             m_position = count - 1;
         }
@@ -236,18 +235,17 @@ const char* CFilesList::GetName(int delta)
         return m_files[m_position].c_str();
     }
 
-    return 0;
+    return nullptr;
 }
 //
 //void CFilesList::RemoveFromList() {
-//	size_t count	= m_files.size();
-//	if(count > (size_t)m_position) {
-//		m_files.erase(m_files.begin() + m_position);
-//	}
+//  size_t count    = m_files.size();
+//  if(count > (size_t)m_position) {
+//      m_files.erase(m_files.begin() + m_position);
+//  }
 //}
 
 void CFilesList::RemoveFromDisk()
 {
     m_removeCurrent = true;
 }
-

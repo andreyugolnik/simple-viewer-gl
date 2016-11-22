@@ -33,7 +33,7 @@ public:
     cViewer(sConfig* config);
     ~cViewer();
 
-    bool setInitialImagePath(const char* path);
+    void setInitialImagePath(const char* path);
     void setWindow(GLFWwindow* window);
 
     void addPaths(const char** paths, int count);
@@ -70,11 +70,11 @@ public:
     void fnMouseButtons(int button, int action, int mods);
     void fnKeyboard(int key, int scancode, int action, int mods);
     void showCursor(bool show);
+    void loadImage(int step);
 
 private:
     void applyConfig();
     void loadSubImage(int subStep);
-    void loadImage(int step);
     void calculateScale();
     void updateScale(bool up);
     void updateFiltering();
@@ -94,7 +94,6 @@ private:
 private:
     sConfig* m_config;
     cVector<float> m_ratio;
-    bool m_initialImageLoading;
     bool m_imagePrepared = false;
     float m_scale;
     bool m_isWindowed;

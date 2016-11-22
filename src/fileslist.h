@@ -15,27 +15,30 @@
 class CFilesList final
 {
 public:
-    CFilesList(const char* file, bool recursive = false);
+    CFilesList(const char* initialFile, bool allValid, bool recursive = false);
     ~CFilesList();
 
-    void setAllValid(bool allValid) { m_allValid = allValid; }
-    bool ParseDir();
+    void addFile(const char* path);
+    void sortList();
+    void locateFile(const char* path);
+
     const char* GetName(int delta = 0);
     void RemoveFromDisk();
     size_t GetCount() const { return m_files.size(); }
     int GetIndex() const { return m_position; }
 
 private:
-    bool m_listCreated;
-    bool m_recursive;
-    int m_position;	// current position in list
-    bool m_removeCurrent;
-    bool m_allValid;
-    std::vector<std::string> m_files;
-
-private:
-    bool scanDirectory(const std::string& dir);
+    void parseDir();
+    void scanDirectory(const std::string& root);
     bool isValidExt(const std::string& path);
     static int filter(const struct dirent* p);
+
+private:
+    const char* m_initialFile;
+    bool m_allValid;
+    bool m_recursive;
+    bool m_removeCurrent;
+    int m_position; // current position in list
+    std::vector<std::string> m_files;
 };
 

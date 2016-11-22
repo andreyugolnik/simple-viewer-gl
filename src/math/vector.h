@@ -14,8 +14,8 @@ class cVector final
 {
 public:
     cVector()
-        : x(0)
-        , y(0)
+        : x(static_cast<T>(0))
+        , y(static_cast<T>(0))
     {
     }
     cVector(T _x, T _y)
@@ -80,15 +80,15 @@ public:
         return (x != v.x || y != v.y);
     }
 
-    cVector operator/ (const T scalar) const
+    cVector operator/ (T scalar) const
     {
         return cVector(x / scalar, y / scalar);
     }
-    cVector operator* (const T scalar) const
+    cVector operator* (T scalar) const
     {
         return cVector(x * scalar, y * scalar);
     }
-    cVector& operator*= (const T scalar)
+    cVector& operator*= (T scalar)
     {
         x *= scalar;
         y *= scalar;
@@ -99,4 +99,3 @@ public:
     T x;
     T y;
 };
-

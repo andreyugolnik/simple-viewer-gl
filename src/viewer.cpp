@@ -24,12 +24,11 @@
 #include <cstdlib>
 #include <string>
 
-const int DEF_WINDOW_W = 200;
+const int DEF_WINDOW_W = 300;
 const int DEF_WINDOW_H = 200;
 
 cViewer::cViewer(sConfig* config)
     : m_config(config)
-    , m_initialImageLoading(true)
     , m_scale(1.0f)
     , m_isWindowed(true)
     , m_mouseLB(false)
@@ -56,12 +55,9 @@ cViewer::~cViewer()
     m_image->clear();
 }
 
-bool cViewer::setInitialImagePath(const char* path)
+void cViewer::setInitialImagePath(const char* path)
 {
-    m_initialImageLoading = true;
-    m_filesList.reset(new CFilesList(path, m_config->recursiveScan));
-    m_filesList->setAllValid(m_config->skipFilter);
-    return m_filesList->GetName() != 0;
+    m_filesList.reset(new CFilesList(path, m_config->skipFilter, m_config->recursiveScan));
 }
 
 void cViewer::setWindow(GLFWwindow* window)
@@ -84,22 +80,20 @@ void cViewer::setWindow(GLFWwindow* window)
     m_ratio = { (float)frameWidth / width, (float)frameHeight / height };
 
     fnResize(width, height);
-
-    if (m_initialImageLoading == true)
-    {
-        m_initialImageLoading = false;
-        loadImage(0);
-    }
 }
 
 void cViewer::addPaths(const char** paths, int count)
 {
-    (void)count;
+    for (int i = 0; i < count; i++)
+    {
+        m_filesList->addFile(paths[i]);
+    }
 
-    m_filesList.reset(new CFilesList(paths[0], m_config->recursiveScan));
-    m_filesList->setAllValid(m_config->skipFilter);
-
-    loadImage(0);
+    if (count != 0)
+    {
+        m_filesList->locateFile(paths[0]);
+        loadImage(0);
+    }
 }
 
 void cViewer::applyConfig()
@@ -600,8 +594,6 @@ void cViewer::centerWindow()
 
 void cViewer::loadImage(int step)
 {
-    m_filesList->ParseDir();
-
     const char* file = m_filesList->GetName(step);
     m_loader->LoadImage(file);
 }
@@ -624,7 +616,7 @@ void cViewer::updateInfobar()
     calculateScale();
 
     CInfoBar::sInfo s;
-    s.path        = m_filesList->GetName(0);
+    s.path        = m_filesList->GetName();
     s.scale       = m_scale;
     s.index       = m_filesList->GetIndex();
     s.files_count = m_filesList->GetCount();
