@@ -31,7 +31,7 @@ CFilesList::~CFilesList()
 {
 }
 
-std::string GetBaseDir(const char* path)
+static std::string GetBaseDir(const char* path)
 {
     std::string dir = path;
     size_t pos = dir.find_last_of('/');
@@ -64,7 +64,10 @@ void CFilesList::parseDir()
 
 void CFilesList::addFile(const char* path)
 {
-    m_files.push_back(path);
+    if (isValidExt(path) == true)
+    {
+        m_files.push_back(path);
+    }
 }
 
 void CFilesList::sortList()
