@@ -80,6 +80,8 @@ void CFilesList::sortList()
         std::transform(bb.begin(), bb.end(), bb.begin(), tolower);
         return aa < bb;
     });
+
+    m_files.erase(std::unique(m_files.begin(), m_files.end()), m_files.end());
 }
 
 void CFilesList::locateFile(const char* path)

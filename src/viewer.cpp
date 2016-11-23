@@ -84,14 +84,16 @@ void cViewer::setWindow(GLFWwindow* window)
 
 void cViewer::addPaths(const char** paths, int count)
 {
-    for (int i = 0; i < count; i++)
-    {
-        m_filesList->addFile(paths[i]);
-    }
-
     if (count != 0)
     {
+        for (int i = 0; i < count; i++)
+        {
+            m_filesList->addFile(paths[i]);
+        }
+
+        m_filesList->sortList();
         m_filesList->locateFile(paths[0]);
+
         loadImage(0);
     }
 }
