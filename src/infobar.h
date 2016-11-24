@@ -50,4 +50,5 @@ private:
     std::string m_bottominfo;
     std::unique_ptr<CQuad> m_bg;
     std::unique_ptr<CFTString> m_ft;
+    std::unique_ptr<CFTString> m_fps;
 };

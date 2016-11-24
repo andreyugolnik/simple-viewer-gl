@@ -10,6 +10,7 @@
 #include "infobar.h"
 #include <string.h>
 #include <math.h>
+#include <sys/time.h>
 
 const float DesiredHeight = 18;
 const int DesiredFontSize = 12;
@@ -35,11 +36,22 @@ void CInfoBar::createFont()
 {
     m_ft.reset(new CFTString(DesiredFontSize * m_ratio));
     m_ft->SetColor(255, 255, 127, 255);
+
+    m_fps.reset(new CFTString(DesiredFontSize * m_ratio));
+    m_fps->SetColor(0, 0, 0, 255);
 }
 
 float CInfoBar::getHeight() const
 {
     return m_ratio * DesiredHeight;
+}
+
+static unsigned getTime()
+{
+    timeval now;
+    ::gettimeofday(&now, 0);
+
+    return (unsigned)(now.tv_sec * 1000000 + now.tv_usec);
 }
 
 void CInfoBar::render()
@@ -54,6 +66,29 @@ void CInfoBar::render()
     m_bg->Render(x, y - DesiredHeight * m_ratio);
 
     m_ft->Render(x, y - (DesiredHeight - DesiredFontSize) * m_ratio);
+
+    // show fps
+    {
+        static unsigned frame = 0;
+        static float fps = 0.0f;
+
+        frame++;
+        static unsigned last = getTime();
+        const unsigned now = getTime();
+        const unsigned delta = now - last;
+        const float sec = delta * 0.000001f;
+        if (sec > 0.5f)
+        {
+            fps = frame / sec;
+            last = now;
+            frame = 0;
+        }
+
+        char buffer[20];
+        snprintf(buffer, sizeof(buffer), "%.1f", fps);
+        m_fps->Update(buffer);
+        m_fps->Render(20, 20);
+    }
 }
 
 static const char* GetName(const char* path)
