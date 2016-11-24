@@ -107,7 +107,7 @@ void CFilesList::scanDirectory(const std::string& root)
     int n = scandir(root.c_str(), &namelist, filter, alphasort);
     if (n < 0)
     {
-        printf("Can't scan \"%s\" %d.\n", root.c_str(), n);
+        // printf("Can't scan \"%s\" %d.\n", root.c_str(), n);
     }
     else
     {
@@ -135,10 +135,10 @@ void CFilesList::scanDirectory(const std::string& root)
             }
             free(namelist[n]);
         }
-        if (count > 0)
-        {
-            printf("Scaning \"%s\" directory... %zu images found.\n", root.c_str(), count);
-        }
+        // if (count > 0)
+        // {
+            // printf("Scaning \"%s\" directory... %zu images found.\n", root.c_str(), count);
+        // }
         free(namelist);
     }
 }

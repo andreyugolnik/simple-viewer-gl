@@ -67,7 +67,7 @@ void callbackDrop(GLFWwindow* /*window*/, int count, const char** paths)
 void setup(GLFWwindow* window)
 {
     glfwMakeContextCurrent(window);
-    //glfwSwapInterval(1);
+    glfwSwapInterval(1);
 
     glfwSetWindowSizeCallback(window, callbackResize);
     //glfwSetFramebufferSizeCallback(window, callbackResize);
