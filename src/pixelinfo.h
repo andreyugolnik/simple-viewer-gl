@@ -62,4 +62,3 @@ private:
     std::unique_ptr<CQuadSeries> m_pointer;
     std::unique_ptr<CFTString> m_ft;
 };
-

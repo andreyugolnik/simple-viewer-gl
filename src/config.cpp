@@ -11,7 +11,7 @@
 #include "viewer.h"
 
 #if defined(LIBCONFIG_SUPPORT)
-#include <libconfig.h++>
+    #include <libconfig.h++>
 #endif
 
 #include <cstdlib>
@@ -29,7 +29,7 @@ void cConfig::read()
 #else
     // make config path according XDG spec
     const char* xdg_path = getenv("XDG_CONFIG_HOME");
-    if(xdg_path)
+    if (xdg_path)
     {
         snprintf(path, sizeof(path), "%s/sviewgl/config", xdg_path);
     }
@@ -46,17 +46,17 @@ void cConfig::read()
     {
         loader.readFile(path);
     }
-    catch(libconfig::FileIOException e)
+    catch (libconfig::FileIOException e)
     {
         printf("Can't open config.\n");
         return;
     }
-    catch(libconfig::ParseException e)
+    catch (libconfig::ParseException e)
     {
         printf("Can't parse config: %s in line %d\n", e.getError(), e.getLine());
         return;
     }
-    catch(...)
+    catch (...)
     {
         printf("Error loading config.\n\n");
     }
@@ -74,19 +74,18 @@ void cConfig::read()
     loader.lookupValue("wheel_zoom", m_config.wheelZoom);
 
     int value;
-    if(loader.lookupValue("background_r", value))
+    if (loader.lookupValue("background_r", value))
     {
         m_config.color.r = value / 255.0f;
     }
-    if(loader.lookupValue("background_g", value))
+    if (loader.lookupValue("background_g", value))
     {
         m_config.color.g = value / 255.0f;
     }
-    if(loader.lookupValue("background_b", value))
+    if (loader.lookupValue("background_b", value))
     {
         m_config.color.b = value / 255.0f;
     }
 
 #endif
 }
-

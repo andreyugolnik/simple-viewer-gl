@@ -35,7 +35,7 @@ void CPixelInfo::Init()
 
 void CPixelInfo::setRatio(float ratio)
 {
-    if(m_ratio != ratio)
+    if (m_ratio != ratio)
     {
         m_ratio = ratio;
         createFont();
@@ -53,7 +53,7 @@ void CPixelInfo::setPixelInfo(const sPixelInfo& pi)
     m_pixelInfo = pi;
 
     static char info[200];
-    if(pi.rc.IsSet())
+    if (pi.rc.IsSet())
     {
         const int x = pi.rc.x1;
         const int y = pi.rc.y1;
@@ -61,22 +61,22 @@ void CPixelInfo::setPixelInfo(const sPixelInfo& pi)
         const int h = pi.rc.GetHeight();
 
         snprintf(info, sizeof(info),
-                "pos: %d x %d\n" \
-                "argb: 0x%.2x%.2x%.2x%.2x\n" \
-                "size: %d x %d\n" \
-                "rect: %d, %d -> %d, %d"
-                , (int)pi.point.x, (int)pi.point.y
-                , pi.a, pi.r, pi.g, pi.b
-                , w + 1, h + 1
-                , x, y, x + w, y + h);
+                 "pos: %d x %d\n" \
+                 "argb: 0x%.2x%.2x%.2x%.2x\n" \
+                 "size: %d x %d\n" \
+                 "rect: %d, %d -> %d, %d"
+                 , (int)pi.point.x, (int)pi.point.y
+                 , pi.a, pi.r, pi.g, pi.b
+                 , w + 1, h + 1
+                 , x, y, x + w, y + h);
     }
     else
     {
         snprintf(info, sizeof(info),
-                "pos: %d x %d\n" \
-                "argb: 0x%.2x%.2x%.2x%.2x"
-                , (int)pi.point.x, (int)pi.point.y
-                , pi.a, pi.r, pi.g, pi.b);
+                 "pos: %d x %d\n" \
+                 "argb: 0x%.2x%.2x%.2x%.2x"
+                 , (int)pi.point.x, (int)pi.point.y
+                 , pi.a, pi.r, pi.g, pi.b);
     }
 
     m_ft->Update(info);
@@ -86,7 +86,7 @@ void CPixelInfo::Render()
 {
     m_pointer->Render(m_pixelInfo.mouse.x - 10, m_pixelInfo.mouse.y - 10);
 
-    if(isInsideImage(m_pixelInfo.point))
+    if (isInsideImage(m_pixelInfo.point))
     {
         const int frameWidth = m_ft->GetStringWidth() + 2 * BORDER * m_ratio;
         const int frameHeight = (DesiredFontSize * LINES_COUNT[m_pixelInfo.rc.IsSet()] + 2 * BORDER) * m_ratio;
@@ -111,4 +111,3 @@ void CPixelInfo::SetCursor(int cursor)
 {
     m_pointer->SetFrame(cursor);
 }
-

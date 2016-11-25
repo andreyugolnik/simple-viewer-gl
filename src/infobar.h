@@ -14,9 +14,14 @@
 #include <string>
 #include <memory>
 
+struct sConfig;
+
+
 class CInfoBar final
 {
 public:
+    CInfoBar(const sConfig* config);
+
     void init();
 
     void setRatio(float ratio);
@@ -46,6 +51,8 @@ private:
     void createFont();
 
 private:
+    const sConfig* m_config;
+
     float m_ratio = 1.0f;
     std::string m_bottominfo;
     std::unique_ptr<CQuad> m_bg;

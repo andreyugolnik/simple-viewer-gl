@@ -39,7 +39,7 @@ cViewer::cViewer(sConfig* config)
     m_image.reset(new cQuadImage());
     m_loader.reset(new CImageLoader(this));
     m_checkerBoard.reset(new CCheckerboard());
-    m_infoBar.reset(new CInfoBar());
+    m_infoBar.reset(new CInfoBar(config));
     m_pixelInfo.reset(new CPixelInfo());
     m_progress.reset(new CProgress());
     m_border.reset(new CImageBorder());

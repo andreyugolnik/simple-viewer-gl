@@ -111,6 +111,10 @@ int main(int argc, char* argv[])
 
     for (int i = 1; i < argc; i++)
     {
+        if (strncmp(argv[i], "--debug", 7) == 0)
+        {
+            c.debug = true;
+        }
         if (strncmp(argv[i], "-i", 2) == 0)
         {
             c.hideInfobar = true;

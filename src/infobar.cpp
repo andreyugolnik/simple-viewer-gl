@@ -8,12 +8,19 @@
 \**********************************************/
 
 #include "infobar.h"
-#include <string.h>
-#include <math.h>
+#include "config.h"
+
+#include <cstring>
+#include <cmath>
 #include <sys/time.h>
 
 const float DesiredHeight = 18;
 const int DesiredFontSize = 12;
+
+CInfoBar::CInfoBar(const sConfig* config)
+    : m_config(config)
+{
+}
 
 void CInfoBar::init()
 {
@@ -37,8 +44,11 @@ void CInfoBar::createFont()
     m_ft.reset(new CFTString(DesiredFontSize * m_ratio));
     m_ft->SetColor(255, 255, 127, 255);
 
-    m_fps.reset(new CFTString(DesiredFontSize * m_ratio));
-    m_fps->SetColor(0, 0, 0, 255);
+    if (m_config->debug)
+    {
+        m_fps.reset(new CFTString(DesiredFontSize * m_ratio));
+        m_fps->SetColor(0, 0, 0, 255);
+    }
 }
 
 float CInfoBar::getHeight() const
@@ -67,7 +77,7 @@ void CInfoBar::render()
 
     m_ft->Render(x, y - (DesiredHeight - DesiredFontSize) * m_ratio);
 
-    // show fps
+    if (m_fps.get() != nullptr)
     {
         static unsigned frame = 0;
         static float fps = 0.0f;

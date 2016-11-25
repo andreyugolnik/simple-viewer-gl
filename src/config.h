@@ -25,6 +25,7 @@ struct sConfig
     bool centerWindow = false;
     bool skipFilter = false;
     bool wheelZoom = false;
+    bool debug = false;
 
     sColor color{ 0.0f, 0.0f, 1.0f };
 };
@@ -34,9 +35,11 @@ class cConfig final
 public:
     void read();
 
-    sConfig& getConfig() { return m_config; }
+    sConfig& getConfig()
+    {
+        return m_config;
+    }
 
 private:
     sConfig m_config;
 };
-
