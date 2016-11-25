@@ -39,6 +39,8 @@ public:
     void addPaths(const char** paths, int count);
 
     void render();
+    void update();
+    bool isUploading() const;
 
     bool isWindowModeRequested() const
     {

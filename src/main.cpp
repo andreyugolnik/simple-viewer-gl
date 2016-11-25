@@ -12,10 +12,10 @@
 
 #include <GLFW/glfw3.h>
 
-#include <iostream>
 #include <clocale>
-#include <cstring>
 #include <cstdio>
+#include <cstring>
+#include <unistd.h>
 
 static const char* SimpleViewerTitle = "Simple Viewer GL";
 static const float SimpleViewerVersion = 2.71f;
@@ -207,8 +207,27 @@ int main(int argc, char* argv[])
                     window = newWindow;
                 }
 
+                const float start = glfwGetTime();
+                static float end = start;
+
                 viewer.render();
+                viewer.update();
+
                 glfwPollEvents();
+
+                if (viewer.isUploading() == false)
+                {
+                    const float delta = end - start;
+
+                    const float disiredFps = 1.0f / 60.0f;
+                    const float time_rest = disiredFps - delta;
+                    if (time_rest > 0.0f)
+                    {
+                        usleep(time_rest * 1000000);
+                    }
+                }
+
+                end = glfwGetTime();
             }
         }
 

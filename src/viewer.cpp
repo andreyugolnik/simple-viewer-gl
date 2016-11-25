@@ -159,7 +159,10 @@ void cViewer::render()
     m_progress->render();
 
     glfwSwapBuffers(cRenderer::getWindow());
+}
 
+void cViewer::update()
+{
     if (m_imagePrepared == true)
     {
         m_imagePrepared = false;
@@ -180,7 +183,7 @@ void cViewer::render()
         enablePixelInfo(m_config->showPixelInfo);
     }
 
-    if (m_image->isUploading())
+    if (isUploading())
     {
         const bool isDone = m_image->upload();
         m_progress->setProgress(0.5f + m_image->getProgress() * 0.5f);
@@ -190,6 +193,11 @@ void cViewer::render()
             m_progress->hide();
         }
     }
+}
+
+bool cViewer::isUploading() const
+{
+    return m_image->isUploading();
 }
 
 void cViewer::fnResize(int width, int height)
