@@ -117,13 +117,16 @@ void cViewer::render()
     const float half_w = ceilf(m_image->getWidth() * 0.5f);
     const float half_h = ceilf(m_image->getHeight() * 0.5f);
 
-    if (m_config->showImageBorder)
+    if (m_loader->isLoaded())
     {
-        m_border->Render(-half_w, -half_h, m_image->getWidth(), m_image->getHeight(), m_scale);
-    }
-    if (m_config->showPixelInfo && m_angle == 0)
-    {
-        m_selection->Render(-half_w, -half_h);
+        if (m_config->showImageBorder)
+        {
+            m_border->Render(-half_w, -half_h, m_image->getWidth(), m_image->getHeight(), m_scale);
+        }
+        if (m_config->showPixelInfo && m_angle == 0)
+        {
+            m_selection->Render(-half_w, -half_h);
+        }
     }
     cRenderer::resetGlobals();
 
@@ -644,7 +647,7 @@ void cViewer::updateInfobar()
     }
     else
     {
-        s.type        = "unknown";
+        s.type = "unknown";
     }
     m_infoBar->setInfo(s);
 }
@@ -657,13 +660,17 @@ cVector<float> cViewer::screenToImage(const cVector<float>& pos) const
 
 void cViewer::updatePixelInfo(const cVector<float>& pos)
 {
+    sPixelInfo pixelInfo;
+
+    const cVector<float> point = screenToImage(pos);
+
+    pixelInfo.mouse = pos * m_scale;
+    pixelInfo.point = point;
+
     if (m_loader->isLoaded())
     {
-        const cVector<float> point = screenToImage(pos);
         const int x = (int)point.x;
         const int y = (int)point.y;
-
-        sPixelInfo pixelInfo;
 
         // TODO check pixel format (RGB or BGR)
         if (x >= 0 && y >= 0 && (unsigned)x <= m_image->getWidth() && (unsigned)y <= m_image->getHeight())
@@ -678,13 +685,12 @@ void cViewer::updatePixelInfo(const cVector<float>& pos)
             pixelInfo.a = bpp == 32 ? color[3] : 255;
         }
 
-        pixelInfo.mouse = pos * m_scale;
-        pixelInfo.point = point;
         pixelInfo.img_w = m_image->getWidth();
         pixelInfo.img_h = m_image->getHeight();
         pixelInfo.rc    = m_selection->GetRect();
-        m_pixelInfo->setPixelInfo(pixelInfo);
     }
+
+    m_pixelInfo->setPixelInfo(pixelInfo);
 }
 
 void cViewer::showCursor(bool show)

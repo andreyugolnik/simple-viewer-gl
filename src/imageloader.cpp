@@ -110,7 +110,8 @@ void CImageLoader::LoadSubImage(unsigned subImage)
 
 bool CImageLoader::isLoaded() const
 {
-    return !m_desc.bitmap.empty();
+    return m_image != m_formats[(unsigned)eImageType::NOTAVAILABLE].get()
+        && !m_desc.bitmap.empty();
 }
 
 const unsigned char* CImageLoader::GetBitmap() const
