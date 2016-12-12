@@ -379,8 +379,8 @@ bool CFormatDds::LoadImpl(const char* filename, sBitmapDescription& desc)
     printf("format: %s\n", formatToStirng(format));
 
     const unsigned data_size = desc.size - file.getOffset();
-    unsigned char* buffer = new unsigned char[data_size];
-    unsigned char* src = buffer;
+    std::vector<unsigned char> buffer(data_size);
+    unsigned char* src = &buffer[0];
     if (data_size != file.read(src, data_size))
     {
         printf("error load DDS file \"%s\": wrong data size.\n", filename);
@@ -539,8 +539,6 @@ bool CFormatDds::LoadImpl(const char* filename, sBitmapDescription& desc)
             }
         }
     }
-
-    delete[] buffer;
 
     return true;
 }
