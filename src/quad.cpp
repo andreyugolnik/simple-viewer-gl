@@ -47,13 +47,13 @@ void CQuad::SetTextureRect(float x, float y, float w, float h)
     m_w = w;
     m_h = h;
 
-    const float tw = 1.0f / m_tw;
-    const float th = 1.0f / m_th;
+    const float invTw = m_tw ? (1.0f / m_tw) : 0.0f;
+    const float invTh = m_th ? (1.0f / m_th) : 0.0f;
 
-    const float tx1 = x * tw;
-    const float ty1 = y * th;
-    const float tx2 = (x + w) * tw;
-    const float ty2 = (y + h) * th;
+    const float tx1 = x * invTw;
+    const float ty1 = y * invTh;
+    const float tx2 = (x + w) * invTw;
+    const float ty2 = (y + h) * invTh;
 
     m_quad.v[0].tx = tx1;
     m_quad.v[0].ty = ty1;
@@ -73,17 +73,20 @@ void CQuad::SetSpriteSize(float w, float h)
     m_w = w;
     m_h = h;
 
+    const float invTw = m_tw ? (1.0f / m_tw) : 0.0f;
+    const float invTh = m_th ? (1.0f / m_th) : 0.0f;
+
     m_quad.v[0].tx = 0.0f;
     m_quad.v[0].ty = 0.0f;
 
-    m_quad.v[1].tx = w / m_tw;
+    m_quad.v[1].tx = w * invTw;
     m_quad.v[1].ty = 0.0f;
 
-    m_quad.v[2].tx = w / m_tw;
-    m_quad.v[2].ty = h / m_th;
+    m_quad.v[2].tx = w * invTw;
+    m_quad.v[2].ty = h * invTh;
 
     m_quad.v[3].tx = 0.0f;
-    m_quad.v[3].ty = h / m_th;
+    m_quad.v[3].ty = h * invTh;
 }
 
 void CQuad::Render(float x, float y)
