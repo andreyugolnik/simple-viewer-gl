@@ -24,6 +24,7 @@
 #include "formats/formatraw.h"
 #include "formats/formatscr.h"
 #include "formats/formattiff.h"
+#include "formats/formatwebp.h"
 #include "formats/formatxwd.h"
 #include "notavailable.h"
 
@@ -51,6 +52,7 @@ CImageLoader::CImageLoader(iCallbacks* callbacks)
     m_formats[(unsigned)eImageType::PPM].reset(new cFormatPpm(nullptr, "ppm", callbacks));
     m_formats[(unsigned)eImageType::PVR].reset(new cFormatPvr(nullptr, "pvr", callbacks));
     m_formats[(unsigned)eImageType::SCR].reset(new cFormatScr(nullptr, "scr", callbacks));
+    m_formats[(unsigned)eImageType::WEBP].reset(new cFormatWebP(nullptr, "webp", callbacks));
 
     m_formats[(unsigned)eImageType::NOTAVAILABLE].reset(new CNotAvailable());
 }
@@ -248,18 +250,19 @@ eImageType CImageLoader::getType(const char* name)
 
         static const sFormatExt format[] =
         {
-            { ".jpeg", eImageType::JPG },
-            { ".jpg",  eImageType::JPG },
-            { ".psd",  eImageType::PSD },
-            { ".png",  eImageType::PNG },
-            { ".gif",  eImageType::GIF },
-            { ".ico",  eImageType::ICO },
-            { ".tiff", eImageType::TIF },
-            { ".tif",  eImageType::TIF },
-            { ".xwd",  eImageType::XWD },
-            { ".dds",  eImageType::DDS },
-            { ".ppm",  eImageType::PPM },
-            { ".scr",  eImageType::SCR },
+            { ".jpeg", eImageType::JPG  },
+            { ".jpg",  eImageType::JPG  },
+            { ".psd",  eImageType::PSD  },
+            { ".png",  eImageType::PNG  },
+            { ".gif",  eImageType::GIF  },
+            { ".ico",  eImageType::ICO  },
+            { ".tiff", eImageType::TIF  },
+            { ".tif",  eImageType::TIF  },
+            { ".xwd",  eImageType::XWD  },
+            { ".dds",  eImageType::DDS  },
+            { ".ppm",  eImageType::PPM  },
+            { ".scr",  eImageType::SCR  },
+            { ".webp", eImageType::WEBP },
         };
 
         for (auto& fmt : format)

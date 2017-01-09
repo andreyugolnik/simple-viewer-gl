@@ -35,6 +35,7 @@ enum class eImageType
     PPM,
     PVR,
     SCR,
+    WEBP,
 
     NOTAVAILABLE,
 

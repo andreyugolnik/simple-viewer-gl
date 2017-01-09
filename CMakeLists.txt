@@ -90,6 +90,7 @@ ADD_EXECUTABLE( sviewgl
     src/formats/formatraw.cpp
     src/formats/formatscr.cpp
     src/formats/formattiff.cpp
+    src/formats/formatwebp.cpp
     src/formats/formatxwd.cpp
     src/formats/rle.cpp
     src/ftstring.cpp
@@ -121,6 +122,7 @@ TARGET_LINK_LIBRARIES( sviewgl
     ${TIFF_LIBRARY}
     ${GIF_LIBRARY}
     ${ZLIB_LIBRARIES}
+    "webp"
     )
 
 IF(LIBCONFIG_FOUND)
