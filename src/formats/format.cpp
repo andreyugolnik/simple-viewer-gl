@@ -12,22 +12,20 @@
 
 #include <cassert>
 #include <dlfcn.h>
-#include <iostream>
-#include <string>
 
 CFormat::CFormat(const char* libName, const char* formatName, iCallbacks* callbacks)
-    : m_formatName(formatName)
-    , m_callbacks(callbacks)
+    : m_callbacks(callbacks)
+    , m_formatName(formatName)
 {
     if (libName != nullptr)
     {
-        std::string path(libName);
+        char path[100];
 #if defined(__linux__)
-        path += ".so";
+        ::snprintf(path, sizeof(path), "%s.so", libName);
 #else
-        path += ".dylib";
+        ::snprintf(path, sizeof(path), "%s.dylib", libName);
 #endif
-        m_lib = dlopen(path.c_str(), RTLD_LAZY);
+        m_lib = dlopen(path, RTLD_LAZY);
         if (m_lib != nullptr)
         {
             m_support = eSupport::ExternalLib;
@@ -79,7 +77,7 @@ void CFormat::dumpFormat()
 
 void CFormat::updateProgress(float percent)
 {
-    assert(m_callbacks);
+    assert(m_callbacks != nullptr);
     if (m_percent != percent)
     {
         m_percent = percent;

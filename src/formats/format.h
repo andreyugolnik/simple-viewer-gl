@@ -11,10 +11,6 @@
 
 #include "../common/buffer.h"
 
-#include <GLFW/glfw3.h>
-
-//#define WIDTHBYTES(bits) ((((bits) + 31) / 32) * 4)
-
 class iCallbacks;
 class cFile;
 struct sBitmapDescription;
@@ -57,11 +53,11 @@ private:
     }
 
 private:
-    const char* m_formatName;
     iCallbacks* m_callbacks;
     float m_percent = 0.0f;
 
 protected:
+    const char* m_formatName;
     void* m_lib = nullptr;
     bool m_stop = false;
 
