@@ -1,7 +1,7 @@
 ##Simple Viewer GL - simple and tiny image viewer based on OpenGL.##
 
 The primary goal for writing **sviewgl** is to create an image viewer, which only has the most basic features required for fast image viewing. It has some vi-like key bindings and works nicely with tiling window managers (such as Ion3 and Notion).
-Supported formats: PNG, JPEG, BMP, TIFF, GIF, PPM, DDS, BMP, TARGA, PSD, ICO, XWD, SCR (ZX-Spectrum screen).
+Supported formats: PNG, JPEG, BMP, TIFF, GIF, PPM, DDS, BMP, TARGA, PSD, ICO, XWD, SCR (ZX-Spectrum screen), WebP.
 
 ##Screenshot##
 
@@ -65,10 +65,11 @@ $ make release
 * freetype2 - FreeType 2 font engine, shared library files.
 * libXi - provides an X Window System client interface to the XINPUT extension to the X protocol.
 * libXmu - provides a set of miscellaneous utility convenience functions for X libraries to use.
+* webp - WebP format support.
 
 ***
 ```
-Copyright © 2008-2016 Andrey A. Ugolnik. All Rights Reserved.
+Copyright © 2008-2017 Andrey A. Ugolnik. All Rights Reserved.
 http://www.ugolnik.info
 andrey@ugolnik.info
 ```

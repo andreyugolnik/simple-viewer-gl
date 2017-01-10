@@ -18,7 +18,7 @@
 #include <unistd.h>
 
 static const char* SimpleViewerTitle = "Simple Viewer GL";
-static const float SimpleViewerVersion = 2.71f;
+static const float SimpleViewerVersion = 2.72f;
 
 static cViewer* m_viewer = nullptr;
 

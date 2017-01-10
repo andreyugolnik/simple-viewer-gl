@@ -31,18 +31,19 @@ bool cFormatWebP::LoadImpl(const char* filename, sBitmapDescription& desc)
         return false;
     }
 
-    desc.size = file.getSize();
-
     Buffer buffer;
     buffer.resize(file.getSize());
     file.read(buffer.data(), file.getSize());
 
     WebPBitstreamFeatures features;
-    if (WebPGetFeatures(buffer.data(), buffer.size(), &features) != VP8_STATUS_OK)
+    auto error = WebPGetFeatures(buffer.data(), buffer.size(), &features);
+    if (error != VP8_STATUS_OK)
     {
-    printf("(EE) error\n");
+        printf("Error loading WebP: %d\n", error);
         return false;
     }
+
+    desc.size = file.getSize();
 
     desc.images = 1;
     desc.current = 0;
@@ -53,33 +54,34 @@ bool cFormatWebP::LoadImpl(const char* filename, sBitmapDescription& desc)
           // , features.has_alpha, features.has_animation
           // , features.format);
 
-    uint8_t* decoded = nullptr;
     if (features.has_alpha)
     {
-        decoded = WebPDecodeRGBA(buffer.data(), buffer.size(), nullptr, nullptr);
         desc.pitch = features.width * 4;
         desc.bpp = 32;
         desc.bppImage = 32;
         desc.format = GL_RGBA;
+        desc.bitmap.resize(desc.pitch * desc.height);
+
+        if (WebPDecodeRGBAInto(buffer.data(), buffer.size(), desc.bitmap.data(), desc.bitmap.size(), desc.pitch) == nullptr)
+        {
+            printf("Error decoding WebP\n");
+            return false;
+        }
     }
     else
     {
-        decoded = WebPDecodeRGB(buffer.data(), buffer.size(), nullptr, nullptr);
         desc.pitch = features.width * 3;
         desc.bpp = 24;
         desc.bppImage = 24;
         desc.format = GL_RGB;
+        desc.bitmap.resize(desc.pitch * desc.height);
+
+        if (WebPDecodeRGBInto(buffer.data(), buffer.size(), desc.bitmap.data(), desc.bitmap.size(), desc.pitch) == nullptr)
+        {
+            printf("Error decoding WebP\n");
+            return false;
+        }
     }
-
-    if (decoded == nullptr)
-    {
-        return false;
-    }
-
-    desc.bitmap.resize(desc.pitch * desc.height);
-    ::memcpy(desc.bitmap.data(), decoded, desc.bitmap.size());
-
-    WebPFree(decoded);
 
     return true;
 }
