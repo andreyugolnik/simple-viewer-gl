@@ -37,27 +37,28 @@ namespace
 
         void set(bool isSet, unsigned char attribute)
         {
+            // palette PULSAR (0xcd)
             static sColor Colors[] =
             {
                 // normal
-                { 0, 0, 0 },
-                { 0, 0, 192 },
-                { 192, 0, 0 },
-                { 192, 0, 192 },
-                { 0, 192, 0 },
-                { 0, 192, 192 },
-                { 192, 192, 0 },
-                { 192, 192, 192 },
+                { 0x00, 0x00, 0x00 },
+                { 0x00, 0x00, 0xcd },
+                { 0xcd, 0x00, 0x00 },
+                { 0xcd, 0x00, 0xcd },
+                { 0x00, 0xcd, 0x00 },
+                { 0x00, 0xcd, 0xcd },
+                { 0xcd, 0xcd, 0x00 },
+                { 0xcd, 0xcd, 0xcd },
 
                 // bright
-                { 0, 0, 0 },
-                { 0, 0, 255 },
-                { 255, 0, 0 },
-                { 255, 0, 255 },
-                { 0, 255, 0 },
-                { 0, 255, 255 },
-                { 255, 255, 0 },
-                { 255, 255, 255 },
+                { 0x00, 0x00, 0x00 },
+                { 0x00, 0x00, 0xff },
+                { 0xff, 0x00, 0x00 },
+                { 0xff, 0x00, 0xff },
+                { 0x00, 0xff, 0x00 },
+                { 0x00, 0xff, 0xff },
+                { 0xff, 0xff, 0x00 },
+                { 0xff, 0xff, 0xff },
             };
 
             const unsigned bright = (attribute & 0x40) >> 3;
