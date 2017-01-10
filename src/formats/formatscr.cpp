@@ -103,15 +103,16 @@ bool cFormatScr::LoadImpl(const char* filename, sBitmapDescription& desc)
         return false;
     }
 
-    desc.size = file.getSize();
+    const unsigned screenSize = 6912;
+    unsigned char scr[screenSize];
 
-    std::vector<unsigned char> scr(6912);
-    if (scr.size() != file.read(&scr[0], scr.size()))
+    if (file.getSize() != screenSize || screenSize != file.read(scr, screenSize))
     {
         printf("invalid size of ZX-Spectrum screen\n");
         return false;
     }
 
+    desc.size = screenSize;
     desc.width  = 256;
     desc.height = 192;
 
@@ -120,9 +121,9 @@ bool cFormatScr::LoadImpl(const char* filename, sBitmapDescription& desc)
 
     for (unsigned i = 0; i < 3; i++)
     {
-        const unsigned char* zxPixels = &scr[2048 * i];
-        const unsigned char* zxColors = &scr[6144 + 256 * i];
-        sPixelRGB* out = (sPixelRGB*)&desc.bitmap[desc.pitch * 64 * i];
+        const unsigned char* zxPixels = scr + 2048 * i;
+        const unsigned char* zxColors = scr + 6144 + 256 * i;
+        auto out = (sPixelRGB*)(desc.bitmap.data() + desc.pitch * 64 * i);
         fillThird(zxPixels, zxColors, out);
     }
 
