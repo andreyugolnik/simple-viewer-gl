@@ -262,6 +262,11 @@ eImageType CImageLoader::getType(const char* name)
             { ".dds",  eImageType::DDS  },
             { ".ppm",  eImageType::PPM  },
             { ".scr",  eImageType::SCR  },
+            { ".atr",  eImageType::SCR  },
+            { ".ifl",  eImageType::SCR  },
+            { ".bsc",  eImageType::SCR  },
+            { ".bmc4", eImageType::SCR  },
+            { ".mc",   eImageType::SCR  },
             { ".webp", eImageType::WEBP },
         };
 
