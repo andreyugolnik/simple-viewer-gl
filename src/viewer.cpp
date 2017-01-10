@@ -170,7 +170,7 @@ void cViewer::update()
     {
         m_imagePrepared = false;
 
-        m_scale = 1;
+        m_scale = m_config->keepScale ? m_scale : 1;
         m_angle = 0;
         m_camera = cVector<float>(0, 0);
 
@@ -332,15 +332,22 @@ void cViewer::fnKeyboard(int key, int scancode, int action, int mods)
         break;
 
     case GLFW_KEY_S:
-        m_config->fitImage = !m_config->fitImage;
-        if (m_config->fitImage == false)
+        if (mods & GLFW_MOD_SHIFT)
         {
-            m_scale = 1.0f;
+            m_config->keepScale = !m_config->keepScale;
         }
-        m_camera = cVector<float>();
-        centerWindow();
-        updateInfobar();
-        m_selection->setScale(m_scale);
+        else
+        {
+            m_config->fitImage = !m_config->fitImage;
+            if (m_config->fitImage == false)
+            {
+                m_scale = 1.0f;
+            }
+            m_camera = cVector<float>();
+            centerWindow();
+            updateInfobar();
+            m_selection->setScale(m_scale);
+        }
         break;
 
     case GLFW_KEY_SPACE:

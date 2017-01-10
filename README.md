@@ -35,6 +35,7 @@ Key             | Description
 <shift>+<r>     | rotate counterclockwise
 <pgup> / <bgdn> | previous /next subimage
 <s>             | fit image to window (quick algorithm)
+<shift>+<s>     | toggle 'keep scale' on image load
 <c>             | hide / show chequerboard
 <i>             | hide / show on screen info
 <p>             | hide / show pixel info
