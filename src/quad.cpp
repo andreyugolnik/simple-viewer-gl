@@ -34,6 +34,7 @@ CQuad::~CQuad()
 
 void CQuad::setData(const unsigned char* data)
 {
+    m_filter = true;
     cRenderer::setData(m_quad.tex, data, m_tw, m_th, m_format);
 }
 
