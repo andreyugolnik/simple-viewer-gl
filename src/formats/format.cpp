@@ -11,6 +11,7 @@
 #include "../common/callbacks.h"
 
 #include <cassert>
+#include <cstdio>
 #include <dlfcn.h>
 
 CFormat::CFormat(const char* libName, const char* formatName, iCallbacks* callbacks)
