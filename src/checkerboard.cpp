@@ -9,51 +9,68 @@
 
 #include "checkerboard.h"
 #include <cmath>
-
-const int texSize = 128;
+#include <vector>
 
 void CCheckerboard::init()
 {
-    unsigned char* buffer = new unsigned char[texSize * texSize * 3];
-    unsigned char* p = buffer;
-    bool checker_height_odd = true;
-    for(int y = 0; y < texSize; y++)
+    std::vector<unsigned char> buffer(m_texSize * m_texSize * 3);
+    auto p = buffer.data();
+
+    unsigned idx = 0;
+    const unsigned char colors[2] = { 0xc8, 0x7d };
+
+    for (unsigned y = 0; y < m_texSize; y++)
     {
-        if(y % 16 == 0)
+        if (y % m_cellSize == 0)
         {
-            checker_height_odd = !checker_height_odd;
+            idx = (idx + 1) % 2;
         }
 
-        bool checker_width_odd = checker_height_odd;
-        for(int x = 0; x < texSize; x++)
+        for (unsigned x = 0; x < m_texSize; x++)
         {
-            if(x % 16 == 0)
+            if (x % m_cellSize == 0)
             {
-                checker_width_odd = !checker_width_odd;
+                idx = (idx + 1) % 2;
             }
 
-            unsigned char color = (checker_width_odd == true ? 0xc8 : 0x7d);
+            const auto color = colors[idx];
             *p++ = color;
             *p++ = color;
             *p++ = color;
         }
     }
 
-    m_cb.reset(new CQuad(texSize, texSize, buffer, GL_RGB));
+    m_cb.reset(new CQuad(m_texSize, m_texSize, buffer.data(), GL_RGB));
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-    delete[] buffer;
+    m_lastTime = glfwGetTime();
 }
 
 void CCheckerboard::render(bool checkboardEanbled)
 {
-    if(checkboardEanbled)
+    if (checkboardEanbled)
     {
         int width;
         int height;
         glfwGetFramebufferSize(cRenderer::getWindow(), &width, &height);
-        m_cb->SetSpriteSize(width, height);
+
+        const float current = glfwGetTime();
+        const float dt = current - m_lastTime;
+        m_lastTime = current;
+
+        const float speed = 30.0f * M_PI / 180.0f;
+        m_texOffset += dt * speed;
+        if (m_texOffset >= M_PI)
+        {
+            m_texOffset -= M_PI * 2.0f;
+        }
+
+        const float radius = 16.0f;
+        const float x = radius + cosf(m_texOffset) * radius;
+        const float y = radius + sinf(m_texOffset) * radius;
+
+        m_cb->SetTextureRect(x, y, width, height);
         m_cb->Render(0.0f, 0.0f);
     }
     else
@@ -62,4 +79,3 @@ void CCheckerboard::render(bool checkboardEanbled)
         glClear(GL_COLOR_BUFFER_BIT);
     }
 }
-
