@@ -37,7 +37,7 @@ cFileZlib::~cFileZlib()
     delete m_zipStream;
 }
 
-int cFileZlib::seek(long offset, int whence)
+int cFileZlib::seek(long /*offset*/, int /*whence*/)
 {
     return 0;
 }

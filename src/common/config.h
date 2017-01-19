@@ -16,6 +16,8 @@ struct sColor
 
 struct sConfig
 {
+    bool debug = false;
+
     bool hideInfobar = false;
     bool showPixelInfo = false;
     bool hideCheckboard = false;
@@ -25,7 +27,6 @@ struct sConfig
     bool centerWindow = false;
     bool skipFilter = false;
     bool wheelZoom = false;
-    bool debug = false;
     bool keepScale = false;
 
     sColor color{ 0.0f, 0.0f, 1.0f };

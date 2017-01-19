@@ -56,17 +56,14 @@ $ make release
 
 * GLFW3 - multi-platform library for creating windows with OpenGL contexts and receiving input and events.
 * OpenGL
-* Imlib2 - is an advanced replacement for libraries like libXpm.
+* Imlib2 - common formats support.
 * libjpeg - jpeg format support.
 * libpng - png format support.
-* zlib
 * giflib - gif format support.
 * tiff - tiff format support.
-* libconfig++ - parsing and manipulation of structured configuration files.
-* freetype2 - FreeType 2 font engine, shared library files.
-* libXi - provides an X Window System client interface to the XINPUT extension to the X protocol.
-* libXmu - provides a set of miscellaneous utility convenience functions for X libraries to use.
 * webp - WebP format support.
+* freetype2 - FreeType 2 font engine, shared library files.
+* zlib - compression support.
 
 ***
 ```

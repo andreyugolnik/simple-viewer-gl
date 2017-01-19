@@ -1,39 +1,43 @@
-// Example Configuration File of SimpleViewer GL
-//
-// Linux:
-// Copy it to $XDG_CONFIG_HOME/sviewgl/config
-// If $XDG_CONFIG_HOME is not set $HOME/.config/sviewgl/config will be used
-//
-// Mac OS X:
-// Copy it to ~/Library/sviewgl/config
-//
+; Example Configuration File of SimpleViewer GL
+;
+; Linux:
+; Copy it to $XDG_CONFIG_HOME/sviewgl/config
+; If $XDG_CONFIG_HOME is not set $HOME/.config/sviewgl/config will be used
+;
+; Mac OS X:
+; Copy it to ~/Library/sviewgl/config
+;
 
-// show or hide bottom infobar (default FALSE)
-hide_infobar = FALSE;
+; true values are: true, enable, 1
+; all other treats as false
 
-// show or hide pixel info (default FALSE)
-show_pixelinfo = FALSE;
+[common]
+; show or hide bottom infobar (default false)
+hide_infobar = false
 
-// enable or disable checkboard background (default FALSE)
-hide_checkboard = FALSE;
+; show or hide pixel info (default false)
+show_pixelinfo = false
 
-// fit lage image in to window preserving aspect ration (default FALSE)
-fit_image = FALSE;
+; enable or disable checkboard background (default false)
+hide_checkboard = false
 
-// start viewer in fullscreen mode on startup (default FALSE)
-start_fullscreen = FALSE;
+; fit lage image in to window preserving aspect ration (default false)
+fit_image = false
 
-// show or hide border around of image (default FALSE)
-show_image_border = FALSE;
+; start viewer in fullscreen mode on startup (default false)
+start_fullscreen = false
 
-// lookup for images in subfolder recursively on startup (default FALSE)
-lookup_recursive = FALSE;
+; show or hide border around of image (default false)
+show_image_border = false
 
-// enable zoom by mouse wheel (default FALSE)
-wheel_zoom = FALSE;
+; lookup for images in subfolder recursively on startup (default false)
+lookup_recursive = false
 
-// color of background (if checkboard has been disabled)
-background_r = 0;
-background_g = 0;
-background_b = 255;
+; enable zoom by mouse wheel (default false)
+wheel_zoom = false
+
+; color of background (if checkboard has been disabled)
+background_r = 0
+background_g = 0
+background_b = 255
 

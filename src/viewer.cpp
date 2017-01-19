@@ -9,7 +9,7 @@
 
 #include "viewer.h"
 #include "checkerboard.h"
-#include "config.h"
+#include "common/config.h"
 #include "fileslist.h"
 #include "imageborder.h"
 #include "imageloader.h"

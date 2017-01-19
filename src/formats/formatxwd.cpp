@@ -101,15 +101,15 @@ bool CFormatXwd::LoadImpl(const char* filename, sBitmapDescription& desc)
     sXwdCommon common;
     if (sizeof(common) != file.read(&common, sizeof(common)))
     {
-        printf("Can't read XWD header\n");
+        printf("(EE) Can't read XWD header.\n");
         return false;
     }
 
     helpers::swap_uint32s((uint8_t*)&common, sizeof(common));
-    printf("\n");
-    printf(" HeaderSize: %u\n" , common.HeaderSize);
-    printf(" FileVersion: %u\n", common.FileVersion);
-    printf("\n");
+    // printf("\n");
+    // printf(" HeaderSize: %u\n" , common.HeaderSize);
+    // printf(" FileVersion: %u\n", common.FileVersion);
+    // printf("\n");
 
     file.seek(0, SEEK_SET);
 
@@ -118,23 +118,23 @@ bool CFormatXwd::LoadImpl(const char* filename, sBitmapDescription& desc)
         X10WindowDump header;
         if (sizeof(header) != file.read(&header, sizeof(header)))
         {
-            printf("Can't read XWD header\n");
+            printf("(EE) Can't read XWD header.\n");
             return false;
         }
         helpers::swap_uint32s((uint8_t*)&header, sizeof(header));
 
-        printf(" PixmapFormat: %u\n"      , header.PixmapFormat);
-        printf(" DisplayType: %u\n"       , header.DisplayType);
-        printf(" DisplayPlanes: %u\n"     , header.DisplayPlanes);
-        printf(" PixmapFormat: %u\n"      , header.PixmapFormat);
-        printf(" PixmapWidth: %u\n"       , header.PixmapWidth);
-        printf(" PixmapHeight: %u\n"      , header.PixmapHeight);
-        printf(" WindowWidth: %u\n"       , header.WindowWidth);
-        printf(" WindowHeight: %u\n"      , header.WindowHeight);
-        printf(" WindowX: %u\n"           , header.WindowX);
-        printf(" WindowY: %u\n"           , header.WindowY);
-        printf(" WindowBorderWidth: %u\n" , header.WindowBorderWidth);
-        printf(" WindowNumColors: %u\n"   , header.WindowNumColors);
+        // printf(" PixmapFormat: %u\n"      , header.PixmapFormat);
+        // printf(" DisplayType: %u\n"       , header.DisplayType);
+        // printf(" DisplayPlanes: %u\n"     , header.DisplayPlanes);
+        // printf(" PixmapFormat: %u\n"      , header.PixmapFormat);
+        // printf(" PixmapWidth: %u\n"       , header.PixmapWidth);
+        // printf(" PixmapHeight: %u\n"      , header.PixmapHeight);
+        // printf(" WindowWidth: %u\n"       , header.WindowWidth);
+        // printf(" WindowHeight: %u\n"      , header.WindowHeight);
+        // printf(" WindowX: %u\n"           , header.WindowX);
+        // printf(" WindowY: %u\n"           , header.WindowY);
+        // printf(" WindowBorderWidth: %u\n" , header.WindowBorderWidth);
+        // printf(" WindowNumColors: %u\n"   , header.WindowNumColors);
 
         return loadX10(header, file, desc);
     }
@@ -143,39 +143,40 @@ bool CFormatXwd::LoadImpl(const char* filename, sBitmapDescription& desc)
         X11WindowDump header;
         if (sizeof(header) != file.read(&header, sizeof(header)))
         {
-            printf("Can't read XWD header\n");
+            printf("(EE) Can't read XWD header.\n");
             return false;
         }
         helpers::swap_uint32s((uint8_t*)&header, sizeof(header));
 
-        printf(" PixmapFormat: %u\n"      , header.PixmapFormat);
-        printf(" PixmapDepth: %u\n"       , header.PixmapDepth);
-        printf(" PixmapWidth: %u\n"       , header.PixmapWidth);
-        printf(" PixmapHeight: %u\n"      , header.PixmapHeight);
-        printf(" XOffset: %u\n"           , header.XOffset);
-        printf(" ByteOrder: %u\n"         , header.ByteOrder);
-        printf(" BitmapUnit: %u\n"        , header.BitmapUnit);
-        printf(" BitmapBitOrder: %u\n"    , header.BitmapBitOrder);
-        printf(" BitmapPad: %u\n"         , header.BitmapPad);
-        printf(" BitsPerPixel: %u\n"      , header.BitsPerPixel);
-        printf(" BytesPerLine: %u\n"      , header.BytesPerLine);
-        printf(" VisualClass: %u\n"       , header.VisualClass);
-        printf(" RedMask: %u\n"           , header.RedMask);
-        printf(" GreenMask: %u\n"         , header.GreenMask);
-        printf(" BlueMask: %u\n"          , header.BlueMask);
-        printf(" BitsPerRgb: %u\n"        , header.BitsPerRgb);
-        printf(" NumberOfColors: %u\n"    , header.NumberOfColors);
-        printf(" ColorMapEntries: %u\n"   , header.ColorMapEntries);
-        printf(" WindowWidth: %u\n"       , header.WindowWidth);
-        printf(" WindowHeight: %u\n"      , header.WindowHeight);
-        printf(" WindowX: %u\n"           , header.WindowX);
-        printf(" WindowY: %u\n"           , header.WindowY);
-        printf(" WindowBorderWidth: %u\n" , header.WindowBorderWidth);
+        // printf(" PixmapFormat: %u\n"      , header.PixmapFormat);
+        // printf(" PixmapDepth: %u\n"       , header.PixmapDepth);
+        // printf(" PixmapWidth: %u\n"       , header.PixmapWidth);
+        // printf(" PixmapHeight: %u\n"      , header.PixmapHeight);
+        // printf(" XOffset: %u\n"           , header.XOffset);
+        // printf(" ByteOrder: %u\n"         , header.ByteOrder);
+        // printf(" BitmapUnit: %u\n"        , header.BitmapUnit);
+        // printf(" BitmapBitOrder: %u\n"    , header.BitmapBitOrder);
+        // printf(" BitmapPad: %u\n"         , header.BitmapPad);
+        // printf(" BitsPerPixel: %u\n"      , header.BitsPerPixel);
+        // printf(" BytesPerLine: %u\n"      , header.BytesPerLine);
+        // printf(" VisualClass: %u\n"       , header.VisualClass);
+        // printf(" RedMask: %u\n"           , header.RedMask);
+        // printf(" GreenMask: %u\n"         , header.GreenMask);
+        // printf(" BlueMask: %u\n"          , header.BlueMask);
+        // printf(" BitsPerRgb: %u\n"        , header.BitsPerRgb);
+        // printf(" NumberOfColors: %u\n"    , header.NumberOfColors);
+        // printf(" ColorMapEntries: %u\n"   , header.ColorMapEntries);
+        // printf(" WindowWidth: %u\n"       , header.WindowWidth);
+        // printf(" WindowHeight: %u\n"      , header.WindowHeight);
+        // printf(" WindowX: %u\n"           , header.WindowX);
+        // printf(" WindowY: %u\n"           , header.WindowY);
+        // printf(" WindowBorderWidth: %u\n" , header.WindowBorderWidth);
 
         return loadX11(header, file, desc);
     }
 
-    printf("Invalid XWD file version\n");
+    printf("(EE) Invalid XWD file version.\n");
+
     return false;
 }
 
@@ -188,9 +189,9 @@ bool CFormatXwd::loadX11(const X11WindowDump& header, cFile& file, sBitmapDescri
 {
     std::vector<X11ColorMap> colors(header.ColorMapEntries);
     const unsigned color_map_size = sizeof(X11ColorMap) * header.ColorMapEntries;
-    if (color_map_size != file.read(&colors[0], color_map_size))
+    if (color_map_size != file.read(colors.data(), color_map_size))
     {
-        printf("Can't read colormap\n");
+        printf("(EE) Can't read colormap.\n");
         return false;
     }
 
@@ -203,9 +204,9 @@ bool CFormatXwd::loadX11(const X11WindowDump& header, cFile& file, sBitmapDescri
     desc.format   = GL_RGB;
     desc.bitmap.resize(desc.pitch * desc.height);
 
-    if (desc.bitmap.size() != file.read(&desc.bitmap[0], desc.bitmap.size()))
+    if (desc.bitmap.size() != file.read(desc.bitmap.data(), desc.bitmap.size()))
     {
-        printf("Can't read pixmap\n");
+        printf("(EE) Can't read pixmap.\n");
         return false;
     }
 

@@ -7,10 +7,17 @@ INCLUDE(CheckLibraryExists)
 SET(CMAKE_COLOR_MAKEFILE ON)
 SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
-#SET( CMAKE_CXX_COMPILER "g++" )
-#SET( CMAKE_C_COMPILER "gcc" )
-# SET( CMAKE_CXX_FLAGS "-std=c++11 -O0 -g" )
-SET( CMAKE_CXX_FLAGS "-std=c++11 -O2" )
+IF( CMAKE_BUILD_TYPE STREQUAL "Release" )
+    MESSAGE(STATUS "=== RELEASE MODE ===")
+    ADD_DEFINITIONS( "-DNDEBUG" )
+    ADD_DEFINITIONS( "-Wall -O2" )
+ELSE()
+    MESSAGE(STATUS "=== DEBUG MODE ===")
+    ADD_DEFINITIONS( "-DDEBUG" )
+    ADD_DEFINITIONS( "-Wall -Wextra -pedantic -O0 -g" )
+ENDIF()
+
+SET( CMAKE_CXX_FLAGS "-std=c++14" )
 
 find_package(PkgConfig REQUIRED)
 pkg_search_module(GLFW REQUIRED glfw3)
@@ -21,14 +28,9 @@ FIND_PACKAGE(PNG)
 FIND_PACKAGE(JPEG)
 FIND_PACKAGE(TIFF)
 FIND_PACKAGE(GIF)
-FIND_PACKAGE(LIBCONFIG)
 FIND_PACKAGE(ZLIB)
 FIND_PACKAGE(Imlib2)
 FIND_PACKAGE(WebP)
-
-IF(LIBCONFIG_FOUND)
-    ADD_DEFINITIONS(-DLIBCONFIG_SUPPORT=1)
-ENDIF()
 
 IF(IMLIB2_FOUND)
     ADD_DEFINITIONS(-DIMLIB2_SUPPORT=1)
@@ -59,23 +61,18 @@ INCLUDE_DIRECTORIES( ${INCLUDE_DIRECTORIES}
     )
 ENDIF()
 
-IF(LIBCONFIG_FOUND)
-INCLUDE_DIRECTORIES( ${INCLUDE_DIRECTORIES}
-    ${LIBCONFIG_INCLUDE_DIR}
-    )
-ENDIF()
-
 #LINK_DIRECTORIES(
     #${FREETYPE_LIBRARY_DIRS}
     #)
 
 ADD_EXECUTABLE( sviewgl
     src/checkerboard.cpp
+    src/common/Ini.cpp
     src/common/ZlibDecoder.cpp
+    src/common/config.cpp
     src/common/file.cpp
     src/common/file_zlib.cpp
     src/common/helpers.cpp
-    src/config.cpp
     src/fileslist.cpp
     src/formats/AGEheader.cpp
     src/formats/format.cpp
@@ -127,12 +124,6 @@ TARGET_LINK_LIBRARIES( sviewgl
     ${ZLIB_LIBRARIES}
     ${WEBP_LIBRARIES}
     )
-
-IF(LIBCONFIG_FOUND)
-TARGET_LINK_LIBRARIES( sviewgl
-    ${LIBCONFIG_LIBRARY}
-    )
-ENDIF()
 
 IF(IMLIB2_FOUND)
 TARGET_LINK_LIBRARIES( sviewgl

@@ -273,15 +273,10 @@ static const char* formatToStirng(DDS_FORMAT fmt)
 {
     static const char* formats[] =
     {
-        "RGB", "RGBA", "DXT1", "DXT2", "DXT3", "DXT4", "DXT5", "DXT10"
+        "dds/rgb", "dds/rgba", "dds/dxt1", "dds/dxt2", "dds/dxt3", "dds/dxt4", "dds/dxt5", "dds/dxt10"
     };
 
-    if (fmt != DDS_ERROR)
-    {
-        return formats[fmt];
-    }
-
-    return "Unknown format";
+    return fmt != DDS_ERROR ? formats[fmt] : "dds/Unknown format";
 }
 
 CFormatDds::CFormatDds(const char* lib, const char* name, iCallbacks* callbacks)
@@ -306,7 +301,7 @@ bool CFormatDds::LoadImpl(const char* filename, sBitmapDescription& desc)
     DDS_HEADER header;
     if (sizeof(header) != file.read(&header, sizeof(header)))
     {
-        printf("error load DDS file \"%s\": wrong header size\n", filename);
+        printf("(EE) Error load DDS file '%s': wrong header size.\n", filename);
         return false;
     }
 
@@ -319,8 +314,8 @@ bool CFormatDds::LoadImpl(const char* filename, sBitmapDescription& desc)
         || !(header.dwFlags & DDSD_PIXELFORMAT)
        )
     {
-        printf("error load DDS file \"%s\": wrong header\n", filename);
-        return 0;
+        printf("(EE) Error load DDS file '%s': wrong header.\n", filename);
+        return false;
     }
 
     desc.width  = header.dwWidth;
@@ -334,7 +329,7 @@ bool CFormatDds::LoadImpl(const char* filename, sBitmapDescription& desc)
         {
             if (sizeof(header) != file.read(&header10, sizeof(header10)))
             {
-                printf("error load DDS file \"%s\": wrong DX10 header size\n", filename);
+                printf("(EE) Error load DDS file '%s': wrong DX10 header size.\n", filename);
                 return false;
             }
             format = DDS_DXT10;
@@ -372,20 +367,20 @@ bool CFormatDds::LoadImpl(const char* filename, sBitmapDescription& desc)
 
     if (format == DDS_ERROR)
     {
-        printf("error load DDS file \"%s\": unknown format 0x%x RGB %d\n", filename, header.ddspf.dwFlags, header.ddspf.dwRGBBitCount);
-        return 0;
+        printf("(EE) Error load DDS file '%s': unknown format 0x%x RGB %d.\n", filename, header.ddspf.dwFlags, header.ddspf.dwRGBBitCount);
+        return false;
     }
-
-    printf("format: %s\n", formatToStirng(format));
 
     const unsigned data_size = desc.size - file.getOffset();
     std::vector<unsigned char> buffer(data_size);
-    unsigned char* src = &buffer[0];
+    unsigned char* src = buffer.data();
     if (data_size != file.read(src, data_size))
     {
-        printf("error load DDS file \"%s\": wrong data size.\n", filename);
-        return 0;
+        printf("(EE) Error load DDS file '%s': wrong data size.\n", filename);
+        return false;
     }
+
+    m_formatName = formatToStirng(format);
 
     if (format == DDS_RGB)
     {
@@ -415,7 +410,7 @@ bool CFormatDds::LoadImpl(const char* filename, sBitmapDescription& desc)
         desc.pitch = desc.width * 4;
         const unsigned size = desc.pitch * desc.height;
         desc.bitmap.resize(size);
-        unsigned char* dest = &desc.bitmap[0];
+        unsigned char* dest = desc.bitmap.data();
 
         for (unsigned y = 0; y < desc.height; y++)
         {
@@ -488,7 +483,7 @@ bool CFormatDds::LoadImpl(const char* filename, sBitmapDescription& desc)
                 for (unsigned i = 0; i < 4; i++)
                 {
                     unsigned index = *src++;
-                    unsigned char* dest = &desc.bitmap[0] + (desc.width * (y + i) + x) * 4;
+                    unsigned char* dest = desc.bitmap.data() + (desc.width * (y + i) + x) * 4;
                     for (unsigned j = 0; j < 4; j++)
                     {
                         *dest++ = color[index & 0x03].r;

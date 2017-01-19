@@ -23,8 +23,8 @@ class CInfoBar;
 class CPixelInfo;
 class CProgress;
 class CSelection;
-class GLFWwindow;
 class cQuadImage;
+struct GLFWwindow;
 struct sConfig;
 
 class cViewer final : public iCallbacks

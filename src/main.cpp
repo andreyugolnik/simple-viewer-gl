@@ -8,7 +8,7 @@
 \**********************************************/
 
 #include "viewer.h"
-#include "config.h"
+#include "common/config.h"
 
 #include <GLFW/glfw3.h>
 
@@ -17,72 +17,114 @@
 #include <cstring>
 #include <unistd.h>
 
-static const char* SimpleViewerTitle = "Simple Viewer GL";
-static const float SimpleViewerVersion = 2.73f;
-
-static cViewer* m_viewer = nullptr;
-
-void showHelp(const char* name);
-
-void callbackResize(GLFWwindow* /*window*/, int width, int height)
+namespace
 {
-    m_viewer->fnResize(width, height);
-}
 
-void callbackPosition(GLFWwindow* /*window*/, int x, int y)
-{
-    m_viewer->fnPosition(x, y);
-}
+    const char* SimpleViewerTitle = "Simple Viewer GL";
+    const float SimpleViewerVersion = 2.74f;
 
-void callbackRedraw(GLFWwindow* /*window*/)
-{
-    m_viewer->render();
-}
+    cViewer* m_viewer = nullptr;
 
-void callbackKeyboard(GLFWwindow* /*window*/, int key, int scancode, int action, int mods)
-{
-    m_viewer->fnKeyboard(key, scancode, action, mods);
-}
+    void showHelp(const char* name)
+    {
+        const char* p = strrchr(name, '/');
 
-void callbackMouseButtons(GLFWwindow* /*window*/, int button, int action, int mods)
-{
-    m_viewer->fnMouseButtons(button, action, mods);
-}
+        printf("\nUsage:\n");
+        printf("  %s [OPTION]... FILE\n", (p != nullptr ? p + 1 : name));
+        printf("  -h, --help    show this help;\n");
+        printf("  -s            enable scale to window;\n");
+        printf("  -cw           center window;\n");
+        printf("  -a            do not filter by file ext;\n");
+        printf("  -c            disable chequerboard;\n");
+        printf("  -i            disable on screen info;\n");
+        printf("  -p            show pixel info (pixel color and coordinates);\n");
+        printf("  -b            show border around image;\n");
+        printf("  -f            start in fullscreen mode;\n");
+        printf("  -r            recursive directory scan;\n");
+        printf("  -wz           enable wheel zoom;\n");
+        printf("  -C RRGGBB     background color in hex format;\n");
 
-void callbackMouse(GLFWwindow* /*window*/, double x, double y)
-{
-    m_viewer->fnMouse(x, y);
-}
+        printf("\nAvailable keys:\n");
+        printf("  <esc>         exit;\n");
+        printf("  <space>       next image;\n");
+        printf("  <backspace>   previous image;\n");
+        printf("  <+> / <->     scale image;\n");
+        printf("  <1>...<0>     set scale from 100%% to 1000%%;\n");
+        printf("  <pgdn>        next image in multi-page image;\n");
+        printf("  <pgup>        previous image in multi-page image;\n");
+        printf("  <enter>       switch fullscreen / windowed mode;\n");
+        printf("  <ctrl>+<del>  delete image from disk;\n");
+        printf("  <s>           fit image to window (quick algorithm);\n");
+        printf("  <r>           rotate clockwise;\n");
+        printf("  <shift>+<r>   rotate counterclockwise;\n");
+        printf("  <c>           hide / show chequerboard;\n");
+        printf("  <i>           hide / show on screen info;\n");
+        printf("  <p>           hide / show pixel info;\n");
+        printf("  <b>           hide / show border around image;\n");
+        printf("\n");
+    }
 
-void callbackMouseScroll(GLFWwindow* /*window*/, double x, double y)
-{
-    m_viewer->fnMouseScroll(x, y);
-}
+    void callbackResize(GLFWwindow* /*window*/, int width, int height)
+    {
+        m_viewer->fnResize(width, height);
+    }
 
-void callbackDrop(GLFWwindow* /*window*/, int count, const char** paths)
-{
-    m_viewer->addPaths(paths, count);
-}
+    void callbackPosition(GLFWwindow* /*window*/, int x, int y)
+    {
+        m_viewer->fnPosition(x, y);
+    }
 
-void setup(GLFWwindow* window)
-{
-    glfwMakeContextCurrent(window);
-    glfwSwapInterval(1);
+    void callbackRedraw(GLFWwindow* /*window*/)
+    {
+        m_viewer->render();
+    }
 
-    glfwSetWindowSizeCallback(window, callbackResize);
-    //glfwSetFramebufferSizeCallback(window, callbackResize);
-    glfwSetWindowPosCallback(window, callbackPosition);
+    void callbackKeyboard(GLFWwindow* /*window*/, int key, int scancode, int action, int mods)
+    {
+        m_viewer->fnKeyboard(key, scancode, action, mods);
+    }
 
-    glfwSetWindowRefreshCallback(window, callbackRedraw);
+    void callbackMouseButtons(GLFWwindow* /*window*/, int button, int action, int mods)
+    {
+        m_viewer->fnMouseButtons(button, action, mods);
+    }
 
-    glfwSetKeyCallback(window, callbackKeyboard);
+    void callbackMouse(GLFWwindow* /*window*/, double x, double y)
+    {
+        m_viewer->fnMouse(x, y);
+    }
 
-    glfwSetInputMode(window, GLFW_STICKY_MOUSE_BUTTONS, 1);
-    glfwSetMouseButtonCallback(window, callbackMouseButtons);
-    glfwSetCursorPosCallback(window, callbackMouse);
-    glfwSetScrollCallback(window, callbackMouseScroll);
+    void callbackMouseScroll(GLFWwindow* /*window*/, double x, double y)
+    {
+        m_viewer->fnMouseScroll(x, y);
+    }
 
-    glfwSetDropCallback(window, callbackDrop);
+    void callbackDrop(GLFWwindow* /*window*/, int count, const char** paths)
+    {
+        m_viewer->addPaths(paths, count);
+    }
+
+    void setup(GLFWwindow* window)
+    {
+        glfwMakeContextCurrent(window);
+        glfwSwapInterval(1);
+
+        glfwSetWindowSizeCallback(window, callbackResize);
+        //glfwSetFramebufferSizeCallback(window, callbackResize);
+        glfwSetWindowPosCallback(window, callbackPosition);
+
+        glfwSetWindowRefreshCallback(window, callbackRedraw);
+
+        glfwSetKeyCallback(window, callbackKeyboard);
+
+        glfwSetInputMode(window, GLFW_STICKY_MOUSE_BUTTONS, 1);
+        glfwSetMouseButtonCallback(window, callbackMouseButtons);
+        glfwSetCursorPosCallback(window, callbackMouse);
+        glfwSetScrollCallback(window, callbackMouseScroll);
+
+        glfwSetDropCallback(window, callbackDrop);
+    }
+
 }
 
 int main(int argc, char* argv[])
@@ -90,7 +132,7 @@ int main(int argc, char* argv[])
     setlocale(LC_ALL, "");
 
     printf("%s v%.2f\n\n", SimpleViewerTitle, SimpleViewerVersion);
-    printf("Copyright © 2008-2016 Andrey A. Ugolnik. All Rights Reserved.\n");
+    printf("Copyright © 2008-2017 Andrey A. Ugolnik. All Rights Reserved.\n");
     printf("http://www.ugolnik.info\n");
     printf("andrey@ugolnik.info\n\n");
 
@@ -239,43 +281,4 @@ int main(int argc, char* argv[])
     }
 
     return 0;
-}
-
-void showHelp(const char* name)
-{
-    const char* p = strrchr(name, '/');
-
-    printf("\nUsage:\n");
-    printf("  %s [OPTION]... FILE\n", (p != nullptr ? p + 1 : name));
-    printf("  -h, --help    show this help;\n");
-    printf("  -s            enable scale to window;\n");
-    printf("  -cw           center window;\n");
-    printf("  -a            do not filter by file ext;\n");
-    printf("  -c            disable chequerboard;\n");
-    printf("  -i            disable on screen info;\n");
-    printf("  -p            show pixel info (pixel color and coordinates);\n");
-    printf("  -b            show border around image;\n");
-    printf("  -f            start in fullscreen mode;\n");
-    printf("  -r            recursive directory scan;\n");
-    printf("  -wz           enable wheel zoom;\n");
-    printf("  -C RRGGBB     background color in hex format;\n");
-
-    printf("\nAvailable keys:\n");
-    printf("  <esc>         exit;\n");
-    printf("  <space>       next image;\n");
-    printf("  <backspace>   previous image;\n");
-    printf("  <+> / <->     scale image;\n");
-    printf("  <1>...<0>     set scale from 100%% to 1000%%;\n");
-    printf("  <pgdn>        next image in multi-page image;\n");
-    printf("  <pgup>        previous image in multi-page image;\n");
-    printf("  <enter>       switch fullscreen / windowed mode;\n");
-    printf("  <ctrl>+<del>  delete image from disk;\n");
-    printf("  <s>           fit image to window (quick algorithm);\n");
-    printf("  <r>           rotate clockwise;\n");
-    printf("  <shift>+<r>   rotate counterclockwise;\n");
-    printf("  <c>           hide / show chequerboard;\n");
-    printf("  <i>           hide / show on screen info;\n");
-    printf("  <p>           hide / show pixel info;\n");
-    printf("  <b>           hide / show border around image;\n");
-    printf("\n");
 }

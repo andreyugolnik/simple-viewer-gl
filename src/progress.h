@@ -49,5 +49,4 @@ private:
 
     unsigned m_index;
     float m_time;
-    float m_alpha;
 };
