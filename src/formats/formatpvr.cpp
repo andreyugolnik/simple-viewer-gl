@@ -14,155 +14,171 @@
 
 #include <cstring>
 
-enum PVRPixelFormat
+namespace
 {
-    RGBPVRTC2  = 0,
-    RGBAPVRTC2 = 1,
-    RGBPVRTC4  = 2,
-    RGBAPVRTC4 = 3,
 
-    PREMULTIPLIEDALPHAMASK = 0x2,
-    FORMATMASK             = 0xFFFFFFFF00000000,
+    enum PVRPixelFormat
+    {
+        RGBPVRTC2  = 0,
+        RGBAPVRTC2 = 1,
+        RGBPVRTC4  = 2,
+        RGBAPVRTC4 = 3,
 
-    RGBA8888               = 0x0808080861626772,
-    BGRA8888               = 0x0808080861726762,
-    RGB888                 = 0x0008080800626772,
-    RGBA4444               = 0x0404040461626772,
-    ARGB4444               = 0x0404040462677261,
-    RGB565                 = 0x0005060500626772,
-    RGBA5551               = 0x0105050561626772,
-    ARGB1555               = 0x0505050162677261,
-    A8                     = 0x0800000061,
-    LA8                    = 0x08080000616C,
-    L8                     = 0x00080000006C,
-};
+        PREMULTIPLIEDALPHAMASK = 0x2,
+        FORMATMASK             = 0xFFFFFFFF00000000,
 
-//enum PVRConversionFlags
-//{
-    //None,
-    //RGBA44442ARGB4444 = 0x1,
-    //RGBA44442RGBA8888 = 0x2,
-    //RGB5652RGBA8888   = 0x4,
-    //RGBA55512ARGB1555 = 0x8,
-    //RGBA55512RGBA8888 = 0x10,
-    //RGBA88882BGRA8888 = 0x20
+        RGBA8888               = 0x0808080861626772,
+        BGRA8888               = 0x0808080861726762,
+        RGB888                 = 0x0008080800626772,
+        RGBA4444               = 0x0404040461626772,
+        ARGB4444               = 0x0404040462677261,
+        RGB565                 = 0x0005060500626772,
+        RGBA5551               = 0x0105050561626772,
+        ARGB1555               = 0x0505050162677261,
+        A8                     = 0x0800000061,
+        LA8                    = 0x08080000616C,
+        L8                     = 0x00080000006C,
+    };
 
-//};
-
-struct PVRTexHeader
-{
-    uint32_t version;
-    uint32_t flags;
-    uint32_t pixels_format;
-    uint32_t pixels_format2;
-    uint32_t colorspace;
-    uint32_t channel_type;
-    uint32_t height;
-    uint32_t width;
-    uint32_t depth;
-    uint32_t num_surfaces;
-    uint32_t num_faces;
-    uint32_t mipmap_count;
-    uint32_t metadata_size;
-};
-
-//static void ConvertRgba4444ToRgba8888(Buffer& buffer, unsigned width, unsigned height)
-//{
-    //Buffer rgba(width * height * 4);
-
-    //uint16_t* in = (uint16_t*)&buffer[0];
-    //uint32_t* out = (uint32_t*)&rgba[0];
-
-    //for(unsigned i = 0, size = width * height; i < size; i++)
+    //enum PVRConversionFlags
     //{
-        //const uint16_t value = in[i];
+        //None,
+        //RGBA44442ARGB4444 = 0x1,
+        //RGBA44442RGBA8888 = 0x2,
+        //RGB5652RGBA8888   = 0x4,
+        //RGBA55512ARGB1555 = 0x8,
+        //RGBA55512RGBA8888 = 0x10,
+        //RGBA88882BGRA8888 = 0x20
 
-        //const uint32_t r = ((value >> 12) & 0xF) * 17;
-        //const uint32_t g = (((value >> 8) & 0xF) * 17) << 8;
-        //const uint32_t b = (((value >> 4) & 0xF) * 17) << 16;
-        //const uint32_t a = ((value & 0xF) * 17) << 24;
+    //};
 
-        //out[i] = r | g | b | a;
+    struct PVRTexHeader
+    {
+        uint32_t version;
+        uint32_t flags;
+        uint32_t pixels_format;
+        uint32_t pixels_format2;
+        uint32_t colorspace;
+        uint32_t channel_type;
+        uint32_t height;
+        uint32_t width;
+        uint32_t depth;
+        uint32_t num_surfaces;
+        uint32_t num_faces;
+        uint32_t mipmap_count;
+        uint32_t metadata_size;
+    };
+
+    //static void ConvertRgba4444ToRgba8888(Buffer& buffer, unsigned width, unsigned height)
+    //{
+        //Buffer rgba(width * height * 4);
+
+        //uint16_t* in = (uint16_t*)&buffer[0];
+        //uint32_t* out = (uint32_t*)&rgba[0];
+
+        //for(unsigned i = 0, size = width * height; i < size; i++)
+        //{
+            //const uint16_t value = in[i];
+
+            //const uint32_t r = ((value >> 12) & 0xF) * 17;
+            //const uint32_t g = (((value >> 8) & 0xF) * 17) << 8;
+            //const uint32_t b = (((value >> 4) & 0xF) * 17) << 16;
+            //const uint32_t a = ((value & 0xF) * 17) << 24;
+
+            //out[i] = r | g | b | a;
+        //}
+
+        //std::swap(buffer, rgba);
     //}
 
-    //std::swap(buffer, rgba);
-//}
-
-//static void ConvertRgb565ToRgba8888(Buffer& buffer, unsigned width, unsigned height)
-//{
-    //Buffer rgba(width * height * 4);
-
-    //uint16_t* in = (uint16_t*)&buffer[0];
-    //uint32_t* out = (uint32_t*)&rgba[0];
-
-    //for(unsigned i = 0, size = width * height; i < size; i++)
+    //static void ConvertRgb565ToRgba8888(Buffer& buffer, unsigned width, unsigned height)
     //{
-        //uint16_t value = in[i];
+        //Buffer rgba(width * height * 4);
 
-        //uint32_t r = value & 0xF800;
-        //r = (r >> 8 | r >> 13);
-        //uint32_t g = value & 0x7E0;
-        //g = (g >> 3 | g >> 9) << 8;
-        //uint32_t b = value & 0x1F;
-        //b = (b << 3 | b >> 2) << 16;
-        //const uint32_t a = 0xFF << 24;
+        //uint16_t* in = (uint16_t*)&buffer[0];
+        //uint32_t* out = (uint32_t*)&rgba[0];
 
-        //out[i] = r | g | b | a;
+        //for(unsigned i = 0, size = width * height; i < size; i++)
+        //{
+            //uint16_t value = in[i];
+
+            //uint32_t r = value & 0xF800;
+            //r = (r >> 8 | r >> 13);
+            //uint32_t g = value & 0x7E0;
+            //g = (g >> 3 | g >> 9) << 8;
+            //uint32_t b = value & 0x1F;
+            //b = (b << 3 | b >> 2) << 16;
+            //const uint32_t a = 0xFF << 24;
+
+            //out[i] = r | g | b | a;
+        //}
+
+        //std::swap(buffer, rgba);
     //}
 
-    //std::swap(buffer, rgba);
-//}
-
-//static void ConvertRgba5551ToArgb1555Inplace(Buffer& buffer, unsigned width, unsigned height)
-//{
-    //uint16_t* inOut = (uint16_t*)&buffer[0];
-    //for(unsigned i = 0, size = width * height; i < size; i++)
+    //static void ConvertRgba5551ToArgb1555Inplace(Buffer& buffer, unsigned width, unsigned height)
     //{
-        //uint16_t value = inOut[i];
-        //value = (uint16_t)(((value >> 1) & 0x7FFF) | (value << 15));
-        //inOut[i] = value;
-    //}
-//}
-
-//static void ConvertRgba4444ToArgb4444Inplace(Buffer& buffer, unsigned width, unsigned height)
-//{
-    //uint16_t* inOut = (uint16_t*)&buffer[0];
-    //for(unsigned i = 0, size = width * height; i < size; i++)
-    //{
-        //uint16_t value = inOut[i];
-        //value = (uint16_t)(((value >> 4) & 0x0FFF) | (value << 12));
-        //inOut[i] = value;
-    //}
-//}
-
-//static void ConvertRgba5551ToRgba8888(Buffer& buffer, unsigned width, unsigned height)
-//{
-    //Buffer rgba(width * height * 4);
-
-    //uint16_t* in = (uint16_t*)&buffer[0];
-    //uint32_t* out = (uint32_t*)&rgba[0];
-
-    //for(unsigned i = 0, size = width * height; i < size; i++)
-    //{
-        //uint16_t value = in[i];
-        //uint32_t r = (value & 0xF800);
-        //r = (r >> 8 | r >> 13);
-        //uint32_t g = (value & 0x7C0);
-        //g = (g << 5 | g) & 0xFF00;
-        //uint32_t b = (value & 0x3E);
-        //b = (b << 18 | b << 13) & 0xFF0000;
-        //uint32_t a = ((value & 0x1) * 255) << 24;
-
-        //out[i] = r | g | b | a;
+        //uint16_t* inOut = (uint16_t*)&buffer[0];
+        //for(unsigned i = 0, size = width * height; i < size; i++)
+        //{
+            //uint16_t value = inOut[i];
+            //value = (uint16_t)(((value >> 1) & 0x7FFF) | (value << 15));
+            //inOut[i] = value;
+        //}
     //}
 
-    //std::swap(buffer, rgba);
-//}
+    //static void ConvertRgba4444ToArgb4444Inplace(Buffer& buffer, unsigned width, unsigned height)
+    //{
+        //uint16_t* inOut = (uint16_t*)&buffer[0];
+        //for(unsigned i = 0, size = width * height; i < size; i++)
+        //{
+            //uint16_t value = inOut[i];
+            //value = (uint16_t)(((value >> 4) & 0x0FFF) | (value << 12));
+            //inOut[i] = value;
+        //}
+    //}
 
+    //static void ConvertRgba5551ToRgba8888(Buffer& buffer, unsigned width, unsigned height)
+    //{
+        //Buffer rgba(width * height * 4);
 
+        //uint16_t* in = (uint16_t*)&buffer[0];
+        //uint32_t* out = (uint32_t*)&rgba[0];
 
-cFormatPvr::cFormatPvr(const char* lib, const char* name, iCallbacks* callbacks)
-    : CFormat(lib, name, callbacks)
+        //for(unsigned i = 0, size = width * height; i < size; i++)
+        //{
+            //uint16_t value = in[i];
+            //uint32_t r = (value & 0xF800);
+            //r = (r >> 8 | r >> 13);
+            //uint32_t g = (value & 0x7C0);
+            //g = (g << 5 | g) & 0xFF00;
+            //uint32_t b = (value & 0x3E);
+            //b = (b << 18 | b << 13) & 0xFF0000;
+            //uint32_t a = ((value & 0x1) * 255) << 24;
+
+            //out[i] = r | g | b | a;
+        //}
+
+        //std::swap(buffer, rgba);
+    //}
+
+    bool isZpvr(cFile& file)
+    {
+        uint8_t header[4];
+        if (sizeof(header) == file.read(header, sizeof(header)))
+        {
+            if (::memcmp(header, "ZPVR", 4) == 0)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+}
+
+cFormatPvr::cFormatPvr(const char* lib, iCallbacks* callbacks)
+    : cFormat(lib, callbacks)
 {
 }
 
@@ -170,22 +186,9 @@ cFormatPvr::~cFormatPvr()
 {
 }
 
-static bool isZpvr(cFile& file)
-{
-    uint8_t header[4];
-    if(sizeof(header) == file.read(header, sizeof(header)))
-    {
-        if(::memcmp(header, "ZPVR", 4) == 0)
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
 bool cFormatPvr::isSupported(cFile& file, Buffer& buffer) const
 {
-    if(!helpers::readBuffer(file, buffer, 4))
+    if (!helpers::readBuffer(file, buffer, 4))
     {
         return false;
     }
@@ -196,46 +199,51 @@ bool cFormatPvr::isSupported(cFile& file, Buffer& buffer) const
 bool cFormatPvr::LoadImpl(const char* filename, sBitmapDescription& desc)
 {
     cFile file;
-    if(!file.open(filename))
+    if (!file.open(filename))
     {
         return false;
     }
 
     desc.size = file.getSize();
 
-    if(isZpvr(file))
+    if (isZpvr(file))
     {
+        m_formatName = "zpvr";
+
         cFileZlib zip(&file);
         return readPvr(zip, desc);
     }
+
     file.seek(0, SEEK_SET);
+    m_formatName = "pvr";
+
     return readPvr(file, desc);
 }
 
 bool cFormatPvr::readPvr(cFileInterface& file, sBitmapDescription& desc)
 {
     PVRTexHeader header;
-    if(sizeof(header) != file.read(&header, sizeof(header)))
+    if (sizeof(header) != file.read(&header, sizeof(header)))
     {
-        printf("Can't read PVR header.\n");
+        ::printf("(EE) Can't read PVR header.\n");
         return false;
     }
 
-    printf("version: %u\n", header.version);
-    printf("flags: %u\n", header.flags);
-    printf("format: 0x%x\n", header.pixels_format);
-    printf("format: 0x%x\n", header.pixels_format2);
-    printf("colorspace: %u\n", header.colorspace);
-    printf("channel_type: %u\n", header.channel_type);
-    printf("height: %u\n", header.height);
-    printf("width: %u\n", header.width);
-    printf("depth: %u\n", header.depth);
-    printf("num_surfaces: %u\n", header.num_surfaces);
-    printf("num_faces: %u\n", header.num_faces);
-    printf("mipmap_count: %u\n", header.mipmap_count);
-    printf("metadata_size: %u\n", header.metadata_size);
+    // ::printf("version: %u\n", header.version);
+    // ::printf("flags: %u\n", header.flags);
+    // ::printf("format: 0x%x\n", header.pixels_format);
+    // ::printf("format: 0x%x\n", header.pixels_format2);
+    // ::printf("colorspace: %u\n", header.colorspace);
+    // ::printf("channel_type: %u\n", header.channel_type);
+    // ::printf("height: %u\n", header.height);
+    // ::printf("width: %u\n", header.width);
+    // ::printf("depth: %u\n", header.depth);
+    // ::printf("num_surfaces: %u\n", header.num_surfaces);
+    // ::printf("num_faces: %u\n", header.num_faces);
+    // ::printf("mipmap_count: %u\n", header.mipmap_count);
+    // ::printf("metadata_size: %u\n", header.metadata_size);
 
-    if(header.metadata_size > 0)
+    if (header.metadata_size > 0)
     {
         std::vector<char> dummy(header.metadata_size);
         file.read(&dummy[0], dummy.size());
@@ -244,9 +252,9 @@ bool cFormatPvr::readPvr(cFileInterface& file, sBitmapDescription& desc)
     unsigned bytes = 0;
 
     const uint64_t pixelFormat = ((uint64_t)header.pixels_format2 << 32 | header.pixels_format);
-    if((pixelFormat & PVRPixelFormat::FORMATMASK) != 0)
+    if ((pixelFormat & PVRPixelFormat::FORMATMASK) != 0)
     {
-        switch(pixelFormat)
+        switch (pixelFormat)
         {
         case (uint64_t)PVRPixelFormat::RGB888:
             bytes    = 3;
@@ -296,23 +304,23 @@ bool cFormatPvr::readPvr(cFileInterface& file, sBitmapDescription& desc)
     }
     else
     {
-        printf("Unsupported format.\n");
+        ::printf("(EE) Unsupported format.\n");
         return false;
 
         //const PVRPixelFormat format = (PVRPixelFormat)pixelFormat;
         //switch(format)
         //{
         //case PVRPixelFormat::RGBPVRTC2:
-            //printf("SurfaceFormat.RgbPvrtc2\n");
+            //::printf("SurfaceFormat.RgbPvrtc2\n");
             //break;
         //case PVRPixelFormat::RGBAPVRTC2:
-            //printf("SurfaceFormat.RgbaPvrtc2\n");
+            //::printf("SurfaceFormat.RgbaPvrtc2\n");
             //break;
         //case PVRPixelFormat::RGBPVRTC4:
-            //printf("SurfaceFormat.RgbPvrtc4\n");
+            //::printf("SurfaceFormat.RgbPvrtc4\n");
             //break;
         //case PVRPixelFormat::RGBAPVRTC4:
-            //printf("SurfaceFormat.RgbaPvrtc4\n");
+            //::printf("SurfaceFormat.RgbaPvrtc4\n");
             //break;
         //}
     }
@@ -325,9 +333,9 @@ bool cFormatPvr::readPvr(cFileInterface& file, sBitmapDescription& desc)
 
     const unsigned size = desc.pitch * desc.height;
     desc.bitmap.resize(size);
-    if(size != file.read(&desc.bitmap[0], size))
+    if (size != file.read(desc.bitmap.data(), size))
     {
-        printf("Unexpected EOF.\n");
+        ::printf("(EE) Unexpected EOF.\n");
         return false;
     }
 
@@ -376,4 +384,3 @@ bool cFormatPvr::readPvr(cFileInterface& file, sBitmapDescription& desc)
 
     return true;
 }
-

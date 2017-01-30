@@ -13,11 +13,11 @@
 
 #include <string>
 
-class CFormatTiff final : public CFormat
+class cFormatTiff final : public cFormat
 {
 public:
-    CFormatTiff(const char* lib, const char* name, iCallbacks* callbacks);
-    ~CFormatTiff();
+    cFormatTiff(const char* lib, iCallbacks* callbacks);
+    ~cFormatTiff();
 
 private:
     bool LoadImpl(const char* filename, sBitmapDescription& desc) override;

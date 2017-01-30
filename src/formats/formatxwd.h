@@ -16,11 +16,11 @@ struct X11WindowDump;
 
 class cFile;
 
-class CFormatXwd final : public CFormat
+class cFormatXwd final : public cFormat
 {
 public:
-    CFormatXwd(const char* lib, const char* name, iCallbacks* callbacks);
-    ~CFormatXwd();
+    cFormatXwd(const char* lib, iCallbacks* callbacks);
+    ~cFormatXwd();
 
 private:
     bool LoadImpl(const char* filename, sBitmapDescription& desc) override;

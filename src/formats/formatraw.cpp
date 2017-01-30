@@ -15,42 +15,62 @@
 
 #include <cstring>
 
-static const char Id[] = { 'R', 'A', 'W', 'I' };
-
-enum eFormat
+namespace
 {
-    FORMAT_UNKNOWN,
-    FORMAT_RGB,
-    FORMAT_RGBA,
-    FORMAT_RGB_RLE,
-    FORMAT_RGBA_RLE,
-    FORMAT_RGB_RLE4,
-    FORMAT_RGBA_RLE4
-};
 
-struct sHeader
-{
-    unsigned id;
-    unsigned w;
-    unsigned h;
-    unsigned format;
-    unsigned data_size;
-};
+    const char Id[] = { 'R', 'A', 'W', 'I' };
 
-static bool isValidFormat(const sHeader& header, unsigned file_size)
-{
-    if (header.data_size + sizeof(sHeader) == file_size)
+    enum eFormat
     {
-        const char* id = (const char*)&header.id;
-        return (id[0] == Id[0] && id[1] == Id[1] && id[2] == Id[2] && id[3] == Id[3]);
+        FORMAT_UNKNOWN,
+        FORMAT_RGB,
+        FORMAT_RGBA,
+        FORMAT_RGB_RLE,
+        FORMAT_RGBA_RLE,
+        FORMAT_RGB_RLE4,
+        FORMAT_RGBA_RLE4
+    };
+
+    struct sHeader
+    {
+        unsigned id;
+        unsigned w;
+        unsigned h;
+        unsigned format;
+        unsigned data_size;
+    };
+
+    bool isValidFormat(const sHeader& header, unsigned file_size)
+    {
+        if (header.data_size + sizeof(sHeader) == file_size)
+        {
+            const char* id = (const char*)&header.id;
+            return (id[0] == Id[0] && id[1] == Id[1] && id[2] == Id[2] && id[3] == Id[3]);
+        }
+        return false;
     }
-    return false;
+
+    //bool cFormatRaw::isRawFormat(const char* name)
+    //{
+    //cFile file;
+    //if(!file.open(name))
+    //{
+    //return false;
+    //}
+
+    //sHeader header;
+    //if(sizeof(header) != file.read(&header, sizeof(header)))
+    //{
+    //return false;
+    //}
+
+    //return isValidFormat(header, file.getSize());
+    //}
+
 }
 
-
-
-cFormatRaw::cFormatRaw(const char* lib, const char* name, iCallbacks* callbacks)
-    : CFormat(lib, name, callbacks)
+cFormatRaw::cFormatRaw(const char* lib, iCallbacks* callbacks)
+    : cFormat(lib, callbacks)
 {
 }
 
@@ -69,23 +89,6 @@ bool cFormatRaw::isSupported(cFile& file, Buffer& buffer) const
     return isValidFormat(header, file.getSize());
 }
 
-//bool cFormatRaw::isRawFormat(const char* name)
-//{
-//cFile file;
-//if(!file.open(name))
-//{
-//return false;
-//}
-
-//sHeader header;
-//if(sizeof(header) != file.read(&header, sizeof(header)))
-//{
-//return false;
-//}
-
-//return isValidFormat(header, file.getSize());
-//}
-
 bool cFormatRaw::LoadImpl(const char* filename, sBitmapDescription& desc)
 {
     cFile file;
@@ -99,7 +102,7 @@ bool cFormatRaw::LoadImpl(const char* filename, sBitmapDescription& desc)
     sHeader header;
     if (sizeof(header) != file.read(&header, sizeof(header)))
     {
-        printf("not valid RAW format\n");
+        ::printf("(EE) Not valid RAW format.\n");
         return false;
     }
 
@@ -129,7 +132,7 @@ bool cFormatRaw::LoadImpl(const char* filename, sBitmapDescription& desc)
         bytespp = 4;
         break;
     default:
-        printf("unknown RAW format\n");
+        ::printf("(EE) Unknown RAW format.\n");
         return false;
     }
     desc.bpp = desc.bppImage = bytespp * 8;
@@ -163,7 +166,7 @@ bool cFormatRaw::LoadImpl(const char* filename, sBitmapDescription& desc)
         }
         if (!decoded)
         {
-            printf("error decode RLE\n");
+            ::printf("(EE) Error decode RLE.\n");
             return false;
         }
 
@@ -180,6 +183,8 @@ bool cFormatRaw::LoadImpl(const char* filename, sBitmapDescription& desc)
             updateProgress((float)y / desc.height);
         }
     }
+
+    m_formatName = "raw";
 
     return true;
 }

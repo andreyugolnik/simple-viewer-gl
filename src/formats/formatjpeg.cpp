@@ -15,12 +15,12 @@
 #include <jpeglib.h>
 #include <setjmp.h>
 
-CFormatJpeg::CFormatJpeg(const char* lib, const char* name, iCallbacks* callbacks)
-    : CFormat(lib, name, callbacks)
+cFormatJpeg::cFormatJpeg(const char* lib, iCallbacks* callbacks)
+    : cFormat(lib, callbacks)
 {
 }
 
-CFormatJpeg::~CFormatJpeg()
+cFormatJpeg::~cFormatJpeg()
 {
 }
 
@@ -43,7 +43,7 @@ void my_error_exit(j_common_ptr cinfo)
     longjmp(myerr->setjmp_buffer, 1);
 }
 
-bool CFormatJpeg::LoadImpl(const char* filename, sBitmapDescription& desc)
+bool cFormatJpeg::LoadImpl(const char* filename, sBitmapDescription& desc)
 {
     cFile file;
     if (!file.open(filename))
@@ -57,7 +57,7 @@ bool CFormatJpeg::LoadImpl(const char* filename, sBitmapDescription& desc)
 
     // This struct contains the JPEG decompression parameters and pointers to
     // working space (which is allocated as needed by the JPEG library).
-    struct jpeg_decompress_struct cinfo;
+    jpeg_decompress_struct cinfo;
 
     /* We use our private extension JPEG error handler.
      * Note that this struct must live as long as the main JPEG parameter
@@ -140,6 +140,8 @@ bool CFormatJpeg::LoadImpl(const char* filename, sBitmapDescription& desc)
     /* At this point you may want to check to see whether any corrupt-data
      * warnings occurred (test whether jerr.pub.num_warnings is nonzero).
      */
+
+    m_formatName = "jpeg";
 
     return true;
 }

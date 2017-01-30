@@ -15,10 +15,10 @@ class iCallbacks;
 class cFile;
 struct sBitmapDescription;
 
-class CFormat
+class cFormat
 {
 public:
-    virtual ~CFormat();
+    virtual ~cFormat();
 
     virtual bool isSupported(cFile& /*file*/, Buffer& /*buffer*/) const
     {
@@ -43,7 +43,7 @@ public:
     virtual void dumpFormat();
 
 protected:
-    CFormat(const char* libName, const char* formatName, iCallbacks* callbacks);
+    cFormat(const char* libName, iCallbacks* callbacks);
 
 private:
     virtual bool LoadImpl(const char* filename, sBitmapDescription& desc) = 0;
@@ -57,7 +57,7 @@ private:
     float m_percent = 0.0f;
 
 protected:
-    const char* m_formatName;
+    const char* m_formatName = nullptr;
     void* m_lib = nullptr;
     bool m_stop = false;
 

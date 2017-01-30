@@ -11,10 +11,10 @@
 
 #include "format.h"
 
-class cFormatWebP final : public CFormat
+class cFormatWebP final : public cFormat
 {
 public:
-    cFormatWebP(const char* lib, const char* name, iCallbacks* callbacks);
+    cFormatWebP(const char* lib, iCallbacks* callbacks);
     ~cFormatWebP();
 
 private:

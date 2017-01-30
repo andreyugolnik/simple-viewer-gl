@@ -11,11 +11,11 @@
 
 #include "format.h"
 
-class CFormatJpeg final : public CFormat
+class cFormatJpeg final : public cFormat
 {
 public:
-    CFormatJpeg(const char* lib, const char* name, iCallbacks* callbacks);
-    ~CFormatJpeg();
+    cFormatJpeg(const char* lib, iCallbacks* callbacks);
+    ~cFormatJpeg();
 
 private:
     bool LoadImpl(const char* filename, sBitmapDescription& desc) override;

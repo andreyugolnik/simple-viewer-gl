@@ -11,20 +11,19 @@
 #include "../common/bitmap_description.h"
 #include "../common/file.h"
 
+#include <cstring>
 #include <png.h>
-#include <string.h>
-#include <iostream>
 
-CFormatPng::CFormatPng(const char* lib, const char* name, iCallbacks* callbacks)
-    : CFormat(lib, name, callbacks)
+cFormatPng::cFormatPng(const char* lib, iCallbacks* callbacks)
+    : cFormat(lib, callbacks)
 {
 }
 
-CFormatPng::~CFormatPng()
+cFormatPng::~cFormatPng()
 {
 }
 
-bool CFormatPng::LoadImpl(const char* filename, sBitmapDescription& desc)
+bool cFormatPng::LoadImpl(const char* filename, sBitmapDescription& desc)
 {
     cFile file;
     if (!file.open(filename))
@@ -35,31 +34,31 @@ bool CFormatPng::LoadImpl(const char* filename, sBitmapDescription& desc)
     desc.size = file.getSize();
 
     png_byte header[8]; // 8 is the maximum size that can be checked
-    size_t size = file.read(header, 8);
+    auto size = file.read(header, 8);
     if (size != 8 || png_sig_cmp(header, 0, 8) != 0)
     {
-        std::cout << "File " << filename << " is not recognized as a PNG file" << std::endl;
+        ::printf("(EE) File '%s' is not recognized as a PNG file.\n", filename);
         return false;
     }
 
     // initialize stuff
-    png_structp png = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-    if (png == 0)
+    auto png = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+    if (png == nullptr)
     {
-        std::cout << "png_create_read_struct failed" << std::endl;
+        ::printf("(EE) png_create_read_struct failed.\n");
         return false;
     }
 
-    png_infop info = png_create_info_struct(png);
-    if (info == 0)
+    auto info = png_create_info_struct(png);
+    if (info == nullptr)
     {
-        std::cout << "png_create_info_struct failed" << std::endl;
+        ::printf("(EE) png_create_info_struct failed.\n");
         return false;
     }
 
     if (setjmp(png_jmpbuf(png)) != 0)
     {
-        std::cout << "Error during init_io" << std::endl;
+        ::printf("(EE) Error during init_io.\n");
         return false;
     }
 
@@ -101,7 +100,7 @@ bool CFormatPng::LoadImpl(const char* filename, sBitmapDescription& desc)
     // read file
     if (setjmp(png_jmpbuf(png)) != 0)
     {
-        std::cout << "Error during read_image" << std::endl;
+        ::printf("(EE) Error during read_image.\n");
         return false;
     }
 
@@ -162,12 +161,14 @@ bool CFormatPng::LoadImpl(const char* filename, sBitmapDescription& desc)
         {
             delete[] row_pointers[y];
         }
-        std::cout << "Should't be happened" << std::endl;
+        ::printf("(EE) Should't be happened.\n");
     }
 
     delete[] row_pointers;
 
-    png_destroy_read_struct(&png, &info, NULL);
+    png_destroy_read_struct(&png, &info, nullptr);
+
+    m_formatName = "png";
 
     return true;
 }

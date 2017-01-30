@@ -13,16 +13,16 @@
 
 #include <cstring>
 
-CNotAvailable::CNotAvailable()
-    : CFormat(nullptr, "n/a", nullptr)
+cNotAvailable::cNotAvailable()
+    : cFormat(nullptr, nullptr)
 {
 }
 
-CNotAvailable::~CNotAvailable()
+cNotAvailable::~cNotAvailable()
 {
 }
 
-bool CNotAvailable::LoadImpl(const char* /*filename*/, sBitmapDescription& desc)
+bool cNotAvailable::LoadImpl(const char* /*filename*/, sBitmapDescription& desc)
 {
     desc.format   = imgNa.bytes_per_pixel == 3 ? GL_RGB : GL_RGBA;
     desc.width    = imgNa.width;
@@ -34,6 +34,8 @@ bool CNotAvailable::LoadImpl(const char* /*filename*/, sBitmapDescription& desc)
     const unsigned size = desc.pitch * desc.height;
     desc.bitmap.resize(size);
     ::memcpy(&desc.bitmap[0], imgNa.pixel_data, size);
+
+    m_formatName = "n/a";
 
     return true;
 }

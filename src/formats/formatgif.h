@@ -13,20 +13,17 @@
 
 #include <string>
 
-struct GifColorType;
-
-class CFormatGif final : public CFormat
+class cFormatGif final : public cFormat
 {
 public:
-    CFormatGif(const char* lib, const char* name, iCallbacks* callbacks);
-    ~CFormatGif();
+    cFormatGif(const char* lib, iCallbacks* callbacks);
+    ~cFormatGif();
 
 private:
     bool LoadImpl(const char* filename, sBitmapDescription& desc) override;
     bool LoadSubImageImpl(unsigned current, sBitmapDescription& desc) override;
 
     bool load(unsigned current, sBitmapDescription& desc);
-    void putPixel(sBitmapDescription& desc, int pos, const GifColorType* color, bool transparent);
 
 private:
     std::string m_filename;

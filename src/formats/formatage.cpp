@@ -17,36 +17,17 @@
 
 #include <cstring>
 
-static bool isValidFormat(const AGE::Header& header, unsigned file_size)
+namespace
 {
-    if (header.data_size + sizeof(AGE::Header) == file_size)
+
+    bool isValidFormat(const AGE::Header& header, unsigned file_size)
     {
-        return AGE::isRawHeader(header);
-    }
-    return false;
-}
-
-
-
-cFormatAge::cFormatAge(const char* lib, const char* name, iCallbacks* callbacks)
-    : CFormat(lib, name, callbacks)
-{
-}
-
-cFormatAge::~cFormatAge()
-{
-}
-
-bool cFormatAge::isSupported(cFile& file, Buffer& buffer) const
-{
-    if (!helpers::readBuffer(file, buffer, sizeof(AGE::Header)))
-    {
+        if (header.data_size + sizeof(AGE::Header) == file_size)
+        {
+            return AGE::isRawHeader(header);
+        }
         return false;
     }
-
-    auto header = (const AGE::Header*)&buffer[0];
-    return isValidFormat(*header, file.getSize());
-}
 
 //bool cFormatAge::isRawFormat(const char* name)
 //{
@@ -65,6 +46,28 @@ bool cFormatAge::isSupported(cFile& file, Buffer& buffer) const
 //return isValidFormat(header, file.getSize());
 //}
 
+}
+
+cFormatAge::cFormatAge(const char* lib, iCallbacks* callbacks)
+    : cFormat(lib, callbacks)
+{
+}
+
+cFormatAge::~cFormatAge()
+{
+}
+
+bool cFormatAge::isSupported(cFile& file, Buffer& buffer) const
+{
+    if (!helpers::readBuffer(file, buffer, sizeof(AGE::Header)))
+    {
+        return false;
+    }
+
+    auto header = (const AGE::Header*)&buffer[0];
+    return isValidFormat(*header, file.getSize());
+}
+
 bool cFormatAge::LoadImpl(const char* filename, sBitmapDescription& desc)
 {
     cFile file;
@@ -78,7 +81,7 @@ bool cFormatAge::LoadImpl(const char* filename, sBitmapDescription& desc)
     AGE::Header header;
     if (sizeof(header) != file.read(&header, sizeof(header)))
     {
-        printf("not valid AGE image format\n");
+        ::printf("(EE) Not valid AGE image format.\n");
         return false;
     }
 
@@ -103,7 +106,7 @@ bool cFormatAge::LoadImpl(const char* filename, sBitmapDescription& desc)
         desc.format = GL_RGBA;
         break;
     default:
-        printf("unknown AGE format\n");
+        ::printf("(EE) Unknown AGE format.\n");
         return false;
     }
 
@@ -133,9 +136,11 @@ bool cFormatAge::LoadImpl(const char* filename, sBitmapDescription& desc)
             decoded = decoder.decode(&in[0], in.size(), &desc.bitmap[0], desc.bitmap.size());
             if (!decoded)
             {
-                printf("error decode ZLIB\n");
+                ::printf("(EE) Error decode ZLIB.\n");
                 return false;
             }
+
+            m_formatName = "age/zlib";
         }
         else
         {
@@ -143,14 +148,18 @@ bool cFormatAge::LoadImpl(const char* filename, sBitmapDescription& desc)
             if (header.compression == AGE::Compression::RLE4)
             {
                 decoded = decoder.decodeBy4((unsigned*)&in[0], in.size() / 4, (unsigned*)&desc.bitmap[0], desc.bitmap.size() / 4);
+
+                m_formatName = "age/rle4";
             }
             else
             {
                 decoded = decoder.decode(&in[0], in.size(), &desc.bitmap[0], desc.bitmap.size());
+
+                m_formatName = "age/rle";
             }
             if (!decoded)
             {
-                printf("error decode RLE\n");
+                ::printf("(EE) Error decode RLE.\n");
                 return false;
             }
         }
@@ -167,6 +176,8 @@ bool cFormatAge::LoadImpl(const char* filename, sBitmapDescription& desc)
             }
             updateProgress((float)y / desc.height);
         }
+
+        m_formatName = "age/raw";
     }
 
     return true;

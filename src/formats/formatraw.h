@@ -11,14 +11,13 @@
 
 #include "format.h"
 
-class cFormatRaw final : public CFormat
+class cFormatRaw final : public cFormat
 {
 public:
-    cFormatRaw(const char* lib, const char* name, iCallbacks* callbacks);
+    cFormatRaw(const char* lib, iCallbacks* callbacks);
     ~cFormatRaw();
 
     virtual bool isSupported(cFile& file, Buffer& buffer) const override;
-    //bool isRawFormat(const char* name);
 
 private:
     bool LoadImpl(const char* filename, sBitmapDescription& desc) override;

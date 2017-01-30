@@ -16,25 +16,25 @@
 #include <cstring>
 #include <Imlib2.h>
 
-static CFormatCommon* g_this = nullptr;
+// static cFormatCommon* g_this = nullptr;
 
-static int callbackProgress(void* /*p*/, char percent, int /*a*/, int /*b*/, int /*c*/, int /*d*/)
+// static int callbackProgress(void* [>p*/, char percent, int /*a*/, int /*b*/, int /*c*/, int /*d<])
+// {
+    // g_this->updateProgress(percent * 0.01f);
+    // return 1;
+// }
+
+cFormatCommon::cFormatCommon(const char* lib, iCallbacks* callbacks)
+    : cFormat(lib, callbacks)
 {
-    g_this->updateProgress(percent * 0.01f);
-    return 1;
+    // g_this = this;
+    // imlib_context_set_progress_function(callbackProgress);
+    // imlib_context_set_progress_granularity(10); // update progress each 10%
 }
 
-CFormatCommon::CFormatCommon(const char* lib, const char* name, iCallbacks* callbacks)
-    : CFormat(lib, name, callbacks)
+cFormatCommon::~cFormatCommon()
 {
-    g_this = this;
-    imlib_context_set_progress_function(callbackProgress);
-    imlib_context_set_progress_granularity(10); // update progress each 10%
-}
-
-CFormatCommon::~CFormatCommon()
-{
-    g_this = nullptr;
+    // g_this = nullptr;
 }
 
 static const char* toErrorString(unsigned id)
@@ -65,7 +65,7 @@ static const char* toErrorString(unsigned id)
     return "not listed";
 }
 
-bool CFormatCommon::LoadImpl(const char* filename, sBitmapDescription& desc)
+bool cFormatCommon::LoadImpl(const char* filename, sBitmapDescription& desc)
 {
     cFile file;
     if (!file.open(filename))
@@ -80,7 +80,7 @@ bool CFormatCommon::LoadImpl(const char* filename, sBitmapDescription& desc)
     Imlib_Image image = imlib_load_image_with_error_return(filename, &error_return);
     if (image == nullptr)
     {
-        printf(": error loading file '%s' (error %s)\n"
+        ::printf("(EE) Error loading file '%s' (error %s)\n"
                , filename
                , toErrorString(error_return));
         return false;
@@ -95,7 +95,7 @@ bool CFormatCommon::LoadImpl(const char* filename, sBitmapDescription& desc)
     desc.bppImage = (imlib_image_has_alpha() == 1 ? 32 : 24);
 
     desc.bitmap.resize(desc.pitch * desc.height);
-    memcpy(&desc.bitmap[0], imlib_image_get_data_for_reading_only(), desc.bitmap.size());
+    ::memcpy(desc.bitmap.data(), imlib_image_get_data_for_reading_only(), desc.bitmap.size());
 
     desc.format = GL_BGRA;
 

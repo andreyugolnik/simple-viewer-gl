@@ -14,27 +14,27 @@
 #include <cstring>
 #include <tiffio.h>
 
-CFormatTiff::CFormatTiff(const char* lib, const char* name, iCallbacks* callbacks)
-    : CFormat(lib, name, callbacks)
+cFormatTiff::cFormatTiff(const char* lib, iCallbacks* callbacks)
+    : cFormat(lib, callbacks)
 {
 }
 
-CFormatTiff::~CFormatTiff()
+cFormatTiff::~cFormatTiff()
 {
 }
 
-bool CFormatTiff::LoadImpl(const char* filename, sBitmapDescription& desc)
+bool cFormatTiff::LoadImpl(const char* filename, sBitmapDescription& desc)
 {
     m_filename = filename;
     return load(0, desc);
 }
 
-bool CFormatTiff::LoadSubImageImpl(unsigned current, sBitmapDescription& desc)
+bool cFormatTiff::LoadSubImageImpl(unsigned current, sBitmapDescription& desc)
 {
     return load(current, desc);
 }
 
-bool CFormatTiff::load(unsigned current, sBitmapDescription& desc)
+bool cFormatTiff::load(unsigned current, sBitmapDescription& desc)
 {
     cFile file;
     if (!file.open(m_filename.c_str()))
@@ -48,8 +48,8 @@ bool CFormatTiff::load(unsigned current, sBitmapDescription& desc)
 
     bool result = false;
 
-    TIFF* tif = TIFFOpen(m_filename.c_str(), "r");
-    if (tif != 0)
+    auto tif = TIFFOpen(m_filename.c_str(), "r");
+    if (tif != nullptr)
     {
         // read count of pages in image
         desc.images = TIFFNumberOfDirectories(tif);
@@ -59,7 +59,7 @@ bool CFormatTiff::load(unsigned current, sBitmapDescription& desc)
         if (TIFFSetDirectory(tif, desc.current) != 0)
         {
             TIFFRGBAImage img;
-            if (TIFFRGBAImageBegin(&img, tif, 0, NULL) != 0)
+            if (TIFFRGBAImageBegin(&img, tif, 0, nullptr) != 0)
             {
                 desc.width = img.width;
                 desc.height = img.height;
@@ -72,19 +72,15 @@ bool CFormatTiff::load(unsigned current, sBitmapDescription& desc)
                 // set desired orientation
                 img.req_orientation = ORIENTATION_TOPLEFT;
 
-                if (TIFFRGBAImageGet(&img, (uint32*)&desc.bitmap[0], desc.width, desc.height) != 0)
-                {
-                    result = true;
-                }
+                result = TIFFRGBAImageGet(&img, (uint32*)desc.bitmap.data(), desc.width, desc.height) != 0;
                 TIFFRGBAImageEnd(&img);
             }
         }
-    }
 
-    if (tif != 0)
-    {
         TIFFClose(tif);
     }
+
+    m_formatName = "tiff";
 
     return result;
 }

@@ -11,10 +11,10 @@
 
 #include "format.h"
 
-class cFormatXpm final : public CFormat
+class cFormatXpm final : public cFormat
 {
 public:
-    cFormatXpm(const char* lib, const char* name, iCallbacks* callbacks);
+    cFormatXpm(const char* lib, iCallbacks* callbacks);
     ~cFormatXpm();
 
     bool isSupported(cFile& file, Buffer& buffer) const override;

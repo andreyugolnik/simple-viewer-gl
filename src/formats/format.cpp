@@ -14,9 +14,8 @@
 #include <cstdio>
 #include <dlfcn.h>
 
-CFormat::CFormat(const char* libName, const char* formatName, iCallbacks* callbacks)
+cFormat::cFormat(const char* libName, iCallbacks* callbacks)
     : m_callbacks(callbacks)
-    , m_formatName(formatName)
 {
     if (libName != nullptr)
     {
@@ -38,7 +37,7 @@ CFormat::CFormat(const char* libName, const char* formatName, iCallbacks* callba
     }
 }
 
-CFormat::~CFormat()
+cFormat::~cFormat()
 {
     if (m_lib != nullptr)
     {
@@ -46,19 +45,19 @@ CFormat::~CFormat()
     }
 }
 
-bool CFormat::Load(const char* filename, sBitmapDescription& desc)
+bool cFormat::Load(const char* filename, sBitmapDescription& desc)
 {
     m_stop = false;
     return LoadImpl(filename, desc);
 }
 
-bool CFormat::LoadSubImage(unsigned subImage, sBitmapDescription& desc)
+bool cFormat::LoadSubImage(unsigned subImage, sBitmapDescription& desc)
 {
     m_stop = false;
     return LoadSubImageImpl(subImage, desc);
 }
 
-void CFormat::dumpFormat()
+void cFormat::dumpFormat()
 {
     switch (m_support)
     {
@@ -76,7 +75,7 @@ void CFormat::dumpFormat()
     }
 }
 
-void CFormat::updateProgress(float percent)
+void cFormat::updateProgress(float percent)
 {
     assert(m_callbacks != nullptr);
     if (m_percent != percent)

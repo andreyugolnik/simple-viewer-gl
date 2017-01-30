@@ -11,10 +11,10 @@
 
 #include "format.h"
 
-class cFormatTarga final : public CFormat
+class cFormatTarga final : public cFormat
 {
 public:
-    cFormatTarga(const char* lib, const char* name, iCallbacks* callbacks);
+    cFormatTarga(const char* lib, iCallbacks* callbacks);
     ~cFormatTarga();
 
 private:

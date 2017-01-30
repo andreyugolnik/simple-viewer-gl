@@ -81,16 +81,16 @@ struct X11ColorMap
     uint8_t Padding;      /* WORD-align padding */
 };
 
-CFormatXwd::CFormatXwd(const char* lib, const char* name, iCallbacks* callbacks)
-    : CFormat(lib, name, callbacks)
+cFormatXwd::cFormatXwd(const char* lib, iCallbacks* callbacks)
+    : cFormat(lib, callbacks)
 {
 }
 
-CFormatXwd::~CFormatXwd()
+cFormatXwd::~cFormatXwd()
 {
 }
 
-bool CFormatXwd::LoadImpl(const char* filename, sBitmapDescription& desc)
+bool cFormatXwd::LoadImpl(const char* filename, sBitmapDescription& desc)
 {
     cFile file;
     if (!file.open(filename))
@@ -180,12 +180,14 @@ bool CFormatXwd::LoadImpl(const char* filename, sBitmapDescription& desc)
     return false;
 }
 
-bool CFormatXwd::loadX10(const X10WindowDump& header, cFile& file, sBitmapDescription& desc)
+bool cFormatXwd::loadX10(const X10WindowDump& header, cFile& file, sBitmapDescription& desc)
 {
+    m_formatName = "xwd10";
+
     return false;
 }
 
-bool CFormatXwd::loadX11(const X11WindowDump& header, cFile& file, sBitmapDescription& desc)
+bool cFormatXwd::loadX11(const X11WindowDump& header, cFile& file, sBitmapDescription& desc)
 {
     std::vector<X11ColorMap> colors(header.ColorMapEntries);
     const unsigned color_map_size = sizeof(X11ColorMap) * header.ColorMapEntries;
@@ -209,6 +211,8 @@ bool CFormatXwd::loadX11(const X11WindowDump& header, cFile& file, sBitmapDescri
         printf("(EE) Can't read pixmap.\n");
         return false;
     }
+
+    m_formatName = "xwd11";
 
     return true;
 }

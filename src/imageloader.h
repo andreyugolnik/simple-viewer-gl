@@ -77,7 +77,7 @@ private:
     iCallbacks* m_callbacks;
 
     std::thread m_loader;
-    CFormat* m_image = nullptr;
-    std::unique_ptr<CFormat> m_formats[(unsigned)eImageType::COUNT];
+    cFormat* m_image = nullptr;
+    std::unique_ptr<cFormat> m_formats[(unsigned)eImageType::COUNT];
     sBitmapDescription m_desc;
 };

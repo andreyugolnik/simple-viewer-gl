@@ -11,11 +11,11 @@
 
 #include "formats/format.h"
 
-class CNotAvailable final : public CFormat
+class cNotAvailable final : public cFormat
 {
 public:
-    CNotAvailable();
-    ~CNotAvailable();
+    cNotAvailable();
+    ~cNotAvailable();
 
 private:
     bool LoadImpl(const char* filename, sBitmapDescription& desc) override;

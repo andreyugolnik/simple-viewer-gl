@@ -39,26 +39,26 @@ CImageLoader::CImageLoader(iCallbacks* callbacks)
     : m_callbacks(callbacks)
 {
 #if defined(IMLIB2_SUPPORT)
-    m_formats[(unsigned)eImageType::COMMON].reset(new CFormatCommon("libImlib2", "ImLib2", callbacks));
+    m_formats[(unsigned)eImageType::COMMON].reset(new cFormatCommon("libImlib2", callbacks));
 #endif
-    m_formats[(unsigned)eImageType::JPG].reset(new CFormatJpeg("libjpeg", "jpeg", callbacks));
-    m_formats[(unsigned)eImageType::PSD].reset(new CFormatPsd(nullptr, "psd", callbacks));
-    m_formats[(unsigned)eImageType::PNG].reset(new CFormatPng("libpng", "png", callbacks));
-    m_formats[(unsigned)eImageType::GIF].reset(new CFormatGif("libgif", "gif", callbacks));
-    m_formats[(unsigned)eImageType::ICO].reset(new CFormatIco(nullptr, "ico", callbacks));
-    m_formats[(unsigned)eImageType::TIF].reset(new CFormatTiff("libtiff", "tiff", callbacks));
-    m_formats[(unsigned)eImageType::XWD].reset(new CFormatXwd(nullptr, "xwd", callbacks));
-    m_formats[(unsigned)eImageType::XPM].reset(new cFormatXpm(nullptr, "xpm", callbacks));
-    m_formats[(unsigned)eImageType::DDS].reset(new CFormatDds(nullptr, "dds", callbacks));
-    m_formats[(unsigned)eImageType::RAW].reset(new cFormatRaw(nullptr, "raw", callbacks));
-    m_formats[(unsigned)eImageType::AGE].reset(new cFormatAge(nullptr, "age", callbacks));
-    m_formats[(unsigned)eImageType::PPM].reset(new cFormatPpm(nullptr, "ppm", callbacks));
-    m_formats[(unsigned)eImageType::PVR].reset(new cFormatPvr(nullptr, "pvr", callbacks));
-    m_formats[(unsigned)eImageType::SCR].reset(new cFormatScr(nullptr, "scr", callbacks));
-    m_formats[(unsigned)eImageType::TGA].reset(new cFormatTarga(nullptr, "targa", callbacks));
-    m_formats[(unsigned)eImageType::WEBP].reset(new cFormatWebP(nullptr, "webp", callbacks));
+    m_formats[(unsigned)eImageType::JPG].reset(new cFormatJpeg("libjpeg", callbacks));
+    m_formats[(unsigned)eImageType::PSD].reset(new cFormatPsd(nullptr, callbacks));
+    m_formats[(unsigned)eImageType::PNG].reset(new cFormatPng("libpng", callbacks));
+    m_formats[(unsigned)eImageType::GIF].reset(new cFormatGif("libgif", callbacks));
+    m_formats[(unsigned)eImageType::ICO].reset(new cFormatIco(nullptr, callbacks));
+    m_formats[(unsigned)eImageType::TIF].reset(new cFormatTiff("libtiff", callbacks));
+    m_formats[(unsigned)eImageType::XWD].reset(new cFormatXwd(nullptr, callbacks));
+    m_formats[(unsigned)eImageType::XPM].reset(new cFormatXpm(nullptr, callbacks));
+    m_formats[(unsigned)eImageType::DDS].reset(new cFormatDds(nullptr, callbacks));
+    m_formats[(unsigned)eImageType::RAW].reset(new cFormatRaw(nullptr, callbacks));
+    m_formats[(unsigned)eImageType::AGE].reset(new cFormatAge(nullptr, callbacks));
+    m_formats[(unsigned)eImageType::PPM].reset(new cFormatPpm(nullptr, callbacks));
+    m_formats[(unsigned)eImageType::PVR].reset(new cFormatPvr(nullptr, callbacks));
+    m_formats[(unsigned)eImageType::SCR].reset(new cFormatScr(nullptr, callbacks));
+    m_formats[(unsigned)eImageType::TGA].reset(new cFormatTarga(nullptr, callbacks));
+    m_formats[(unsigned)eImageType::WEBP].reset(new cFormatWebP(nullptr, callbacks));
 
-    m_formats[(unsigned)eImageType::NOTAVAILABLE].reset(new CNotAvailable());
+    m_formats[(unsigned)eImageType::NOTAVAILABLE].reset(new cNotAvailable());
 }
 
 CImageLoader::~CImageLoader()

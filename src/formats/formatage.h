@@ -11,10 +11,10 @@
 
 #include "format.h"
 
-class cFormatAge final : public CFormat
+class cFormatAge final : public cFormat
 {
 public:
-    cFormatAge(const char* lib, const char* name, iCallbacks* callbacks);
+    cFormatAge(const char* lib, iCallbacks* callbacks);
     ~cFormatAge();
 
     bool isSupported(cFile& file, Buffer& buffer) const override;

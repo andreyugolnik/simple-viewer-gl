@@ -11,11 +11,11 @@
 
 #include "format.h"
 
-class CFormatDds final : public CFormat
+class cFormatDds final : public cFormat
 {
 public:
-    CFormatDds(const char* lib, const char* name, iCallbacks* callbacks);
-    ~CFormatDds();
+    cFormatDds(const char* lib, iCallbacks* callbacks);
+    ~cFormatDds();
 
 private:
     bool LoadImpl(const char* filename, sBitmapDescription& desc) override;

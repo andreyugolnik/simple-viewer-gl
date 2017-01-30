@@ -15,178 +15,183 @@
 #include <string.h>
 #include <iostream>
 
-// http://www.adobe.com/devnet-apps/photoshop/fileformatashtml/
-enum class ColorMode : uint16_t
+namespace
 {
-    MONO         = 0,
-    GRAYSCALE    = 1,
-    INDEXED      = 2,
-    RGB          = 3,
-    CMYK         = 4,
-    // UNUSED    = 5,
-    // UNUSED    = 6,
-    MULTICHANNEL = 7,
-    DUOTONE      = 8,
-    LAB          = 9
-};
+
+    // http://www.adobe.com/devnet-apps/photoshop/fileformatashtml/
+    enum class ColorMode : uint16_t
+    {
+        MONO         = 0,
+        GRAYSCALE    = 1,
+        INDEXED      = 2,
+        RGB          = 3,
+        CMYK         = 4,
+        // UNUSED    = 5,
+        // UNUSED    = 6,
+        MULTICHANNEL = 7,
+        DUOTONE      = 8,
+        LAB          = 9
+    };
 
 #pragma pack(push, 1)
-struct PSD_HEADER
-{
-    uint8_t signature[4];   // file ID, always "8BPS"
-    uint16_t version;       // version number, always 1
-    uint8_t resetved[6];
-    uint16_t channels;      // number of color channels (1-56)
-    uint32_t rows;          // height of image in pixels (1-30000)
-    uint32_t columns;       // width of image in pixels (1-30000)
-    uint16_t depth;         // number of bits per channel (1, 8, 16, 32)
-    ColorMode colorMode;    // color mode as defined below
-};
+    struct PSD_HEADER
+    {
+        uint8_t signature[4];   // file ID, always "8BPS"
+        uint16_t version;       // version number, always 1
+        uint8_t resetved[6];
+        uint16_t channels;      // number of color channels (1-56)
+        uint32_t rows;          // height of image in pixels (1-30000)
+        uint32_t columns;       // width of image in pixels (1-30000)
+        uint16_t depth;         // number of bits per channel (1, 8, 16, 32)
+        ColorMode colorMode;    // color mode as defined below
+    };
 #pragma pack(pop)
 
-static const char* modeToString(ColorMode colorMode)
-{
-    static const char* modes[] =
+    const char* modeToString(ColorMode colorMode)
     {
-        "MONO",
-        "GRAYSCALE",
-        "INDEXED",
-        "RGB",
-        "CMYK",
-        "unknown",
-        "unknown",
-        "MULTICHANNEL",
-        "DUOTONE",
-        "LAB",
-        "unknown"
+        static const char* modes[] =
+        {
+            "MONO",
+            "GRAYSCALE",
+            "INDEXED",
+            "RGB",
+            "CMYK",
+            "unknown",
+            "unknown",
+            "MULTICHANNEL",
+            "DUOTONE",
+            "LAB",
+            "unknown"
+        };
+        static const size_t size = sizeof(modes) / sizeof(modes[0]);
+
+        if ((uint32_t)colorMode < size)
+        {
+            return modes[(uint32_t)colorMode];
+        }
+        return modes[size - 1];
+    }
+
+    enum class CompressionMethod : uint16_t
+    {
+        RAW = 0,         // Raw image data
+        RLE = 1,         // RLE compressed the image data starts with the byte counts
+        // for all the scan lines (rows * channels), with each count
+        // stored as a two-byte value. The RLE compressed data follows,
+        // with each scan line compressed separately. The RLE compression
+        // is the same compression algorithm used by the Macintosh ROM
+        // routine PackBits, and the TIFF standard.
+        ZIP = 2,         // ZIP without prediction
+        ZIP_PREDICT = 3  // ZIP with prediction
     };
-    static const size_t size = sizeof(modes) / sizeof(modes[0]);
 
-    if ((uint32_t)colorMode < size)
+    bool skipNextBlock(cFile& file)
     {
-        return modes[(uint32_t)colorMode];
-    }
-    return modes[size - 1];
-}
-
-enum class CompressionMethod : uint16_t
-{
-    RAW = 0,         // Raw image data
-    RLE = 1,         // RLE compressed the image data starts with the byte counts
-    // for all the scan lines (rows * channels), with each count
-    // stored as a two-byte value. The RLE compressed data follows,
-    // with each scan line compressed separately. The RLE compression
-    // is the same compression algorithm used by the Macintosh ROM
-    // routine PackBits, and the TIFF standard.
-    ZIP = 2,         // ZIP without prediction
-    ZIP_PREDICT = 3  // ZIP with prediction
-};
-
-static bool skipNextBlock(cFile& file)
-{
-    uint32_t size;
-    if (sizeof(uint32_t) != file.read(&size, sizeof(uint32_t)))
-    {
-        return false;
-    }
-    size = helpers::read_uint32((uint8_t*)&size);
-    //printf("%u bytes skipped\n", size);
-    file.seek(size, SEEK_CUR);
-
-    return true;
-}
-
-static void decodeRle(uint8_t* dst, const uint8_t* src, uint32_t lineLength)
-{
-    uint16_t bytes_read = 0;
-    while (bytes_read < lineLength)
-    {
-        const signed char byte = src[bytes_read];
-        bytes_read++;
-
-        if (byte == -128)
+        uint32_t size;
+        if (sizeof(uint32_t) != file.read(&size, sizeof(uint32_t)))
         {
-            continue;
+            return false;
         }
-        else if (byte > -1)
-        {
-            const int count = byte + 1;
+        size = helpers::read_uint32((uint8_t*)&size);
+        //::printf("%u bytes skipped\n", size);
+        file.seek(size, SEEK_CUR);
 
-            // copy next count bytes
-            for (int i = 0; i < count; i++)
-            {
-                *dst = src[bytes_read];
-                dst++;
-                bytes_read++;
-            }
-        }
-        else
-        {
-            const int count = -byte + 1;
+        return true;
+    }
 
-            // copy next byte count times
-            const uint8_t next_byte = src[bytes_read];
+    void decodeRle(uint8_t* dst, const uint8_t* src, uint32_t lineLength)
+    {
+        uint16_t bytes_read = 0;
+        while (bytes_read < lineLength)
+        {
+            const signed char byte = src[bytes_read];
             bytes_read++;
-            for (int i = 0; i < count; i++)
+
+            if (byte == -128)
             {
-                *dst = next_byte;
-                dst++;
+                continue;
+            }
+            else if (byte > -1)
+            {
+                const int count = byte + 1;
+
+                // copy next count bytes
+                for (int i = 0; i < count; i++)
+                {
+                    *dst = src[bytes_read];
+                    dst++;
+                    bytes_read++;
+                }
+            }
+            else
+            {
+                const int count = -byte + 1;
+
+                // copy next byte count times
+                const uint8_t next_byte = src[bytes_read];
+                bytes_read++;
+                for (int i = 0; i < count; i++)
+                {
+                    *dst = next_byte;
+                    dst++;
+                }
             }
         }
     }
-}
 
-CFormatPsd::CFormatPsd(const char* lib, const char* name, iCallbacks* callbacks)
-    : CFormat(lib, name, callbacks)
-{
-}
-
-CFormatPsd::~CFormatPsd()
-{
-}
-
-template<typename C>
-void fromRgba(unsigned char* bitmap, const C* r, const C* g, const C* b, const C* a, unsigned w, unsigned h)
-{
-    const unsigned shift = (unsigned)sizeof(C) >> 1;
-    for (unsigned y = 0; y < h; y++)
+    template<typename C>
+    void fromRgba(unsigned char* bitmap, const C* r, const C* g, const C* b, const C* a, unsigned w, unsigned h)
     {
-        unsigned idx = w * y;
-        for (unsigned x = 0; x < w; x++)
+        const unsigned shift = (unsigned)sizeof(C) >> 1;
+        for (unsigned y = 0; y < h; y++)
         {
-            bitmap[0] = r[idx] >> shift;
-            bitmap[1] = g[idx] >> shift;
-            bitmap[2] = b[idx] >> shift;
-            bitmap[3] = a[idx] >> shift;
-            bitmap += 4;
-            idx++;
+            unsigned idx = w * y;
+            for (unsigned x = 0; x < w; x++)
+            {
+                bitmap[0] = r[idx] >> shift;
+                bitmap[1] = g[idx] >> shift;
+                bitmap[2] = b[idx] >> shift;
+                bitmap[3] = a[idx] >> shift;
+                bitmap += 4;
+                idx++;
+            }
         }
     }
-}
 
-template<>
-void fromRgba(unsigned char* bitmap, const uint32_t* r, const uint32_t* g, const uint32_t* b, const uint32_t* a, unsigned w, unsigned h)
-{
-    for (unsigned y = 0; y < h; y++)
+    template<>
+    void fromRgba(unsigned char* bitmap, const uint32_t* r, const uint32_t* g, const uint32_t* b, const uint32_t* a, unsigned w, unsigned h)
     {
-        unsigned idx = w * y;
-        for (unsigned x = 0; x < w; x++)
+        for (unsigned y = 0; y < h; y++)
         {
-            const uint8_t* ur = (const uint8_t*)&r[idx];
-            const uint8_t* ug = (const uint8_t*)&g[idx];
-            const uint8_t* ub = (const uint8_t*)&b[idx];
-            const uint8_t* ua = (const uint8_t*)&a[idx];
-            bitmap[0] = ur[1];
-            bitmap[1] = ug[1];
-            bitmap[2] = ub[1];
-            bitmap[3] = ua[1];
-            bitmap += 4;
-            idx++;
+            unsigned idx = w * y;
+            for (unsigned x = 0; x < w; x++)
+            {
+                const uint8_t* ur = (const uint8_t*)&r[idx];
+                const uint8_t* ug = (const uint8_t*)&g[idx];
+                const uint8_t* ub = (const uint8_t*)&b[idx];
+                const uint8_t* ua = (const uint8_t*)&a[idx];
+                bitmap[0] = ur[1];
+                bitmap[1] = ug[1];
+                bitmap[2] = ub[1];
+                bitmap[3] = ua[1];
+                bitmap += 4;
+                idx++;
+            }
         }
     }
+
 }
 
-bool CFormatPsd::LoadImpl(const char* filename, sBitmapDescription& desc)
+cFormatPsd::cFormatPsd(const char* lib, iCallbacks* callbacks)
+    : cFormat(lib, callbacks)
+{
+}
+
+cFormatPsd::~cFormatPsd()
+{
+}
+
+bool cFormatPsd::LoadImpl(const char* filename, sBitmapDescription& desc)
 {
     cFile file;
     if (!file.open(filename))
@@ -199,7 +204,7 @@ bool CFormatPsd::LoadImpl(const char* filename, sBitmapDescription& desc)
     PSD_HEADER header;
     if (sizeof(PSD_HEADER) != file.read(&header, sizeof(PSD_HEADER)))
     {
-        printf("Can't read PSD header\n");
+        ::printf("(EE) Can't read PSD header.\n");
         return false;
     }
 
@@ -210,21 +215,21 @@ bool CFormatPsd::LoadImpl(const char* filename, sBitmapDescription& desc)
         || header.signature[2] != 'P'
         || header.signature[3] != 'S')
     {
-        printf("Not valid PSD file\n");
+        ::printf("(EE) Not valid PSD file.\n");
         return false;
     }
 
     const ColorMode colorMode = (ColorMode)helpers::read_uint16((uint8_t*)&header.colorMode);
     if (colorMode != ColorMode::RGB && colorMode != ColorMode::CMYK) // && colorMode != ColorMode::GRAYSCALE)
     {
-        printf("Unsupported color mode: %s\n", modeToString(colorMode));
+        ::printf("(EE) Unsupported color mode: %s\n", modeToString(colorMode));
         return false;
     }
 
     const unsigned depth = helpers::read_uint16((uint8_t*)&header.depth);
     if (depth != 8 && depth != 16) // && depth != 32)
     {
-        printf("Unsupported depth: %u\n", depth);
+        ::printf("(EE) Unsupported depth: %u\n", depth);
         return false;
     }
     const unsigned bytes_per_component = depth / 8;
@@ -234,21 +239,21 @@ bool CFormatPsd::LoadImpl(const char* filename, sBitmapDescription& desc)
     // skip Color Mode Data Block
     if (false == skipNextBlock(file))
     {
-        printf("Can't read Color Mode Data Block\n");
+        ::printf("(EE) Can't read Color Mode Data Block\n");
         return false;
     }
 
     // skip Image Resources Block
     if (false == skipNextBlock(file))
     {
-        printf("Can't read Image Resources Block\n");
+        ::printf("(EE) Can't read Image Resources Block\n");
         return false;
     }
 
     // skip Layer and Mask Information Block
     if (false == skipNextBlock(file))
     {
-        printf("Can't read Layer and Mask Information Block\n");
+        ::printf("(EE) Can't read Layer and Mask Information Block\n");
         return false;
     }
 
@@ -256,13 +261,13 @@ bool CFormatPsd::LoadImpl(const char* filename, sBitmapDescription& desc)
     CompressionMethod compression;
     if (sizeof(uint16_t) != file.read(&compression, sizeof(uint16_t)))
     {
-        printf("Can't read compression info\n");
+        ::printf("(EE) Can't read compression info\n");
         return false;
     }
     compression = (CompressionMethod)helpers::read_uint16((uint8_t*)&compression);
     if (compression != CompressionMethod::RAW && compression != CompressionMethod::RLE)
     {
-        printf("Unsupported compression: %u\n", (unsigned)compression);
+        ::printf("(EE) Unsupported compression: %u\n", (unsigned)compression);
         return false;
     }
 
@@ -280,7 +285,7 @@ bool CFormatPsd::LoadImpl(const char* filename, sBitmapDescription& desc)
 
             if (desc.height * sizeof(uint16_t) != file.read(&linesLengths[pos], desc.height * sizeof(uint16_t)))
             {
-                printf("Can't read length of lines\n");
+                ::printf("(EE) Can't read length of lines\n");
                 return false;
             }
         }
@@ -319,14 +324,14 @@ bool CFormatPsd::LoadImpl(const char* filename, sBitmapDescription& desc)
                 unsigned lineLength = linesLengths[ch * desc.height + row] * bytes_per_component;
                 if (max_line_length < lineLength)
                 {
-                    printf("Wrong line length: %u\n", lineLength);
+                    ::printf("(WW) Wrong line length: %u\n", lineLength);
                     lineLength = max_line_length;
                 }
 
                 const size_t readed = file.read(&buffer[0], lineLength);
                 if (lineLength != readed)
                 {
-                    printf("Error reading Image Data Block\n");
+                    ::printf("(WW) Error reading Image Data Block\n");
                 }
 
                 decodeRle(chBufs[ch] + pos, &buffer[0], lineLength);
@@ -338,7 +343,7 @@ bool CFormatPsd::LoadImpl(const char* filename, sBitmapDescription& desc)
                 const size_t readed = file.read(chBufs[ch] + pos, lineLength);
                 if (lineLength != readed)
                 {
-                    printf("Error reading Image Data Block\n");
+                    ::printf("(WW) Error reading Image Data Block\n");
                 }
             }
 
@@ -453,7 +458,7 @@ bool CFormatPsd::LoadImpl(const char* filename, sBitmapDescription& desc)
     }
     else if (colorMode == ColorMode::GRAYSCALE)
     {
-        printf("-- compressio: %u, ch: %u, depth: %u, bytes: %u\n", (unsigned)compression, channels, depth, bytes_per_component);
+        // ::printf("compression: %u, ch: %u, depth: %u, bytes: %u\n", (unsigned)compression, channels, depth, bytes_per_component);
 
         if (channels == 2)
         {
@@ -512,6 +517,8 @@ bool CFormatPsd::LoadImpl(const char* filename, sBitmapDescription& desc)
     {
         delete[] chBufs[ch];
     }
+
+    m_formatName = "psd";
 
     return true;
 }

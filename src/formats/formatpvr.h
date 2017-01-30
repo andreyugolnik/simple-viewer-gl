@@ -13,10 +13,10 @@
 
 class cFileInterface;
 
-class cFormatPvr final : public CFormat
+class cFormatPvr final : public cFormat
 {
 public:
-    cFormatPvr(const char* lib, const char* name, iCallbacks* callbacks);
+    cFormatPvr(const char* lib, iCallbacks* callbacks);
     ~cFormatPvr();
 
     bool isSupported(cFile& file, Buffer& buffer) const override;

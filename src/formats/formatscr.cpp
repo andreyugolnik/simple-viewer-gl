@@ -14,8 +14,8 @@
 #include <cstring>
 #include <cstdint>
 
-cFormatScr::cFormatScr(const char* lib, const char* name, iCallbacks* callbacks)
-    : CFormat(lib, name, callbacks)
+cFormatScr::cFormatScr(const char* lib, iCallbacks* callbacks)
+    : cFormat(lib, callbacks)
 {
 }
 
@@ -270,14 +270,14 @@ bool cFormatScr::LoadImpl(const char* filename, sBitmapDescription& desc)
     const auto screen = getType(size);
     if (screen.type == Type::Unknown)
     {
-        printf("Not a ZX-Spectrum screen\n");
+        ::printf("(EE) Not a ZX-Spectrum screen.\n");
         return false;
     }
 
     std::vector<unsigned char> buffer(size);
     if (file.read(buffer.data(), size) != size)
     {
-        printf("Can't read ZX-Spectrum screen data\n");
+        ::printf("(EE) Can't read ZX-Spectrum screen data.\n");
         return false;
     }
 

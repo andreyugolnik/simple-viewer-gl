@@ -11,10 +11,10 @@
 
 #include "format.h"
 
-class cFormatScr final : public CFormat
+class cFormatScr final : public cFormat
 {
 public:
-    cFormatScr(const char* lib, const char* name, iCallbacks* callbacks);
+    cFormatScr(const char* lib, iCallbacks* callbacks);
     ~cFormatScr();
 
 private:

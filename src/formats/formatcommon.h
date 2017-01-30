@@ -13,11 +13,11 @@
 
 #include "format.h"
 
-class CFormatCommon final : public CFormat
+class cFormatCommon final : public cFormat
 {
 public:
-    CFormatCommon(const char* lib, const char* name, iCallbacks* callbacks);
-    ~CFormatCommon();
+    cFormatCommon(const char* lib, iCallbacks* callbacks);
+    ~cFormatCommon();
 
 private:
     bool LoadImpl(const char* filename, sBitmapDescription& desc) override;

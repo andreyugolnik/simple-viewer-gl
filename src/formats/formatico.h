@@ -16,11 +16,11 @@
 class cFile;
 struct IcoDirentry;
 
-class CFormatIco final : public CFormat
+class cFormatIco final : public cFormat
 {
 public:
-    CFormatIco(const char* lib, const char* name, iCallbacks* callbacks);
-    ~CFormatIco();
+    cFormatIco(const char* lib, iCallbacks* callbacks);
+    ~cFormatIco();
 
 private:
     virtual bool LoadImpl(const char* filename, sBitmapDescription& desc) override;

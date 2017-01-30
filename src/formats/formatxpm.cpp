@@ -15,8 +15,8 @@
 #include <cstring>
 #include <map>
 
-cFormatXpm::cFormatXpm(const char* lib, const char* name, iCallbacks* callbacks)
-    : CFormat(lib, name, callbacks)
+cFormatXpm::cFormatXpm(const char* lib, iCallbacks* callbacks)
+    : cFormat(lib, callbacks)
 {
 }
 
@@ -1076,6 +1076,8 @@ bool cFormatXpm::LoadImpl(const char* filename, sBitmapDescription& desc)
             out++;
         }
     }
+
+    m_formatName = "xpm";
 
     return true;
 }

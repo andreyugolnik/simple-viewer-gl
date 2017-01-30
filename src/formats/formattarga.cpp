@@ -11,15 +11,6 @@
 #include "../common/bitmap_description.h"
 #include "../common/file.h"
 
-cFormatTarga::cFormatTarga(const char* lib, const char* name, iCallbacks* callbacks)
-    : CFormat(lib, name, callbacks)
-{
-}
-
-cFormatTarga::~cFormatTarga()
-{
-}
-
 namespace
 {
 
@@ -50,7 +41,7 @@ namespace
         {
             if (header.pixelDepth == 8)
             {
-                // printf("  INFO: uncompressed 8 bit\n");
+                // ::printf("  INFO: uncompressed 8 bit\n");
 
                 if (header.colorMapEntrySize == 24)
                 {
@@ -82,12 +73,12 @@ namespace
                 }
                 else
                 {
-                    printf("(EE) uncompressed 8 bit with non 24 bit color map entry size currently not supported\n");
+                    ::printf("(EE) uncompressed 8 bit with non 24 bit color map entry size currently not supported\n");
                 }
             }
             else
             {
-                printf("(EE) non 8 bit color-mapped format\n");
+                ::printf("(EE) non 8 bit color-mapped format\n");
             }
 
             return false;
@@ -95,12 +86,12 @@ namespace
         // Compressed Color-mapped Image
         else if (header.imageType == 9)
         {
-            printf("(EE) compressed 8 bit currently not supported\n");
+            ::printf("(EE) compressed 8 bit currently not supported\n");
             return false;
         }
         else
         {
-            printf("(EE) unknown color-mapped format\n");
+            ::printf("(EE) unknown color-mapped format\n");
             return false;
         }
     }
@@ -109,7 +100,7 @@ namespace
     {
         if (header.pixelDepth == 16)
         {
-            // printf("  INFO: uncompressed 16 bit\n");
+            // ::printf("  INFO: uncompressed 16 bit\n");
             desc.bppImage = 16;
             desc.bpp = 24;
             desc.pitch = desc.width * 3;
@@ -134,7 +125,7 @@ namespace
         }
         else if (header.pixelDepth == 24)
         {
-            // printf("  INFO: uncompressed 24 bit\n");
+            // ::printf("  INFO: uncompressed 24 bit\n");
             unsigned pitch = header.width * 3;
 
             desc.bppImage = 24;
@@ -156,7 +147,7 @@ namespace
         }
         else if (header.pixelDepth == 32)
         {
-            // printf("  INFO: uncompressed 32 bit\n");
+            // ::printf("  INFO: uncompressed 32 bit\n");
             unsigned pitch = header.width * 4;
 
             desc.bpp = 32;
@@ -179,7 +170,7 @@ namespace
         }
         else
         {
-            printf("(EE) unsupported uncompressed RGB format\n");
+            ::printf("(EE) unsupported uncompressed RGB format\n");
             return false;
         }
 
@@ -195,7 +186,7 @@ namespace
 
         if (header.pixelDepth == 16)
         {
-            // printf("  INFO: compressed 16 bit\n");
+            // ::printf("  INFO: compressed 16 bit\n");
             desc.bppImage = 16;
             desc.bpp = 24;
             desc.pitch = desc.width * 3;
@@ -261,7 +252,7 @@ namespace
         }
         else if (header.pixelDepth == 24)
         {
-            // printf("  INFO: compressed 24 bit\n");
+            // ::printf("  INFO: compressed 24 bit\n");
             desc.bppImage = 24;
             desc.bpp = 24;
             desc.pitch = desc.width * 3;
@@ -324,7 +315,7 @@ namespace
         }
         else if (header.pixelDepth == 32)
         {
-            // printf("  INFO: compressed 32 bit\n");
+            // ::printf("  INFO: compressed 32 bit\n");
             desc.bppImage = 32;
             desc.bpp = 32;
             desc.pitch = desc.width * 4;
@@ -391,13 +382,22 @@ namespace
         }
         else
         {
-            printf("(EE) unsupported compressed RGB format\n");
+            ::printf("(EE) unsupported compressed RGB format\n");
             return false;
         }
 
         return true;
     }
 
+}
+
+cFormatTarga::cFormatTarga(const char* lib, iCallbacks* callbacks)
+    : cFormat(lib, callbacks)
+{
+}
+
+cFormatTarga::~cFormatTarga()
+{
 }
 
 bool cFormatTarga::LoadImpl(const char* filename, sBitmapDescription& desc)
@@ -413,7 +413,7 @@ bool cFormatTarga::LoadImpl(const char* filename, sBitmapDescription& desc)
     std::vector<unsigned char> tga(desc.size);
     if (tga.size() != file.read(tga.data(), tga.size()))
     {
-        printf("(EE) Can't read TARGA data.\n");
+        ::printf("(EE) Can't read TARGA data.\n");
         return false;
     }
 
@@ -425,6 +425,7 @@ bool cFormatTarga::LoadImpl(const char* filename, sBitmapDescription& desc)
     if (header.colorMapType == 1)
     {
         colormapped(header, tga.data(), desc);
+        m_formatName = "targa/palette";
     }
     else if (header.colorMapType == 0)
     {
@@ -440,13 +441,15 @@ bool cFormatTarga::LoadImpl(const char* filename, sBitmapDescription& desc)
         }
         else
         {
-            printf("(EE) unknown image type, may be it black and white\n");
+            ::printf("(EE) unknown image type, may be it black and white\n");
             return false;
         }
+
+        m_formatName = "targa/rgb";
     }
     else
     {
-        printf("(EE) unknown color map type\n");
+        ::printf("(EE) unknown color map type\n");
         return false;
     }
 

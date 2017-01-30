@@ -14,53 +14,69 @@
 #include <cstring>
 #include <gif_lib.h>
 
-CFormatGif::CFormatGif(const char* lib, const char* name, iCallbacks* callbacks)
-    : CFormat(lib, name, callbacks)
+namespace
+{
+
+    GifFileType* OpenFile(const char* path)
+    {
+#if GIFLIB_MAJOR >= 5
+        int errorCode = 0;
+        auto gifFile = DGifOpenFileName(path, &errorCode);
+        (void)errorCode;
+#else
+        auto gifFile = DGifOpenFileName(path);
+#endif
+
+        return gifFile;
+    }
+
+    int CloseFile(GifFileType* gifFile)
+    {
+#if GIFLIB_MAJOR >= 5
+        int errorCode = 0;
+        auto result = DGifCloseFile(gifFile, &errorCode);
+        (void)errorCode;
+#else
+        auto result = DGifCloseFile(gifFile);
+#endif
+
+        return result;
+    }
+
+    void putPixel(sBitmapDescription& desc, int pos, const GifColorType* color, bool transparent)
+    {
+        if (!desc.current || !transparent)
+        {
+            desc.bitmap[pos + 0] = color->Red;
+            desc.bitmap[pos + 1] = color->Green;
+            desc.bitmap[pos + 2] = color->Blue;
+            desc.bitmap[pos + 3] = (transparent ? 0 : 255);
+        }
+    }
+
+}
+
+cFormatGif::cFormatGif(const char* lib, iCallbacks* callbacks)
+    : cFormat(lib, callbacks)
 {
 }
 
-CFormatGif::~CFormatGif()
+cFormatGif::~cFormatGif()
 {
 }
 
-bool CFormatGif::LoadImpl(const char* filename, sBitmapDescription& desc)
+bool cFormatGif::LoadImpl(const char* filename, sBitmapDescription& desc)
 {
     m_filename = filename;
     return load(0, desc);
 }
 
-bool CFormatGif::LoadSubImageImpl(unsigned current, sBitmapDescription& desc)
+bool cFormatGif::LoadSubImageImpl(unsigned current, sBitmapDescription& desc)
 {
     return load(current, desc);
 }
 
-static GifFileType* OpenFile(const char* path)
-{
-#if GIFLIB_MAJOR >= 5
-    int errorCode = 0;
-    auto gifFile = DGifOpenFileName(path, &errorCode);
-    (void)errorCode;
-#else
-    auto gifFile = DGifOpenFileName(path);
-#endif
-
-    return gifFile;
-}
-
-static int CloseFile(GifFileType* gifFile)
-{
-#if GIFLIB_MAJOR >= 5
-    int errorCode = 0;
-    auto result = DGifCloseFile(gifFile, &errorCode);
-    (void)errorCode;
-#else
-    auto result = DGifCloseFile(gifFile);
-#endif
-
-    return result;
-}
-
-bool CFormatGif::load(unsigned current, sBitmapDescription& desc)
+bool cFormatGif::load(unsigned current, sBitmapDescription& desc)
 {
     cFile file;
     if (!file.open(m_filename.c_str()))
@@ -74,14 +90,14 @@ bool CFormatGif::load(unsigned current, sBitmapDescription& desc)
     auto gif = OpenFile(m_filename.c_str());
     if (gif == nullptr)
     {
-        printf("Error Opening GIF image\n");
+        ::printf("(EE) Error Opening GIF image\n");
         return false;
     }
 
     int res = DGifSlurp(gif);
     if (res != GIF_OK || gif->ImageCount < 1)
     {
-        printf("Error Opening GIF image\n");
+        ::printf("(EE) Error Opening GIF image\n");
         CloseFile(gif);
         return false;
     }
@@ -101,7 +117,7 @@ bool CFormatGif::load(unsigned current, sBitmapDescription& desc)
         desc.bpp = 32;
         desc.bppImage = 8;//gif->Image.ColorMap->BitsPerPixel;
         desc.bitmap.resize(desc.pitch * desc.height);
-        memset(&desc.bitmap[0], 0, desc.bitmap.size());
+        ::memset(&desc.bitmap[0], 0, desc.bitmap.size());
         desc.format = GL_RGBA;
     }
 
@@ -121,13 +137,13 @@ bool CFormatGif::load(unsigned current, sBitmapDescription& desc)
     }
 
     const ColorMapObject* cmap = image->ImageDesc.ColorMap;
-    if (cmap == 0)
+    if (cmap == nullptr)
     {
         cmap = gif->SColorMap;
     }
     //if(cmap->ColorCount != (1 << cmap->BitsPerPixel))
     //{
-    //printf("Invalid ColorMap\n");
+    //::printf("(EE) Invalid ColorMap\n");
     //CloseFile(gif);
     //return false;
     //}
@@ -181,24 +197,15 @@ bool CFormatGif::load(unsigned current, sBitmapDescription& desc)
     //  GifRecordType recordType;
     //  if(GIF_ERROR == DGifGetRecordType(gif, &recordType)) {
     //      CloseFile(gif);
-    //      printf("Error Opening GIF image\n");
+    //      ::printf("(EE) Error Opening GIF image\n");
     //      return false;
     //  }
     //
-    //  printf("Record Type %d\n", (int)recordType);
+    //  ::printf("Record Type %d\n", (int)recordType);
 
     CloseFile(gif);
 
-    return true;
-}
+    m_formatName = "gif";
 
-void CFormatGif::putPixel(sBitmapDescription& desc, int pos, const GifColorType* color, bool transparent)
-{
-    if (!desc.current || !transparent)
-    {
-        desc.bitmap[pos + 0] = color->Red;
-        desc.bitmap[pos + 1] = color->Green;
-        desc.bitmap[pos + 2] = color->Blue;
-        desc.bitmap[pos + 3] = (transparent ? 0 : 255);
-    }
+    return true;
 }

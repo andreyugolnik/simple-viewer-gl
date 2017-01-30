@@ -77,41 +77,44 @@ struct PngRaw
     size_t pos; // current pos
 };
 
-
-// load frame in png format
-static PngRaw m_pngRaw;
-static void readPngData(png_structp /*png*/, png_bytep out, png_size_t count)
+namespace
 {
-    // PngRaw& pngRaw   = *(PngRaw*)png->io_ptr;
-    if (m_pngRaw.pos + count <= m_pngRaw.size)
+
+    // load frame in png format
+    PngRaw m_pngRaw;
+    void readPngData(png_structp /*png*/, png_bytep out, png_size_t count)
     {
-        memcpy((uint8_t*)out, &m_pngRaw.data[m_pngRaw.pos], count);
+        // PngRaw& pngRaw   = *(PngRaw*)png->io_ptr;
+        if (m_pngRaw.pos + count <= m_pngRaw.size)
+        {
+            memcpy((uint8_t*)out, &m_pngRaw.data[m_pngRaw.pos], count);
+        }
+        m_pngRaw.pos += count;
     }
-    m_pngRaw.pos += count;
+
 }
 
-
-CFormatIco::CFormatIco(const char* lib, const char* name, iCallbacks* callbacks)
-    : CFormat(lib, name, callbacks)
+cFormatIco::cFormatIco(const char* lib, iCallbacks* callbacks)
+    : cFormat(lib, callbacks)
 {
 }
 
-CFormatIco::~CFormatIco()
+cFormatIco::~cFormatIco()
 {
 }
 
-bool CFormatIco::LoadImpl(const char* filename, sBitmapDescription& desc)
+bool cFormatIco::LoadImpl(const char* filename, sBitmapDescription& desc)
 {
     m_filename = filename;
     return load(0, desc);
 }
 
-bool CFormatIco::LoadSubImageImpl(unsigned current, sBitmapDescription& desc)
+bool cFormatIco::LoadSubImageImpl(unsigned current, sBitmapDescription& desc)
 {
     return load(current, desc);
 }
 
-bool CFormatIco::load(unsigned current, sBitmapDescription& desc)
+bool cFormatIco::load(unsigned current, sBitmapDescription& desc)
 {
     cFile file;
     if (!file.open(m_filename.c_str()))
@@ -152,10 +155,14 @@ bool CFormatIco::load(unsigned current, sBitmapDescription& desc)
     if (image->colors == 0 && image->width == 0 && image->height == 0)
     {
         result = loadPngFrame(desc, file, image);
+
+        m_formatName = "ico/png";
     }
     else
     {
         result = loadOrdinaryFrame(desc, file, image);
+
+        m_formatName = "ico";
     }
 
     // store frame number and frames count after reset again
@@ -165,7 +172,7 @@ bool CFormatIco::load(unsigned current, sBitmapDescription& desc)
     return result;
 }
 
-bool CFormatIco::loadPngFrame(sBitmapDescription& desc, cFile& file, const IcoDirentry* image)
+bool cFormatIco::loadPngFrame(sBitmapDescription& desc, cFile& file, const IcoDirentry* image)
 {
     std::vector<uint8_t> p(image->size);
 
@@ -326,7 +333,7 @@ bool CFormatIco::loadPngFrame(sBitmapDescription& desc, cFile& file, const IcoDi
 }
 
 // load frame in ordinary format
-bool CFormatIco::loadOrdinaryFrame(sBitmapDescription& desc, cFile& file, const IcoDirentry* image)
+bool cFormatIco::loadOrdinaryFrame(sBitmapDescription& desc, cFile& file, const IcoDirentry* image)
 {
     file.seek(image->offset, SEEK_SET);
     std::vector<uint8_t> p(image->size);
@@ -460,7 +467,7 @@ bool CFormatIco::loadOrdinaryFrame(sBitmapDescription& desc, cFile& file, const 
     return true;
 }
 
-int CFormatIco::calcIcoPitch(unsigned bppImage, unsigned width)
+int cFormatIco::calcIcoPitch(unsigned bppImage, unsigned width)
 {
     switch (bppImage)
     {
@@ -501,7 +508,7 @@ int CFormatIco::calcIcoPitch(unsigned bppImage, unsigned width)
     }
 }
 
-int CFormatIco::getBit(const uint8_t* data, int bit, unsigned width)
+int cFormatIco::getBit(const uint8_t* data, int bit, unsigned width)
 {
     // width per line in multiples of 32 bits
     int width32 = (width % 32 == 0 ? width / 32 : width / 32 + 1);
@@ -513,7 +520,7 @@ int CFormatIco::getBit(const uint8_t* data, int bit, unsigned width)
     return (result ? 1 : 0);
 }
 
-int CFormatIco::getNibble(const uint8_t* data, int nibble, unsigned width)
+int cFormatIco::getNibble(const uint8_t* data, int nibble, unsigned width)
 {
     // width per line in multiples of 32 bits
     int width32 = (width % 8 == 0 ? width / 8 : width / 8 + 1);
@@ -530,7 +537,7 @@ int CFormatIco::getNibble(const uint8_t* data, int nibble, unsigned width)
     return result;
 }
 
-int CFormatIco::getByte(const uint8_t* data, int byte, unsigned width)
+int cFormatIco::getByte(const uint8_t* data, int byte, unsigned width)
 {
     // width per line in multiples of 32 bits
     int width32 = (width % 4 == 0 ? width / 4 : width / 4 + 1);
