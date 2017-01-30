@@ -29,6 +29,7 @@ enum class eImageType
     ICO,
     TIF,
     XWD,
+    XPM,
     DDS,
     RAW,
     AGE,

@@ -26,6 +26,7 @@
 #include "formats/formattarga.h"
 #include "formats/formattiff.h"
 #include "formats/formatwebp.h"
+#include "formats/formatxpm.h"
 #include "formats/formatxwd.h"
 #include "notavailable.h"
 
@@ -47,6 +48,7 @@ CImageLoader::CImageLoader(iCallbacks* callbacks)
     m_formats[(unsigned)eImageType::ICO].reset(new CFormatIco(nullptr, "ico", callbacks));
     m_formats[(unsigned)eImageType::TIF].reset(new CFormatTiff("libtiff", "tiff", callbacks));
     m_formats[(unsigned)eImageType::XWD].reset(new CFormatXwd(nullptr, "xwd", callbacks));
+    m_formats[(unsigned)eImageType::XPM].reset(new cFormatXpm(nullptr, "xpm", callbacks));
     m_formats[(unsigned)eImageType::DDS].reset(new CFormatDds(nullptr, "dds", callbacks));
     m_formats[(unsigned)eImageType::RAW].reset(new cFormatRaw(nullptr, "raw", callbacks));
     m_formats[(unsigned)eImageType::AGE].reset(new cFormatAge(nullptr, "age", callbacks));
@@ -228,17 +230,12 @@ eImageType CImageLoader::getType(const char* name)
     }
 
     Buffer buffer;
-    if (m_formats[(unsigned)eImageType::AGE]->isSupported(file, buffer))
+    for (unsigned idx = 0; idx < (unsigned)eImageType::COUNT; idx++)
     {
-        return eImageType::AGE;
-    }
-    if (m_formats[(unsigned)eImageType::RAW]->isSupported(file, buffer))
-    {
-        return eImageType::RAW;
-    }
-    if (m_formats[(unsigned)eImageType::PVR]->isSupported(file, buffer))
-    {
-        return eImageType::PVR;
+        if (m_formats[idx]->isSupported(file, buffer))
+        {
+            return (eImageType)idx;
+        }
     }
 
     std::string s(name);
@@ -261,6 +258,7 @@ eImageType CImageLoader::getType(const char* name)
             { ".tiff",  eImageType::TIF  },
             { ".tif",   eImageType::TIF  },
             { ".xwd",   eImageType::XWD  },
+            { ".xpm",   eImageType::XWD  },
             { ".dds",   eImageType::DDS  },
             { ".ppm",   eImageType::PPM  },
             { ".scr",   eImageType::SCR  },

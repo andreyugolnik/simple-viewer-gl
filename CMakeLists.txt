@@ -31,6 +31,7 @@ FIND_PACKAGE(GIF)
 FIND_PACKAGE(ZLIB)
 FIND_PACKAGE(Imlib2)
 FIND_PACKAGE(WebP)
+FIND_PACKAGE(X11)
 
 IF(IMLIB2_FOUND)
     ADD_DEFINITIONS(-DIMLIB2_SUPPORT=1)
@@ -49,7 +50,7 @@ ENDIF(HAVE_RT_LIBRARY)
 INCLUDE_DIRECTORIES(
     ${GLFW_INCLUDE_DIRS}
     ${FREETYPE_INCLUDE_DIRS}
-    "/usr/X11/include/"
+    ${X11_INCLUDE_DIR}
     ${OPENGL_INCLUDE_DIR}
     ${ZLIB_INCLUDE_DIRS}
     ${WEBP_INCLUDE_DIRS}
@@ -91,6 +92,7 @@ ADD_EXECUTABLE( sviewgl
     src/formats/formattarga.cpp
     src/formats/formattiff.cpp
     src/formats/formatwebp.cpp
+    src/formats/formatxpm.cpp
     src/formats/formatxwd.cpp
     src/formats/rle.cpp
     src/ftstring.cpp
