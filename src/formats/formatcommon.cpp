@@ -99,6 +99,9 @@ bool cFormatCommon::LoadImpl(const char* filename, sBitmapDescription& desc)
 
     desc.format = GL_BGRA;
 
+    auto ext = ::strrchr(filename, '.');
+    m_formatName = ext != nullptr ? (ext + 1) : "";
+
     imlib_free_image();
 
     return true;
