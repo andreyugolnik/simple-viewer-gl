@@ -10,6 +10,7 @@
 #include "formatscr.h"
 #include "../common/bitmap_description.h"
 #include "../common/file.h"
+#include "../common/helpers.h"
 
 #include <cstring>
 #include <cstdint>
@@ -142,7 +143,7 @@ namespace
             // { 41479, 256, 192, Type::Chr,      "zx-chr$" },
         };
 
-        for (size_t i = 0; i < sizeof(sizesList) / sizeof(sizesList[0]); i++)
+        for (size_t i = 0; i < helpers::countof(sizesList); i++)
         {
             const auto& s = sizesList[i];
             if (s.size == size)

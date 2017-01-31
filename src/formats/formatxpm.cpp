@@ -860,7 +860,7 @@ namespace
             char val[32];
 
             const unsigned size = ::strlen(color) / 3;
-            if (size < sizeof(val)/sizeof(val[0]))
+            if (size < helpers::countof(val))
             {
                 unsigned r, g, b;
                 unsigned i;

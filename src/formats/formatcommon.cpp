@@ -12,6 +12,7 @@
 #include "formatcommon.h"
 #include "../common/bitmap_description.h"
 #include "../common/file.h"
+#include "../common/helpers.h"
 
 #include <cstring>
 #include <Imlib2.h>
@@ -40,7 +41,7 @@ namespace
             "unknow"
         };
 
-        if (id < sizeof(errors) / sizeof(errors[0]))
+        if (id < helpers::countof(errors))
         {
             return errors[id];
         }

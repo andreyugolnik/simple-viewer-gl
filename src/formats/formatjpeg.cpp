@@ -10,10 +10,50 @@
 #include "formatjpeg.h"
 #include "../common/bitmap_description.h"
 #include "../common/file.h"
+#include "../common/helpers.h"
 
 #include <cstring>
 #include <jpeglib.h>
 #include <setjmp.h>
+
+namespace
+{
+
+    struct sErrorMgr
+    {
+        struct jpeg_error_mgr pub;  /* "public" fields */
+        jmp_buf setjmp_buffer;  /* for return to caller */
+    };
+
+    void ErrorExit(j_common_ptr cinfo)
+    {
+        // cinfo->err really points to a sErrorMgr struct, so coerce pointer
+        auto errMgr = reinterpret_cast<sErrorMgr*>(cinfo->err);
+
+        // Always display the message.
+        // We could postpone this until after returning, if we chose.
+        (*cinfo->err->output_message)(cinfo);
+
+        // Return control to the setjmp point
+        longjmp(errMgr->setjmp_buffer, 1);
+    }
+
+    const char* getFormat(unsigned idx)
+    {
+        const char* Formats[] =
+        {
+            "jpeg",           // JCS_UNKNOWN:
+            "jpeg/grayscale", // JCS_GRAYSCALE:
+            "jpeg/rgb",       // JCS_RGB:
+            "jpeg/ycbcr",     // JCS_YCbCr:
+            "jpeg/cmyk",      // JCS_CMYK:
+            "jpeg/ycck",      // JCS_YCCK:
+        };
+        const auto size = helpers::countof(Formats);
+        return Formats[idx < size ? idx : 0];
+    }
+
+}
 
 cFormatJpeg::cFormatJpeg(const char* lib, iCallbacks* callbacks)
     : cFormat(lib, callbacks)
@@ -22,25 +62,6 @@ cFormatJpeg::cFormatJpeg(const char* lib, iCallbacks* callbacks)
 
 cFormatJpeg::~cFormatJpeg()
 {
-}
-
-typedef struct my_error_mgr
-{
-    struct jpeg_error_mgr pub;  /* "public" fields */
-    jmp_buf setjmp_buffer;  /* for return to caller */
-}* my_error_ptr;
-
-void my_error_exit(j_common_ptr cinfo)
-{
-    // cinfo->err really points to a my_error_mgr struct, so coerce pointer
-    my_error_ptr myerr = (my_error_ptr) cinfo->err;
-
-    // Always display the message.
-    // We could postpone this until after returning, if we chose.
-    (*cinfo->err->output_message)(cinfo);
-
-    // Return control to the setjmp point
-    longjmp(myerr->setjmp_buffer, 1);
 }
 
 bool cFormatJpeg::LoadImpl(const char* filename, sBitmapDescription& desc)
@@ -63,12 +84,12 @@ bool cFormatJpeg::LoadImpl(const char* filename, sBitmapDescription& desc)
      * Note that this struct must live as long as the main JPEG parameter
      * struct, to avoid dangling-pointer problems.
      */
-    my_error_mgr jerr;
+    sErrorMgr jerr;
 
     // We set up the normal JPEG error routines, then override error_exit.
     cinfo.err = jpeg_std_error(&jerr.pub);
-    jerr.pub.error_exit = my_error_exit;
-    // Establish the setjmp return context for my_error_exit to use.
+    jerr.pub.error_exit = ErrorExit;
+    // Establish the setjmp return context for ErrorExit to use.
     if (setjmp(jerr.setjmp_buffer))
     {
         // If we get here, the JPEG code has signaled an error.
@@ -85,7 +106,9 @@ bool cFormatJpeg::LoadImpl(const char* filename, sBitmapDescription& desc)
 
     // Step 3: read file parameters with jpeg_read_header()
 
-    jpeg_read_header(&cinfo, TRUE);
+    jpeg_read_header(&cinfo, true);
+
+    m_formatName = getFormat(cinfo.jpeg_color_space);
 
     /* Step 4: set parameters for decompression */
 
@@ -108,16 +131,16 @@ bool cFormatJpeg::LoadImpl(const char* filename, sBitmapDescription& desc)
     /* Here we use the library's state variable cinfo.output_scanline as the
      * loop counter, so that we don't have to keep track ourselves.
      */
-    int row_stride = cinfo.output_width * cinfo.output_components;
-    unsigned char* p = &desc.bitmap[0];
+    const auto rowStride = cinfo.output_width * cinfo.output_components;
+    auto out = desc.bitmap.data();
     while (cinfo.output_scanline < cinfo.output_height && m_stop == false)
     {
         /* jpeg_read_scanlines expects an array of pointers to scanlines.
          * Here the array is only one element long, but you could ask for
          * more than one scanline at a time if that's more convenient.
          */
-        jpeg_read_scanlines(&cinfo, &p, 1);
-        p += row_stride;
+        jpeg_read_scanlines(&cinfo, &out, 1);
+        out += rowStride;
 
         updateProgress((float)cinfo.output_scanline / cinfo.output_height);
     }
@@ -140,8 +163,6 @@ bool cFormatJpeg::LoadImpl(const char* filename, sBitmapDescription& desc)
     /* At this point you may want to check to see whether any corrupt-data
      * warnings occurred (test whether jerr.pub.num_warnings is nonzero).
      */
-
-    m_formatName = "jpeg";
 
     return true;
 }

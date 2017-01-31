@@ -8,6 +8,7 @@
 \**********************************************/
 
 #include "progress.h"
+#include "common/helpers.h"
 #include "quad.h"
 
 #include <algorithm>
@@ -38,7 +39,7 @@ void CProgress::render()
         {
             const float nextSpeed = 0.2f;
             m_time = nextSpeed;
-            m_index = (m_index + 1) % (sizeof(m_dot) / sizeof(m_dot[0]));
+            m_index = (m_index + 1) % helpers::countof(m_dot);
             m_dot[m_index].alpha = 255.0f;
         }
 
@@ -51,7 +52,7 @@ void CProgress::render()
         m_back->Render(pos_x, pos_y);
 
         static const unsigned idx[4] = { 0, 1, 3, 2 };
-        for(size_t i = 0; i < sizeof(m_dot)/sizeof(m_dot[0]); i++)
+        for(size_t i = 0; i < helpers::countof(m_dot); i++)
         {
             auto& dot = m_dot[i];
             float alpha = dot.alpha;

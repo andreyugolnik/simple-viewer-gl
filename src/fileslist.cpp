@@ -8,6 +8,7 @@
 \**********************************************/
 
 #include "fileslist.h"
+#include "common/helpers.h"
 
 #include <algorithm>
 #include <cstdlib>
@@ -200,7 +201,7 @@ bool CFilesList::isValidExt(const std::string& path)
         ".pvr", ".pvrtc",
         ".scr", ".atr", ".bsc", ".ifl", ".bmc4", ".mc",
     };
-    for (size_t i = 0; i < sizeof(ext) / sizeof(ext[0]); i++)
+    for (size_t i = 0; i < helpers::countof(ext); i++)
     {
         if (s.substr(pos) == ext[i])
         {
