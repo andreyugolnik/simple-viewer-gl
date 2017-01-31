@@ -18,6 +18,11 @@
 
 struct sPixelInfo
 {
+    sPixelInfo()
+    {
+        reset();
+    }
+
     void reset()
     {
         mouse = { 0.0f, 0.0f };
