@@ -59,7 +59,7 @@ void CCheckerboard::render(bool checkboardEanbled)
         const float dt = current - m_lastTime;
         m_lastTime = current;
 
-        const float speed = 30.0f * M_PI / 180.0f;
+        const float speed = 5.0f * M_PI / 180.0f;
         m_texOffset += dt * speed;
         if (m_texOffset >= M_PI)
         {
