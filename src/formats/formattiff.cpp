@@ -46,6 +46,16 @@ namespace
         }
     }
 
+    void ErrorHandler(const char*, const char*, va_list)
+    {
+        // ::printf("(EE) \n");
+    }
+
+    void WarningHandler(const char*, const char*, va_list)
+    {
+        // ::printf("(WW) \n");
+    }
+
 }
 
 cFormatTiff::cFormatTiff(const char* lib, iCallbacks* callbacks)
@@ -81,6 +91,9 @@ bool cFormatTiff::load(unsigned current, sBitmapDescription& desc)
     file.close();
 
     bool result = false;
+
+    TIFFSetErrorHandler(ErrorHandler);
+    TIFFSetWarningHandler(WarningHandler);
 
     auto tif = TIFFOpen(m_filename.c_str(), "r");
     if (tif != nullptr)
