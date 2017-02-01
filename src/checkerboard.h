@@ -31,10 +31,10 @@ private:
     GLfloat m_b = 1.0f;
     std::unique_ptr<CQuad> m_cb;
 
-    double m_lastTime = 0.0f;
+    // double m_lastTime = 0.0f;
 
     const unsigned m_cellSize = 16;
     const unsigned m_texSize = m_cellSize * 2;
-    float m_texOffset = 0.0f;
+    // float m_texOffset = 0.0f;
 };
 
