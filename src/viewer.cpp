@@ -312,10 +312,9 @@ void cViewer::fnMouseButtons(int button, int action, int mods)
     }
 }
 
-void cViewer::fnKeyboard(int key, int scancode, int action, int mods)
+void cViewer::fnKeyboard(int key, int /*scancode*/, int action, int mods)
 {
-    (void)scancode;
-    if (action != GLFW_PRESS)
+    if (action != GLFW_PRESS && action != GLFW_REPEAT)
     {
         return;
     }
