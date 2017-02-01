@@ -21,7 +21,12 @@ namespace
     {
         png_charp name;
         int comp_type;
+#if ((PNG_LIBPNG_VER_MAJOR << 8) | PNG_LIBPNG_VER_MINOR << 0) < \
+        ((1 << 8) | (5 << 0))
+        png_charp icc;
+#else  // >= libpng 1.5.0
         png_bytep icc;
+#endif
         png_uint_32 size;
         if (png_get_iCCP(png, info, &name, &comp_type, &icc, &size) == PNG_INFO_iCCP)
         {
