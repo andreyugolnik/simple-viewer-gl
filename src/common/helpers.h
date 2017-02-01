@@ -12,6 +12,7 @@
 #include "buffer.h"
 
 #include <cstdint>
+#include <cstddef>
 
 class cFileInterface;
 

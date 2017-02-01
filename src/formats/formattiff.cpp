@@ -19,18 +19,31 @@
 namespace
 {
 
-    void* locateICCProfile(TIFF* tif, unsigned& iccProfileSize)
+    void locateICCProfile(TIFF* tif, cCMS& cms)
     {
+        unsigned iccProfileSize = 0;
         void* iccProfile = nullptr;
         if (TIFFGetField(tif, TIFFTAG_ICCPROFILE, &iccProfileSize, &iccProfile))
         {
-            // ::printf("-- profile: %p\n", iccProfile);
-            // ::printf("-- size: %u\n", iccProfileSize);
-
-            return iccProfile;
+            cms.createTransform(iccProfile, iccProfileSize, cCMS::Pixel::Rgba);
         }
+        else
+        {
+            float* chr;
+            if (TIFFGetField(tif, TIFFTAG_PRIMARYCHROMATICITIES, &chr))
+            {
+                float* wp;
+                if (TIFFGetField(tif, TIFFTAG_WHITEPOINT, &wp))
+                {
+                    unsigned short* gmr;
+                    unsigned short* gmg;
+                    unsigned short* gmb;
+                    TIFFGetFieldDefaulted(tif, TIFFTAG_TRANSFERFUNCTION, &gmr, &gmg, &gmb);
 
-        return nullptr;
+                    cms.createTransform(chr, wp, gmr, gmg, gmb, cCMS::Pixel::Rgba);
+                }
+            }
+        }
     }
 
 }
@@ -79,9 +92,7 @@ bool cFormatTiff::load(unsigned current, sBitmapDescription& desc)
         // set desired page
         if (TIFFSetDirectory(tif, desc.current) != 0)
         {
-            unsigned iccProfileSize = 0;
-            auto iccProfile = locateICCProfile(tif, iccProfileSize);
-            m_cms.createTransform(iccProfile, iccProfileSize, cCMS::Pixel::Rgba);
+            locateICCProfile(tif, m_cms);
 
             TIFFRGBAImage img;
             if (TIFFRGBAImageBegin(&img, tif, 0, nullptr) != 0)

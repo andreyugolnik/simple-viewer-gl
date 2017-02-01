@@ -130,7 +130,7 @@ TARGET_LINK_LIBRARIES( sviewgl
     ${GIF_LIBRARY}
     ${ZLIB_LIBRARIES}
     ${WEBP_LIBRARIES}
-    "lcms"
+    "lcms2"
     )
 
 IF(IMLIB2_FOUND)
