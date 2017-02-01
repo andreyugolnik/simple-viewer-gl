@@ -541,10 +541,10 @@ void cViewer::updateScale(bool up)
 {
     m_config->fitImage = false;
 
-    const int step = 25;
+    const int step = m_scale >= 1.0f ? 25 : (m_scale >= 0.3f ? 5 : 1);
     int scale = std::max<int>(step, ceilf(m_scale * 100.0f));
-    scale /= 25;
-    scale *= 25;
+    scale /= step;
+    scale *= step;
 
     if (up == true)
     {
