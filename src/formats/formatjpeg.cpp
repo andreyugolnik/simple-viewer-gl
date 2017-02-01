@@ -11,6 +11,7 @@
 #include "../common/bitmap_description.h"
 #include "../common/file.h"
 #include "../common/helpers.h"
+#include "../cms/cms.h"
 
 #include <cstring>
 #include <jpeglib.h>
@@ -38,19 +39,48 @@ namespace
         longjmp(errMgr->setjmp_buffer, 1);
     }
 
-    const char* getFormat(unsigned idx)
+    // const char* getFormat(unsigned idx)
+    // {
+        // const char* Formats[] =
+        // {
+            // "jpeg",           // JCS_UNKNOWN:
+            // "jpeg/grayscale", // JCS_GRAYSCALE:
+            // "jpeg/rgb",       // JCS_RGB:
+            // "jpeg/ycbcr",     // JCS_YCbCr:
+            // "jpeg/cmyk",      // JCS_CMYK:
+            // "jpeg/ycck",      // JCS_YCCK:
+        // };
+        // const auto size = helpers::countof(Formats);
+        // return Formats[idx < size ? idx : 0];
+    // }
+
+    const unsigned int maxMarkerLength = 0xffff;
+    const int JPEG_EXIF = JPEG_APP0 + 1;  // Exif/XMP
+    const int JPEG_ICCP = JPEG_APP0 + 2;  // ICC profile
+
+    void setupMarkers(jpeg_decompress_struct* cinfo)
     {
-        const char* Formats[] =
+        jpeg_save_markers(cinfo, JPEG_EXIF, maxMarkerLength);
+        jpeg_save_markers(cinfo, JPEG_ICCP, maxMarkerLength);
+    }
+
+    void* locateICCProfile(const jpeg_decompress_struct& cinfo, unsigned& iccProfileSize)
+    {
+        static const char kICCPSignature[] = "ICC_PROFILE";
+        static const size_t kICCPSkipLength = 14;  // signature + seq & count
+
+        for (auto m = cinfo.marker_list; m != nullptr; m = m->next)
         {
-            "jpeg",           // JCS_UNKNOWN:
-            "jpeg/grayscale", // JCS_GRAYSCALE:
-            "jpeg/rgb",       // JCS_RGB:
-            "jpeg/ycbcr",     // JCS_YCbCr:
-            "jpeg/cmyk",      // JCS_CMYK:
-            "jpeg/ycck",      // JCS_YCCK:
-        };
-        const auto size = helpers::countof(Formats);
-        return Formats[idx < size ? idx : 0];
+            if (m->marker == JPEG_ICCP
+                && m->data_length > kICCPSkipLength
+                && ::memcmp(m->data, kICCPSignature, sizeof(kICCPSignature)) == 0)
+            {
+                iccProfileSize = m->data_length - kICCPSkipLength;
+                return m->data + kICCPSkipLength;
+            }
+        }
+
+        return nullptr;
     }
 
 }
@@ -101,17 +131,20 @@ bool cFormatJpeg::LoadImpl(const char* filename, sBitmapDescription& desc)
     jpeg_create_decompress(&cinfo);
 
     // Step 2: specify data source (eg, a file)
-
     jpeg_stdio_src(&cinfo, (FILE*)file.getHandle());
 
     // Step 3: read file parameters with jpeg_read_header()
-
+    setupMarkers(&cinfo);
     jpeg_read_header(&cinfo, true);
 
-    m_formatName = getFormat(cinfo.jpeg_color_space);
+    unsigned iccProfileSize = 0;
+    auto iccProfile = locateICCProfile(cinfo, iccProfileSize);
+    m_cms.createTransform(iccProfile, iccProfileSize, cCMS::Pixel::Rgb);
+
+    // m_formatName = getFormat(cinfo.jpeg_color_space);
+    m_formatName = m_cms.hasTransform() ? "jpeg/icc" : "jpeg";
 
     /* Step 4: set parameters for decompression */
-
     cinfo.out_color_space = JCS_RGB;    // convert to RGB
 
     /* Step 5: Start decompressor */
@@ -133,16 +166,39 @@ bool cFormatJpeg::LoadImpl(const char* filename, sBitmapDescription& desc)
      */
     const auto rowStride = cinfo.output_width * cinfo.output_components;
     auto out = desc.bitmap.data();
-    while (cinfo.output_scanline < cinfo.output_height && m_stop == false)
-    {
-        /* jpeg_read_scanlines expects an array of pointers to scanlines.
-         * Here the array is only one element long, but you could ask for
-         * more than one scanline at a time if that's more convenient.
-         */
-        jpeg_read_scanlines(&cinfo, &out, 1);
-        out += rowStride;
 
-        updateProgress((float)cinfo.output_scanline / cinfo.output_height);
+    if (m_cms.hasTransform() == false)
+    {
+        while (cinfo.output_scanline < cinfo.output_height && m_stop == false)
+        {
+            /* jpeg_read_scanlines expects an array of pointers to scanlines.
+             * Here the array is only one element long, but you could ask for
+             * more than one scanline at a time if that's more convenient.
+             */
+            jpeg_read_scanlines(&cinfo, &out, 1);
+            out += rowStride;
+
+            updateProgress((float)cinfo.output_scanline / cinfo.output_height);
+        }
+    }
+    else
+    {
+        std::vector<unsigned char> buffer(rowStride);
+        auto input = buffer.data();
+        while (cinfo.output_scanline < cinfo.output_height && m_stop == false)
+        {
+            /* jpeg_read_scanlines expects an array of pointers to scanlines.
+             * Here the array is only one element long, but you could ask for
+             * more than one scanline at a time if that's more convenient.
+             */
+            jpeg_read_scanlines(&cinfo, &input, 1);
+            m_cms.doTransform(input, out, cinfo.output_width);
+            out += rowStride;
+
+            updateProgress((float)cinfo.output_scanline / cinfo.output_height);
+        }
+
+        m_cms.destroyTransform();
     }
 
     /* Step 7: Finish decompression */

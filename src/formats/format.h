@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../common/buffer.h"
+#include "../cms/cms.h"
 
 class iCallbacks;
 class cFile;
@@ -57,6 +58,8 @@ private:
     float m_percent = 0.0f;
 
 protected:
+    cCMS m_cms;
+
     const char* m_formatName = nullptr;
     void* m_lib = nullptr;
     bool m_stop = false;

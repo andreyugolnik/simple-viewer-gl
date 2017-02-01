@@ -71,6 +71,7 @@ ENDIF()
 
 ADD_EXECUTABLE( sviewgl
     src/checkerboard.cpp
+    src/cms/cms.cpp
     src/common/Ini.cpp
     src/common/ZlibDecoder.cpp
     src/common/config.cpp
@@ -129,6 +130,7 @@ TARGET_LINK_LIBRARIES( sviewgl
     ${GIF_LIBRARY}
     ${ZLIB_LIBRARIES}
     ${WEBP_LIBRARIES}
+    "lcms"
     )
 
 IF(IMLIB2_FOUND)

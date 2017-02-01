@@ -10,9 +10,27 @@
 #include "formattiff.h"
 #include "../common/bitmap_description.h"
 #include "../common/file.h"
+#include "../cms/cms.h"
 
 #include <cstring>
 #include <tiffio.h>
+
+namespace
+{
+
+    void* locateICCProfile(TIFF* tif, unsigned iccProfileSize)
+    {
+        void* iccProfile = nullptr;
+        if (TIFFGetField(tif, TIFFTAG_ICCPROFILE, &iccProfileSize, &iccProfile))
+        {
+            ::printf("-- profile: %s\n", iccProfile);
+            return iccProfile;
+        }
+
+        return nullptr;
+    }
+
+}
 
 cFormatTiff::cFormatTiff(const char* lib, iCallbacks* callbacks)
     : cFormat(lib, callbacks)
@@ -51,6 +69,10 @@ bool cFormatTiff::load(unsigned current, sBitmapDescription& desc)
     auto tif = TIFFOpen(m_filename.c_str(), "r");
     if (tif != nullptr)
     {
+        unsigned iccProfileSize = 0;
+        auto iccProfile = locateICCProfile(tif, iccProfileSize);
+        m_cms.createTransform(iccProfile, iccProfileSize, cCMS::Pixel::Rgba);
+
         // read count of pages in image
         desc.images = TIFFNumberOfDirectories(tif);
         desc.current = std::min(current, desc.images - 1);
@@ -72,15 +94,31 @@ bool cFormatTiff::load(unsigned current, sBitmapDescription& desc)
                 // set desired orientation
                 img.req_orientation = ORIENTATION_TOPLEFT;
 
+                auto iccProfile = locateICCProfile(tif, iccProfileSize);
+                if (iccProfile != nullptr)
+                {
+                    m_cms.createTransform(iccProfile, iccProfileSize, cCMS::Pixel::Rgba);
+                }
+
+                m_formatName = m_cms.hasTransform() ? "tiff/icc" : "tiff";
+
                 result = TIFFRGBAImageGet(&img, (uint32*)desc.bitmap.data(), desc.width, desc.height) != 0;
+
+                if (result && m_cms.hasTransform())
+                {
+                    auto bitmap = desc.bitmap.data();
+                    for (unsigned i = 0; i < desc.height; i++)
+                    {
+                        m_cms.doTransform(bitmap, bitmap, desc.width);
+                    }
+                }
+
                 TIFFRGBAImageEnd(&img);
             }
         }
 
         TIFFClose(tif);
     }
-
-    m_formatName = "tiff";
 
     return result;
 }

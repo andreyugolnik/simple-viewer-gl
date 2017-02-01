@@ -14,6 +14,30 @@
 #include <cstring>
 #include <png.h>
 
+namespace
+{
+
+    void* locateICCProfile(const png_structp png, const png_infop info, unsigned& iccProfileSize)
+    {
+        png_charp name;
+        int comp_type;
+        png_bytep icc;
+        png_uint_32 size;
+        if (png_get_iCCP(png, info, &name, &comp_type, &icc, &size) == PNG_INFO_iCCP)
+        {
+            // ::printf("-- name: %s\n", name);
+            // ::printf("-- comp_type: %d\n", comp_type);
+            // ::printf("-- size: %u\n", size);
+
+            iccProfileSize = size;
+            return icc;
+        }
+
+        return nullptr;
+    }
+
+}
+
 cFormatPng::cFormatPng(const char* lib, iCallbacks* callbacks)
     : cFormat(lib, callbacks)
 {
@@ -105,30 +129,56 @@ bool cFormatPng::LoadImpl(const char* filename, sBitmapDescription& desc)
     }
 
     // create buffer and read data
-    png_bytep* row_pointers = new png_bytep[desc.height];
+    auto row_pointers = new png_bytep[desc.height];
     for (unsigned y = 0; y < desc.height; y++)
     {
         row_pointers[y] = new png_byte[desc.pitch];
     }
     png_read_image(png, row_pointers);
 
-    // create BGRA buffer and decode image data
+    // create RGBA buffer and decode image data
     desc.bitmap.resize(desc.pitch * desc.height);
+    auto out = desc.bitmap.data();
+
+    std::vector<unsigned char> buffer(desc.pitch);
+    auto input = buffer.data();
 
     color_type = png_get_color_type(png, info);
+
+    unsigned iccProfileSize = 0;
+    auto iccProfile = locateICCProfile(png, info, iccProfileSize);
+    m_cms.createTransform(iccProfile, iccProfileSize, cCMS::Pixel::Rgb);
+
+    m_formatName = m_cms.hasTransform() ? "png/icc" : "png";
+
     if (color_type == PNG_COLOR_TYPE_RGB)
     {
         desc.format = GL_RGB;
         for (unsigned y = 0; y < desc.height; y++)
         {
-            unsigned dst = y * desc.pitch;
-            for (unsigned x = 0; x < desc.width; x++)
+            if (m_cms.hasTransform())
             {
-                unsigned dx = x * 3;
-                desc.bitmap[dst + dx + 0] = *(row_pointers[y] + dx + 0);
-                desc.bitmap[dst + dx + 1] = *(row_pointers[y] + dx + 1);
-                desc.bitmap[dst + dx + 2] = *(row_pointers[y] + dx + 2);
+                for (unsigned x = 0; x < desc.width; x++)
+                {
+                    const unsigned dx = x * 3;
+                    input[dx + 0] = *(row_pointers[y] + dx + 0);
+                    input[dx + 1] = *(row_pointers[y] + dx + 1);
+                    input[dx + 2] = *(row_pointers[y] + dx + 2);
+                }
+
+                m_cms.doTransform(input, out, desc.width);
             }
+            else
+            {
+                for (unsigned x = 0; x < desc.width; x++)
+                {
+                    const unsigned dx = x * 3;
+                    out[dx + 0] = *(row_pointers[y] + dx + 0);
+                    out[dx + 1] = *(row_pointers[y] + dx + 1);
+                    out[dx + 2] = *(row_pointers[y] + dx + 2);
+                }
+            }
+            out += desc.pitch;
 
             updateProgress((float)y / desc.height);
 
@@ -140,15 +190,39 @@ bool cFormatPng::LoadImpl(const char* filename, sBitmapDescription& desc)
         desc.format = GL_RGBA;
         for (unsigned y = 0; y < desc.height; y++)
         {
-            unsigned dst = y * desc.pitch;
-            for (unsigned x = 0; x < desc.width; x++)
+            if (m_cms.hasTransform())
             {
-                unsigned dx = x * 4;
-                desc.bitmap[dst + dx + 0] = *(row_pointers[y] + dx + 0);
-                desc.bitmap[dst + dx + 1] = *(row_pointers[y] + dx + 1);
-                desc.bitmap[dst + dx + 2] = *(row_pointers[y] + dx + 2);
-                desc.bitmap[dst + dx + 3] = *(row_pointers[y] + dx + 3);
+                for (unsigned x = 0; x < desc.width; x++)
+                {
+                    const unsigned dx = x * 4;
+                    input[x * 3 + 0] = *(row_pointers[y] + dx + 0);
+                    input[x * 3 + 1] = *(row_pointers[y] + dx + 1);
+                    input[x * 3 + 2] = *(row_pointers[y] + dx + 2);
+                }
+
+                m_cms.doTransform(input, input, desc.width);
+
+                for (unsigned x = 0; x < desc.width; x++)
+                {
+                    const unsigned dx = x * 4;
+                    out[dx + 0] = input[x * 3 + 0];
+                    out[dx + 1] = input[x * 3 + 1];
+                    out[dx + 2] = input[x * 3 + 2];
+                    out[dx + 3] = *(row_pointers[y] + dx + 3);
+                }
             }
+            else
+            {
+                for (unsigned x = 0; x < desc.width; x++)
+                {
+                    const unsigned dx = x * 4;
+                    out[dx + 0] = *(row_pointers[y] + dx + 0);
+                    out[dx + 1] = *(row_pointers[y] + dx + 1);
+                    out[dx + 2] = *(row_pointers[y] + dx + 2);
+                    out[dx + 3] = *(row_pointers[y] + dx + 3);
+                }
+            }
+            out += desc.pitch;
 
             updateProgress((float)y / desc.height);
 
@@ -168,7 +242,7 @@ bool cFormatPng::LoadImpl(const char* filename, sBitmapDescription& desc)
 
     png_destroy_read_struct(&png, &info, nullptr);
 
-    m_formatName = "png";
+    m_cms.destroyTransform();
 
     return true;
 }
