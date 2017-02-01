@@ -135,12 +135,12 @@ void CInfoBar::setInfo(const sInfo& p)
 
     char title[1000] = { 0 };
     snprintf(title, sizeof(title)
-             , "%s%s%s | %s | %d x %d x %d bpp (%d%%) | mem: %.1f %s (%.1f %s)"
+             , "%s%s%s | %s | %d x %d x %d bpp (%.1f%%) | mem: %.1f %s (%.1f %s)"
              , idx_img
              , name
              , sub_image
              , p.type
-             , p.width, p.height, p.bpp, (int)(100.0f * p.scale)
+             , p.width, p.height, p.bpp, p.scale * 100.0f
              , file_size, file_s.c_str()
              , mem_size, mem_s.c_str());
 

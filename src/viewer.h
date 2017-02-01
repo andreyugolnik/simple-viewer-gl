@@ -10,6 +10,7 @@
 #pragma once
 
 #include "common/callbacks.h"
+#include "common/scale.h"
 #include "math/vector.h"
 
 #include <vector>
@@ -97,7 +98,7 @@ private:
     sConfig* m_config;
     cVector<float> m_ratio;
     bool m_imagePrepared = false;
-    float m_scale;
+    cScale m_scale;
     bool m_isWindowed;
     //bool m_centerWindow;
     //bool m_allValid;

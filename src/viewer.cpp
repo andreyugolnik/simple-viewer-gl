@@ -29,7 +29,6 @@ const int DEF_WINDOW_H = 200;
 
 cViewer::cViewer(sConfig* config)
     : m_config(config)
-    , m_scale(1.0f)
     , m_isWindowed(true)
     , m_mouseLB(false)
     , m_mouseMB(false)
@@ -110,7 +109,9 @@ void cViewer::render()
 
     //updateViewportSize();
 
-    cRenderer::setGlobals(m_camera, m_angle, m_scale);
+    const float scale = m_scale.getScale();
+
+    cRenderer::setGlobals(m_camera, m_angle, scale);
 
     m_image->render();
 
@@ -121,7 +122,7 @@ void cViewer::render()
     {
         if (m_config->showImageBorder)
         {
-            m_border->Render(-half_w, -half_h, m_image->getWidth(), m_image->getHeight(), m_scale);
+            m_border->Render(-half_w, -half_h, m_image->getWidth(), m_image->getHeight(), scale);
         }
         if (m_config->showPixelInfo && m_angle == 0)
         {
@@ -135,16 +136,16 @@ void cViewer::render()
     //switch(m_angle)
     //{
     //case 0:
-    //m_border->Render(m_camera_x, m_camera_y, img_w, img_h, m_scale);
+    //m_border->Render(m_camera_x, m_camera_y, img_w, img_h, scale);
     //break;
     //case 90:
-    //m_border->Render(m_camera_x, m_camera_y, img_h, -img_w, m_scale);
+    //m_border->Render(m_camera_x, m_camera_y, img_h, -img_w, scale);
     //break;
     //case 180:
-    //m_border->Render(m_camera_x, m_camera_y, -img_w, -img_h, m_scale);
+    //m_border->Render(m_camera_x, m_camera_y, -img_w, -img_h, scale);
     //break;
     //case 270:
-    //m_border->Render(m_camera_x, m_camera_y, -img_h, img_w, m_scale);
+    //m_border->Render(m_camera_x, m_camera_y, -img_h, img_w, scale);
     //break;
     //}
     //}
@@ -170,7 +171,10 @@ void cViewer::update()
     {
         m_imagePrepared = false;
 
-        m_scale = m_config->keepScale ? m_scale : 1;
+        if (m_config->keepScale == false)
+        {
+            m_scale.setScalePercent(100);
+        }
         m_angle = 0;
         m_camera = cVector<float>(0, 0);
 
@@ -238,7 +242,8 @@ cVector<float> cViewer::calculateMousePosition(float x, float y) const
     x *= m_ratio.x;
     y *= m_ratio.y;
 
-    return { x / m_scale, y / m_scale };
+    const float scale = m_scale.getScale();
+    return { x / scale, y / scale };
 }
 
 void cViewer::fnMouse(float x, float y)
@@ -341,12 +346,12 @@ void cViewer::fnKeyboard(int key, int scancode, int action, int mods)
             m_config->fitImage = !m_config->fitImage;
             if (m_config->fitImage == false)
             {
-                m_scale = 1.0f;
+                m_scale.setScalePercent(100);
             }
             m_camera = cVector<float>();
             centerWindow();
             updateInfobar();
-            m_selection->setScale(m_scale);
+            m_selection->setScale(m_scale.getScale());
         }
         break;
 
@@ -431,21 +436,21 @@ void cViewer::fnKeyboard(int key, int scancode, int action, int mods)
     default:
         if (key == GLFW_KEY_0)
         {
-            m_scale = 10.0f;
+            m_scale.setScalePercent(1000);
             m_camera = { 0.0f, 0.0f };
             m_config->fitImage = false;
             centerWindow();
             updateInfobar();
-            m_selection->setScale(m_scale);
+            m_selection->setScale(m_scale.getScale());
         }
         else if (key >= GLFW_KEY_1 && key <= GLFW_KEY_9)
         {
-            m_scale = (float)(key - GLFW_KEY_0);
+            m_scale.setScalePercent((key - GLFW_KEY_0) * 100);
             m_camera = { 0.0f, 0.0f };
             m_config->fitImage = false;
             centerWindow();
             updateInfobar();
-            m_selection->setScale(m_scale);
+            m_selection->setScale(m_scale.getScale());
         }
         break;
     }
@@ -453,22 +458,22 @@ void cViewer::fnKeyboard(int key, int scancode, int action, int mods)
 
 void cViewer::keyUp()
 {
-    shiftCamera(cVector<float>(0, -10 / m_scale));
+    shiftCamera(cVector<float>(0, -10 / m_scale.getScale()));
 }
 
 void cViewer::keyDown()
 {
-    shiftCamera(cVector<float>(0, 10 / m_scale));
+    shiftCamera(cVector<float>(0, 10 / m_scale.getScale()));
 }
 
 void cViewer::keyLeft()
 {
-    shiftCamera(cVector<float>(-10 / m_scale, 0));
+    shiftCamera(cVector<float>(-10 / m_scale.getScale(), 0));
 }
 
 void cViewer::keyRight()
 {
-    shiftCamera(cVector<float>(10 / m_scale, 0));
+    shiftCamera(cVector<float>(10 / m_scale.getScale(), 0));
 }
 
 void cViewer::shiftCamera(const cVector<float>& delta)
@@ -476,13 +481,12 @@ void cViewer::shiftCamera(const cVector<float>& delta)
     m_camera += delta;
 
     const auto& viewport = cRenderer::getViewportSize();
-    cVector<float> half = (viewport / m_scale + cVector<float>(m_image->getWidth(), m_image->getHeight())) * 0.5f;
+    cVector<float> half = (viewport / m_scale.getScale() + cVector<float>(m_image->getWidth(), m_image->getHeight())) * 0.5f;
     m_camera.x = std::max<float>(m_camera.x, -half.x);
     m_camera.x = std::min<float>(m_camera.x, half.x);
     m_camera.y = std::max<float>(m_camera.y, -half.y);
     m_camera.y = std::min<float>(m_camera.y, half.y);
 }
-
 
 void cViewer::calculateScale()
 {
@@ -500,8 +504,8 @@ void cViewer::calculateScale()
         if (w >= viewport.x || h >= viewport.y)
         {
             float aspect = w / h;
-            float new_w = 0;
-            float new_h = 0;
+            float new_w = 0.0f;
+            float new_h = 0.0f;
             float dx = w / viewport.x;
             float dy = h / viewport.y;
             if (dx > dy)
@@ -520,20 +524,28 @@ void cViewer::calculateScale()
                     new_w = new_h * aspect;
                 }
             }
-            if (new_w != 0 && new_h != 0)
+            if (new_w != 0.0f && new_h != 0.0f)
             {
                 //m_scale = static_cast<float>((angle == 0 || angle == 180) ? new_w : new_h) / w;
-                m_scale = new_w / w;
+                m_scale.setScale(new_w / w);
             }
         }
         else
         {
-            m_scale = 1.0f;
+            m_scale.setScalePercent(100);
         }
-        m_selection->setScale(m_scale);
+        m_selection->setScale(m_scale.getScale());
     }
 
     updateFiltering();
+}
+
+bool FixeScale(int& scale, int step)
+{
+    const int oldScale = scale;
+    scale /= step;
+    scale *= step;
+    return oldScale != scale;
 }
 
 // TODO update m_camera_x / m_camera_y according current mouse position
@@ -541,24 +553,24 @@ void cViewer::updateScale(bool up)
 {
     m_config->fitImage = false;
 
-    const int step = m_scale >= 1.0f ? 25 : (m_scale >= 0.3f ? 5 : 1);
-    int scale = std::max<int>(step, ceilf(m_scale * 100.0f));
-    scale /= step;
-    scale *= step;
+    int scale = m_scale.getScalePercent();
 
     if (up == true)
     {
+        const int step = scale >= 100 ? 25 : (scale >= 50 ? 10 : (scale >= 30 ? 5 : 1));
+        FixeScale(scale, step);
         scale += step;
     }
     else
     {
-        if (scale > step)
+        const int step = scale > 100 ? 25 : (scale > 50 ? 10 : (scale > 30 ? 5 : 1));
+        if (FixeScale(scale, step) == false && scale > step)
         {
             scale -= step;
         }
     }
-    m_scale = scale / 100.0f;
-    m_selection->setScale(m_scale);
+    m_scale.setScalePercent(scale);
+    m_selection->setScale(m_scale.getScale());
 
     updateFiltering();
     updateInfobar();
@@ -566,8 +578,8 @@ void cViewer::updateScale(bool up)
 
 void cViewer::updateFiltering()
 {
-    const int scale = (int)(m_scale * 100);
-    if (scale % 100 == 0 && m_scale >= 1.0f)
+    const int scale = m_scale.getScalePercent();
+    if (scale >= 100 && scale % 100 == 0)
     {
         m_image->useFilter(false);
     }
@@ -637,7 +649,7 @@ void cViewer::updateInfobar()
 
     CInfoBar::sInfo s;
     s.path        = m_filesList->GetName();
-    s.scale       = m_scale;
+    s.scale       = m_scale.getScale();
     s.index       = m_filesList->GetIndex();
     s.files_count = m_filesList->GetCount();
 
@@ -662,7 +674,7 @@ void cViewer::updateInfobar()
 cVector<float> cViewer::screenToImage(const cVector<float>& pos) const
 {
     const auto& viewport = cRenderer::getViewportSize();
-    return pos + m_camera - (viewport / m_scale - cVector<float>(m_image->getWidth(), m_image->getHeight())) * 0.5f;
+    return pos + m_camera - (viewport / m_scale.getScale() - cVector<float>(m_image->getWidth(), m_image->getHeight())) * 0.5f;
 }
 
 void cViewer::updatePixelInfo(const cVector<float>& pos)
@@ -671,7 +683,7 @@ void cViewer::updatePixelInfo(const cVector<float>& pos)
 
     const cVector<float> point = screenToImage(pos);
 
-    pixelInfo.mouse = pos * m_scale;
+    pixelInfo.mouse = pos * m_scale.getScale();
     pixelInfo.point = point;
 
     if (m_loader->isLoaded())
