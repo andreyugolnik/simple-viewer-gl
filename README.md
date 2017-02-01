@@ -53,13 +53,12 @@ $ make release
 
 ##Dependencies##
 
-* GLFW3 - multi-platform library for creating windows with OpenGL contexts and receiving input and events.
-* OpenGL
+* glfw3 - multi-platform library for creating windows with OpenGL contexts and receiving input and events.
 * Imlib2 - common formats support.
 * libjpeg - jpeg format support.
 * libpng - png format support.
 * giflib - gif format support.
-* tiff - tiff format support.
+* libtiff - tiff format support.
 * webp - WebP format support.
 * freetype2 - FreeType 2 font engine, shared library files.
 * zlib - compression support.
