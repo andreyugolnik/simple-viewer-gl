@@ -35,13 +35,5 @@ struct sConfig
 class cConfig final
 {
 public:
-    void read();
-
-    sConfig& getConfig()
-    {
-        return m_config;
-    }
-
-private:
-    sConfig m_config;
+    void read(sConfig& config) const;
 };

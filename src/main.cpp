@@ -21,7 +21,7 @@ namespace
 {
 
     const char* SimpleViewerTitle = "Simple Viewer GL";
-    const float SimpleViewerVersion = 2.77f;
+    const float SimpleViewerVersion = 2.78f;
 
     cViewer* m_viewer = nullptr;
 
@@ -33,7 +33,12 @@ namespace
         printf("andrey@ugolnik.info\n");
     }
 
-    void showHelp(const char* name)
+    const char* getValue(bool enabled)
+    {
+        return enabled ? "enabled" : "disabled";
+    }
+
+    void showHelp(const char* name, const sConfig& config)
     {
         const char* p = strrchr(name, '/');
 
@@ -41,17 +46,20 @@ namespace
         printf("  %s [OPTION]... FILE\n", (p != nullptr ? p + 1 : name));
         printf("  -h, --help    show this help;\n");
         printf("  -v, --version show viewer version;\n");
-        printf("  -s            enable scale to window;\n");
-        printf("  -cw           center window;\n");
+        printf("  -s            enable scale to window (default: %s);\n", getValue(config.fitImage));
+        printf("  -cw           center window (default: %s);\n", getValue(config.centerWindow));
         printf("  -a            do not filter by file ext;\n");
-        printf("  -c            disable chequerboard;\n");
-        printf("  -i            disable on screen info;\n");
-        printf("  -p            show pixel info (pixel color and coordinates);\n");
-        printf("  -b            show border around image;\n");
+        printf("  -c            disable chequerboard (default: %s);\n", getValue(!config.hideCheckboard));
+        printf("  -i            disable on screen info (default: %s);\n", getValue(!config.hideInfobar));
+        printf("  -p            show pixel info (pixel color and coordinates, default: %s);\n", getValue(config.showPixelInfo));
+        printf("  -b            show border around image (default: %s);\n", getValue(config.showImageBorder));
         printf("  -f            start in fullscreen mode;\n");
-        printf("  -r            recursive directory scan;\n");
-        printf("  -wz           enable wheel zoom;\n");
-        printf("  -C RRGGBB     background color in hex format;\n");
+        printf("  -r            recursive directory scan (default: %s);\n", getValue(config.recursiveScan));
+        printf("  -wz           enable wheel zoom (default: %s);\n", getValue(config.wheelZoom));
+        printf("  -C RRGGBB     background color in hex format (default: %.2X%.2X%.2X);\n"
+               , (unsigned)(config.color.r * 255)
+               , (unsigned)(config.color.g * 255)
+               , (unsigned)(config.color.b * 255));
 
         printf("\nAvailable keys:\n");
         printf("  <esc>         exit;\n");
@@ -140,12 +148,14 @@ int main(int argc, char* argv[])
 {
     setlocale(LC_ALL, "");
 
+    sConfig config;
+
     for (int i = 1; i < argc; i++)
     {
         if (!strncmp(argv[i], "-h", 2) || !strncmp(argv[i], "--help", 6))
         {
             showVersion();
-            showHelp(argv[0]);
+            showHelp(argv[0], config);
             return 0;
         }
         else if (!strncmp(argv[i], "-v", 2) || !strncmp(argv[i], "--version", 9))
@@ -155,9 +165,8 @@ int main(int argc, char* argv[])
         }
     }
 
-    cConfig config;
-    config.read();
-    sConfig& c = config.getConfig();
+    cConfig reader;
+    reader.read(config);
 
     const char* path = nullptr;
 
@@ -165,50 +174,50 @@ int main(int argc, char* argv[])
     {
         if (strncmp(argv[i], "--debug", 7) == 0)
         {
-            c.debug = true;
+            config.debug = true;
         }
         if (strncmp(argv[i], "-i", 2) == 0)
         {
-            c.hideInfobar = true;
+            config.hideInfobar = true;
         }
         else if (strncmp(argv[i], "-p", 2) == 0)
         {
-            c.showPixelInfo = true;
+            config.showPixelInfo = true;
         }
         else if (strncmp(argv[i], "-cw", 3) == 0)
         {
-            c.centerWindow = true;
+            config.centerWindow = true;
         }
         else if (strncmp(argv[i], "-c", 2) == 0)
         {
-            c.hideCheckboard = true;
+            config.hideCheckboard = true;
         }
         else if (strncmp(argv[i], "-s", 2) == 0)
         {
-            c.fitImage = true;
+            config.fitImage = true;
         }
         else if (strncmp(argv[i], "-b", 2) == 0)
         {
-            c.showImageBorder = true;
+            config.showImageBorder = true;
         }
         else if (strncmp(argv[i], "-r", 2) == 0)
         {
-            c.recursiveScan = true;
+            config.recursiveScan = true;
         }
         else if (strncmp(argv[i], "-a", 2) == 0)
         {
-            c.skipFilter = true;
+            config.skipFilter = true;
         }
         else if (strncmp(argv[i], "-wz", 3) == 0)
         {
-            c.wheelZoom = true;
+            config.wheelZoom = true;
         }
         else if (strncmp(argv[i], "-C", 2) == 0)
         {
             int r, g, b;
             if (3 == sscanf(argv[i + 1], "%2x%2x%2x", &r, &g, &b))
             {
-                c.color = { r / 255.0f, g / 255.0f, b / 255.0f };
+                config.color = { r / 255.0f, g / 255.0f, b / 255.0f };
                 i++;
             }
         }
@@ -218,7 +227,7 @@ int main(int argc, char* argv[])
         }
     }
 
-    cViewer viewer(&c);
+    cViewer viewer(&config);
     m_viewer = &viewer;
 
     viewer.setInitialImagePath(path);

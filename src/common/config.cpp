@@ -35,7 +35,7 @@ namespace
 
 }
 
-void cConfig::read()
+void cConfig::read(sConfig& config) const
 {
     char path[4096];
 
@@ -67,20 +67,20 @@ void cConfig::read()
 
     const char* section = "common";
 
-    m_config.debug = getBool(ini.getString(section, "debug"), false);
+    config.debug = getBool(ini.getString(section, "debug"), false);
 
-    m_config.hideInfobar = getBool(ini.getString(section, "hide_infobar"), false);
-    m_config.showPixelInfo = getBool(ini.getString(section, "show_pixelinfo"), false);
-    m_config.hideCheckboard = getBool(ini.getString(section, "hide_checkboard"), false);
-    m_config.fitImage = getBool(ini.getString(section, "fit_image"), false);
-    m_config.showImageBorder = getBool(ini.getString(section, "show_image_border"), false);
-    m_config.recursiveScan = getBool(ini.getString(section, "lookup_recursive"), false);
-    m_config.centerWindow = getBool(ini.getString(section, "center_window"), false);
-    m_config.skipFilter = getBool(ini.getString(section, "skip_filter"), false);
-    m_config.wheelZoom = getBool(ini.getString(section, "wheel_zoom"), false);
-    m_config.keepScale = getBool(ini.getString(section, "keep_scale"), false);
+    config.hideInfobar = getBool(ini.getString(section, "hide_infobar"), false);
+    config.showPixelInfo = getBool(ini.getString(section, "show_pixelinfo"), false);
+    config.hideCheckboard = getBool(ini.getString(section, "hide_checkboard"), false);
+    config.fitImage = getBool(ini.getString(section, "fit_image"), false);
+    config.showImageBorder = getBool(ini.getString(section, "show_image_border"), false);
+    config.recursiveScan = getBool(ini.getString(section, "lookup_recursive"), false);
+    config.centerWindow = getBool(ini.getString(section, "center_window"), false);
+    config.skipFilter = getBool(ini.getString(section, "skip_filter"), false);
+    config.wheelZoom = getBool(ini.getString(section, "wheel_zoom"), false);
+    config.keepScale = getBool(ini.getString(section, "keep_scale"), false);
 
-    m_config.color =
+    config.color =
     {
         getInt(ini.getString(section, "background_r"),   0) / 255.0f,
         getInt(ini.getString(section, "background_g"),   0) / 255.0f,
