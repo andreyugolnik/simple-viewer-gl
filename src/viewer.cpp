@@ -453,22 +453,22 @@ void cViewer::fnKeyboard(int key, int scancode, int action, int mods)
 
 void cViewer::keyUp()
 {
-    shiftCamera(cVector<float>(0, -10));
+    shiftCamera(cVector<float>(0, -10 / m_scale));
 }
 
 void cViewer::keyDown()
 {
-    shiftCamera(cVector<float>(0, 10));
+    shiftCamera(cVector<float>(0, 10 / m_scale));
 }
 
 void cViewer::keyLeft()
 {
-    shiftCamera(cVector<float>(-10, 0));
+    shiftCamera(cVector<float>(-10 / m_scale, 0));
 }
 
 void cViewer::keyRight()
 {
-    shiftCamera(cVector<float>(10, 0));
+    shiftCamera(cVector<float>(10 / m_scale, 0));
 }
 
 void cViewer::shiftCamera(const cVector<float>& delta)
