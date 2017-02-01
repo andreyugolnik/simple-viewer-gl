@@ -60,7 +60,7 @@ void cConfig::read()
         return;
     }
 
-    printf("Using config file: '%s'\n", path);
+    // ::printf("Using config file: '%s'\n", path);
 
     ini::cIni ini;
     ini.read(&file);

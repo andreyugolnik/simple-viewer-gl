@@ -25,6 +25,14 @@ namespace
 
     cViewer* m_viewer = nullptr;
 
+    void showVersion()
+    {
+        printf("%s v%.2f\n\n", SimpleViewerTitle, SimpleViewerVersion);
+        printf("Copyright © 2008-2017 Andrey A. Ugolnik. All Rights Reserved.\n");
+        printf("http://www.ugolnik.info\n");
+        printf("andrey@ugolnik.info\n");
+    }
+
     void showHelp(const char* name)
     {
         const char* p = strrchr(name, '/');
@@ -32,6 +40,7 @@ namespace
         printf("\nUsage:\n");
         printf("  %s [OPTION]... FILE\n", (p != nullptr ? p + 1 : name));
         printf("  -h, --help    show this help;\n");
+        printf("  -v, --version show viewer version;\n");
         printf("  -s            enable scale to window;\n");
         printf("  -cw           center window;\n");
         printf("  -a            do not filter by file ext;\n");
@@ -131,16 +140,17 @@ int main(int argc, char* argv[])
 {
     setlocale(LC_ALL, "");
 
-    printf("%s v%.2f\n\n", SimpleViewerTitle, SimpleViewerVersion);
-    printf("Copyright © 2008-2017 Andrey A. Ugolnik. All Rights Reserved.\n");
-    printf("http://www.ugolnik.info\n");
-    printf("andrey@ugolnik.info\n\n");
-
     for (int i = 1; i < argc; i++)
     {
         if (!strncmp(argv[i], "-h", 2) || !strncmp(argv[i], "--help", 6))
         {
+            showVersion();
             showHelp(argv[0]);
+            return 0;
+        }
+        else if (!strncmp(argv[i], "-v", 2) || !strncmp(argv[i], "--version", 9))
+        {
+            showVersion();
             return 0;
         }
     }
@@ -177,8 +187,6 @@ int main(int argc, char* argv[])
         {
             c.fitImage = true;
         }
-        //else if(strncmp(argv[i], "-f", 2) == 0)
-        //c.fullScreen = true;
         else if (strncmp(argv[i], "-b", 2) == 0)
         {
             c.showImageBorder = true;
