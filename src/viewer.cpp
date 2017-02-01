@@ -171,12 +171,12 @@ void cViewer::update()
     {
         m_imagePrepared = false;
 
-        if (m_config->keepScale == false)
+        if (m_loader->getMode() == CImageLoader::Mode::Image && m_config->keepScale == false)
         {
             m_scale.setScalePercent(100);
+            m_angle = 0;
+            m_camera = cVector<float>(0, 0);
         }
-        m_angle = 0;
-        m_camera = cVector<float>(0, 0);
 
         const unsigned width = m_loader->GetWidth();
         const unsigned height = m_loader->GetHeight();
@@ -198,6 +198,19 @@ void cViewer::update()
         if (isDone)
         {
             m_progress->hide();
+
+            auto& desc = m_loader->getDescription();
+            m_animation = desc.isAnimation;
+            m_animationDelay = desc.delay * 0.1f;
+        }
+    }
+    else if (m_animation && m_subImageForced == false)
+    {
+        m_animationDelay -= glfwGetTime();
+        if (m_animationDelay <= 0.0f)
+        {
+            m_animation = false;
+            loadSubImage(1);
         }
     }
 }
@@ -424,10 +437,12 @@ void cViewer::fnKeyboard(int key, int /*scancode*/, int action, int mods)
         break;
 
     case GLFW_KEY_PAGE_UP:
+        m_subImageForced = true;
         loadSubImage(-1);
         break;
 
     case GLFW_KEY_PAGE_DOWN:
+        m_subImageForced = true;
         loadSubImage(1);
         break;
 
@@ -624,6 +639,8 @@ void cViewer::centerWindow()
 
 void cViewer::loadImage(int step)
 {
+    m_subImageForced = false;
+    m_animation = false;
     const char* file = m_filesList->GetName(step);
     m_loader->LoadImage(file);
 }
@@ -632,6 +649,7 @@ void cViewer::loadSubImage(int subStep)
 {
     assert(subStep == -1 || subStep == 1);
 
+    m_animation = false;
     const unsigned current = m_loader->getCurrent();
     const unsigned total = m_loader->getImages();
     const unsigned next = (current + total + subStep) % total;

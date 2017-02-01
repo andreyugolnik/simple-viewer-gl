@@ -88,6 +88,7 @@ void CImageLoader::LoadImage(const char* path)
     stop();
     clear();
 
+    m_mode = Mode::Image;
     m_loader = std::thread([this](const char* path)
     {
         m_callbacks->startLoading();
@@ -106,6 +107,7 @@ void CImageLoader::LoadSubImage(unsigned subImage)
 
     stop();
 
+    m_mode = Mode::SubImage;
     m_loader = std::thread([this](unsigned subImage)
     {
         m_callbacks->startLoading();
@@ -143,17 +145,7 @@ void CImageLoader::stop()
 
 void CImageLoader::clear()
 {
-    m_desc.bitmap.clear();
-    m_desc.format   = GL_RGB;
-    m_desc.bpp      = 0;
-    m_desc.pitch    = 0;
-    m_desc.width    = 0;
-    m_desc.height   = 0;
-    m_desc.bppImage = 0;
-    m_desc.size     = -1;
-    m_desc.images   = 0;
-    m_desc.current  = 0;
-    m_desc.info.clear();
+    m_desc.reset();
 }
 
 unsigned CImageLoader::GetWidth() const

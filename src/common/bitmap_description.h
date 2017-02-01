@@ -16,6 +16,27 @@
 
 struct sBitmapDescription
 {
+    void reset()
+    {
+        bitmap.clear();
+        format      = GL_RGB;
+        bpp         = 0;
+        pitch       = 0;
+        width       = 0;
+        height      = 0;
+
+        bppImage    = 0;
+        size        = -1;
+
+        images      = 0;
+        current     = 0;
+
+        isAnimation = false;
+        delay       = 0;
+
+        info.clear();
+    }
+
     // buffer related
     Buffer bitmap;
     GLenum format     = GL_RGB;
@@ -30,6 +51,9 @@ struct sBitmapDescription
 
     unsigned images   = 0;
     unsigned current  = 0;
+
+    bool isAnimation  = false;
+    unsigned delay    = 0; // frame animation delay
 
     std::string info;       // additional info, such as EXIF
 };

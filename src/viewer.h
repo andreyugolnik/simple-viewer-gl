@@ -120,6 +120,10 @@ private:
     cVector<int> m_prevSize;
     int m_angle;
 
+    bool m_subImageForced = false;
+    bool m_animation = false;
+    float m_animationDelay = 0.0f;
+
     std::unique_ptr<cQuadImage> m_image;
     std::unique_ptr<CFilesList> m_filesList;
     std::unique_ptr<CProgress> m_progress;

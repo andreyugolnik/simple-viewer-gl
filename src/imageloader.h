@@ -54,6 +54,16 @@ public:
     void LoadSubImage(unsigned subImage);
     bool isLoaded() const;
 
+    enum class Mode
+    {
+        Image,
+        SubImage
+    };
+    Mode getMode() const
+    {
+        return m_mode;
+    }
+
     const unsigned char* GetBitmap() const;
     unsigned GetWidth() const;
     unsigned GetHeight() const;
@@ -67,6 +77,11 @@ public:
     unsigned getImages() const;
     const char* getImageType() const;
 
+    const sBitmapDescription& getDescription() const
+    {
+        return m_desc;
+    }
+
 private:
     void stop();
     void clear();
@@ -76,6 +91,7 @@ private:
 private:
     iCallbacks* m_callbacks;
 
+    Mode m_mode = Mode::Image;
     std::thread m_loader;
     cFormat* m_image = nullptr;
     std::unique_ptr<cFormat> m_formats[(unsigned)eImageType::COUNT];

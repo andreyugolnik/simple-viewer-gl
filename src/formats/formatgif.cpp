@@ -103,6 +103,7 @@ bool cFormatGif::load(unsigned current, sBitmapDescription& desc)
     }
 
     desc.images = gif->ImageCount;
+    desc.isAnimation = gif->ImageCount > 1;
     desc.current = std::max<unsigned>(current, 0);
     desc.current = std::min<unsigned>(desc.current, desc.images - 1);
 
@@ -125,14 +126,17 @@ bool cFormatGif::load(unsigned current, sBitmapDescription& desc)
     int transparent = -1;
     for (int i = 0; i < image->ExtensionBlockCount; i++)
     {
-        ExtensionBlock* eb = image->ExtensionBlocks + i;
-        if (eb->Function == 0xF9 && eb->ByteCount == 4)
+        const auto& eb = image->ExtensionBlocks[i];
+        if (eb.Function == 0xF9 && eb.ByteCount == 4)
         {
-            bool has_transparency = ((eb->Bytes[0] & 1) == 1);
+            bool has_transparency = ((eb.Bytes[0] & 1) == 1);
             if (has_transparency)
             {
-                transparent = eb->Bytes[3];
+                transparent = eb.Bytes[3];
             }
+
+            desc.delay = eb.Bytes[1] * 10 + eb.Bytes[2];
+            // ::printf(" %d ms\n", desc.delay);
         }
     }
 
