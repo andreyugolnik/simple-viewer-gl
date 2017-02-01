@@ -47,10 +47,16 @@ public:
     {
         return m_windowModeChangeRequested;
     }
+
     bool isWindowed() const
     {
         return m_isWindowed;
     }
+    void setWindowed(bool windowed)
+    {
+        m_isWindowed = windowed;
+    }
+
     const cVector<int>& getWindowPosition() const
     {
         return m_prevPos;

@@ -387,7 +387,6 @@ void cViewer::fnKeyboard(int key, int scancode, int action, int mods)
         break;
 
     case GLFW_KEY_ENTER:
-        m_isWindowed = !m_isWindowed;
         m_windowModeChangeRequested = true;
         break;
 

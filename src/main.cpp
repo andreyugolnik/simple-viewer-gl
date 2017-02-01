@@ -241,6 +241,8 @@ int main(int argc, char* argv[])
             viewer.setWindow(window);
             viewer.loadImage(0);
 
+            bool updateSizePos = false;
+
             while (!glfwWindowShouldClose(window))
             {
                 if (viewer.isWindowModeRequested())
@@ -248,16 +250,16 @@ int main(int argc, char* argv[])
                     GLFWwindow* newWindow = nullptr;
 
                     const bool windowed = viewer.isWindowed();
-                    if (windowed)
+                    if (windowed == false)
                     {
+                        updateSizePos = true;
                         const auto& size = viewer.getWindowSize();
                         newWindow = glfwCreateWindow(size.x, size.y, SimpleViewerTitle, nullptr, window);
-
-                        const auto& pos = viewer.getWindowPosition();
-                        glfwSetWindowPos(newWindow, pos.x, pos.y);
                     }
                     else
                     {
+                        viewer.setWindowed(false);
+
                         GLFWmonitor* monitor = glfwGetPrimaryMonitor();
                         const GLFWvidmode* mode = glfwGetVideoMode(monitor);
                         newWindow = glfwCreateWindow(mode->width, mode->height, SimpleViewerTitle, monitor, window);
@@ -268,6 +270,17 @@ int main(int argc, char* argv[])
 
                     glfwDestroyWindow(window);
                     window = newWindow;
+                }
+                else if (updateSizePos)
+                {
+                    updateSizePos = false;
+                    viewer.setWindowed(true);
+
+                    const auto& size = viewer.getWindowSize();
+                    const auto& pos = viewer.getWindowPosition();
+                    glfwSetWindowSize(window, size.x, size.y);
+                    glfwSetWindowPos(window, pos.x, pos.y);
+                    // ::printf("- updated to : %d x %d , size %d x %d\n", pos.x, pos.y, size.x, size.y);
                 }
 
                 const float start = glfwGetTime();
