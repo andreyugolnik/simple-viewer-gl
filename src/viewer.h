@@ -122,7 +122,7 @@ private:
 
     bool m_subImageForced = false;
     bool m_animation = false;
-    float m_animationDelay = 0.0f;
+    float m_animationTime = 0.0f;
 
     std::unique_ptr<cQuadImage> m_image;
     std::unique_ptr<CFilesList> m_filesList;

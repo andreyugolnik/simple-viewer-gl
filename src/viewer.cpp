@@ -201,15 +201,15 @@ void cViewer::update()
 
             auto& desc = m_loader->getDescription();
             m_animation = desc.isAnimation;
-            m_animationDelay = desc.delay * 0.1f;
         }
     }
     else if (m_animation && m_subImageForced == false)
     {
-        m_animationDelay -= glfwGetTime();
-        if (m_animationDelay <= 0.0f)
+        auto& desc = m_loader->getDescription();
+        if (m_animationTime + desc.delay * 0.001f <= glfwGetTime())
         {
             m_animation = false;
+            m_animationTime = glfwGetTime();
             loadSubImage(1);
         }
     }
