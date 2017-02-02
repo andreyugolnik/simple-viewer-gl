@@ -736,7 +736,11 @@ void cViewer::showCursor(bool show)
 
 void cViewer::startLoading()
 {
-    m_progress->show();
+    auto& desc = m_loader->getDescription();
+    if (desc.isAnimation == false)
+    {
+        m_progress->show();
+    }
     m_imagePrepared = false;
 }
 
