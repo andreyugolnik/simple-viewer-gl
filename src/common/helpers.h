@@ -32,4 +32,6 @@ namespace helpers
         return N;
     }
 
+    unsigned nextPot(unsigned n);
+
 } // namespace helpers

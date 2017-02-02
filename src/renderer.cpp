@@ -8,6 +8,7 @@
 \**********************************************/
 
 #include "renderer.h"
+#include "common/helpers.h"
 #include "math/vector.h"
 
 #include <algorithm>
@@ -151,25 +152,9 @@ void cRenderer::bindTexture(GLuint tex)
     }
 }
 
-static unsigned nextPOT(unsigned n, bool npot)
-{
-    if (npot)
-    {
-        return n;
-    }
-
-    n = n - 1;
-    n = n | (n >> 1);
-    n = n | (n >> 2);
-    n = n | (n >> 4);
-    n = n | (n >> 8);
-    n = n | (n >> 16);
-    return n + 1;
-}
-
 unsigned cRenderer::calculateTextureSize(unsigned size)
 {
-    return std::min<unsigned>(MaxTextureSize, nextPOT(size, m_npot));
+    return std::min<unsigned>(MaxTextureSize, m_npot ? size : helpers::nextPot(size));
 }
 
 void cRenderer::setColor(sLine* line, int r, int g, int b, int a)

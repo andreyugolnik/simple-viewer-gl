@@ -11,6 +11,7 @@
 #include "common/bitmap_description.h"
 #include "common/callbacks.h"
 #include "common/file.h"
+#include "common/helpers.h"
 #include "formats/formatage.h"
 #include "formats/formatcommon.h"
 #include "formats/formatdds.h"
@@ -18,7 +19,7 @@
 #include "formats/formatico.h"
 #include "formats/formatjpeg.h"
 #include "formats/formatpng.h"
-#include "formats/formatppm.h"
+#include "formats/formatpnm.h"
 #include "formats/formatpsd.h"
 #include "formats/formatpvr.h"
 #include "formats/formatraw.h"
@@ -52,7 +53,7 @@ CImageLoader::CImageLoader(iCallbacks* callbacks)
     m_formats[(unsigned)eImageType::DDS].reset(new cFormatDds(nullptr, callbacks));
     m_formats[(unsigned)eImageType::RAW].reset(new cFormatRaw(nullptr, callbacks));
     m_formats[(unsigned)eImageType::AGE].reset(new cFormatAge(nullptr, callbacks));
-    m_formats[(unsigned)eImageType::PPM].reset(new cFormatPpm(nullptr, callbacks));
+    m_formats[(unsigned)eImageType::PNM].reset(new cFormatPnm(nullptr, callbacks));
     m_formats[(unsigned)eImageType::PVR].reset(new cFormatPvr(nullptr, callbacks));
     m_formats[(unsigned)eImageType::SCR].reset(new cFormatScr(nullptr, callbacks));
     m_formats[(unsigned)eImageType::TGA].reset(new cFormatTarga(nullptr, callbacks));
@@ -207,11 +208,49 @@ const char* CImageLoader::getImageType() const
     return nullptr;
 }
 
+namespace
+{
+
 struct sFormatExt
 {
     const char* ext;
     eImageType format;
 };
+
+const char* typeToName(eImageType type)
+{
+    const char* Names[] =
+    {
+#if defined(IMLIB2_SUPPORT)
+        "COMMON",
+#endif
+        "JPG",
+        "PSD",
+        "PNG",
+        "GIF",
+        "ICO",
+        "TIF",
+        "XWD",
+        "XPM",
+        "DDS",
+        "RAW",
+        "AGE",
+        "PNM",
+        "PVR",
+        "SCR",
+        "TGA",
+        "WEBP",
+
+        "NOTAVAILABLE",
+    };
+
+    const auto idx = (size_t)type;
+    const auto size = helpers::countof(Names);
+    assert(size == (size_t)eImageType::COUNT);
+    return idx < size ? Names[idx] : "";
+};
+
+}
 
 eImageType CImageLoader::getType(const char* name)
 {
@@ -226,6 +265,7 @@ eImageType CImageLoader::getType(const char* name)
     {
         if (m_formats[idx]->isSupported(file, buffer))
         {
+            ::printf("(II) Loader by type %s\n", typeToName((eImageType)idx));
             return (eImageType)idx;
         }
     }
@@ -252,7 +292,10 @@ eImageType CImageLoader::getType(const char* name)
             { ".xwd",   eImageType::XWD  },
             { ".xpm",   eImageType::XWD  },
             { ".dds",   eImageType::DDS  },
-            { ".ppm",   eImageType::PPM  },
+            { ".pnm",   eImageType::PNM  },
+            { ".pbm",   eImageType::PNM  },
+            { ".pgm",   eImageType::PNM  },
+            { ".ppm",   eImageType::PNM  },
             { ".scr",   eImageType::SCR  },
             { ".atr",   eImageType::SCR  },
             { ".ifl",   eImageType::SCR  },
@@ -268,6 +311,7 @@ eImageType CImageLoader::getType(const char* name)
         {
             if (s.substr(pos) == fmt.ext)
             {
+                ::printf("(II) Loader by ext %s\n", typeToName(fmt.format));
                 return fmt.format;
             }
         }

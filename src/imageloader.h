@@ -33,7 +33,7 @@ enum class eImageType
     DDS,
     RAW,
     AGE,
-    PPM,
+    PNM,
     PVR,
     SCR,
     TGA,

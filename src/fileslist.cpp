@@ -197,7 +197,7 @@ bool CFilesList::isValidExt(const std::string& path)
         ".xwd",
         ".dds",
         ".raw",
-        ".ppm",
+        ".pnm", ".pbm", ".pgm", ".ppm",
         ".pvr", ".pvrtc",
         ".scr", ".atr", ".bsc", ".ifl", ".bmc4", ".mc",
     };
