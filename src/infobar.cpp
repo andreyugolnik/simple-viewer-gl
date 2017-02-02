@@ -14,8 +14,21 @@
 #include <cmath>
 #include <sys/time.h>
 
-const float DesiredHeight = 18;
-const int DesiredFontSize = 12;
+namespace
+{
+
+    const float DesiredHeight = 18;
+    const int DesiredFontSize = 12;
+
+    unsigned getTime()
+    {
+        timeval now;
+        ::gettimeofday(&now, 0);
+
+        return (unsigned)(now.tv_sec * 1000000 + now.tv_usec);
+    }
+
+}
 
 CInfoBar::CInfoBar(const sConfig* config)
     : m_config(config)
@@ -41,12 +54,12 @@ void CInfoBar::setRatio(float ratio)
 
 void CInfoBar::createFont()
 {
-    m_ft.reset(new CFTString(DesiredFontSize * m_ratio));
+    m_ft.reset(new cFTString(DesiredFontSize * m_ratio));
     m_ft->SetColor(255, 255, 127, 255);
 
     if (m_config->debug)
     {
-        m_fps.reset(new CFTString(DesiredFontSize * m_ratio));
+        m_fps.reset(new cFTString(DesiredFontSize * m_ratio));
         m_fps->SetColor(0, 0, 0, 255);
     }
 }
@@ -54,14 +67,6 @@ void CInfoBar::createFont()
 float CInfoBar::getHeight() const
 {
     return m_ratio * DesiredHeight;
-}
-
-static unsigned getTime()
-{
-    timeval now;
-    ::gettimeofday(&now, 0);
-
-    return (unsigned)(now.tv_sec * 1000000 + now.tv_usec);
 }
 
 void CInfoBar::render()

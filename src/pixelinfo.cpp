@@ -44,7 +44,7 @@ void CPixelInfo::setRatio(float ratio)
 
 void CPixelInfo::createFont()
 {
-    m_ft.reset(new CFTString(DesiredFontSize * m_ratio));
+    m_ft.reset(new cFTString(DesiredFontSize * m_ratio));
     m_ft->SetColor(255, 255, 255, ALPHA);
 }
 

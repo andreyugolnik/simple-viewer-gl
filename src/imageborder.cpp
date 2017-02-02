@@ -9,18 +9,18 @@
 
 #include "imageborder.h"
 
-#include <math.h>
+#include <cmath>
 
-CImageBorder::CImageBorder()
+cImageBorder::cImageBorder()
 {
     SetColor(25, 255, 25, 255);
 }
 
-CImageBorder::~CImageBorder()
+cImageBorder::~cImageBorder()
 {
 }
 
-void CImageBorder::SetColor(int r, int g, int b, int a)
+void cImageBorder::SetColor(int r, int g, int b, int a)
 {
     m_line.v[0].a = m_line.v[1].a = m_line.v[2].a = m_line.v[3].a = a;
     m_line.v[0].r = m_line.v[1].r = m_line.v[2].r = m_line.v[3].r = r;
@@ -28,7 +28,7 @@ void CImageBorder::SetColor(int r, int g, int b, int a)
     m_line.v[0].b = m_line.v[1].b = m_line.v[2].b = m_line.v[3].b = b;
 }
 
-void CImageBorder::Render(float x, float y, float w, float h, float scale)
+void cImageBorder::Render(float x, float y, float w, float h, float scale)
 {
     const float delta = GetBorderWidth() / scale;
 
@@ -38,7 +38,7 @@ void CImageBorder::Render(float x, float y, float w, float h, float scale)
     renderLine(x + w,     y,         delta,         h); // right
 }
 
-void CImageBorder::renderLine(float x, float y, float w, float h)
+void cImageBorder::renderLine(float x, float y, float w, float h)
 {
     m_line.v[0].x = x;
     m_line.v[0].y = y;
@@ -52,8 +52,7 @@ void CImageBorder::renderLine(float x, float y, float w, float h)
     cRenderer::render(m_line);
 }
 
-float CImageBorder::GetBorderWidth() const
+float cImageBorder::GetBorderWidth() const
 {
     return 2.0f;
 }
-

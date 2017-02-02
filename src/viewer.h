@@ -18,7 +18,7 @@
 
 class CCheckerboard;
 class CFilesList;
-class CImageBorder;
+class cImageBorder;
 class CImageLoader;
 class CInfoBar;
 class CPixelInfo;
@@ -131,6 +131,6 @@ private:
     std::unique_ptr<CInfoBar> m_infoBar;
     std::unique_ptr<CPixelInfo> m_pixelInfo;
     std::unique_ptr<CCheckerboard> m_checkerBoard;
-    std::unique_ptr<CImageBorder> m_border;
+    std::unique_ptr<cImageBorder> m_border;
     std::unique_ptr<CSelection> m_selection;
 };

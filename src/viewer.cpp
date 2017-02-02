@@ -41,7 +41,7 @@ cViewer::cViewer(sConfig* config)
     m_infoBar.reset(new CInfoBar(config));
     m_pixelInfo.reset(new CPixelInfo());
     m_progress.reset(new CProgress());
-    m_border.reset(new CImageBorder());
+    m_border.reset(new cImageBorder());
     m_selection.reset(new CSelection());
 
     m_prevSize = { DEF_WINDOW_W, DEF_WINDOW_H };

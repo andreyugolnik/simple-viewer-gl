@@ -11,20 +11,19 @@
 
 #include "renderer.h"
 
-class CImageBorder final
+class cImageBorder final
 {
 public:
-    CImageBorder();
-    ~CImageBorder();
+    cImageBorder();
+    ~cImageBorder();
 
     void SetColor(int r, int g, int b, int a);
     void Render(float x, float y, float w, float h, float scale);
     float GetBorderWidth() const;
 
 private:
-    sQuad m_line;
+    void renderLine(float x, float y, float w, float h);
 
 private:
-    void renderLine(float x, float y, float w, float h);
+    sQuad m_line;
 };
-

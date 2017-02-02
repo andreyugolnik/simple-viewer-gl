@@ -65,5 +65,5 @@ private:
     sPixelInfo m_pixelInfo;
     std::unique_ptr<CQuad> m_bg;
     std::unique_ptr<CQuadSeries> m_pointer;
-    std::unique_ptr<CFTString> m_ft;
+    std::unique_ptr<cFTString> m_ft;
 };

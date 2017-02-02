@@ -56,6 +56,6 @@ private:
     float m_ratio = 1.0f;
     std::string m_bottominfo;
     std::unique_ptr<CQuad> m_bg;
-    std::unique_ptr<CFTString> m_ft;
-    std::unique_ptr<CFTString> m_fps;
+    std::unique_ptr<cFTString> m_ft;
+    std::unique_ptr<cFTString> m_fps;
 };

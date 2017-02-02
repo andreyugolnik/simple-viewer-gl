@@ -1,28 +1,24 @@
- /**********************************************\
- *
- *  Andrey A. Ugolnik
- *  Tiny Orange
- *  http://www.tinyorange.com
- *  andrey@ugolnik.info
- *
- *  created: 18.07.2013
- *
- \**********************************************/
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
 #include "rle.h"
 
 #include <algorithm>
-#include <stdio.h>
+#include <cstdio>
 
 cRLE::cRLE()
     : m_desired_size(0)
 {
-
 }
 
 cRLE::~cRLE()
 {
-
 }
 
 unsigned cRLE::encode(const unsigned char* in, unsigned in_size, unsigned char* const rle, unsigned rle_size)
@@ -31,15 +27,15 @@ unsigned cRLE::encode(const unsigned char* in, unsigned in_size, unsigned char* 
     //printf("Encode...\n");
 
     unsigned rle_pos = 0;
-    for(unsigned i = 0; i < in_size; i++)
+    for (unsigned i = 0; i < in_size; i++)
     {
         unsigned char symbol = in[i];
         unsigned count = 1;
 
         const unsigned length = std::min<unsigned>(i + 0x7f, in_size);
-        for(unsigned a = i + 1; a < length; a++)
+        for (unsigned a = i + 1; a < length; a++)
         {
-            if(in[a] != symbol)
+            if (in[a] != symbol)
             {
                 break;
             }
@@ -47,13 +43,13 @@ unsigned cRLE::encode(const unsigned char* in, unsigned in_size, unsigned char* 
             i++;
         }
 
-        if(count == 1)
+        if (count == 1)
         {
             symbol = in[i + 1];
             const unsigned length = std::min<unsigned>(i + 0x7f + 1, in_size);
-            for(unsigned a = i + 2; a < length; a++, count++)
+            for (unsigned a = i + 2; a < length; a++, count++)
             {
-                if(in[a] == symbol)
+                if (in[a] == symbol)
                 {
                     break;
                 }
@@ -61,7 +57,7 @@ unsigned cRLE::encode(const unsigned char* in, unsigned in_size, unsigned char* 
             }
 
             m_desired_size = rle_pos + count + 1;
-            if(m_desired_size > rle_size)
+            if (m_desired_size > rle_size)
             {
                 //printf("no room for copy: required %u, allowed: %u\n", m_desired_size, rle_size);
                 return 0;
@@ -70,7 +66,7 @@ unsigned cRLE::encode(const unsigned char* in, unsigned in_size, unsigned char* 
             //printf("raw %u symbols...\n", count);
 
             rle[rle_pos++] = 0x80 + count;
-            for(unsigned a = i, copy = 0; copy < count; a++, copy++)
+            for (unsigned a = i, copy = 0; copy < count; a++, copy++)
             {
                 rle[rle_pos++] = in[a];
             }
@@ -79,7 +75,7 @@ unsigned cRLE::encode(const unsigned char* in, unsigned in_size, unsigned char* 
         else
         {
             m_desired_size = rle_pos + 2;
-            if(m_desired_size > rle_size)
+            if (m_desired_size > rle_size)
             {
                 //printf("no room for clone: required %u, allowed: %u\n", m_desired_size, rle_size);
                 return 0;
@@ -107,15 +103,15 @@ unsigned cRLE::encodeBy4(const unsigned* in, unsigned in_size, unsigned* const r
 
     unsigned rle_pos = 0;
 
-    for(unsigned i = 0; i < in_size; i++)
+    for (unsigned i = 0; i < in_size; i++)
     {
         unsigned symbol = in[i];
         unsigned count = 1;
 
         const unsigned length = std::min<unsigned>(i + half - 1, in_size);
-        for(unsigned a = i + 1; a < length; a++)
+        for (unsigned a = i + 1; a < length; a++)
         {
-            if(in[a] != symbol)
+            if (in[a] != symbol)
             {
                 break;
             }
@@ -123,13 +119,13 @@ unsigned cRLE::encodeBy4(const unsigned* in, unsigned in_size, unsigned* const r
             i++;
         }
 
-        if(count == 1)
+        if (count == 1)
         {
             symbol = in[i + 1];
             const unsigned length = std::min<unsigned>(i + half, in_size);
-            for(unsigned a = i + 2; a < length; a++, count++)
+            for (unsigned a = i + 2; a < length; a++, count++)
             {
-                if(in[a] == symbol)
+                if (in[a] == symbol)
                 {
                     break;
                 }
@@ -137,7 +133,7 @@ unsigned cRLE::encodeBy4(const unsigned* in, unsigned in_size, unsigned* const r
             }
 
             m_desired_size = rle_pos + count + 1;
-            if(m_desired_size > rle_size)
+            if (m_desired_size > rle_size)
             {
                 //printf("no room for copy: required %u, allowed: %u\n", m_desired_size, rle_size);
                 return 0;
@@ -146,7 +142,7 @@ unsigned cRLE::encodeBy4(const unsigned* in, unsigned in_size, unsigned* const r
             //printf("raw %u quads...\n", count);
 
             rle[rle_pos++] = half + count;
-            for(unsigned a = i, copy = 0; copy < count; a++, copy++)
+            for (unsigned a = i, copy = 0; copy < count; a++, copy++)
             {
                 rle[rle_pos++] = in[a];
             }
@@ -155,7 +151,7 @@ unsigned cRLE::encodeBy4(const unsigned* in, unsigned in_size, unsigned* const r
         else
         {
             m_desired_size = rle_pos + 2;
-            if(m_desired_size > rle_size)
+            if (m_desired_size > rle_size)
             {
                 //printf("no room for clone: required %u, allowed: %u\n", m_desired_size, rle_size);
                 return 0;
@@ -180,14 +176,14 @@ unsigned cRLE::decode(const unsigned char* rle, unsigned rle_size, unsigned char
     //printf("decode...\n");
 
     unsigned out_pos = 0;
-    for(unsigned i = 0; i < rle_size; )
+    for (unsigned i = 0; i < rle_size;)
     {
         unsigned char symbol = rle[i];
-        if(symbol <= 0x7f)
+        if (symbol <= 0x7f)
         {
             const unsigned count = (unsigned)symbol;
             m_desired_size = out_pos + count;
-            if(m_desired_size > out_size)
+            if (m_desired_size > out_size)
             {
                 //printf("no room: required %u, allowed: %u\n", m_desired_size, out_size);
                 return 0;
@@ -195,7 +191,7 @@ unsigned cRLE::decode(const unsigned char* rle, unsigned rle_size, unsigned char
 
             const unsigned char clone = rle[++i];
             //printf("cloning %c %u times...\n", clone, count);
-            for(unsigned a = 0; a < count; a++)
+            for (unsigned a = 0; a < count; a++)
             {
                 out[out_pos++] = clone;
             }
@@ -205,7 +201,7 @@ unsigned cRLE::decode(const unsigned char* rle, unsigned rle_size, unsigned char
         {
             const unsigned count = (unsigned)symbol - 0x80;
             m_desired_size = out_pos + count;
-            if(m_desired_size > out_size)
+            if (m_desired_size > out_size)
             {
                 //printf("no room: required %u, allowed: %u\n", m_desired_size, out_size);
                 return 0;
@@ -213,7 +209,7 @@ unsigned cRLE::decode(const unsigned char* rle, unsigned rle_size, unsigned char
 
             i++;
             //printf("raw %u symbols (%u)...\n", count, symbol);
-            for(unsigned a = 0; a < count; a++)
+            for (unsigned a = 0; a < count; a++)
             {
                 out[out_pos++] = rle[i];
                 i++;
@@ -234,14 +230,14 @@ unsigned cRLE::decodeBy4(const unsigned* rle, unsigned rle_size, unsigned* const
     //printf("decode...\n");
 
     unsigned out_pos = 0;
-    for(unsigned i = 0; i < rle_size; )
+    for (unsigned i = 0; i < rle_size;)
     {
         unsigned symbol = rle[i];
-        if(symbol <= half - 1)
+        if (symbol <= half - 1)
         {
             const unsigned count = symbol;
             m_desired_size = out_pos + count;
-            if(m_desired_size > out_size)
+            if (m_desired_size > out_size)
             {
                 //printf("no room: required %u, allowed: %u\n", m_desired_size, out_size);
                 return 0;
@@ -249,7 +245,7 @@ unsigned cRLE::decodeBy4(const unsigned* rle, unsigned rle_size, unsigned* const
 
             const unsigned clone = rle[++i];
             //printf("cloning %c %u times...\n", clone, count);
-            for(unsigned a = 0; a < count; a++)
+            for (unsigned a = 0; a < count; a++)
             {
                 out[out_pos++] = clone;
             }
@@ -259,7 +255,7 @@ unsigned cRLE::decodeBy4(const unsigned* rle, unsigned rle_size, unsigned* const
         {
             const unsigned count = symbol - half;
             m_desired_size = out_pos + count;
-            if(m_desired_size > out_size)
+            if (m_desired_size > out_size)
             {
                 //printf("no room: required %u, allowed: %u\n", m_desired_size, out_size);
                 return 0;
@@ -267,7 +263,7 @@ unsigned cRLE::decodeBy4(const unsigned* rle, unsigned rle_size, unsigned* const
 
             i++;
             //printf("raw %u symbols (%u)...\n", count, symbol);
-            for(unsigned a = 0; a < count; a++)
+            for (unsigned a = 0; a < count; a++)
             {
                 out[out_pos++] = rle[i];
                 i++;
@@ -281,4 +277,3 @@ unsigned cRLE::decodeBy4(const unsigned* rle, unsigned rle_size, unsigned* const
 
     return out_pos;
 }
-
