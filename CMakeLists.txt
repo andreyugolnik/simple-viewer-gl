@@ -33,7 +33,6 @@ FIND_PACKAGE(Imlib2)
 FIND_PACKAGE(WebP)
 FIND_PACKAGE(LCMS2)
 FIND_PACKAGE(X11)
-
 FIND_PACKAGE(Threads)
 
 IF(IMLIB2_FOUND)
@@ -66,56 +65,13 @@ INCLUDE_DIRECTORIES( ${INCLUDE_DIRECTORIES}
     )
 ENDIF()
 
+FILE( GLOB_RECURSE SOURCES "src/*.cpp" )
+
+ADD_EXECUTABLE( sviewgl ${SOURCES} )
+
 #LINK_DIRECTORIES(
     #${FREETYPE_LIBRARY_DIRS}
     #)
-
-ADD_EXECUTABLE( sviewgl
-    src/checkerboard.cpp
-    src/cms/cms.cpp
-    src/common/Ini.cpp
-    src/common/ZlibDecoder.cpp
-    src/common/config.cpp
-    src/common/file.cpp
-    src/common/file_zlib.cpp
-    src/common/helpers.cpp
-    src/fileslist.cpp
-    src/formats/AGEheader.cpp
-    src/formats/format.cpp
-    src/formats/formatage.cpp
-    src/formats/formatcommon.cpp
-    src/formats/formatdds.cpp
-    src/formats/formatgif.cpp
-    src/formats/formatico.cpp
-    src/formats/formatjpeg.cpp
-    src/formats/formatpng.cpp
-    src/formats/formatpnm.cpp
-    src/formats/formatpsd.cpp
-    src/formats/formatpvr.cpp
-    src/formats/formatraw.cpp
-    src/formats/formatscr.cpp
-    src/formats/formattarga.cpp
-    src/formats/formattiff.cpp
-    src/formats/formatwebp.cpp
-    src/formats/formatxpm.cpp
-    src/formats/formatxwd.cpp
-    src/formats/rle.cpp
-    src/ftstring.cpp
-    src/ftsymbol.cpp
-    src/imageborder.cpp
-    src/imageloader.cpp
-    src/infobar.cpp
-    src/main.cpp
-    src/notavailable.cpp
-    src/pixelinfo.cpp
-    src/progress.cpp
-    src/quad.cpp
-    src/quadimage.cpp
-    src/quadseries.cpp
-    src/renderer.cpp
-    src/selection.cpp
-    src/viewer.cpp
-    )
 
 TARGET_LINK_LIBRARIES( sviewgl
     ${RT_LIBRARY}
