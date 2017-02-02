@@ -11,11 +11,11 @@
 
 #include "renderer.h"
 
-class CFTSymbol final
+class cFTSymbol final
 {
 public:
-    CFTSymbol(const sQuad& quad, int tw, int th, float tx, float ty, int w, int h);
-    ~CFTSymbol();
+    cFTSymbol(const sQuad& quad, int tw, int th, float tx, float ty, int w, int h);
+    ~cFTSymbol();
 
     void Render(int x, int y);
 

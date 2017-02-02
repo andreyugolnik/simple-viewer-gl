@@ -9,7 +9,7 @@
 
 #include "ftsymbol.h"
 
-CFTSymbol::CFTSymbol(const sQuad& quad, int tw, int th, float tx, float ty, int w, int h)
+cFTSymbol::cFTSymbol(const sQuad& quad, int tw, int th, float tx, float ty, int w, int h)
     : m_w(w)
     , m_h(h)
 {
@@ -30,11 +30,11 @@ CFTSymbol::CFTSymbol(const sQuad& quad, int tw, int th, float tx, float ty, int 
     m_quad.v[3].ty = y2;
 }
 
-CFTSymbol::~CFTSymbol()
+cFTSymbol::~cFTSymbol()
 {
 }
 
-void CFTSymbol::Render(int x, int y)
+void cFTSymbol::Render(int x, int y)
 {
     m_quad.v[0].x = x;
     m_quad.v[0].y = y;
@@ -47,4 +47,3 @@ void CFTSymbol::Render(int x, int y)
 
     cRenderer::render(m_quad);
 }
-

@@ -1,105 +1,80 @@
-/////////////////////////////////////////////////
-//
-// Andrey A. Ugolnik
-// andrey@ugolnik.info
-//
-/////////////////////////////////////////////////
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
 
 #include "ftstring.h"
 #include "DroidSans.hpp"
-#include <iostream>
+
 #include <vector>
 
-CFTString::CFTString(int size)
+cFTString::cFTString(int size)
     : m_height(size)
-    , m_ft(0)
-    , m_symbols(0)
-    , m_unicode(0)
-    , m_unicodeSize(0)
-    , m_texW(256)
-    , m_texH(256)
+    , m_ft(nullptr)
+    , m_texWidth(256)
+    , m_texHeight(256)
 {
-    if(FT_Init_FreeType(&m_ft) != 0)
+    if (FT_Init_FreeType(&m_ft) != 0)
     {
-        std::cout << "(EE) Error initiation FreeType2" << std::endl;
+        ::printf("(EE) Error initiation FreeType2.\n");
     }
 
     SetColor(255, 255, 255, 255);
 }
 
-CFTString::CFTString(const char* ttf, int size)
-    : m_ttf(ttf)
-    , m_height(size)
-    , m_ft(0)
-    , m_symbols(0)
-    , m_unicode(0)
-    , m_unicodeSize(0)
-    , m_texW(256)
-    , m_texH(256)
-{
-    if(FT_Init_FreeType(&m_ft) != 0)
-    {
-        std::cout << "(EE) Error initiation FreeType2" << std::endl;
-    }
-
-    SetColor(255, 255, 255, 255);
-}
-
-CFTString::~CFTString()
+cFTString::~cFTString()
 {
     clearSymbols();
-    delete[] m_unicode;
-    delete[] m_symbols;
     cRenderer::deleteTexture(m_quad.tex);
-    if(m_ft != 0)
+    if (m_ft != nullptr)
     {
         FT_Done_FreeType(m_ft);
     }
 }
 
-void CFTString::SetColor(int r, int g, int b, int a)
+void cFTString::SetColor(int r, int g, int b, int a)
 {
     cRenderer::setColor(&m_quad, r, g, b, a);
 }
 
-void CFTString::Update(const char* utf8)
+void cFTString::Update(const char* utf8)
 {
-    int size = mbstowcs(NULL, utf8, 0) + 1;
-    if(size > m_unicodeSize)
+    const auto size = ::mbstowcs(nullptr, utf8, 0) + 1;
+    if (size > m_unicode.size())
     {
-        delete[] m_unicode;
-        m_unicodeSize = size;
-        m_unicode = new wchar_t[m_unicodeSize];
+        m_unicode.resize(size);
     }
-    mbstowcs(m_unicode, utf8, m_unicodeSize);
+    ::mbstowcs(m_unicode.data(), utf8, size);
 }
 
-void CFTString::Render(int x, int y)
+void cFTString::Render(int x, int y)
 {
-    wchar_t* string = m_unicode;
-    if(string != 0)
+    auto string = m_unicode.data();
+    if (string != nullptr)
     {
         int xStart = x;
 
-        SymbolsIc it, itEnd = m_mapSymbol.end();
-        while(*string)
+        while (*string)
         {
-            const wchar_t i = *string;
-            if(i == L'\n')
+            const auto i = *string;
+            if (i == L'\n')
             {
                 x = xStart;
                 y += m_height;
             }
             else
             {
-                it = m_mapSymbol.find(i);
-                if(it == itEnd)
+                const auto& it = m_mapSymbol.find(i);
+                if (it == m_mapSymbol.end())
                 {
                     generateNewSymbol(string);
-                    itEnd = m_mapSymbol.end();
                     continue;
                 }
-                if(it->second.p)
+                if (it->second.p != nullptr)
                 {
                     it->second.p->Render(x + it->second.l, y - it->second.t);
                     x += it->second.ax;
@@ -111,34 +86,32 @@ void CFTString::Render(int x, int y)
     }
 }
 
-int CFTString::GetStringWidth()
+unsigned cFTString::GetStringWidth()
 {
-    int width = 0;
-    int widthMax = 0;
-    wchar_t* string = m_unicode;
-    if(string != 0)
+    unsigned width = 0;
+    unsigned widthMax = 0;
+    auto string = m_unicode.data();
+    if (string != nullptr)
     {
-        SymbolsIc it, itEnd = m_mapSymbol.end();
-        while(*string)
+        while (*string)
         {
-            const wchar_t i = *string;
-            if(i == L'\n')
+            const auto i = *string;
+            if (i == L'\n')
             {
                 width = 0;
             }
             else
             {
-                it = m_mapSymbol.find(i);
-                if(it == itEnd)
+                const auto& it = m_mapSymbol.find(i);
+                if (it == m_mapSymbol.end())
                 {
                     generateNewSymbol(string);
-                    itEnd = m_mapSymbol.end();
                     continue;
                 }
-                if(it->second.p)
+                if (it->second.p != nullptr)
                 {
                     width += it->second.ax;
-                    widthMax = std::max(widthMax, width);
+                    widthMax = std::max<unsigned>(widthMax, width);
                 }
             }
 
@@ -149,91 +122,66 @@ int CFTString::GetStringWidth()
     return widthMax;
 }
 
-void CFTString::generateNewSymbol(const wchar_t* string)
+void cFTString::generateNewSymbol(const wchar_t* string)
 {
-    if(m_ft != 0)
+    if (m_ft != nullptr)
     {
-        size_t len = (m_symbols ? wcslen(m_symbols) : 0) + wcslen(string);
-        wchar_t* tmp = new wchar_t[len + 1];
-        wchar_t* p = tmp;
-        p[0] = 0;
-        if(m_symbols != 0)
+        m_symbols.reserve(m_symbols.size() + ::wcslen(string));
+        for (; *string != 0; string++)
         {
-            wcscpy(p, m_symbols);
-        }
-        wchar_t* s = (wchar_t*)string;
-        while(*s)
-        {
-            len = wcslen(p);
             bool dup = false;
-            for(size_t i = 0; i < len; i++)
+            const auto symbol = *string;
+            for (size_t i = 0, size = m_symbols.size(); i < size; i++)
             {
-                if(p[i] == *s)
+                if (m_symbols[i] == symbol)
                 {
                     dup = true;
                     break;
                 }
             }
 
-            if(dup == false)
+            if (dup == false)
             {
-                p[len] = *s;
-                p[len + 1] = 0;
+                m_symbols.push_back(symbol);
             }
-
-            s++;
         }
-
-        delete[] m_symbols;
-
-        m_symbols = tmp;
 
         generate();
     }
 }
 
-void CFTString::generate()
+void cFTString::generate()
 {
     FT_Face face;
 
-    FT_Error err = 0;
-    if(m_ttf.empty() == true)
+    FT_Error err = FT_New_Memory_Face(m_ft, droidsans_ttf, droidsans_ttf_size, 0, &face);
+    if (err != 0)
     {
-        err = FT_New_Memory_Face(m_ft, droidsans_ttf, droidsans_ttf_size, 0, &face);
-    }
-    else
-    {
-        err = FT_New_Face(m_ft, m_ttf.c_str(), 0, &face);
-    }
-    if(err != 0)
-    {
-        std::cout << "(EE) Error creating face" << std::endl;
+        ::printf("(EE) Error creating face.\n");
         return;
     }
 
-    if(FT_Set_Pixel_Sizes(face, 0, m_height) != 0)
+    if (FT_Set_Pixel_Sizes(face, 0, m_height) != 0)
     {
-        std::cout << "(EE) Error set font size" << std::endl;
+        ::printf("(EE) Error set font size.\n");
         FT_Done_Face(face);
         return;
     }
 
     clearSymbols();
 
-    FT_GlyphSlot slot	= face->glyph;
-    size_t len	= wcslen(m_symbols);
-    for(size_t i = 0; i < len; i++)
+    FT_GlyphSlot slot = face->glyph;
+    for (const auto& charcode : m_symbols)
     {
-        FT_ULong charcode = m_symbols[i];
-        err = FT_Load_Char(face, charcode, FT_LOAD_RENDER);
+        err = FT_Load_Char(face, (FT_ULong)charcode, FT_LOAD_RENDER);
         Symbol str;
-        memset(&str, 0, sizeof(Symbol));
-        if(err == 0)
+        ::memset(&str, 0, sizeof(str));
+        if (err == 0)
         {
             FT_Bitmap bmp = slot->bitmap;
-            const int size = bmp.pitch * bmp.rows;
+            const unsigned size = bmp.pitch * bmp.rows;
 
-            //str.p	= 0;
+            //str.p = 0;
             str.bmp = new unsigned char[size];
             str.w = bmp.width;
             str.h = bmp.rows;
@@ -241,138 +189,111 @@ void CFTString::generate()
             str.l = slot->bitmap_left;
             str.t = slot->bitmap_top;
             str.ax = slot->advance.x >> 6;
-            //str.px	= 0;
-            //str.py	= 0;
-            memcpy(str.bmp, bmp.buffer, size);
+            //str.px    = 0;
+            //str.py    = 0;
+            ::memcpy(str.bmp, bmp.buffer, size);
         }
         m_mapSymbol[charcode] = str;
     }
 
-    // calculate symbols placement
-    if(placeSymbols() == false)
+    while (placeSymbols() == false)
     {
-        std::cout << "(EE) texture to big" << std::endl;
-        FT_Done_Face(face);
-        return;
+        if (m_texWidth <= m_texHeight)
+        {
+            m_texWidth <<= 1;
+        }
+        else
+        {
+            m_texHeight <<= 1;
+        }
     }
+    // ::printf("(II) Font texture size: %u x %u\n", m_texWidth, m_texHeight);
 
-#define PX(a)	(((unsigned int)(a)<<24) + (unsigned int)0x00ffffff)
-
-    std::vector<unsigned> buffer;
-    buffer.resize(m_texW * m_texH);
-    memset(&buffer[0], 0, m_texW * m_texH * 4);
+    std::vector<unsigned char> buffer(m_texWidth * m_texHeight);
+    ::memset(buffer.data(), 0, buffer.size());
 
     // regenerate texture
-    SymbolsIc it = m_mapSymbol.begin();
-    for( ; it != m_mapSymbol.end(); ++it)
+    for (auto& it : m_mapSymbol)
     {
-        int dx = it->second.px;
-        int dy = it->second.py;
-        int w = it->second.w;
-        int h = it->second.h;
-        int pitch = it->second.pitch;
-        unsigned char* pIn = it->second.bmp;
-        if(pIn)
+        const auto dx = it.second.px;
+        const auto dy = it.second.py;
+        const auto w = it.second.w;
+        const auto h = it.second.h;
+        const auto pitch = it.second.pitch;
+        const auto in = it.second.bmp;
+        if (in != nullptr)
         {
-            for(int y = 0; y < h; y++)
+            for (unsigned y = 0; y < h; y++)
             {
-                size_t pos = dx + m_texW + (dy + y) * m_texW;
-                for(int x = 0; x < w; x++)
+                size_t pos = dx + m_texWidth + (dy + y) * m_texWidth;
+                for (unsigned x = 0; x < w; x++)
                 {
-                    unsigned char pixel = pIn[x + y * pitch];
-                    buffer[pos] = PX(pixel);
-                    pos++;
+                    unsigned char pixel = in[x + y * pitch];
+                    buffer[pos++] = pixel;
                 }
             }
         }
     }
 
-    if(m_quad.tex == 0)
+    if (m_quad.tex == 0)
     {
         m_quad.tex = cRenderer::createTexture();
     }
-    cRenderer::setData(m_quad.tex, (unsigned char*)&buffer[0], m_texW, m_texH, GL_RGBA);
+    cRenderer::setData(m_quad.tex, buffer.data(), m_texWidth, m_texHeight, GL_ALPHA);
 
-    SymbolsIt it2 = m_mapSymbol.begin();
-    for( ; it2 != m_mapSymbol.end(); ++it2)
+    for (auto& it : m_mapSymbol)
     {
-        if(it2->second.bmp != 0)
+        if (it.second.bmp != nullptr)
         {
-            it2->second.p = new CFTSymbol(m_quad, m_texW, m_texH, it2->second.px, it2->second.py, it2->second.w, it2->second.h + 1);
-            delete[] it2->second.bmp;
-            it2->second.bmp = 0;
+            it.second.p = new cFTSymbol(m_quad, m_texWidth, m_texHeight, it.second.px, it.second.py, it.second.w, it.second.h + 1);
+            delete[] it.second.bmp;
+            it.second.bmp = nullptr;
         }
     }
 
     FT_Done_Face(face);
 
-    //	std::cout << "Texture (" << m_texW << "x" << m_texH << ") with " << m_mapSymbol.size() << " / " << len << " symbols has been created." << std::endl;
+    // ::printf("(II) Texture (%u x %u) with %u / %u symbols has been created.\n", m_texWidth, m_texHeight, (unsigned)m_mapSymbol.size(), (unsigned)len);
 }
 
-bool CFTString::placeSymbols()
+bool cFTString::placeSymbols()
 {
-    for( ; ; )
+    unsigned maxRowHeight = 0;
+
+    unsigned x = 0;
+    unsigned y = 0;
+    for (auto& it : m_mapSymbol)
     {
-        bool done = true;
-        int max_h = 0;
+        maxRowHeight = std::max<unsigned>(maxRowHeight, it.second.h);
 
-        SymbolsIt it = m_mapSymbol.begin(), itEnd = m_mapSymbol.end();
-        for(int x = 1, y = 1; it != itEnd; ++it)
+        if (y + maxRowHeight > m_texHeight)
         {
-            if(max_h < it->second.h)
-            {
-                max_h = it->second.h;
-            }
-            if(y + it->second.h + 1 >= m_texH)
-            {
-                done = false;
-                break;
-            }
-            if(x + it->second.w + 1 >= m_texW)
-            {
-                x = 1;
-                y += max_h + 1;
-                if(y + max_h + 1 >= m_texH)
-                {
-                    done = false;
-                    break;
-                }
-            }
-
-            it->second.px = x;
-            it->second.py = y;
-            x += it->second.w + 1;
+            return false;
         }
 
-        if(done == false)
+        if (x + it.second.w > m_texWidth)
         {
-            if(m_texW <= m_texH)
-            {
-                m_texW <<= 1;
-            }
-            else
-            {
-                m_texH <<= 1;
-            }
-
-            if(m_texW > 1024 || m_texH > 1024)
+            x = 0;
+            y += maxRowHeight + 1;
+            if (y + maxRowHeight > m_texHeight)
             {
                 return false;
             }
         }
-        else
-        {
-            return true;
-        }
+
+        it.second.px = x;
+        it.second.py = y;
+        x += it.second.w + 1;
     }
+
+    return true;
 }
 
-void CFTString::clearSymbols()
+void cFTString::clearSymbols()
 {
-    SymbolsIc it = m_mapSymbol.begin(), itEnd = m_mapSymbol.end();
-    for( ; it != itEnd; ++it)
+    for (auto& it : m_mapSymbol)
     {
-        delete it->second.p;
+        delete it.second.p;
     }
+    m_mapSymbol.clear();
 }
-
