@@ -73,41 +73,41 @@ void cRenderer::setData(GLuint tex, const unsigned char* data, unsigned w, unsig
 
         //std::cout << "creating " << tw << " x " << th << " texture" << std::endl;
         GLenum type = 0;
-        GLint fmt = format;
+        GLint internalFormat = format;
         if (format == GL_RGB || format == GL_BGR)
         {
-            fmt    = GL_RGB;
-            type   = GL_UNSIGNED_BYTE;
+            internalFormat = GL_RGB;
+            type           = GL_UNSIGNED_BYTE;
         }
         else if (format == GL_RGBA || format == GL_BGRA)
         {
-            fmt    = GL_RGBA;
-            type   = GL_UNSIGNED_BYTE;
+            internalFormat = GL_RGBA;
+            type           = GL_UNSIGNED_BYTE;
         }
         else if (format == GL_UNSIGNED_SHORT_4_4_4_4)
         {
-            format = GL_RGBA;
-            fmt    = GL_RGBA;
-            type   = GL_UNSIGNED_SHORT_4_4_4_4;
+            internalFormat = GL_RGBA;
+            format         = GL_RGBA;
+            type           = GL_UNSIGNED_SHORT_4_4_4_4;
         }
         else if (format == GL_UNSIGNED_SHORT_5_6_5)
         {
-            format = GL_RGB;
-            fmt    = GL_RGB;
-            type   = GL_UNSIGNED_SHORT_5_6_5;
+            internalFormat = GL_RGB;
+            format         = GL_RGB;
+            type           = GL_UNSIGNED_SHORT_5_6_5;
         }
         else if (format == GL_UNSIGNED_SHORT_5_5_5_1)
         {
-            format = GL_RGBA;
-            fmt    = GL_RGBA;
-            type   = GL_UNSIGNED_SHORT_5_5_5_1;
+            internalFormat = GL_RGBA;
+            format         = GL_RGBA;
+            type           = GL_UNSIGNED_SHORT_5_5_5_1;
         }
         else if (format == GL_LUMINANCE || format == GL_LUMINANCE_ALPHA || format == GL_ALPHA)
         {
-            type   = GL_UNSIGNED_BYTE;
+            type = GL_UNSIGNED_BYTE;
         }
 
-        glTexImage2D(GL_TEXTURE_2D, 0, fmt, w, h, 0, format, type, data);
+        glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, w, h, 0, format, type, data);
         checkError("setData");
     }
 }

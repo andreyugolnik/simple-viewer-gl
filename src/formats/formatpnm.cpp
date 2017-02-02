@@ -18,9 +18,12 @@
 namespace
 {
 
+    const char* Separator = "\n\t \0";
+
     bool readAscii1(cFile& file, sBitmapDescription& desc)
     {
-        desc.bpp = 24;
+        desc.format = GL_LUMINANCE;
+        desc.bpp = 8;
         desc.bppImage = 1;
         desc.pitch = desc.width * desc.bpp / 8;
         desc.bitmap.resize(desc.pitch * desc.height);
@@ -29,18 +32,13 @@ namespace
         char* line = nullptr;
         size_t len = 0;
 
-        const char* sep = "\n\t ";
-
         auto out = desc.bitmap.data();
         while (::getline(&line, &len, (FILE*)file.getHandle()) != -1)
         {
-            for (auto word = ::strtok(line, sep); word != nullptr; word = ::strtok(nullptr, sep))
+            for (auto word = ::strtok(line, Separator); word != nullptr; word = ::strtok(nullptr, Separator))
             {
                 const auto val = (unsigned)::atoi(word) != 0 ? 0 : 255;
-                out[idx + 0] = val;
-                out[idx + 1] = val;
-                out[idx + 2] = val;
-                idx += 3;
+                out[idx++] = val;
             }
         }
 
@@ -49,7 +47,8 @@ namespace
 
     bool readRaw1(cFile& file, sBitmapDescription& desc)
     {
-        desc.bpp = 24;
+        desc.format = GL_LUMINANCE;
+        desc.bpp = 8;
         desc.bppImage = 1;
         desc.pitch = desc.width * desc.bpp / 8;
         desc.bitmap.resize(desc.pitch * desc.height);
@@ -64,7 +63,7 @@ namespace
             }
 
             auto out = desc.bitmap.data() + row * desc.pitch;
-            unsigned idx = 0;
+            size_t idx = 0;
             for (unsigned i = 0; i < buffer.size(); i++)
             {
                 const auto byte = (unsigned char)buffer[i];
@@ -72,10 +71,7 @@ namespace
                 {
                     const unsigned bit = 0x80 >> b;
                     const unsigned char val = (byte & bit) != 0 ? 0 : 255;
-                    out[idx + 0] = val;
-                    out[idx + 1] = val;
-                    out[idx + 2] = val;
-                    idx += 3;
+                    out[idx++] = val;
                 }
             }
         }
@@ -85,7 +81,8 @@ namespace
 
     bool readAscii8(cFile& file, sBitmapDescription& desc, unsigned maxValue)
     {
-        desc.bpp = 24;
+        desc.format = GL_LUMINANCE;
+        desc.bpp = 8;
         desc.bppImage = 8;
         desc.pitch = desc.width * desc.bpp / 8;
         desc.bitmap.resize(desc.pitch * desc.height);
@@ -95,18 +92,14 @@ namespace
         size_t len = 0;
 
         const float norm = 255.0f / maxValue;
-        const char* sep = "\n\t ";
 
         auto out = desc.bitmap.data();
         while (::getline(&line, &len, (FILE*)file.getHandle()) != -1)
         {
-            for (auto word = ::strtok(line, sep); word != nullptr; word = ::strtok(nullptr, sep))
+            for (auto word = ::strtok(line, Separator); word != nullptr; word = ::strtok(nullptr, Separator))
             {
                 const auto val = (unsigned)(::atoi(word) * norm);
-                out[idx + 0] = val;
-                out[idx + 1] = val;
-                out[idx + 2] = val;
-                idx += 3;
+                out[idx++] = val;
             }
         }
 
@@ -115,7 +108,8 @@ namespace
 
     bool readRaw8(cFile& file, sBitmapDescription& desc, unsigned maxValue)
     {
-        desc.bpp = 24;
+        desc.format = GL_LUMINANCE;
+        desc.bpp = 8;
         desc.bppImage = 8;
         desc.pitch = desc.width * desc.bpp / 8;
         desc.bitmap.resize(desc.pitch * desc.height);
@@ -133,11 +127,8 @@ namespace
             auto out = desc.bitmap.data() + row * desc.pitch;
             for (unsigned i = 0; i < desc.width; i++)
             {
-                const unsigned idx = i * 3;
                 const auto val = (unsigned char)(buffer[i] * norm);
-                out[idx + 0] = val;
-                out[idx + 1] = val;
-                out[idx + 2] = val;
+                out[i] = val;
             }
         }
 
@@ -155,11 +146,10 @@ namespace
         size_t len = 0;
 
         const float norm = 255.0f / maxValue;
-        const char* sep = "\n\t ";
 
         while (::getline(&line, &len, (FILE*)file.getHandle()) != -1)
         {
-            for (auto word = ::strtok(line, sep); word != nullptr; word = ::strtok(nullptr, sep))
+            for (auto word = ::strtok(line, Separator); word != nullptr; word = ::strtok(nullptr, Separator))
             {
                 const auto val = (unsigned)(::atoi(word) * norm);
                 desc.bitmap[idx++] = val;
@@ -217,6 +207,7 @@ bool cFormatPnm::LoadImpl(const char* filename, sBitmapDescription& desc)
     size_t len = 0;
     ssize_t read;
 
+    char* restLine = nullptr;
     unsigned format = 0;
     unsigned maxValue = 0;
 
@@ -236,8 +227,7 @@ bool cFormatPnm::LoadImpl(const char* filename, sBitmapDescription& desc)
         {
             if (line[0] != '#')
             {
-                const char* sep = "\n\t ";
-                for (auto word = ::strtok(line, sep); word != nullptr && token != Token::Data; word = ::strtok(nullptr, sep))
+                for (auto word = ::strtok(line, Separator); word != nullptr && token != Token::Data; word = ::strtok(nullptr, Separator))
                 {
                     const auto len = ::strlen(word);
                     switch (token)
@@ -265,7 +255,8 @@ bool cFormatPnm::LoadImpl(const char* filename, sBitmapDescription& desc)
                         maxValue = (unsigned)::atoi(word);
                         break;
 
-                    case Token::Data: // prevent compiler warning
+                    case Token::Data:
+                        // may contain data
                         break;
                     }
                 }
