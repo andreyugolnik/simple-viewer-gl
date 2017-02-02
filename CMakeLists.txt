@@ -17,7 +17,7 @@ ELSE()
     ADD_DEFINITIONS( "-Wall -Wextra -pedantic -O0 -g" )
 ENDIF()
 
-SET( CMAKE_CXX_FLAGS "-std=c++14" )
+SET( CMAKE_CXX_FLAGS "-std=c++11" )
 
 FIND_PACKAGE(PkgConfig REQUIRED)
 PKG_SEARCH_MODULE(GLFW REQUIRED glfw3)
