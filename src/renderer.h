@@ -41,6 +41,9 @@ public:
     static void setWindow(GLFWwindow* window);
     static GLFWwindow* getWindow();
 
+    static void enableMipmap(bool enable);
+    static bool isMipmapEnabled();
+
     static GLuint createTexture();
     static void setData(GLuint tex, const unsigned char* data, unsigned w, unsigned h, GLenum format);
     static void deleteTexture(GLuint tex);

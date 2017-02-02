@@ -86,7 +86,7 @@ void cQuadImage::setBuffer(unsigned width, unsigned height, unsigned pitch, unsi
     m_buffer.resize(m_texPitch * m_texHeight);
 }
 
-bool cQuadImage::upload()
+bool cQuadImage::upload(unsigned mipmapTextureSize)
 {
     const auto size = m_chunks.size();
     assert(size < m_rows * m_cols);
@@ -108,6 +108,8 @@ bool cQuadImage::upload()
         const unsigned dst = line * m_texPitch;
         memcpy(&m_buffer[dst], &m_image[src], count);
     }
+
+    cRenderer::enableMipmap(m_width >= mipmapTextureSize || m_height >= mipmapTextureSize);
 
     CQuad* quad = findAndRemoveOld(col, row);
     if (quad == nullptr

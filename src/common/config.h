@@ -29,6 +29,8 @@ struct sConfig
     bool wheelZoom = false;
     bool keepScale = false;
 
+    unsigned mipmapTextureSize = 4096;
+
     sColor color{ 0.0f, 0.0f, 1.0f };
 };
 

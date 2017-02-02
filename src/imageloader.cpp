@@ -217,6 +217,7 @@ struct sFormatExt
     eImageType format;
 };
 
+#if 0
 const char* typeToName(eImageType type)
 {
     const char* Names[] =
@@ -249,6 +250,7 @@ const char* typeToName(eImageType type)
     assert(size == (size_t)eImageType::COUNT);
     return idx < size ? Names[idx] : "";
 };
+#endif
 
 }
 
@@ -265,7 +267,7 @@ eImageType CImageLoader::getType(const char* name)
     {
         if (m_formats[idx]->isSupported(file, buffer))
         {
-            ::printf("(II) Loader by type %s\n", typeToName((eImageType)idx));
+            // ::printf("(II) Loader by type %s\n", typeToName((eImageType)idx));
             return (eImageType)idx;
         }
     }
@@ -311,7 +313,7 @@ eImageType CImageLoader::getType(const char* name)
         {
             if (s.substr(pos) == fmt.ext)
             {
-                ::printf("(II) Loader by ext %s\n", typeToName(fmt.format));
+                // ::printf("(II) Loader by ext %s\n", typeToName(fmt.format));
                 return fmt.format;
             }
         }

@@ -14,6 +14,7 @@
 
 #include <clocale>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <unistd.h>
 
@@ -21,7 +22,7 @@ namespace
 {
 
     const char* SimpleViewerTitle = "Simple Viewer GL";
-    const float SimpleViewerVersion = 2.78f;
+    const float SimpleViewerVersion = 2.79f;
 
     cViewer* m_viewer = nullptr;
 
@@ -44,19 +45,20 @@ namespace
 
         printf("\nUsage:\n");
         printf("  %s [OPTION]... FILE\n", (p != nullptr ? p + 1 : name));
-        printf("  -h, --help    show this help;\n");
-        printf("  -v, --version show viewer version;\n");
-        printf("  -s            enable scale to window (default: %s);\n", getValue(config.fitImage));
-        printf("  -cw           center window (default: %s);\n", getValue(config.centerWindow));
-        printf("  -a            do not filter by file ext;\n");
-        printf("  -c            disable chequerboard (default: %s);\n", getValue(!config.hideCheckboard));
-        printf("  -i            disable on screen info (default: %s);\n", getValue(!config.hideInfobar));
-        printf("  -p            show pixel info (pixel color and coordinates, default: %s);\n", getValue(config.showPixelInfo));
-        printf("  -b            show border around image (default: %s);\n", getValue(config.showImageBorder));
-        printf("  -f            start in fullscreen mode;\n");
-        printf("  -r            recursive directory scan (default: %s);\n", getValue(config.recursiveScan));
-        printf("  -wz           enable wheel zoom (default: %s);\n", getValue(config.wheelZoom));
-        printf("  -C RRGGBB     background color in hex format (default: %.2X%.2X%.2X);\n"
+        printf("  -h, --help     show this help;\n");
+        printf("  -v, --version  show viewer version;\n");
+        printf("  -s             enable scale to window (default: %s);\n", getValue(config.fitImage));
+        printf("  -cw            center window (default: %s);\n", getValue(config.centerWindow));
+        printf("  -a             do not filter by file ext;\n");
+        printf("  -c             disable chequerboard (default: %s);\n", getValue(!config.hideCheckboard));
+        printf("  -i             disable on screen info (default: %s);\n", getValue(!config.hideInfobar));
+        printf("  -p             show pixel info (pixel color and coordinates, default: %s);\n", getValue(config.showPixelInfo));
+        printf("  -b             show border around image (default: %s);\n", getValue(config.showImageBorder));
+        printf("  -f             start in fullscreen mode;\n");
+        printf("  -r             recursive directory scan (default: %s);\n", getValue(config.recursiveScan));
+        printf("  -wz            enable wheel zoom (default: %s);\n", getValue(config.wheelZoom));
+        printf("  -mipmap VALUE  min texture size for mipmap creation (default: %u px);\n", config.mipmapTextureSize);
+        printf("  -C RRGGBB      background color in hex format (default: %.2X%.2X%.2X);\n"
                , (unsigned)(config.color.r * 255)
                , (unsigned)(config.color.g * 255)
                , (unsigned)(config.color.b * 255));
@@ -219,6 +221,13 @@ int main(int argc, char* argv[])
             {
                 config.color = { r / 255.0f, g / 255.0f, b / 255.0f };
                 i++;
+            }
+        }
+        else if (strncmp(argv[i], "-mipmap", 7) == 0)
+        {
+            if (i + 1 < argc)
+            {
+                config.mipmapTextureSize = (unsigned)::atoi(argv[++i]);
             }
         }
         else

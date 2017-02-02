@@ -80,6 +80,8 @@ void cConfig::read(sConfig& config) const
     config.wheelZoom = getBool(ini.getString(section, "wheel_zoom"), false);
     config.keepScale = getBool(ini.getString(section, "keep_scale"), false);
 
+    config.mipmapTextureSize = (unsigned)getInt(ini.getString(section, "mipmap_texture_size"), 4096);
+
     config.color =
     {
         getInt(ini.getString(section, "background_r"),   0) / 255.0f,

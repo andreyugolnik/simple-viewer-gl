@@ -21,7 +21,7 @@ public:
 
     void clear();
     void setBuffer(unsigned width, unsigned height, unsigned pitch, unsigned format, unsigned bytesPP, const unsigned char* image);
-    bool upload();
+    bool upload(unsigned mipmapTextureSize);
     bool isUploading() const;
     float getProgress() const;
 

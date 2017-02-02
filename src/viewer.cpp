@@ -192,7 +192,7 @@ void cViewer::update()
 
     if (isUploading())
     {
-        const bool isDone = m_image->upload();
+        const bool isDone = m_image->upload(m_config->mipmapTextureSize);
         m_progress->setProgress(0.5f + m_image->getProgress() * 0.5f);
 
         if (isDone)
