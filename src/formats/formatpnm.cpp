@@ -10,6 +10,7 @@
 #include "formatpnm.h"
 #include "../common/bitmap_description.h"
 #include "../common/file.h"
+#include "../common/helpers.h"
 
 #include <cmath>
 #include <cstdlib>
@@ -18,7 +19,73 @@
 namespace
 {
 
-    const char* Separator = "\n\t \0";
+    bool isEndLine(char ch)
+    {
+        const char delims[] = "\n\0";
+
+        for (unsigned i = 0; i < helpers::countof(delims); i++)
+        {
+            if (delims[i] == ch)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    typedef std::vector<char> Line;
+
+    bool getline(Line& line, cFile& file)
+    {
+        line.clear();
+
+        auto remain = file.getSize() - file.getOffset();
+        if (remain == 0)
+        {
+            // ::printf("- eof\n");
+            return false;
+        }
+
+        const unsigned bufferSize = 20;
+        unsigned bufferOffset = 0;
+
+        while (remain != 0)
+        {
+            auto offset = file.getOffset();
+
+            const auto size = std::min<unsigned>(remain, bufferSize);
+            line.resize(line.size() + size);
+
+            auto buffer = line.data() + bufferOffset;
+            if (file.read(buffer, size) != size)
+            {
+                line.push_back(0);
+                // ::printf("- error read file\n");
+                return true;
+            }
+
+            for (unsigned i = 0; i < size; i++)
+            {
+                auto ch = buffer[i];
+                if (isEndLine(ch))
+                {
+                    offset += i + (ch == 0 ? 0 : 1);
+                    line.resize(bufferOffset + i + 1);
+                    line[line.size() - 1] = 0;
+                    file.seek(offset, SEEK_SET);
+                    // ::printf("- stop char detected, seek to: %u\n", (unsigned)offset);
+                    return true;
+                }
+            }
+
+            remain -= size;
+            bufferOffset += size;
+        }
+
+        return true;
+    }
+
+    const char* TokenSep = "\n\t ";
 
     bool readAscii1(cFile& file, sBitmapDescription& desc)
     {
@@ -29,13 +96,12 @@ namespace
         desc.bitmap.resize(desc.pitch * desc.height);
 
         size_t idx = 0;
-        char* line = nullptr;
-        size_t len = 0;
+        Line line;
 
         auto out = desc.bitmap.data();
-        while (::getline(&line, &len, (FILE*)file.getHandle()) != -1)
+        while (getline(line, file))
         {
-            for (auto word = ::strtok(line, Separator); word != nullptr; word = ::strtok(nullptr, Separator))
+            for (auto word = ::strtok(line.data(), TokenSep); word != nullptr; word = ::strtok(nullptr, TokenSep))
             {
                 const auto val = (unsigned)::atoi(word) != 0 ? 0 : 255;
                 out[idx++] = val;
@@ -88,15 +154,14 @@ namespace
         desc.bitmap.resize(desc.pitch * desc.height);
 
         size_t idx = 0;
-        char* line = nullptr;
-        size_t len = 0;
+        Line line;
 
         const float norm = 255.0f / maxValue;
 
         auto out = desc.bitmap.data();
-        while (::getline(&line, &len, (FILE*)file.getHandle()) != -1)
+        while (getline(line, file))
         {
-            for (auto word = ::strtok(line, Separator); word != nullptr; word = ::strtok(nullptr, Separator))
+            for (auto word = ::strtok(line.data(), TokenSep); word != nullptr; word = ::strtok(nullptr, TokenSep))
             {
                 const auto val = (unsigned)(::atoi(word) * norm);
                 out[idx++] = val;
@@ -119,10 +184,7 @@ namespace
 
         for (unsigned row = 0; row < desc.height; row++)
         {
-            if (buffer.size() != file.read(buffer.data(), buffer.size()))
-            {
-                return false;
-            }
+            file.read(buffer.data(), buffer.size());
 
             auto out = desc.bitmap.data() + row * desc.pitch;
             for (unsigned i = 0; i < desc.width; i++)
@@ -142,14 +204,13 @@ namespace
         desc.bitmap.resize(desc.pitch * desc.height);
 
         size_t idx = 0;
-        char* line = nullptr;
-        size_t len = 0;
+        Line line;
 
         const float norm = 255.0f / maxValue;
 
-        while (::getline(&line, &len, (FILE*)file.getHandle()) != -1)
+        while (getline(line, file))
         {
-            for (auto word = ::strtok(line, Separator); word != nullptr; word = ::strtok(nullptr, Separator))
+            for (auto word = ::strtok(line.data(), TokenSep); word != nullptr; word = ::strtok(nullptr, TokenSep))
             {
                 const auto val = (unsigned)(::atoi(word) * norm);
                 desc.bitmap[idx++] = val;
@@ -203,11 +264,8 @@ bool cFormatPnm::LoadImpl(const char* filename, sBitmapDescription& desc)
     desc.size = file.getSize();
 
     bool result = false;
-    char* line = nullptr;
-    size_t len = 0;
-    ssize_t read;
+    Line line;
 
-    char* restLine = nullptr;
     unsigned format = 0;
     unsigned maxValue = 0;
 
@@ -223,50 +281,56 @@ bool cFormatPnm::LoadImpl(const char* filename, sBitmapDescription& desc)
 
     while (token != Token::Data)
     {
-        if ((read = ::getline(&line, &len, (FILE*)file.getHandle())) != -1)
+        if (getline(line, file))
         {
-            if (line[0] != '#')
+            if (line.size() == 0 || line[0] == '#')
             {
-                for (auto word = ::strtok(line, Separator); word != nullptr && token != Token::Data; word = ::strtok(nullptr, Separator))
+                continue;
+            }
+
+            auto begin = line.data();
+            const char* word = nullptr;
+            while ((word = ::strsep(&begin, TokenSep)) != nullptr && token != Token::Data)
+            {
+                const auto wordLen = ::strlen(word);
+                if (wordLen == 0)
                 {
-                    const auto len = ::strlen(word);
-                    switch (token)
+                    continue;
+                }
+
+                // ::printf("token: '%s'\n", word);
+
+                switch (token)
+                {
+                case Token::Format:
+                    if (wordLen >= 2 && word[0] == 'P')
                     {
-                    case Token::Format:
-                        if (len >= 2 && word[0] == 'P')
-                        {
-                            token = Token::Width;
-                            format = word[1] - '0';
-                        }
-                        break;
-
-                    case Token::Width:
-                        token = Token::Height;
-                        desc.width = (unsigned)::atoi(word);
-                        break;
-
-                    case Token::Height:
-                        token = (format != 4 && format != 1) ? Token::MaxValue : Token::Data;
-                        desc.height = (unsigned)::atoi(word);
-                        break;
-
-                    case Token::MaxValue:
-                        token = Token::Data;
-                        maxValue = (unsigned)::atoi(word);
-                        break;
-
-                    case Token::Data:
-                        // may contain data
-                        break;
+                        token = Token::Width;
+                        format = word[1] - '0';
                     }
+                    break;
+
+                case Token::Width:
+                    token = Token::Height;
+                    desc.width = (unsigned)::atoi(word);
+                    break;
+
+                case Token::Height:
+                    token = (format != 4 && format != 1) ? Token::MaxValue : Token::Data;
+                    desc.height = (unsigned)::atoi(word);
+                    break;
+
+                case Token::MaxValue:
+                    token = Token::Data;
+                    maxValue = (unsigned)::atoi(word);
+                    break;
+
+                case Token::Data: // do nothing
+                    break;
                 }
             }
         }
     }
-    ::free(line);
-
-    ::printf("format: %u\n", format);
-    ::printf("size: %u x %u\n", desc.width, desc.height);
 
     switch (format)
     {
