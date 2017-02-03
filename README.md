@@ -1,3 +1,5 @@
+![CI status, master](https://api.shippable.com/projects/5894665c8d80360f008b75d4/badge?branch=master)
+
 ##Simple Viewer GL - simple and tiny image viewer based on OpenGL.##
 
 The primary goal for writing **sviewgl** is to create an image viewer, which only has the most basic features required for fast image viewing. It has some vi-like key bindings and works nicely with tiling window managers (such as Ion3 and Notion).

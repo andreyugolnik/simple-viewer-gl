@@ -49,9 +49,9 @@ namespace
         printf("  -v, --version  show viewer version;\n");
         printf("  -s             enable scale to window (default: %s);\n", getValue(config.fitImage));
         printf("  -cw            center window (default: %s);\n", getValue(config.centerWindow));
-        printf("  -a             do not filter by file ext;\n");
+        printf("  -a             do not filter by file extension;\n");
         printf("  -c             disable chequerboard (default: %s);\n", getValue(!config.hideCheckboard));
-        printf("  -i             disable on screen info (default: %s);\n", getValue(!config.hideInfobar));
+        printf("  -i             disable on-screen info (default: %s);\n", getValue(!config.hideInfobar));
         printf("  -p             show pixel info (pixel color and coordinates, default: %s);\n", getValue(config.showPixelInfo));
         printf("  -b             show border around image (default: %s);\n", getValue(config.showImageBorder));
         printf("  -f             start in fullscreen mode;\n");
@@ -118,10 +118,12 @@ namespace
         m_viewer->fnMouseScroll(x, y);
     }
 
+#if GLFW_VERSION_MAJOR >= 3 && GLFW_VERSION_MINOR >= 1
     void callbackDrop(GLFWwindow* /*window*/, int count, const char** paths)
     {
         m_viewer->addPaths(paths, count);
     }
+#endif
 
     void setup(GLFWwindow* window)
     {
@@ -141,7 +143,9 @@ namespace
         glfwSetCursorPosCallback(window, callbackMouse);
         glfwSetScrollCallback(window, callbackMouseScroll);
 
+#if GLFW_VERSION_MAJOR >= 3 && GLFW_VERSION_MINOR >= 1
         glfwSetDropCallback(window, callbackDrop);
+#endif
     }
 
 }
