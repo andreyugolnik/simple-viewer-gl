@@ -56,16 +56,19 @@ $ make release
 
 ##Dependencies##
 
-* glfw3 - multi-platform library for creating windows with OpenGL contexts and receiving input and events.
-* Imlib2 - common formats support.
-* libjpeg - jpeg format support.
-* libpng - png format support.
-* giflib - gif format support.
-* libtiff - tiff format support.
-* webp - WebP format support.
-* freetype2 - FreeType 2 font engine, shared library files.
-* zlib - compression support.
-* Little CMS 2 - Color management engine supporting ICC profiles.
+Name               | Debian package name | Description / Notes
+-------------------| --------------------|----------------
+**glfw3**          | libglfw3-dev        | Multi-platform library for creating windows with OpenGL contexts and receiving input and events.
+**imlib2**         | libimlib2-dev       | Common formats support.
+**jpeg**           | libjpeg-dev         | JPEG format support.
+**png**            | libpng12-dev        | PNG format support.
+**gif**            | libgif-dev          | GIF format support.
+**tiff**           | libtiff5-dev        | TIFF format support.
+**webp**           | libwebp-dev         | WebP format support.
+**freetype2**      | libfreetype6-dev    | TTF/OTF font engine.
+**Little CMS 2**   | liblcms2-dev        | Color management engine supporting ICC profiles.
+**cmake**          | cmake               | Cross-platform family of tools designed to build, test and package software.
+**zlib**           |                     | Compression support.
 
 ***
 ```
