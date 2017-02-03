@@ -20,7 +20,6 @@ install:
 
 compiler:
     - gcc
-    - clang
 
 build:
     ci:
