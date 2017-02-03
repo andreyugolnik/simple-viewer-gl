@@ -1,14 +1,13 @@
-language: cpp
-cache: apt
-compiler:
-    - gcc
-env:
-
-before_install:
-    - sudo apt-get update -qq
-    - sh -c "sudo apt-get install -qq build-essential"
-
-script: sh -c "make release"
+language: c
 
 os:
     - linux
+
+compiler:
+    - gcc
+    - clang
+
+build:
+    ci:
+        - make clean
+        - make release
