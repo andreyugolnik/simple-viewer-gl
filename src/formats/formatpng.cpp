@@ -46,7 +46,7 @@ namespace
         png_byte id[8]; // 8 is the maximum size that can be checked
     };
 
-    bool isValidFormat(const PngHeader& header, unsigned fileSize)
+    bool isValidFormat(PngHeader& header, unsigned fileSize)
     {
         return fileSize >= 8 && png_sig_cmp(header.id, 0, 8) == 0;
     }
@@ -69,7 +69,7 @@ bool cFormatPng::isSupported(cFile& file, Buffer& buffer) const
         return false;
     }
 
-    const auto h = reinterpret_cast<const PngHeader*>(buffer.data());
+    const auto h = reinterpret_cast<PngHeader*>(buffer.data());
     return isValidFormat(*h, file.getSize());
 }
 
