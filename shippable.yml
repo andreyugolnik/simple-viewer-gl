@@ -1,7 +1,5 @@
 language: c
 
-cache: true
-
 os:
     - linux
 
