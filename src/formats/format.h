@@ -42,7 +42,7 @@ public:
 
 protected:
     cFormat(const char* libName, iCallbacks* callbacks);
-    bool readBuffer(cFile& file, Buffer& buffer, uint32_t minSize) const;
+    bool readBuffer(cFile& file, Buffer& buffer, unsigned minSize) const;
 
 private:
     virtual bool LoadImpl(const char* filename, sBitmapDescription& desc) = 0;

@@ -86,13 +86,13 @@ void cFormat::updateProgress(float percent)
     }
 }
 
-bool cFormat::readBuffer(cFile& file, Buffer& buffer, uint32_t minSize) const
+bool cFormat::readBuffer(cFile& file, Buffer& buffer, unsigned minSize) const
 {
-    const uint32_t size = buffer.size();
+    const unsigned size = buffer.size();
     if (size < minSize)
     {
         buffer.resize(minSize);
-        const uint32_t length = minSize - size;
+        const unsigned length = minSize - size;
         if (length != file.read(&buffer[size], length))
         {
             return false;
