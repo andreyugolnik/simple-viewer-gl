@@ -10,9 +10,9 @@
 #pragma once
 
 #include "ftstring.h"
-#include "quadseries.h"
 #include "math/vector.h"
 #include "math/rect.h"
+#include "quadseries.h"
 
 #include <memory>
 
@@ -45,7 +45,7 @@ struct sPixelInfo
     CRect<float> rc;
 };
 
-class CPixelInfo final
+class cPixelInfo final
 {
 public:
     void Init();
@@ -63,7 +63,7 @@ private:
 private:
     float m_ratio = 1.0f;
     sPixelInfo m_pixelInfo;
-    std::unique_ptr<CQuad> m_bg;
-    std::unique_ptr<CQuadSeries> m_pointer;
+    std::unique_ptr<cQuad> m_bg;
+    std::unique_ptr<cQuadSeries> m_pointer;
     std::unique_ptr<cFTString> m_ft;
 };

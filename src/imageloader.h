@@ -45,11 +45,11 @@ enum class eImageType
     COUNT
 };
 
-class CImageLoader final
+class cImageLoader final
 {
 public:
-    CImageLoader(iCallbacks* callbacks);
-    ~CImageLoader();
+    explicit cImageLoader(iCallbacks* callbacks);
+    ~cImageLoader();
 
     void LoadImage(const char* path);
     void LoadSubImage(unsigned subImage);

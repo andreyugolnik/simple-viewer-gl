@@ -10,11 +10,10 @@
 #include "ftsymbol.h"
 
 cFTSymbol::cFTSymbol(const sQuad& quad, int tw, int th, float tx, float ty, int w, int h)
-    : m_w(w)
+    : m_quad(quad)
+    , m_w(w)
     , m_h(h)
 {
-    m_quad = quad;
-
     float x1 = tx / tw;
     float y1 = ty / th;
     float x2 = (tx + w) / tw;

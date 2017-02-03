@@ -88,11 +88,11 @@ void cFTString::Render(int x, int y)
 
 unsigned cFTString::GetStringWidth()
 {
-    unsigned width = 0;
     unsigned widthMax = 0;
     auto string = m_unicode.data();
     if (string != nullptr)
     {
+        unsigned width = 0;
         while (*string)
         {
             const auto i = *string;

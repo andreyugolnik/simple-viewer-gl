@@ -111,13 +111,13 @@ bool cQuadImage::upload(unsigned mipmapTextureSize)
 
     cRenderer::enableMipmap(m_width >= mipmapTextureSize || m_height >= mipmapTextureSize);
 
-    CQuad* quad = findAndRemoveOld(col, row);
+    cQuad* quad = findAndRemoveOld(col, row);
     if (quad == nullptr
         || quad->GetTexWidth() != m_texWidth || quad->GetTexHeight() != m_texHeight
         || quad->getFormat() != m_format)
     {
         delete quad;
-        quad = new CQuad(m_texWidth, m_texHeight, &m_buffer[0], m_format);
+        quad = new cQuad(m_texWidth, m_texHeight, &m_buffer[0], m_format);
     }
     else
     {
@@ -205,9 +205,9 @@ void cQuadImage::moveToOld()
     m_chunks.clear();
 }
 
-CQuad* cQuadImage::findAndRemoveOld(unsigned col, unsigned row)
+cQuad* cQuadImage::findAndRemoveOld(unsigned col, unsigned row)
 {
-    CQuad* quad = nullptr;
+    cQuad* quad = nullptr;
 
     for (size_t i = 0, size = m_chunksOld.size(); i < size; i++)
     {

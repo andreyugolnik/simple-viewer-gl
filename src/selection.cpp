@@ -9,83 +9,69 @@
 
 #include "selection.h"
 #include "math/vector.h"
+#include "quad.h"
 
 #include <algorithm>
-#include <stdio.h>
-#include <sys/time.h>
-#include <time.h>
+#include <cstdio>
+#include <vector>
 
-typedef struct timeval SystemTime;
-static SystemTime m_timeLast;
-
-const int delta = 20;
-const int delta2 = delta / 2;
-
-CSelection::CSelection()
-    : m_enabled(true)
-    , m_imageWidth(0.0f)
-    , m_imageHeight(0.0f)
-    , m_timeDelta(0.0f)
-    , m_scale(1.0f)
-    , m_mode(MODE_NONE)
-    , m_corner(CORNER_NONE)
+namespace
 {
-    ::gettimeofday(&m_timeLast, 0);
+
+    const float delta = 20.0f;
+    const float delta2 = delta * 0.5f;
+
+    const unsigned m_cellSize = 8;
+    const unsigned m_texSize = m_cellSize * 2;
+
 }
 
-CSelection::~CSelection()
+void cSelection::Init()
 {
-}
+    std::vector<unsigned char> buffer(m_texSize * m_texSize);
+    auto p = buffer.data();
 
-void CSelection::Init()
-{
-    unsigned char* buffer = new unsigned char[m_selectionTexSize * m_selectionTexSize * 3];
-    unsigned char* p = buffer;
-    bool checker_height_odd = true;
-    for(int y = 0; y < m_selectionTexSize; y++)
+    unsigned idx = 0;
+    const unsigned char colors[2] = { 0x20, 0xff };
+
+    for (unsigned y = 0; y < m_texSize; y++)
     {
-        if(y % 4 == 0)
+        if (y % m_cellSize == 0)
         {
-            checker_height_odd = !checker_height_odd;
+            idx = (idx + 1) % 2;
         }
 
-        bool checker_width_odd = checker_height_odd;
-        for(int x = 0; x < m_selectionTexSize; x++)
+        for (unsigned x = 0; x < m_texSize; x++)
         {
-            if(x % 4 == 0)
+            if (x % m_cellSize == 0)
             {
-                checker_width_odd = !checker_width_odd;
+                idx = (idx + 1) % 2;
             }
 
-            const unsigned char color = (checker_width_odd == true ? 0x20 : 0xff);
-            *p++ = color;
-            *p++ = color;
+            const auto color = colors[idx];
             *p++ = color;
         }
     }
 
-    m_selection.reset(new CQuad(m_selectionTexSize, m_selectionTexSize, buffer, GL_RGB));
+    m_selection.reset(new cQuad(m_texSize, m_texSize, buffer.data(), GL_LUMINANCE));
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     m_selection->useFilter(false);
-
-    delete[] buffer;
 }
 
-void CSelection::SetImageDimension(float w, float h)
+void cSelection::SetImageDimension(float w, float h)
 {
     m_imageWidth = w;
     m_imageHeight = h;
     m_rc.Clear();
     m_rc_test.Clear();
-    getTime();
 }
 
-void CSelection::setScale(float scale)
+void cSelection::setScale(float scale)
 {
     m_scale = scale;
 
-    if(m_rc.IsSet())
+    if (m_rc.IsSet())
     {
         m_rc.Normalize();
         const float d = delta2 / scale;
@@ -93,9 +79,9 @@ void CSelection::setScale(float scale)
     }
 }
 
-void CSelection::MouseButton(float x, float y, bool pressed)
+void cSelection::MouseButton(float x, float y, bool pressed)
 {
-    if(pressed)
+    if (pressed)
     {
         m_rc.Normalize();
         const bool inside = m_rc_test.TestPoint(x, y);
@@ -103,9 +89,9 @@ void CSelection::MouseButton(float x, float y, bool pressed)
         m_mouseX = x;
         m_mouseY = y;
 
-        if(m_mode == MODE_NONE)
+        if (m_mode == MODE_NONE)
         {
-            if(inside)
+            if (inside)
             {
                 m_mode = (m_corner == CORNER_CR ? MODE_MOVE : MODE_RESIZE);
             }
@@ -120,7 +106,7 @@ void CSelection::MouseButton(float x, float y, bool pressed)
                 m_rc_test.Clear();
             }
         }
-        else if(inside == false)
+        else if (inside == false)
         {
             m_mode = MODE_NONE;
             m_rc.Clear();
@@ -134,16 +120,16 @@ void CSelection::MouseButton(float x, float y, bool pressed)
     }
 }
 
-void CSelection::MouseMove(float x, float y)
+void cSelection::MouseMove(float x, float y)
 {
     updateCorner(x, y);
 
-    if(m_mode != MODE_NONE)
+    if (m_mode != MODE_NONE)
     {
         float dx = x - m_mouseX;
         float dy = y - m_mouseY;
 
-        switch(m_mode)
+        switch (m_mode)
         {
         case MODE_NONE:   // do nothing here
             break;
@@ -159,19 +145,19 @@ void CSelection::MouseMove(float x, float y)
             break;
 
         case MODE_RESIZE:
-            if((m_corner & CORNER_UP))
+            if ((m_corner & CORNER_UP))
             {
                 m_rc.y1 += dy;
             }
-            if((m_corner & CORNER_RT))
+            if ((m_corner & CORNER_RT))
             {
                 m_rc.x2 += dx;
             }
-            if((m_corner & CORNER_DN))
+            if ((m_corner & CORNER_DN))
             {
                 m_rc.y2 += dy;
             }
-            if((m_corner & CORNER_LT))
+            if ((m_corner & CORNER_LT))
             {
                 m_rc.x1 += dx;
             }
@@ -189,34 +175,30 @@ void CSelection::MouseMove(float x, float y)
     }
 }
 
-void CSelection::clampShiftDelta(float& dx, float& dy)
+void cSelection::clampShiftDelta(float& dx, float& dy)
 {
-    if(m_rc.x1 + dx < 0.0f)
+    if (m_rc.x1 + dx < 0.0f)
     {
         dx = -m_rc.x1;
     }
-    else if(m_rc.x2 + dx >= m_imageWidth)
+    else if (m_rc.x2 + dx >= m_imageWidth)
     {
         dx = m_imageWidth - 1.0f - m_rc.x2;
     }
-    if(m_rc.y1 + dy < 0.0f)
+    if (m_rc.y1 + dy < 0.0f)
     {
         dy = -m_rc.y1;
     }
-    else if(m_rc.y2 + dy >= m_imageHeight)
+    else if (m_rc.y2 + dy >= m_imageHeight)
     {
         dy = m_imageHeight - 1.0f - m_rc.y2;
     }
 }
 
-void CSelection::Render(float dx, float dy)
+void cSelection::Render(float dx, float dy)
 {
-    if(m_enabled && m_rc.IsSet())
+    if (m_enabled && m_rc.IsSet())
     {
-        const float dt = getTime();
-
-        m_timeDelta += dt * 10.0f;
-
         CRect<float> rc;
         setImagePos(rc, dx, dy);
 
@@ -240,60 +222,60 @@ void CSelection::Render(float dx, float dy)
     }
 }
 
-const CRect<float>& CSelection::GetRect() const
+const CRect<float>& cSelection::GetRect() const
 {
     return m_rc;
 }
 
-int CSelection::GetCursor() const
+int cSelection::GetCursor() const
 {
     static const int cursor[16 + 1] =
     {
         //                                 1  1  1  1  1
         //0  1  2  3  4  5  6  7  8  9  0  1  2  3  4  5
-          0, 3, 2, 5, 3, 0, 4, 2, 2, 4, 0, 3, 5, 2, 3, 1, 1
+        0, 3, 2, 5, 3, 0, 4, 2, 2, 4, 0, 3, 5, 2, 3, 1, 1
     };
     //printf("corner: %u , cursor: %d\n", m_corner, cursor[m_corner]);
     return cursor[m_corner];
 }
 
-void CSelection::updateCorner(float x, float y)
+void cSelection::updateCorner(float x, float y)
 {
-    if(m_mode != MODE_NONE)
+    if (m_mode != MODE_NONE)
     {
         return;
     }
 
     const CRect<float>& rc = m_rc_test;
-    if(rc.TestPoint(x, y))
+    if (rc.TestPoint(x, y))
     {
         m_corner = 0;
         const float d = delta / m_scale;
         CRect<float> rcLt(rc.x1, rc.y1, rc.x1 + d, rc.y2);
-        if(rcLt.TestPoint(x, y))
+        if (rcLt.TestPoint(x, y))
         {
             m_corner |= CORNER_LT;
         }
 
         CRect<float> rcRt(rc.x2 - d, rc.y1, rc.x2, rc.y2);
-        if(rcRt.TestPoint(x, y))
+        if (rcRt.TestPoint(x, y))
         {
             m_corner |= CORNER_RT;
         }
 
         CRect<float> rcUp(rc.x1, rc.y1, rc.x2, rc.y1 + d);
-        if(rcUp.TestPoint(x, y))
+        if (rcUp.TestPoint(x, y))
         {
             m_corner |= CORNER_UP;
         }
 
         CRect<float> rcDn(rc.x1, rc.y2 - d, rc.x2, rc.y2);
-        if(rcDn.TestPoint(x, y))
+        if (rcDn.TestPoint(x, y))
         {
             m_corner |= CORNER_DN;
         }
 
-        if(!m_corner)
+        if (!m_corner)
         {
             m_corner = CORNER_CR;
         }
@@ -304,19 +286,21 @@ void CSelection::updateCorner(float x, float y)
     }
 }
 
-void CSelection::renderHorizontal(float x, float y, float w, float scale)
+void cSelection::renderHorizontal(float x, float y, float w, float scale)
 {
-    m_selection->SetTextureRect(m_timeDelta, 0.0f, w, scale);
+    const auto offset = glfwGetTime() * 10.0f;
+    m_selection->SetTextureRect(offset, 0.0f, w, scale);
     m_selection->Render(x, y);
 }
 
-void CSelection::renderVertical(float x, float y, float h, float scale)
+void cSelection::renderVertical(float x, float y, float h, float scale)
 {
-    m_selection->SetTextureRect(0.0f, m_timeDelta, scale, h);
+    const auto offset = glfwGetTime() * 10.0f;
+    m_selection->SetTextureRect(0.0f, offset, scale, h);
     m_selection->Render(x, y);
 }
 
-void CSelection::setImagePos(CRect<float>& rc, float dx, float dy)
+void cSelection::setImagePos(CRect<float>& rc, float dx, float dy)
 {
     rc.x1 = m_rc.x1 + dx;
     rc.x2 = m_rc.x2 + dx;
@@ -324,7 +308,7 @@ void CSelection::setImagePos(CRect<float>& rc, float dx, float dy)
     rc.y2 = m_rc.y2 + dy;
 }
 
-void CSelection::clampPoint(float& x, float& y)
+void cSelection::clampPoint(float& x, float& y)
 {
     x = std::max<float>(x, 0.0f);
     x = std::min<float>(x, m_imageWidth - 1.0f);
@@ -332,9 +316,9 @@ void CSelection::clampPoint(float& x, float& y)
     y = std::min<float>(y, m_imageHeight - 1.0f);
 }
 
-void CSelection::setColor(bool selected)
+void cSelection::setColor(bool selected)
 {
-    if(!selected)
+    if (selected == false)
     {
         m_selection->SetColor(255, 255, 255, 255);
     }
@@ -343,16 +327,3 @@ void CSelection::setColor(bool selected)
         m_selection->SetColor(0, 255, 0, 255);
     }
 }
-
-float CSelection::getTime()
-{
-    SystemTime now;
-    ::gettimeofday(&now, 0);
-
-    const unsigned delta = (unsigned)((now.tv_sec - m_timeLast.tv_sec) * 1000000 + (now.tv_usec - m_timeLast.tv_usec));
-
-    m_timeLast = now;
-
-    return delta * 0.000001f;
-}
-

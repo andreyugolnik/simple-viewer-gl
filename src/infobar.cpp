@@ -9,10 +9,10 @@
 
 #include "infobar.h"
 #include "common/config.h"
+#include "quad.h"
 
 #include <cstring>
 #include <cmath>
-#include <sys/time.h>
 
 namespace
 {
@@ -20,30 +20,33 @@ namespace
     const float DesiredHeight = 18;
     const int DesiredFontSize = 12;
 
-    unsigned getTime()
+    const char* GetName(const char* path)
     {
-        timeval now;
-        ::gettimeofday(&now, 0);
+        if (path != nullptr)
+        {
+            const char* n = ::strrchr(path, '/');
+            return n != nullptr ? n + 1 : path;
+        }
 
-        return (unsigned)(now.tv_sec * 1000000 + now.tv_usec);
+        return "n/a";
     }
 
 }
 
-CInfoBar::CInfoBar(const sConfig* config)
+cInfoBar::cInfoBar(const sConfig* config)
     : m_config(config)
 {
 }
 
-void CInfoBar::init()
+void cInfoBar::init()
 {
-    m_bg.reset(new CQuad(0, 0));
+    m_bg.reset(new cQuad(0, 0));
     m_bg->SetColor(0, 0, 25, 240);
 
     createFont();
 }
 
-void CInfoBar::setRatio(float ratio)
+void cInfoBar::setRatio(float ratio)
 {
     if (m_ratio != ratio)
     {
@@ -52,7 +55,7 @@ void CInfoBar::setRatio(float ratio)
     }
 }
 
-void CInfoBar::createFont()
+void cInfoBar::createFont()
 {
     m_ft.reset(new cFTString(DesiredFontSize * m_ratio));
     m_ft->SetColor(255, 255, 127, 255);
@@ -64,12 +67,12 @@ void CInfoBar::createFont()
     }
 }
 
-float CInfoBar::getHeight() const
+float cInfoBar::getHeight() const
 {
     return m_ratio * DesiredHeight;
 }
 
-void CInfoBar::render()
+void cInfoBar::render()
 {
     int width;
     int height;
@@ -88,49 +91,37 @@ void CInfoBar::render()
         static float fps = 0.0f;
 
         frame++;
-        static unsigned last = getTime();
-        const unsigned now = getTime();
-        const unsigned delta = now - last;
-        const float sec = delta * 0.000001f;
-        if (sec > 0.5f)
+        static auto last = glfwGetTime();
+        const auto now = glfwGetTime();
+        const auto delta = now - last;
+        if (delta > 0.5f)
         {
-            fps = frame / sec;
+            fps = frame / delta;
             last = now;
             frame = 0;
         }
 
         char buffer[20];
-        snprintf(buffer, sizeof(buffer), "%.1f", fps);
+        ::snprintf(buffer, sizeof(buffer), "%.1f", fps);
         m_fps->Update(buffer);
         m_fps->Render(20, 20);
     }
 }
 
-static const char* GetName(const char* path)
-{
-    if (path != nullptr)
-    {
-        const char* n = strrchr(path, '/');
-        return n != nullptr ? n + 1 : path;
-    }
-
-    return "n/a";
-}
-
-void CInfoBar::setInfo(const sInfo& p)
+void cInfoBar::setInfo(const sInfo& p)
 {
     const char* name = GetName(p.path);
 
     char idx_img[20] = { 0 };
     if (p.files_count > 1)
     {
-        snprintf(idx_img, sizeof(idx_img), "%d out %d | ", p.index + 1, p.files_count);
+        ::snprintf(idx_img, sizeof(idx_img), "%u out %u | ", p.index + 1, p.files_count);
     }
 
     char sub_image[20] = { 0 };
     if (p.images > 1)
     {
-        snprintf(sub_image, sizeof(sub_image), " | %d / %d", p.current + 1, p.images);
+        ::snprintf(sub_image, sizeof(sub_image), " | %u / %u", p.current + 1, p.images);
     }
 
     float file_size = p.file_size;
@@ -139,8 +130,8 @@ void CInfoBar::setInfo(const sInfo& p)
     std::string mem_s = getHumanSize(mem_size);
 
     char title[1000] = { 0 };
-    snprintf(title, sizeof(title)
-             , "%s%s%s | %s | %d x %d x %d bpp (%.1f%%) | mem: %.1f %s (%.1f %s)"
+    ::snprintf(title, sizeof(title)
+             , "%s%s%s | %s | %u x %u x %u bpp (%.1f%%) | mem: %.1f %s (%.1f %s)"
              , idx_img
              , name
              , sub_image
@@ -156,7 +147,7 @@ void CInfoBar::setInfo(const sInfo& p)
     m_ft->Update(m_bottominfo.c_str());
 }
 
-const char* CInfoBar::getHumanSize(float& size)
+const char* cInfoBar::getHumanSize(float& size)
 {
     static const char* s[] = { "B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB" };
     int idx = 0;

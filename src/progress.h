@@ -11,9 +11,9 @@
 
 #include <memory>
 
-class CQuad;
+class cQuad;
 
-class CProgress final
+class cProgress final
 {
 public:
     void init();
@@ -36,14 +36,14 @@ public:
     void render();
 
 private:
-    float m_visible = false;
+    bool m_visible = false;
     float m_progress = 0.0f;
 
-    std::unique_ptr<CQuad> m_back;
+    std::unique_ptr<cQuad> m_back;
     struct sDot
     {
         float alpha;
-        std::unique_ptr<CQuad> dot;
+        std::unique_ptr<cQuad> dot;
     };
     sDot m_dot[4];
 

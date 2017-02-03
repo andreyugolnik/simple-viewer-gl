@@ -23,7 +23,7 @@
 class cFTString final
 {
 public:
-    cFTString(int size);
+    explicit cFTString(int size);
     ~cFTString();
 
     void SetColor(int r, int g, int b, int a);

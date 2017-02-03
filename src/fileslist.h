@@ -12,11 +12,11 @@
 #include <string>
 #include <vector>
 
-class CFilesList final
+class cFilesList final
 {
 public:
-    CFilesList(const char* initialFile, bool allValid, bool recursive = false);
-    ~CFilesList();
+    cFilesList(const char* initialFile, bool allValid, bool recursive = false);
+    ~cFilesList();
 
     void addFile(const char* path);
     void sortList();
@@ -30,8 +30,7 @@ public:
 private:
     void parseDir();
     void scanDirectory(const std::string& root);
-    bool isValidExt(const std::string& path);
-    static int filter(const struct dirent* p);
+    bool isValidExt(const char* path);
 
 private:
     const char* m_initialFile;

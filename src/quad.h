@@ -11,11 +11,11 @@
 
 #include "renderer.h"
 
-class CQuad
+class cQuad
 {
 public:
-    CQuad(unsigned tw, unsigned th, const unsigned char* data = 0, GLenum bitmapFormat = GL_RGB);
-    virtual ~CQuad();
+    cQuad(unsigned tw, unsigned th, const unsigned char* data = 0, GLenum bitmapFormat = GL_RGB);
+    virtual ~cQuad();
 
     virtual void setData(const unsigned char* data);
     virtual void SetColor(int r, int g, int b, int a);

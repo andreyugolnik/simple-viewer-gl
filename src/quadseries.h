@@ -11,11 +11,11 @@
 
 #include "quad.h"
 
-class CQuadSeries : public CQuad
+class cQuadSeries : public cQuad
 {
 public:
-    CQuadSeries(unsigned tw, unsigned th, const unsigned char* data, GLenum bitmapFormat);
-    virtual ~CQuadSeries();
+    cQuadSeries(unsigned tw, unsigned th, const unsigned char* data, GLenum bitmapFormat);
+    virtual ~cQuadSeries();
 
     void Setup(unsigned width, unsigned height, unsigned count);
     void SetFrame(unsigned frame);

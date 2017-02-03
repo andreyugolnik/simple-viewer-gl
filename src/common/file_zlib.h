@@ -18,7 +18,7 @@ struct z_stream_s;
 class cFileZlib : public cFileInterface
 {
 public:
-    cFileZlib(cFile* file);
+    explicit cFileZlib(cFile* file);
     virtual ~cFileZlib();
 
     virtual long getOffset() const override;

@@ -24,8 +24,13 @@
 #include <cstdlib>
 #include <string>
 
-const int DEF_WINDOW_W = 300;
-const int DEF_WINDOW_H = 200;
+namespace
+{
+
+    const int DEF_WINDOW_W = 300;
+    const int DEF_WINDOW_H = 200;
+
+}
 
 cViewer::cViewer(sConfig* config)
     : m_config(config)
@@ -36,13 +41,13 @@ cViewer::cViewer(sConfig* config)
     , m_angle(0)
 {
     m_image.reset(new cQuadImage());
-    m_loader.reset(new CImageLoader(this));
-    m_checkerBoard.reset(new CCheckerboard());
-    m_infoBar.reset(new CInfoBar(config));
-    m_pixelInfo.reset(new CPixelInfo());
-    m_progress.reset(new CProgress());
+    m_loader.reset(new cImageLoader(this));
+    m_checkerBoard.reset(new cCheckerboard());
+    m_infoBar.reset(new cInfoBar(config));
+    m_pixelInfo.reset(new cPixelInfo());
+    m_progress.reset(new cProgress());
     m_border.reset(new cImageBorder());
-    m_selection.reset(new CSelection());
+    m_selection.reset(new cSelection());
 
     m_prevSize = { DEF_WINDOW_W, DEF_WINDOW_H };
 
@@ -56,7 +61,7 @@ cViewer::~cViewer()
 
 void cViewer::setInitialImagePath(const char* path)
 {
-    m_filesList.reset(new CFilesList(path, m_config->skipFilter, m_config->recursiveScan));
+    m_filesList.reset(new cFilesList(path, m_config->skipFilter, m_config->recursiveScan));
 }
 
 void cViewer::setWindow(GLFWwindow* window)
@@ -171,7 +176,7 @@ void cViewer::update()
     {
         m_imagePrepared = false;
 
-        if (m_loader->getMode() == CImageLoader::Mode::Image && m_config->keepScale == false)
+        if (m_loader->getMode() == cImageLoader::Mode::Image && m_config->keepScale == false)
         {
             m_scale.setScalePercent(100);
             m_angle = 0;
@@ -663,7 +668,7 @@ void cViewer::updateInfobar()
 {
     calculateScale();
 
-    CInfoBar::sInfo s;
+    cInfoBar::sInfo s;
     s.path        = m_filesList->GetName();
     s.scale       = m_scale.getScale();
     s.index       = m_filesList->GetIndex();

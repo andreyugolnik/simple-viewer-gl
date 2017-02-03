@@ -11,9 +11,17 @@
 #include <cmath>
 #include <vector>
 
-void CCheckerboard::init()
+namespace
 {
-    std::vector<unsigned char> buffer(m_texSize * m_texSize * 3);
+
+    const unsigned m_cellSize = 16;
+    const unsigned m_texSize = m_cellSize * 2;
+
+}
+
+void cCheckerboard::init()
+{
+    std::vector<unsigned char> buffer(m_texSize * m_texSize);
     auto p = buffer.data();
 
     unsigned idx = 0;
@@ -35,19 +43,16 @@ void CCheckerboard::init()
 
             const auto color = colors[idx];
             *p++ = color;
-            *p++ = color;
-            *p++ = color;
         }
     }
 
-    m_cb.reset(new CQuad(m_texSize, m_texSize, buffer.data(), GL_RGB));
+    m_cb.reset(new cQuad(m_texSize, m_texSize, buffer.data(), GL_LUMINANCE));
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    // m_lastTime = glfwGetTime();
+    m_cb->useFilter(false);
 }
 
-void CCheckerboard::render(bool checkboardEanbled)
+void cCheckerboard::render(bool checkboardEanbled)
 {
     if (checkboardEanbled)
     {
@@ -55,22 +60,6 @@ void CCheckerboard::render(bool checkboardEanbled)
         int height;
         glfwGetFramebufferSize(cRenderer::getWindow(), &width, &height);
 
-        // const float current = glfwGetTime();
-        // const float dt = current - m_lastTime;
-        // m_lastTime = current;
-
-        // const float speed = 5.0f * M_PI / 180.0f;
-        // m_texOffset += dt * speed;
-        // if (m_texOffset >= M_PI)
-        // {
-            // m_texOffset -= M_PI * 2.0f;
-        // }
-
-        // const float radius = 16.0f;
-        // const float x = radius + cosf(m_texOffset) * radius;
-        // const float y = radius + sinf(m_texOffset) * radius;
-
-        // m_cb->SetTextureRect(x, y, width, height);
         m_cb->SetTextureRect(0, 0, width, height);
         m_cb->Render(0.0f, 0.0f);
     }

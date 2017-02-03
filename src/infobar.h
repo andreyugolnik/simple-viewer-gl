@@ -10,17 +10,17 @@
 #pragma once
 
 #include "ftstring.h"
-#include "quad.h"
+
 #include <string>
 #include <memory>
 
+class cQuad;
 struct sConfig;
 
-
-class CInfoBar final
+class cInfoBar final
 {
 public:
-    CInfoBar(const sConfig* config);
+    explicit cInfoBar(const sConfig* config);
 
     void init();
 
@@ -55,7 +55,7 @@ private:
 
     float m_ratio = 1.0f;
     std::string m_bottominfo;
-    std::unique_ptr<CQuad> m_bg;
+    std::unique_ptr<cQuad> m_bg;
     std::unique_ptr<cFTString> m_ft;
     std::unique_ptr<cFTString> m_fps;
 };

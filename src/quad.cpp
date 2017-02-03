@@ -12,7 +12,7 @@
 #include <cmath>
 #include <cstdio>
 
-CQuad::CQuad(unsigned tw, unsigned th, const unsigned char* data, GLenum bitmapFormat)
+cQuad::cQuad(unsigned tw, unsigned th, const unsigned char* data, GLenum bitmapFormat)
     : m_tw(tw)
     , m_th(th)
     , m_format(bitmapFormat)
@@ -27,23 +27,23 @@ CQuad::CQuad(unsigned tw, unsigned th, const unsigned char* data, GLenum bitmapF
     SetSpriteSize(tw, th);
 }
 
-CQuad::~CQuad()
+cQuad::~cQuad()
 {
     cRenderer::deleteTexture(m_quad.tex);
 }
 
-void CQuad::setData(const unsigned char* data)
+void cQuad::setData(const unsigned char* data)
 {
     m_filter = true;
     cRenderer::setData(m_quad.tex, data, m_tw, m_th, m_format);
 }
 
-void CQuad::SetColor(int r, int g, int b, int a)
+void cQuad::SetColor(int r, int g, int b, int a)
 {
     cRenderer::setColor(&m_quad, r, g, b, a);
 }
 
-void CQuad::SetTextureRect(float x, float y, float w, float h)
+void cQuad::SetTextureRect(float x, float y, float w, float h)
 {
     m_w = w;
     m_h = h;
@@ -69,7 +69,7 @@ void CQuad::SetTextureRect(float x, float y, float w, float h)
     m_quad.v[3].ty = ty2;
 }
 
-void CQuad::SetSpriteSize(float w, float h)
+void cQuad::SetSpriteSize(float w, float h)
 {
     m_w = w;
     m_h = h;
@@ -90,12 +90,12 @@ void CQuad::SetSpriteSize(float w, float h)
     m_quad.v[3].ty = h * invTh;
 }
 
-void CQuad::Render(float x, float y)
+void cQuad::Render(float x, float y)
 {
     RenderEx(x, y, m_w, m_h);
 }
 
-void CQuad::RenderEx(float x, float y, float w, float h, int angle)
+void cQuad::RenderEx(float x, float y, float w, float h, int angle)
 {
     if (angle == 0)
     {
@@ -127,7 +127,7 @@ void CQuad::RenderEx(float x, float y, float w, float h, int angle)
     cRenderer::render(m_quad);
 }
 
-void CQuad::useFilter(bool filter)
+void cQuad::useFilter(bool filter)
 {
     if (m_filter != filter)
     {

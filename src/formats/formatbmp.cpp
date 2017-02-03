@@ -225,20 +225,14 @@ namespace
         // ::printf("-- file size: %u\n", size);
         // ::printf("-- bmp  size: %u\n", header.fileSize);
 
-        bool idValid =
+        const bool idValid =
             (header.id[0] == 'B' && header.id[1] == 'M') || // BM – Windows 3.1x, 95, NT, ... etc.
             (header.id[0] == 'B' && header.id[1] == 'A') || // BA – OS/2 struct bitmap array
             (header.id[0] == 'C' && header.id[1] == 'I') || // CI – OS/2 struct color icon
             (header.id[0] == 'C' && header.id[1] == 'P') || // CP – OS/2 const color pointer
             (header.id[0] == 'I' && header.id[1] == 'C') || // IC – OS/2 struct icon
             (header.id[0] == 'P' && header.id[1] == 'T');   // PT – OS/2 pointer
-        if (idValid && size == header.fileSize && header.bitmapOffset < size)
-        {
-            // ::printf("-- bmp detected\n");
-            return true;
-        }
-
-        return false;
+        return idValid && size == header.fileSize && header.bitmapOffset < size;
     }
 
     void setGLformat(uint32_t bitCount, sBitmapDescription& desc)

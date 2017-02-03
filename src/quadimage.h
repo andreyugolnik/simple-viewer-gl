@@ -11,7 +11,7 @@
 
 #include <vector>
 
-class CQuad;
+class cQuad;
 
 class cQuadImage final
 {
@@ -41,7 +41,7 @@ public:
 private:
     void moveToOld();
     void clearOld();
-    CQuad* findAndRemoveOld(unsigned col, unsigned row);
+    cQuad* findAndRemoveOld(unsigned col, unsigned row);
 
 private:
     unsigned m_texWidth = 0;
@@ -61,7 +61,7 @@ private:
     {
         unsigned col;
         unsigned row;
-        CQuad* quad;
+        cQuad* quad;
     };
     std::vector<sChunk> m_chunks;
     std::vector<sChunk> m_chunksOld;

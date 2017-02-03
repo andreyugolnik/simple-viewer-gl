@@ -12,28 +12,33 @@
 
 #include <cstring>
 
-const int BORDER = 4;
-const int ALPHA = 200;
-const int DesiredFontSize = 13;
-const int FRAME_DELTA = 10;
-const int LINES_COUNT[2] = { 2, 4 };
+namespace
+{
 
-void CPixelInfo::Init()
+    const int BORDER = 4;
+    const int ALPHA = 200;
+    const int DesiredFontSize = 13;
+    const int FRAME_DELTA = 10;
+    const int LINES_COUNT[2] = { 2, 4 };
+
+}
+
+void cPixelInfo::Init()
 {
     m_pixelInfo.reset();
 
-    m_bg.reset(new CQuad(0, 0));
+    m_bg.reset(new cQuad(0, 0));
     m_bg->SetColor(0, 0, 0, ALPHA);
 
-    const int format = (imgPointerCross.bytes_per_pixel == 3 ? GL_RGB : GL_RGBA);
-    m_pointer.reset(new CQuadSeries(imgPointerCross.width, imgPointerCross.height, imgPointerCross.pixel_data, format));
+    const int format = imgPointerCross.bytes_per_pixel == 3 ? GL_RGB : GL_RGBA;
+    m_pointer.reset(new cQuadSeries(imgPointerCross.width, imgPointerCross.height, imgPointerCross.pixel_data, format));
     m_pointer->Setup(21, 21, 10);
     SetCursor(0);
 
     createFont();
 }
 
-void CPixelInfo::setRatio(float ratio)
+void cPixelInfo::setRatio(float ratio)
 {
     if (m_ratio != ratio)
     {
@@ -42,13 +47,13 @@ void CPixelInfo::setRatio(float ratio)
     }
 }
 
-void CPixelInfo::createFont()
+void cPixelInfo::createFont()
 {
     m_ft.reset(new cFTString(DesiredFontSize * m_ratio));
     m_ft->SetColor(255, 255, 255, ALPHA);
 }
 
-void CPixelInfo::setPixelInfo(const sPixelInfo& pi)
+void cPixelInfo::setPixelInfo(const sPixelInfo& pi)
 {
     m_pixelInfo = pi;
 
@@ -60,7 +65,7 @@ void CPixelInfo::setPixelInfo(const sPixelInfo& pi)
         const int w = pi.rc.GetWidth();
         const int h = pi.rc.GetHeight();
 
-        snprintf(info, sizeof(info),
+        ::snprintf(info, sizeof(info),
                  "pos: %d x %d\n" \
                  "argb: 0x%.2x%.2x%.2x%.2x\n" \
                  "size: %d x %d\n" \
@@ -72,7 +77,7 @@ void CPixelInfo::setPixelInfo(const sPixelInfo& pi)
     }
     else
     {
-        snprintf(info, sizeof(info),
+        ::snprintf(info, sizeof(info),
                  "pos: %d x %d\n" \
                  "argb: 0x%.2x%.2x%.2x%.2x"
                  , (int)pi.point.x, (int)pi.point.y
@@ -82,7 +87,7 @@ void CPixelInfo::setPixelInfo(const sPixelInfo& pi)
     m_ft->Update(info);
 }
 
-void CPixelInfo::Render()
+void cPixelInfo::Render()
 {
     m_pointer->Render(m_pixelInfo.mouse.x - 10, m_pixelInfo.mouse.y - 10);
 
@@ -102,12 +107,12 @@ void CPixelInfo::Render()
     }
 }
 
-bool CPixelInfo::isInsideImage(const cVector<float>& pos) const
+bool cPixelInfo::isInsideImage(const cVector<float>& pos) const
 {
     return !(pos.x < 0 || pos.y < 0 || pos.x >= m_pixelInfo.img_w || pos.y >= m_pixelInfo.img_h);
 }
 
-void CPixelInfo::SetCursor(int cursor)
+void cPixelInfo::SetCursor(int cursor)
 {
     m_pointer->SetFrame(cursor);
 }

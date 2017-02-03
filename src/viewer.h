@@ -16,14 +16,14 @@
 #include <vector>
 #include <memory>
 
-class CCheckerboard;
-class CFilesList;
+class cCheckerboard;
+class cFilesList;
 class cImageBorder;
-class CImageLoader;
-class CInfoBar;
-class CPixelInfo;
-class CProgress;
-class CSelection;
+class cImageLoader;
+class cInfoBar;
+class cPixelInfo;
+class cProgress;
+class cSelection;
 class cQuadImage;
 struct GLFWwindow;
 struct sConfig;
@@ -31,7 +31,7 @@ struct sConfig;
 class cViewer final : public iCallbacks
 {
 public:
-    cViewer(sConfig* config);
+    explicit cViewer(sConfig* config);
     ~cViewer();
 
     void setInitialImagePath(const char* path);
@@ -125,12 +125,12 @@ private:
     float m_animationTime = 0.0f;
 
     std::unique_ptr<cQuadImage> m_image;
-    std::unique_ptr<CFilesList> m_filesList;
-    std::unique_ptr<CProgress> m_progress;
-    std::unique_ptr<CImageLoader> m_loader;
-    std::unique_ptr<CInfoBar> m_infoBar;
-    std::unique_ptr<CPixelInfo> m_pixelInfo;
-    std::unique_ptr<CCheckerboard> m_checkerBoard;
+    std::unique_ptr<cFilesList> m_filesList;
+    std::unique_ptr<cProgress> m_progress;
+    std::unique_ptr<cImageLoader> m_loader;
+    std::unique_ptr<cInfoBar> m_infoBar;
+    std::unique_ptr<cPixelInfo> m_pixelInfo;
+    std::unique_ptr<cCheckerboard> m_checkerBoard;
     std::unique_ptr<cImageBorder> m_border;
-    std::unique_ptr<CSelection> m_selection;
+    std::unique_ptr<cSelection> m_selection;
 };

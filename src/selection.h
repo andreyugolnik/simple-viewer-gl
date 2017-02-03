@@ -7,22 +7,17 @@
 *
 \**********************************************/
 
-#ifndef SELECTION_H
-#define SELECTION_H
+#pragma once
 
 #include "math/rect.h"
-#include "quad.h"
 
 #include <memory>
 
-const int m_selectionTexSize = 16;
+class cQuad;
 
-class CSelection
+class cSelection final
 {
 public:
-    CSelection();
-    virtual ~CSelection();
-
     void Init();
     void SetImageDimension(float w, float h);
     void MouseButton(float x, float y, bool pressed);
@@ -39,15 +34,16 @@ private:
     void setImagePos(CRect<float>& rc, float dx, float dy);
     void clampPoint(float& x, float& y);
     void setColor(bool selected);
-    float getTime();
     void clampShiftDelta(float& dx, float& dy);
 
 private:
-    bool m_enabled;
-    float m_imageWidth, m_imageHeight;
-    float m_mouseX, m_mouseY;
-    float m_timeDelta;
-    float m_scale;
+    bool m_enabled = true;
+    float m_imageWidth = 0.0f;
+    float m_imageHeight = 0.0f;
+    float m_mouseX = 0.0f;
+    float m_mouseY = 0.0f;
+    float m_scale = 1.0f;
+
     enum eMouseMode
     {
         MODE_NONE,
@@ -55,7 +51,8 @@ private:
         MODE_MOVE,
         MODE_RESIZE
     };
-    eMouseMode m_mode;
+    eMouseMode m_mode = eMouseMode::MODE_NONE;
+
     enum eCorner
     {
         CORNER_NONE = 0,
@@ -65,12 +62,9 @@ private:
         CORNER_LT   = 1 << 3,
         CORNER_CR   = 1 << 4,
     };
-    unsigned m_corner;
+    unsigned m_corner = eCorner::CORNER_NONE;
 
-    std::unique_ptr<CQuad> m_selection;
+    std::unique_ptr<cQuad> m_selection;
     CRect<float> m_rc;
     CRect<float> m_rc_test;
 };
-
-#endif // SELECTION_H
-

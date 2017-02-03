@@ -8,14 +8,13 @@
 \**********************************************/
 
 #include "fileslist.h"
-#include "common/helpers.h"
 
 #include <algorithm>
 #include <cstdlib>
 #include <dirent.h>
 #include <unistd.h>
 
-CFilesList::CFilesList(const char* initialFile, bool allValid, bool recursive)
+cFilesList::cFilesList(const char* initialFile, bool allValid, bool recursive)
     : m_initialFile(initialFile)
     , m_allValid(allValid)
     , m_recursive(recursive)
@@ -28,27 +27,39 @@ CFilesList::CFilesList(const char* initialFile, bool allValid, bool recursive)
     }
 }
 
-CFilesList::~CFilesList()
+cFilesList::~cFilesList()
 {
 }
 
-static std::string GetBaseDir(const char* path)
+namespace
 {
-    std::string dir = path;
-    size_t pos = dir.find_last_of('/');
-    if (std::string::npos != pos)
+
+    std::string GetBaseDir(const char* path)
     {
-        dir = dir.substr(0, pos);
-    }
-    else
-    {
-        dir = ".";
+        std::string dir = path;
+        size_t pos = dir.find_last_of('/');
+        if (std::string::npos != pos)
+        {
+            dir = dir.substr(0, pos);
+        }
+        else
+        {
+            dir = ".";
+        }
+
+        return dir;
     }
 
-    return dir;
+    int Filter(const dirent* dir)
+    {
+        // skip . and ..
+        auto p = dir->d_name;
+        return (p[0] == '.' && (p[1] == '\0' || (p[1] == '.' && p[2] == '\0'))) ? 0 : 1;
+    }
+
 }
 
-void CFilesList::parseDir()
+void cFilesList::parseDir()
 {
     if (m_initialFile != nullptr)
     {
@@ -63,7 +74,7 @@ void CFilesList::parseDir()
     }
 }
 
-void CFilesList::addFile(const char* path)
+void cFilesList::addFile(const char* path)
 {
     if (isValidExt(path) == true)
     {
@@ -71,7 +82,7 @@ void CFilesList::addFile(const char* path)
     }
 }
 
-void CFilesList::sortList()
+void cFilesList::sortList()
 {
     std::sort(m_files.begin(), m_files.end(), [](const std::string & a, const std::string & b) -> bool
     {
@@ -85,15 +96,15 @@ void CFilesList::sortList()
     m_files.erase(std::unique(m_files.begin(), m_files.end()), m_files.end());
 }
 
-void CFilesList::locateFile(const char* path)
+void cFilesList::locateFile(const char* path)
 {
     std::string name = path;
 
-    size_t len = name.length();
-    size_t count = m_files.size();
+    const auto len = name.length();
+    const auto count = m_files.size();
     for (size_t i = 0; i < count; i++)
     {
-        size_t slen = m_files[i].length();
+        const auto slen = m_files[i].length();
         if (slen >= len && m_files[i].substr(slen - len, len) == name)
         {
             m_position = i;
@@ -102,17 +113,12 @@ void CFilesList::locateFile(const char* path)
     }
 }
 
-void CFilesList::scanDirectory(const std::string& root)
+void cFilesList::scanDirectory(const std::string& root)
 {
-    struct dirent** namelist;
-    int n = scandir(root.c_str(), &namelist, filter, alphasort);
-    if (n < 0)
+    dirent** namelist;
+    int n = ::scandir(root.c_str(), &namelist, Filter, alphasort);
+    if (n >= 0)
     {
-        // printf("Can't scan \"%s\" %d.\n", root.c_str(), n);
-    }
-    else
-    {
-        size_t count = 0;
         while (n--)
         {
             std::string path(root);
@@ -120,66 +126,47 @@ void CFilesList::scanDirectory(const std::string& root)
             path += namelist[n]->d_name;
 
             // skip non non readable files/dirs
-            DIR* dir = opendir(path.c_str());
+            DIR* dir = ::opendir(path.c_str());
             if (dir != nullptr)
             {
-                closedir(dir);
+                ::closedir(dir);
                 if (m_recursive == true)
                 {
                     scanDirectory(path);
                 }
             }
-            else if (isValidExt(path) == true)
+            else if (isValidExt(path.c_str()) == true)
             {
                 m_files.push_back(path);
-                count++;
             }
-            free(namelist[n]);
+
+            ::free(namelist[n]);
         }
-        // if (count > 0)
-        // {
-            // printf("Scaning \"%s\" directory... %zu images found.\n", root.c_str(), count);
-        // }
-        free(namelist);
+
+        ::free(namelist);
     }
 }
 
-int CFilesList::filter(const struct dirent* p)
-{
-    // skip . and ..
-#define DOT_OR_DOTDOT(base) (base[0] == '.' && (base[1] == '\0' || (base[1] == '.' && base[2] == '\0')))
-    if (DOT_OR_DOTDOT(p->d_name))
-    {
-        return 0;
-    }
-
-    return 1;
-}
-
-bool CFilesList::isValidExt(const std::string& path)
+bool cFilesList::isValidExt(const char* path)
 {
     if (m_allValid)
     {
         return true;
     }
 
-    std::string s(path);
-    std::transform(s.begin(), s.end(), s.begin(), tolower);
-
-    // skip file without extension
-    size_t pos  = s.find_last_of('.');
-    if (std::string::npos == pos)
+    auto point = ::strrchr(path, '.');
+    if (point == nullptr)
     {
         return false;
     }
 
-    // skip non image file (detect by extension)
+    std::string ext = point;
+    std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
 
-    const char* ext[] =
+    const char* ValidExts[] =
     {
         // external loaders
 #if defined(IMLIB2_SUPPORT)
-        ".bmp",
 #endif
         ".jpeg", ".jpg", ".jpe", ".jfif", // libjpeg
         ".tiff", ".tif", // libtiff
@@ -191,6 +178,7 @@ bool CFilesList::isValidExt(const std::string& path)
         ".age",
         ".raw",
         ".pvr", ".pvrtc",
+        ".bmp",
         ".xpm",
         ".psd",
         ".ico",
@@ -202,9 +190,9 @@ bool CFilesList::isValidExt(const std::string& path)
         ".scr", ".atr", ".bsc", ".ifl", ".bmc4", ".mc",
     };
 
-    for (size_t i = 0; i < helpers::countof(ext); i++)
+    for (const char* e : ValidExts)
     {
-        if (s.substr(pos) == ext[i])
+        if (ext == e)
         {
             return true;
         }
@@ -213,7 +201,7 @@ bool CFilesList::isValidExt(const std::string& path)
     return false;
 }
 
-const char* CFilesList::GetName(int delta)
+const char* cFilesList::GetName(int delta)
 {
     if (delta != 0)
     {
@@ -222,9 +210,9 @@ const char* CFilesList::GetName(int delta)
         if (m_removeCurrent == true)
         {
             m_removeCurrent = false;
-            if (0 == unlink(m_files[m_position].c_str()))
+            if (0 == ::unlink(m_files[m_position].c_str()))
             {
-                printf("File '%s' has been removed from disk.\n", m_files[m_position].c_str());
+                ::printf("(II) File '%s' has been removed from disk.\n", m_files[m_position].c_str());
             }
 
             // remove path from list
@@ -260,14 +248,14 @@ const char* CFilesList::GetName(int delta)
     return nullptr;
 }
 //
-//void CFilesList::RemoveFromList() {
+//void cFilesList::RemoveFromList() {
 //  size_t count    = m_files.size();
 //  if(count > (size_t)m_position) {
 //      m_files.erase(m_files.begin() + m_position);
 //  }
 //}
 
-void CFilesList::RemoveFromDisk()
+void cFilesList::RemoveFromDisk()
 {
     m_removeCurrent = true;
 }

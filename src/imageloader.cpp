@@ -37,7 +37,7 @@
 #include <iostream>
 #include <string>
 
-CImageLoader::CImageLoader(iCallbacks* callbacks)
+cImageLoader::cImageLoader(iCallbacks* callbacks)
     : m_callbacks(callbacks)
 {
 #if defined(IMLIB2_SUPPORT)
@@ -64,13 +64,13 @@ CImageLoader::CImageLoader(iCallbacks* callbacks)
     m_formats[(unsigned)eImageType::NOTAVAILABLE].reset(new cNotAvailable());
 }
 
-CImageLoader::~CImageLoader()
+cImageLoader::~cImageLoader()
 {
     stop();
     clear();
 }
 
-void CImageLoader::Load(const char* path)
+void cImageLoader::Load(const char* path)
 {
     if (path != nullptr)
     {
@@ -86,7 +86,7 @@ void CImageLoader::Load(const char* path)
     m_image->Load(path, m_desc);
 }
 
-void CImageLoader::LoadImage(const char* path)
+void cImageLoader::LoadImage(const char* path)
 {
     stop();
     clear();
@@ -104,7 +104,7 @@ void CImageLoader::LoadImage(const char* path)
     }, path);
 }
 
-void CImageLoader::LoadSubImage(unsigned subImage)
+void cImageLoader::LoadSubImage(unsigned subImage)
 {
     assert(m_image != nullptr);
 
@@ -119,13 +119,13 @@ void CImageLoader::LoadSubImage(unsigned subImage)
     }, subImage);
 }
 
-bool CImageLoader::isLoaded() const
+bool cImageLoader::isLoaded() const
 {
     return m_image != m_formats[(unsigned)eImageType::NOTAVAILABLE].get()
            && !m_desc.bitmap.empty();
 }
 
-const unsigned char* CImageLoader::GetBitmap() const
+const unsigned char* cImageLoader::GetBitmap() const
 {
     if (!m_desc.bitmap.empty())
     {
@@ -134,7 +134,7 @@ const unsigned char* CImageLoader::GetBitmap() const
     return nullptr;
 }
 
-void CImageLoader::stop()
+void cImageLoader::stop()
 {
     if (m_loader.joinable())
     {
@@ -146,62 +146,62 @@ void CImageLoader::stop()
     }
 }
 
-void CImageLoader::clear()
+void cImageLoader::clear()
 {
     m_desc.reset();
 }
 
-unsigned CImageLoader::GetWidth() const
+unsigned cImageLoader::GetWidth() const
 {
     return m_desc.width;
 }
 
-unsigned CImageLoader::GetHeight() const
+unsigned cImageLoader::GetHeight() const
 {
     return m_desc.height;
 }
 
-unsigned CImageLoader::GetPitch() const
+unsigned cImageLoader::GetPitch() const
 {
     return m_desc.pitch;
 }
 
-unsigned CImageLoader::GetBitmapFormat() const
+unsigned cImageLoader::GetBitmapFormat() const
 {
     return m_desc.format;
 }
 
-unsigned CImageLoader::GetBpp() const
+unsigned cImageLoader::GetBpp() const
 {
     return m_desc.bpp;
 }
 
-unsigned CImageLoader::GetImageBpp() const
+unsigned cImageLoader::GetImageBpp() const
 {
     return m_desc.bppImage;
 }
 
-long CImageLoader::GetFileSize() const
+long cImageLoader::GetFileSize() const
 {
     return m_desc.size;
 }
 
-size_t CImageLoader::GetSizeMem() const
+size_t cImageLoader::GetSizeMem() const
 {
     return m_desc.bitmap.size();
 }
 
-unsigned CImageLoader::getCurrent() const
+unsigned cImageLoader::getCurrent() const
 {
     return m_desc.current;
 }
 
-unsigned CImageLoader::getImages() const
+unsigned cImageLoader::getImages() const
 {
     return m_desc.images;
 }
 
-const char* CImageLoader::getImageType() const
+const char* cImageLoader::getImageType() const
 {
     if (m_image != nullptr)
     {
@@ -213,14 +213,8 @@ const char* CImageLoader::getImageType() const
 namespace
 {
 
-    struct sFormatExt
-    {
-        const char* ext;
-        eImageType format;
-    };
-
-    // #define LOADER_NAME
-#if defined(LOADER_NAME)
+#define LOADER_NAME 0
+#if LOADER_NAME == 1
     const char* typeToName(eImageType type)
     {
         const char* Names[] =
@@ -258,7 +252,7 @@ namespace
 
 }
 
-eImageType CImageLoader::getType(const char* name)
+eImageType cImageLoader::getType(const char* name)
 {
     cFile file;
     if (file.open(name))
@@ -279,6 +273,7 @@ eImageType CImageLoader::getType(const char* name)
             eImageType::DDS,
             eImageType::PNM,
             eImageType::PVR,
+            eImageType::BMP,
             eImageType::TGA,
             eImageType::WEBP,
             eImageType::SCR,
@@ -293,7 +288,9 @@ eImageType CImageLoader::getType(const char* name)
         {
             if (m_formats[(size_t)type]->isSupported(file, buffer))
             {
-                // ::printf("(II) Loader by type %s\n", typeToName(type));
+#if LOADER_NAME == 1
+                ::printf("(II) Loader by type %s\n", typeToName(type));
+#endif
                 return type;
             }
         }

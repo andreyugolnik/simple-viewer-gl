@@ -4,6 +4,7 @@ BUILD_DIR_DEBUG=.build_debug
 all:
 	@echo "Usage:"
 	@echo "    make <release | debug>"
+	@echo "    make <check>"
 	@echo "    make <clean>"
 
 release:
@@ -16,6 +17,9 @@ debug:
 	cd $(BUILD_DIR_DEBUG) ; cmake -DCMAKE_BUILD_TYPE=Debug .. ; make ; cd ..
 	cp $(BUILD_DIR_DEBUG)/sviewgl .
 
+check:
+	cppcheck -j 1 --enable=all -f -I src src/ 2> cppcheck-output
+
 clean:
-	rm -fr $(BUILD_DIR_RELEASE) $(BUILD_DIR_DEBUG) sviewgl
+	rm -fr $(BUILD_DIR_RELEASE) $(BUILD_DIR_DEBUG) sviewgl cppcheck-output
 

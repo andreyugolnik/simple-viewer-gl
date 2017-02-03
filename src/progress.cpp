@@ -18,18 +18,18 @@ const float dotSize = 14.0f;
 const float gap = 1.0f;
 const float distance = dotSize + 2 * gap;
 
-void CProgress::init()
+void cProgress::init()
 {
-    m_back.reset(new CQuad(distance * 2, distance * 2));
+    m_back.reset(new cQuad(distance * 2, distance * 2));
     m_back->SetColor(0, 0, 0, 255);
 
     for(auto& dot : m_dot)
     {
-        dot.dot.reset(new CQuad(dotSize, dotSize));
+        dot.dot.reset(new cQuad(dotSize, dotSize));
     }
 }
 
-void CProgress::render()
+void cProgress::render()
 {
     if (m_visible)
     {

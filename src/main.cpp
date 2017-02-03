@@ -220,7 +220,7 @@ int main(int argc, char* argv[])
         }
         else if (strncmp(argv[i], "-C", 2) == 0)
         {
-            int r, g, b;
+            unsigned r, g, b;
             if (3 == sscanf(argv[i + 1], "%2x%2x%2x", &r, &g, &b))
             {
                 config.color = { r / 255.0f, g / 255.0f, b / 255.0f };
