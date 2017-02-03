@@ -1,4 +1,5 @@
 ![CI status, master](https://api.shippable.com/projects/5894665c8d80360f008b75d4/badge?branch=master)
+![CI coverage, master](https://api.shippable.com/projects/5894665c8d80360f008b75d4/coverageBadge?branch=master)
 
 ##Simple Viewer GL - simple and tiny image viewer based on OpenGL.##
 
