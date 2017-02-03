@@ -176,20 +176,20 @@ void cViewer::update()
     {
         m_imagePrepared = false;
 
-        if (m_loader->getMode() == cImageLoader::Mode::Image && m_config->keepScale == false)
-        {
-            m_scale.setScalePercent(100);
-            m_angle = 0;
-            m_camera = cVector<float>(0, 0);
-        }
-
         const unsigned width = m_loader->GetWidth();
         const unsigned height = m_loader->GetHeight();
         m_image->setBuffer(width, height, m_loader->GetPitch()
                            , m_loader->GetBitmapFormat(), m_loader->GetBpp() / 8
                            , m_loader->GetBitmap());
 
-        m_selection->SetImageDimension(width, height);
+        if (m_loader->getMode() == cImageLoader::Mode::Image && m_config->keepScale == false)
+        {
+            m_scale.setScalePercent(100);
+            m_angle = 0;
+            m_camera = cVector<float>(0, 0);
+            m_selection->SetImageDimension(width, height);
+        }
+
         updateInfobar();
         centerWindow();
         enablePixelInfo(m_config->showPixelInfo);
