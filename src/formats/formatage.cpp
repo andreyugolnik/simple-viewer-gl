@@ -64,7 +64,7 @@ bool cFormatAge::isSupported(cFile& file, Buffer& buffer) const
         return false;
     }
 
-    auto header = (const AGE::Header*)&buffer[0];
+    auto header = reinterpret_cast<const AGE::Header*>(buffer.data());
     return isValidFormat(*header, file.getSize());
 }
 

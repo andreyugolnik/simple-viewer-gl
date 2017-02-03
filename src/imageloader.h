@@ -37,6 +37,7 @@ enum class eImageType
     PVR,
     SCR,
     TGA,
+    BMP,
     WEBP,
 
     NOTAVAILABLE,

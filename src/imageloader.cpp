@@ -13,6 +13,7 @@
 #include "common/file.h"
 #include "common/helpers.h"
 #include "formats/formatage.h"
+#include "formats/formatbmp.h"
 #include "formats/formatcommon.h"
 #include "formats/formatdds.h"
 #include "formats/formatgif.h"
@@ -57,6 +58,7 @@ CImageLoader::CImageLoader(iCallbacks* callbacks)
     m_formats[(unsigned)eImageType::PVR].reset(new cFormatPvr(nullptr, callbacks));
     m_formats[(unsigned)eImageType::SCR].reset(new cFormatScr(nullptr, callbacks));
     m_formats[(unsigned)eImageType::TGA].reset(new cFormatTarga(nullptr, callbacks));
+    m_formats[(unsigned)eImageType::BMP].reset(new cFormatBmp(nullptr, callbacks));
     m_formats[(unsigned)eImageType::WEBP].reset(new cFormatWebP(nullptr, callbacks));
 
     m_formats[(unsigned)eImageType::NOTAVAILABLE].reset(new cNotAvailable());
@@ -217,7 +219,8 @@ struct sFormatExt
     eImageType format;
 };
 
-#if 0
+// #define LOADER_NAME
+#if defined(LOADER_NAME)
 const char* typeToName(eImageType type)
 {
     const char* Names[] =
@@ -240,6 +243,7 @@ const char* typeToName(eImageType type)
         "PVR",
         "SCR",
         "TGA",
+        "BMP",
         "WEBP",
 
         "NOTAVAILABLE",
@@ -267,7 +271,9 @@ eImageType CImageLoader::getType(const char* name)
     {
         if (m_formats[idx]->isSupported(file, buffer))
         {
-            // ::printf("(II) Loader by type %s\n", typeToName((eImageType)idx));
+#if defined(LOADER_NAME)
+            ::printf("(II) Loader by type: %s\n", typeToName((eImageType)idx));
+#endif
             return (eImageType)idx;
         }
     }
@@ -306,6 +312,7 @@ eImageType CImageLoader::getType(const char* name)
             { ".mc",    eImageType::SCR  },
             { ".tga",   eImageType::TGA  },
             { ".targa", eImageType::TGA  },
+            { ".bmp",   eImageType::BMP  },
             { ".webp",  eImageType::WEBP },
         };
 
@@ -313,7 +320,9 @@ eImageType CImageLoader::getType(const char* name)
         {
             if (s.substr(pos) == fmt.ext)
             {
-                // ::printf("(II) Loader by ext %s\n", typeToName(fmt.format));
+#if defined(LOADER_NAME)
+                ::printf("(II) Loader by ext: %s\n", typeToName(fmt.format));
+#endif
                 return fmt.format;
             }
         }
