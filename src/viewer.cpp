@@ -176,18 +176,17 @@ void cViewer::update()
     {
         m_imagePrepared = false;
 
-        const unsigned width = m_loader->GetWidth();
-        const unsigned height = m_loader->GetHeight();
-        m_image->setBuffer(width, height, m_loader->GetPitch()
-                           , m_loader->GetBitmapFormat(), m_loader->GetBpp() / 8
-                           , m_loader->GetBitmap());
+        auto& desc = m_loader->getDescription();
+        m_image->setBuffer(desc.width, desc.height, desc.pitch
+                           , desc.format, desc.bpp / 8
+                           , desc.bitmap.data());
 
         if (m_loader->getMode() == cImageLoader::Mode::Image && m_config->keepScale == false)
         {
             m_scale.setScalePercent(100);
             m_angle = 0;
             m_camera = cVector<float>(0, 0);
-            m_selection->SetImageDimension(width, height);
+            m_selection->SetImageDimension(desc.width, desc.height);
         }
 
         updateInfobar();
@@ -383,7 +382,7 @@ void cViewer::fnKeyboard(int key, int /*scancode*/, int action, int mods)
     case GLFW_KEY_DELETE:
         if (mods & GLFW_MOD_CONTROL)
         {
-            m_filesList->RemoveFromDisk();
+            m_filesList->removeFromDisk();
         }
         break;
 
@@ -646,8 +645,8 @@ void cViewer::loadImage(int step)
 {
     m_subImageForced = false;
     m_animation = false;
-    const char* file = m_filesList->GetName(step);
-    m_loader->LoadImage(file);
+    const char* file = m_filesList->getName(step);
+    m_loader->loadImage(file);
 }
 
 void cViewer::loadSubImage(int subStep)
@@ -655,12 +654,11 @@ void cViewer::loadSubImage(int subStep)
     assert(subStep == -1 || subStep == 1);
 
     m_animation = false;
-    const unsigned current = m_loader->getCurrent();
-    const unsigned total = m_loader->getImages();
-    const unsigned next = (current + total + subStep) % total;
-    if (current != next)
+    auto& desc = m_loader->getDescription();
+    const unsigned next = (desc.current + desc.images + subStep) % desc.images;
+    if (desc.current != next)
     {
-        m_loader->LoadSubImage(next);
+        m_loader->loadSubImage(next);
     }
 }
 
@@ -669,20 +667,21 @@ void cViewer::updateInfobar()
     calculateScale();
 
     cInfoBar::sInfo s;
-    s.path        = m_filesList->GetName();
+    s.path        = m_filesList->getName();
     s.scale       = m_scale.getScale();
-    s.index       = m_filesList->GetIndex();
-    s.files_count = m_filesList->GetCount();
+    s.index       = m_filesList->getIndex();
+    s.files_count = m_filesList->getCount();
 
     if (m_loader->isLoaded())
     {
-        s.width       = m_loader->GetWidth();
-        s.height      = m_loader->GetHeight();
-        s.bpp         = m_loader->GetImageBpp();
-        s.images      = m_loader->getImages();
-        s.current     = m_loader->getCurrent();
-        s.file_size   = m_loader->GetFileSize();
-        s.mem_size    = m_loader->GetSizeMem();
+        auto& desc = m_loader->getDescription();
+        s.width       = desc.width;
+        s.height      = desc.height;
+        s.bpp         = desc.bppImage;
+        s.images      = desc.images;
+        s.current     = desc.current;
+        s.file_size   = desc.size;
+        s.mem_size    = desc.bitmap.size();
         s.type        = m_loader->getImageType();
     }
     else
@@ -709,25 +708,43 @@ void cViewer::updatePixelInfo(const cVector<float>& pos)
 
     if (m_loader->isLoaded())
     {
+        auto& desc = m_loader->getDescription();
+        pixelInfo.bpp = desc.bpp;
+
         const int x = (int)point.x;
         const int y = (int)point.y;
 
-        // TODO check pixel format (RGB or BGR)
         if (x >= 0 && y >= 0 && (unsigned)x <= m_image->getWidth() && (unsigned)y <= m_image->getHeight())
         {
-            const int bpp = m_loader->GetBpp();
-            const int pitch = m_loader->GetPitch();
-            const size_t idx = (size_t)(x * bpp / 8 + y * pitch);
-            const unsigned char* color = m_loader->GetBitmap() + idx;
-            pixelInfo.r = color[0];
-            pixelInfo.g = color[1];
-            pixelInfo.b = color[2];
-            pixelInfo.a = bpp == 32 ? color[3] : 255;
+            const auto idx = (size_t)(x * desc.bpp / 8 + y * desc.pitch);
+            const auto color = desc.bitmap.data() + idx;
+
+            if (desc.bpp == 24 || desc.bpp == 32)
+            {
+                const bool bgrx = desc.format == GL_BGRA || desc.format == GL_BGR;
+                pixelInfo.r = color[bgrx ? 0 : 2];
+                pixelInfo.g = color[1];
+                pixelInfo.b = color[bgrx ? 2 : 0];
+                pixelInfo.a = color[3];
+            }
+            else if (desc.bpp == 16)
+            {
+                const float norm = 255 / 63;
+                pixelInfo.r = (color[0] >> 3) * norm;
+                pixelInfo.g = (((color[0] & 0x07) << 3) | ((color[1] & 0xe0) >> 5)) * norm;
+                pixelInfo.b = (color[1] >> 3) * norm;
+            }
+            else if (desc.bpp == 8)
+            {
+                pixelInfo.r = color[0];
+                pixelInfo.g = color[0];
+                pixelInfo.b = color[0];
+            }
         }
 
-        pixelInfo.img_w = m_image->getWidth();
-        pixelInfo.img_h = m_image->getHeight();
-        pixelInfo.rc    = m_selection->GetRect();
+        pixelInfo.imgWidth = m_image->getWidth();
+        pixelInfo.imgHeight = m_image->getHeight();
+        pixelInfo.rc = m_selection->GetRect();
     }
 
     m_pixelInfo->setPixelInfo(pixelInfo);

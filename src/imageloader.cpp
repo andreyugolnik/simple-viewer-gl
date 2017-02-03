@@ -70,7 +70,7 @@ cImageLoader::~cImageLoader()
     clear();
 }
 
-void cImageLoader::Load(const char* path)
+void cImageLoader::load(const char* path)
 {
     if (path != nullptr)
     {
@@ -86,7 +86,7 @@ void cImageLoader::Load(const char* path)
     m_image->Load(path, m_desc);
 }
 
-void cImageLoader::LoadImage(const char* path)
+void cImageLoader::loadImage(const char* path)
 {
     stop();
     clear();
@@ -95,7 +95,7 @@ void cImageLoader::LoadImage(const char* path)
     m_loader = std::thread([this](const char* path)
     {
         m_callbacks->startLoading();
-        Load(path);
+        load(path);
         if (m_desc.images == 0)
         {
             m_desc.images = 1;
@@ -104,7 +104,7 @@ void cImageLoader::LoadImage(const char* path)
     }, path);
 }
 
-void cImageLoader::LoadSubImage(unsigned subImage)
+void cImageLoader::loadSubImage(unsigned subImage)
 {
     assert(m_image != nullptr);
 
@@ -125,15 +125,6 @@ bool cImageLoader::isLoaded() const
            && !m_desc.bitmap.empty();
 }
 
-const unsigned char* cImageLoader::GetBitmap() const
-{
-    if (!m_desc.bitmap.empty())
-    {
-        return &m_desc.bitmap[0];
-    }
-    return nullptr;
-}
-
 void cImageLoader::stop()
 {
     if (m_loader.joinable())
@@ -149,56 +140,6 @@ void cImageLoader::stop()
 void cImageLoader::clear()
 {
     m_desc.reset();
-}
-
-unsigned cImageLoader::GetWidth() const
-{
-    return m_desc.width;
-}
-
-unsigned cImageLoader::GetHeight() const
-{
-    return m_desc.height;
-}
-
-unsigned cImageLoader::GetPitch() const
-{
-    return m_desc.pitch;
-}
-
-unsigned cImageLoader::GetBitmapFormat() const
-{
-    return m_desc.format;
-}
-
-unsigned cImageLoader::GetBpp() const
-{
-    return m_desc.bpp;
-}
-
-unsigned cImageLoader::GetImageBpp() const
-{
-    return m_desc.bppImage;
-}
-
-long cImageLoader::GetFileSize() const
-{
-    return m_desc.size;
-}
-
-size_t cImageLoader::GetSizeMem() const
-{
-    return m_desc.bitmap.size();
-}
-
-unsigned cImageLoader::getCurrent() const
-{
-    return m_desc.current;
-}
-
-unsigned cImageLoader::getImages() const
-{
-    return m_desc.images;
 }
 
 const char* cImageLoader::getImageType() const

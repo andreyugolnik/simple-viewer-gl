@@ -20,7 +20,7 @@ namespace
     const float DesiredHeight = 18;
     const int DesiredFontSize = 12;
 
-    const char* GetName(const char* path)
+    const char* getName(const char* path)
     {
         if (path != nullptr)
         {
@@ -110,7 +110,7 @@ void cInfoBar::render()
 
 void cInfoBar::setInfo(const sInfo& p)
 {
-    const char* name = GetName(p.path);
+    const char* name = getName(p.path);
 
     char idx_img[20] = { 0 };
     if (p.files_count > 1)

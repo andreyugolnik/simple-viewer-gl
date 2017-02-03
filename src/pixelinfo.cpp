@@ -57,6 +57,24 @@ void cPixelInfo::setPixelInfo(const sPixelInfo& pi)
 {
     m_pixelInfo = pi;
 
+    char color[20] = { 0 };
+
+    if (pi.bpp == 32)
+    {
+        ::snprintf(color, sizeof(color), "argb: 0x%.2x%.2x%.2x%.2x\n"
+                 , pi.a, pi.r, pi.g, pi.b);
+    }
+    else if (pi.bpp == 24 || pi.bpp == 16)
+    {
+        ::snprintf(color, sizeof(color), "rgb: 0x%.2x%.2x%.2x"
+                 , pi.r, pi.g, pi.b);
+    }
+    else if (pi.bpp == 8)
+    {
+        ::snprintf(color, sizeof(color), "color: 0x%.2x"
+                 , pi.r);
+    }
+
     static char info[200];
     if (pi.rc.IsSet())
     {
@@ -67,11 +85,11 @@ void cPixelInfo::setPixelInfo(const sPixelInfo& pi)
 
         ::snprintf(info, sizeof(info),
                  "pos: %d x %d\n" \
-                 "argb: 0x%.2x%.2x%.2x%.2x\n" \
+                 "%s" \
                  "size: %d x %d\n" \
                  "rect: %d, %d -> %d, %d"
                  , (int)pi.point.x, (int)pi.point.y
-                 , pi.a, pi.r, pi.g, pi.b
+                 , color
                  , w + 1, h + 1
                  , x, y, x + w, y + h);
     }
@@ -79,9 +97,9 @@ void cPixelInfo::setPixelInfo(const sPixelInfo& pi)
     {
         ::snprintf(info, sizeof(info),
                  "pos: %d x %d\n" \
-                 "argb: 0x%.2x%.2x%.2x%.2x"
+                 "%s"
                  , (int)pi.point.x, (int)pi.point.y
-                 , pi.a, pi.r, pi.g, pi.b);
+                 , color);
     }
 
     m_ft->Update(info);
@@ -109,7 +127,7 @@ void cPixelInfo::Render()
 
 bool cPixelInfo::isInsideImage(const cVector<float>& pos) const
 {
-    return !(pos.x < 0 || pos.y < 0 || pos.x >= m_pixelInfo.img_w || pos.y >= m_pixelInfo.img_h);
+    return !(pos.x < 0 || pos.y < 0 || pos.x >= m_pixelInfo.imgWidth || pos.y >= m_pixelInfo.imgHeight);
 }
 
 void cPixelInfo::SetCursor(int cursor)

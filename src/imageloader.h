@@ -51,8 +51,8 @@ public:
     explicit cImageLoader(iCallbacks* callbacks);
     ~cImageLoader();
 
-    void LoadImage(const char* path);
-    void LoadSubImage(unsigned subImage);
+    void loadImage(const char* path);
+    void loadSubImage(unsigned subImage);
     bool isLoaded() const;
 
     enum class Mode
@@ -65,17 +65,6 @@ public:
         return m_mode;
     }
 
-    const unsigned char* GetBitmap() const;
-    unsigned GetWidth() const;
-    unsigned GetHeight() const;
-    unsigned GetPitch() const;
-    unsigned GetBitmapFormat() const;
-    unsigned GetBpp() const;
-    unsigned GetImageBpp() const;
-    long GetFileSize() const;
-    size_t GetSizeMem() const;
-    unsigned getCurrent() const;
-    unsigned getImages() const;
     const char* getImageType() const;
 
     const sBitmapDescription& getDescription() const
@@ -87,7 +76,7 @@ private:
     void stop();
     void clear();
     eImageType getType(const char* name);
-    void Load(const char* path);
+    void load(const char* path);
 
 private:
     iCallbacks* m_callbacks;

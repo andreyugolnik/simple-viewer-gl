@@ -89,8 +89,8 @@ void cFilesList::sortList()
     {
         std::string aa(a);
         std::string bb(b);
-        std::transform(aa.begin(), aa.end(), aa.begin(), tolower);
-        std::transform(bb.begin(), bb.end(), bb.begin(), tolower);
+        std::transform(aa.begin(), aa.end(), aa.begin(), ::tolower);
+        std::transform(bb.begin(), bb.end(), bb.begin(), ::tolower);
         return aa < bb;
     });
 
@@ -99,16 +99,14 @@ void cFilesList::sortList()
 
 void cFilesList::locateFile(const char* path)
 {
-    std::string name = path;
-
+    const std::string name = path;
     const auto len = name.length();
-    const auto count = m_files.size();
-    for (size_t i = 0; i < count; i++)
+    for (size_t i = 0, count = m_files.size(); i < count; i++)
     {
         const auto slen = m_files[i].length();
         if (slen >= len && m_files[i].substr(slen - len, len) == name)
         {
-            m_position = i;
+            m_position = (unsigned)i;
             break;
         }
     }
@@ -202,7 +200,7 @@ bool cFilesList::isValidExt(const char* path)
     return false;
 }
 
-const char* cFilesList::GetName(int delta)
+const char* cFilesList::getName(int delta)
 {
     if (delta != 0)
     {
@@ -225,38 +223,17 @@ const char* cFilesList::GetName(int delta)
         }
     }
 
-    size_t count = m_files.size();
+    const size_t count = m_files.size();
     if (count > 0)
     {
-        // if (delta == 0 && count == 1 && isValidExt(m_files[m_position]) == false)
-        // {
-        // if (false == ParseDir())
-        // {
-        // return nullptr;
-        // }
-        // }
-
-        m_position += delta;
-        if (m_position < 0)
-        {
-            m_position = count - 1;
-        }
-        m_position %= count;
-
+        m_position = (m_position + count + delta) % count;
         return m_files[m_position].c_str();
     }
 
     return nullptr;
 }
-//
-//void cFilesList::RemoveFromList() {
-//  size_t count    = m_files.size();
-//  if(count > (size_t)m_position) {
-//      m_files.erase(m_files.begin() + m_position);
-//  }
-//}
 
-void cFilesList::RemoveFromDisk()
+void cFilesList::removeFromDisk()
 {
     m_removeCurrent = true;
 }

@@ -27,8 +27,9 @@ struct sPixelInfo
     {
         mouse = { 0.0f, 0.0f };
         point = { 0.0f, 0.0f };
-        img_w = 0;
-        img_h = 0;
+        imgWidth = 0;
+        imgHeight = 0;
+        bpp = 0;
         r = 0;
         g = 0;
         b = 0;
@@ -39,8 +40,9 @@ struct sPixelInfo
 
     cVector<float> mouse;
     cVector<float> point;
-    int img_w;
-    int img_h;
+    unsigned imgWidth;
+    unsigned imgHeight;
+    unsigned bpp;
     unsigned char r, g, b, a;
     CRect<float> rc;
 };

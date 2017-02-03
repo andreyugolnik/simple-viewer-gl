@@ -22,10 +22,10 @@ public:
     void sortList();
     void locateFile(const char* path);
 
-    const char* GetName(int delta = 0);
-    void RemoveFromDisk();
-    size_t GetCount() const { return m_files.size(); }
-    int GetIndex() const { return m_position; }
+    const char* getName(int delta = 0);
+    void removeFromDisk();
+    unsigned getCount() const { return (unsigned)m_files.size(); }
+    unsigned getIndex() const { return m_position; }
 
 private:
     void parseDir();
@@ -37,7 +37,7 @@ private:
     bool m_allValid;
     bool m_recursive;
     bool m_removeCurrent;
-    int m_position; // current position in list
+    unsigned m_position; // current position in list
     std::vector<std::string> m_files;
 };
 
