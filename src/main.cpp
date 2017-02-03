@@ -118,10 +118,12 @@ namespace
         m_viewer->fnMouseScroll(x, y);
     }
 
+#if GLFW_VERSION_MAJOR >= 3 && GLFW_VERSION_MINOR >= 1
     void callbackDrop(GLFWwindow* /*window*/, int count, const char** paths)
     {
         m_viewer->addPaths(paths, count);
     }
+#endif
 
     void setup(GLFWwindow* window)
     {
@@ -141,7 +143,9 @@ namespace
         glfwSetCursorPosCallback(window, callbackMouse);
         glfwSetScrollCallback(window, callbackMouseScroll);
 
+#if GLFW_VERSION_MAJOR >= 3 && GLFW_VERSION_MINOR >= 1
         glfwSetDropCallback(window, callbackDrop);
+#endif
     }
 
 }
