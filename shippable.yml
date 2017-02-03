@@ -6,6 +6,7 @@ os:
     - linux
 
 install:
+  - sudo apt-get -qq -y update
   - sudo apt-get install cmake
   - sudo apt-get install freetype2
 
