@@ -17,6 +17,8 @@ public:
     cFormatPng(const char* lib, iCallbacks* callbacks);
     ~cFormatPng();
 
+    bool isSupported(cFile& file, Buffer& buffer) const override;
+
 private:
     bool LoadImpl(const char* filename, sBitmapDescription& desc) override;
 };

@@ -67,6 +67,19 @@ cFormatTiff::~cFormatTiff()
 {
 }
 
+bool cFormatTiff::isSupported(cFile& file, Buffer& buffer) const
+{
+    if (!readBuffer(file, buffer, sizeof(uint32_t)))
+    {
+        return false;
+    }
+
+    const auto h = buffer.data();
+    const uint8_t le[4] = { 0x49, 0x49, 0x2A, 0x00 };
+    const uint8_t be[4] = { 0x4D, 0x4D, 0x00, 0x2A };
+    return !::memcmp(h, le, sizeof(le)) || !::memcmp(h, be, sizeof(be));
+}
+
 bool cFormatTiff::LoadImpl(const char* filename, sBitmapDescription& desc)
 {
     m_filename = filename;

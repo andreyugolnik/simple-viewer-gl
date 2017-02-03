@@ -17,6 +17,8 @@ public:
     cFormatPsd(const char* lib, iCallbacks* callbacks);
     ~cFormatPsd();
 
+    bool isSupported(cFile& file, Buffer& buffer) const override;
+
 private:
     bool LoadImpl(const char* filename, sBitmapDescription& desc) override;
 };

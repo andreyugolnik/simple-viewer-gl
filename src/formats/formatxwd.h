@@ -22,9 +22,12 @@ public:
     cFormatXwd(const char* lib, iCallbacks* callbacks);
     ~cFormatXwd();
 
+    bool isSupported(cFile& file, Buffer& buffer) const override;
+
 private:
     bool LoadImpl(const char* filename, sBitmapDescription& desc) override;
 
+private:
     bool loadX10(const X10WindowDump& header, cFile& file, sBitmapDescription& desc);
     bool loadX11(const X11WindowDump& header, cFile& file, sBitmapDescription& desc);
 };

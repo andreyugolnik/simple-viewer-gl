@@ -19,6 +19,8 @@ public:
     cFormatGif(const char* lib, iCallbacks* callbacks);
     ~cFormatGif();
 
+    bool isSupported(cFile& file, Buffer& buffer) const override;
+
 private:
     bool LoadImpl(const char* filename, sBitmapDescription& desc) override;
     bool LoadSubImageImpl(unsigned current, sBitmapDescription& desc) override;

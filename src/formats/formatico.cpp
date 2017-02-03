@@ -103,6 +103,19 @@ cFormatIco::~cFormatIco()
 {
 }
 
+bool cFormatIco::isSupported(cFile& file, Buffer& buffer) const
+{
+    if (!readBuffer(file, buffer, sizeof(IcoHeader)))
+    {
+        return false;
+    }
+
+    const auto h = reinterpret_cast<const IcoHeader*>(buffer.data());
+    return (h->reserved == 0
+            && h->count * sizeof(IcoDirentry) <= (size_t)file.getSize()
+            && (h->type == 1 || h->type == 2));
+}
+
 bool cFormatIco::LoadImpl(const char* filename, sBitmapDescription& desc)
 {
     m_filename = filename;

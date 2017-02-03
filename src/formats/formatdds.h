@@ -17,6 +17,8 @@ public:
     cFormatDds(const char* lib, iCallbacks* callbacks);
     ~cFormatDds();
 
+    bool isSupported(cFile& file, Buffer& buffer) const override;
+
 private:
     bool LoadImpl(const char* filename, sBitmapDescription& desc) override;
 };

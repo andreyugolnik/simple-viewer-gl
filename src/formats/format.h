@@ -21,10 +21,7 @@ class cFormat
 public:
     virtual ~cFormat();
 
-    virtual bool isSupported(cFile& /*file*/, Buffer& /*buffer*/) const
-    {
-        return false;
-    }
+    virtual bool isSupported(cFile& file, Buffer& buffer) const = 0;
 
     bool Load(const char* filename, sBitmapDescription& desc);
     bool LoadSubImage(unsigned subImage, sBitmapDescription& desc);
@@ -45,6 +42,7 @@ public:
 
 protected:
     cFormat(const char* libName, iCallbacks* callbacks);
+    bool readBuffer(cFile& file, Buffer& buffer, uint32_t minSize) const;
 
 private:
     virtual bool LoadImpl(const char* filename, sBitmapDescription& desc) = 0;

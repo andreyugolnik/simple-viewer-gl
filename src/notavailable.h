@@ -17,6 +17,11 @@ public:
     cNotAvailable();
     ~cNotAvailable();
 
+    bool isSupported(cFile& /*file*/, Buffer& /*buffer*/) const override
+    {
+        return true;
+    }
+
 private:
     bool LoadImpl(const char* filename, sBitmapDescription& desc) override;
 };

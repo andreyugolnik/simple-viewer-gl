@@ -253,6 +253,17 @@ cFormatPnm::~cFormatPnm()
 {
 }
 
+bool cFormatPnm::isSupported(cFile& file, Buffer& buffer) const
+{
+    if (!readBuffer(file, buffer, 2))
+    {
+        return false;
+    }
+
+    const auto h = reinterpret_cast<const char*>(buffer.data());
+    return h[0] == 'P' && h[1] >= '1' && h[1] <= '6' && file.getSize() >= 8;
+}
+
 bool cFormatPnm::LoadImpl(const char* filename, sBitmapDescription& desc)
 {
     cFile file;

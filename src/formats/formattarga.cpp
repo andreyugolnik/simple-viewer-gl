@@ -400,6 +400,20 @@ cFormatTarga::~cFormatTarga()
 {
 }
 
+bool cFormatTarga::isSupported(cFile& file, Buffer& buffer) const
+{
+    if (!readBuffer(file, buffer, sizeof(sTARGAHeader)))
+    {
+        return false;
+    }
+
+    const auto h = reinterpret_cast<const sTARGAHeader*>(buffer.data());
+    return h->colorMapType <= 1
+        && h->width > 0 && h->height > 0
+        && (h->imageType <= 3 || (h->imageType >= 9 && h->imageType <= 11))
+        && (h->pixelDepth == 8 || h->pixelDepth == 16 || h->pixelDepth == 24 || h->pixelDepth == 32);
+}
+
 bool cFormatTarga::LoadImpl(const char* filename, sBitmapDescription& desc)
 {
     cFile file;

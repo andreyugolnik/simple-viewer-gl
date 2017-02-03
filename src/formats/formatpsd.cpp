@@ -180,6 +180,16 @@ namespace
         }
     }
 
+    bool isValidFormat(const PSD_HEADER& header)
+    {
+        const uint16_t version = helpers::read_uint16((uint8_t*)&header.version);
+        return version == 1
+            && header.signature[0] == '8'
+            && header.signature[1] == 'B'
+            && header.signature[2] == 'P'
+            && header.signature[3] == 'S';
+    }
+
 }
 
 cFormatPsd::cFormatPsd(const char* lib, iCallbacks* callbacks)
@@ -189,6 +199,17 @@ cFormatPsd::cFormatPsd(const char* lib, iCallbacks* callbacks)
 
 cFormatPsd::~cFormatPsd()
 {
+}
+
+bool cFormatPsd::isSupported(cFile& file, Buffer& buffer) const
+{
+    if (!readBuffer(file, buffer, sizeof(PSD_HEADER)))
+    {
+        return false;
+    }
+
+    const auto h = reinterpret_cast<const PSD_HEADER*>(buffer.data());
+    return isValidFormat(*h);
 }
 
 bool cFormatPsd::LoadImpl(const char* filename, sBitmapDescription& desc)
@@ -208,12 +229,7 @@ bool cFormatPsd::LoadImpl(const char* filename, sBitmapDescription& desc)
         return false;
     }
 
-    const uint16_t version = helpers::read_uint16((uint8_t*)&header.version);
-    if (version != 1
-        || header.signature[0] != '8'
-        || header.signature[1] != 'B'
-        || header.signature[2] != 'P'
-        || header.signature[3] != 'S')
+    if (isValidFormat(header) == false)
     {
         ::printf("(EE) Not valid PSD file.\n");
         return false;

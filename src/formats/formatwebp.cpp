@@ -23,6 +23,30 @@ cFormatWebP::~cFormatWebP()
 {
 }
 
+bool cFormatWebP::isSupported(cFile& file, Buffer& buffer) const
+{
+#pragma pack(push, 1)
+    struct WebPheader
+    {
+        uint8_t riff[4];
+        uint32_t size;
+        uint8_t webp[4];
+    };
+#pragma pack(pop)
+
+    if (!readBuffer(file, buffer, sizeof(WebPheader)))
+    {
+        return false;
+    }
+
+    const uint8_t riff[4] = { 'R', 'I', 'F', 'F' };
+    const uint8_t webp[4] = { 'W', 'E', 'B', 'P' };
+    auto h = reinterpret_cast<const WebPheader*>(buffer.data());
+    return h->size == file.getSize() - 8
+        && !::memcmp(h->riff, riff, 4)
+        && !::memcmp(h->webp, webp, 4);
+}
+
 bool cFormatWebP::LoadImpl(const char* filename, sBitmapDescription& desc)
 {
     cFile file;

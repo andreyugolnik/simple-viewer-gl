@@ -8,7 +8,6 @@
 \**********************************************/
 
 #include "helpers.h"
-#include "file.h"
 
 namespace helpers
 {
@@ -43,22 +42,7 @@ namespace helpers
         }
     }
 
-    bool readBuffer(cFileInterface& file, Buffer& buffer, unsigned desired_size)
-    {
-        const unsigned size = buffer.size();
-        if (size < desired_size)
-        {
-            buffer.resize(desired_size);
-            const unsigned length = desired_size - size;
-            if (length != file.read(&buffer[size], length))
-            {
-                return false;
-            }
-        }
-        return desired_size <= buffer.size();
-    }
-
-    unsigned nextPot(unsigned n)
+    uint32_t nextPot(uint32_t n)
     {
         n = n - 1;
         n = n | (n >> 1);
@@ -69,4 +53,4 @@ namespace helpers
         return n + 1;
     }
 
-} // namespace helpers
+}

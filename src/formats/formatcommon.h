@@ -19,6 +19,8 @@ public:
     cFormatCommon(const char* lib, iCallbacks* callbacks);
     ~cFormatCommon();
 
+    bool isSupported(cFile& file, Buffer& buffer) const override;
+
 private:
     bool LoadImpl(const char* filename, sBitmapDescription& desc) override;
 };

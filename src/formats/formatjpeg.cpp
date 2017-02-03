@@ -55,12 +55,12 @@ namespace
     // }
 
     const unsigned int maxMarkerLength = 0xffff;
-    const int JPEG_EXIF = JPEG_APP0 + 1;  // Exif/XMP
+    // const int JPEG_EXIF = JPEG_APP0 + 1;  // Exif/XMP
     const int JPEG_ICCP = JPEG_APP0 + 2;  // ICC profile
 
     void setupMarkers(jpeg_decompress_struct* cinfo)
     {
-        jpeg_save_markers(cinfo, JPEG_EXIF, maxMarkerLength);
+        // jpeg_save_markers(cinfo, JPEG_EXIF, maxMarkerLength);
         jpeg_save_markers(cinfo, JPEG_ICCP, maxMarkerLength);
     }
 
@@ -92,6 +92,36 @@ cFormatJpeg::cFormatJpeg(const char* lib, iCallbacks* callbacks)
 
 cFormatJpeg::~cFormatJpeg()
 {
+}
+
+bool cFormatJpeg::isSupported(cFile& file, Buffer& buffer) const
+{
+    struct JFIFHeader
+    {
+        uint8_t soi[2];          /* 00h  Start of Image Marker     */
+        uint8_t app0[2];         /* 02h  Application Use Marker    */
+        uint8_t length[2];       /* 04h  Length of APP0 Field      */
+        uint8_t identifier[5];   /* 06h  "JFIF" (zero terminated) Id String */
+        uint8_t version[2];      /* 07h  JFIF Format Revision      */
+        uint8_t units;           /* 09h  Units used for Resolution */
+        uint8_t xdensity[2];     /* 0Ah  Horizontal Resolution     */
+        uint8_t ydensity[2];     /* 0Ch  Vertical Resolution       */
+        uint8_t xthumbnail;      /* 0Eh  Horizontal Pixel Count    */
+        uint8_t ythumbnail;
+    };
+
+    if (!readBuffer(file, buffer, sizeof(JFIFHeader)))
+    {
+        return false;
+    }
+
+    const auto h = reinterpret_cast<const JFIFHeader*>(buffer.data());
+    const uint8_t soi[2] = { 0xFF, 0xD8 };
+    // const uint8_t app0[2] = { 0xFF, 0xE0 };
+    return (!::memcmp(h->soi, soi, 2) //&& !::memcmp(h->app0, app0, 2)
+            && (!::strcmp((const char*)h->identifier, "JFIF")
+                || !::strcmp((const char*)h->identifier, "Exif")
+                || !::strcmp((const char*)h->identifier, "JFXX")));
 }
 
 bool cFormatJpeg::LoadImpl(const char* filename, sBitmapDescription& desc)
