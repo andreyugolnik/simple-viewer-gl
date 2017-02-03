@@ -4,7 +4,7 @@
 ##Simple Viewer GL - simple and tiny image viewer based on OpenGL.##
 
 The primary goal for writing **sviewgl** is to create an image viewer, which only has the most basic features required for fast image viewing. It has some vi-like key bindings and works nicely with tiling window managers (such as Ion3 and Notion).
-Supported formats: PNG, JPEG, BMP, TIFF, GIF, PPM, DDS, BMP, TARGA, PSD, ICO, XWD, SCR (ZX-Spectrum screen), XPM, WebP.
+Supported formats: PNG, JPEG, PSD, GIF, TIFF, TARGA, ICO, BMP, PNM, DDS, BMP, XWD, SCR (ZX-Spectrum screen), XPM, WebP.
 
 ##Screenshot##
 
@@ -13,7 +13,8 @@ Supported formats: PNG, JPEG, BMP, TIFF, GIF, PPM, DDS, BMP, TARGA, PSD, ICO, XW
 ##Features##
 
 * Lightweight and fast: utilize hardware-accelerated video card;
-* Support embeded ICC profiles.
+* Support embeded ICC profiles;
+* GIF animation support;
 * Very simple interface;
 * Suitable for default image viewer of desktop;
 * Minimal lib dependency: look library requirements below;
@@ -27,7 +28,7 @@ Supported formats: PNG, JPEG, BMP, TIFF, GIF, PPM, DDS, BMP, TARGA, PSD, ICO, XW
 ##Key bindings##
 
  Key            | Description
-----------------| --------------------------------------
+----------------|--------------------------------------
 <esc>           | exit
 <space>         | next image
 <backspace>     | previous image
@@ -56,8 +57,8 @@ $ make release
 
 ##Dependencies##
 
-       Name      |  Debian  package | Description / Notes
------------------| -----------------|----------------
+ Name            | Debian package   | Description / Notes
+-----------------|------------------|---------------------
 **cmake**        | cmake            | Cross-platform family of tools designed to build, test and package software.
 **glfw3**        | libglfw3-dev     | Multi-platform library for creating windows with OpenGL contexts and receiving input and events.
 **imlib2**       | libimlib2-dev    | Common formats support.
