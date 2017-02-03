@@ -6,7 +6,13 @@ os:
 install:
   - sudo apt-get -qq -y update
   - sudo apt-get install cmake
-  - sudo apt-get install freetype2
+  - sudo apt-get install libfreetype6-dev
+  - sudo apt-get install libglfw3-dev
+  - sudo apt-get install libimlib2-dev
+  - sudo apt-get install libtiff5-dev
+  - sudo apt-get install libjpeg-dev
+  - sudo apt-get install libgif-dev
+  - sudo apt-get install libpng12-dev
 
 compiler:
     - gcc
