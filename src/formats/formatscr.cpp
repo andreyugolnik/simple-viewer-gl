@@ -259,6 +259,12 @@ void cFormatScr::loadBMcX(const unsigned char* buffer, sBitmapDescription& desc,
     }
 }
 
+bool cFormatScr::isSupported(cFile& file, Buffer& /*buffer*/) const
+{
+    const auto screen = getType(file.getSize());
+    return screen.type != Type::Unknown;
+}
+
 bool cFormatScr::LoadImpl(const char* filename, sBitmapDescription& desc)
 {
     cFile file;

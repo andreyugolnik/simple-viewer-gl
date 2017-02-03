@@ -122,7 +122,7 @@ void CImageLoader::LoadSubImage(unsigned subImage)
 bool CImageLoader::isLoaded() const
 {
     return m_image != m_formats[(unsigned)eImageType::NOTAVAILABLE].get()
-        && !m_desc.bitmap.empty();
+           && !m_desc.bitmap.empty();
 }
 
 const unsigned char* CImageLoader::GetBitmap() const
@@ -213,47 +213,47 @@ const char* CImageLoader::getImageType() const
 namespace
 {
 
-struct sFormatExt
-{
-    const char* ext;
-    eImageType format;
-};
-
-// #define LOADER_NAME
-#if defined(LOADER_NAME)
-const char* typeToName(eImageType type)
-{
-    const char* Names[] =
+    struct sFormatExt
     {
-#if defined(IMLIB2_SUPPORT)
-        "COMMON",
-#endif
-        "JPG",
-        "PSD",
-        "PNG",
-        "GIF",
-        "ICO",
-        "TIF",
-        "XWD",
-        "XPM",
-        "DDS",
-        "RAW",
-        "AGE",
-        "PNM",
-        "PVR",
-        "SCR",
-        "TGA",
-        "BMP",
-        "WEBP",
-
-        "NOTAVAILABLE",
+        const char* ext;
+        eImageType format;
     };
 
-    const auto idx = (size_t)type;
-    const auto size = helpers::countof(Names);
-    assert(size == (size_t)eImageType::COUNT);
-    return idx < size ? Names[idx] : "";
-};
+    // #define LOADER_NAME
+#if defined(LOADER_NAME)
+    const char* typeToName(eImageType type)
+    {
+        const char* Names[] =
+        {
+#if defined(IMLIB2_SUPPORT)
+            "COMMON",
+#endif
+            "JPG",
+            "PSD",
+            "PNG",
+            "GIF",
+            "ICO",
+            "TIF",
+            "XWD",
+            "XPM",
+            "DDS",
+            "RAW",
+            "AGE",
+            "PNM",
+            "PVR",
+            "SCR",
+            "TGA",
+            "BMP",
+            "WEBP",
+
+            "NOTAVAILABLE",
+        };
+
+        const auto idx = (size_t)type;
+        const auto size = helpers::countof(Names);
+        assert(size == (size_t)eImageType::COUNT);
+        return idx < size ? Names[idx] : "";
+    };
 #endif
 
 }
@@ -261,75 +261,44 @@ const char* typeToName(eImageType type)
 eImageType CImageLoader::getType(const char* name)
 {
     cFile file;
-    if (!file.open(name))
+    if (file.open(name))
     {
-        return eImageType::NOTAVAILABLE;
-    }
-
-    Buffer buffer;
-    for (unsigned idx = 0; idx < (unsigned)eImageType::COUNT; idx++)
-    {
-        if (m_formats[idx]->isSupported(file, buffer))
+        const eImageType SortedTypes[] =
         {
-#if defined(LOADER_NAME)
-            ::printf("(II) Loader by type: %s\n", typeToName((eImageType)idx));
+            eImageType::AGE, // may be any extension, not only .age
+            eImageType::RAW, // or .raw
+
+            eImageType::JPG,
+            eImageType::PSD,
+            eImageType::PNG,
+            eImageType::GIF,
+            eImageType::ICO,
+            eImageType::TIF,
+            eImageType::XWD,
+            eImageType::XPM,
+            eImageType::DDS,
+            eImageType::PNM,
+            eImageType::PVR,
+            eImageType::TGA,
+            eImageType::WEBP,
+            eImageType::SCR,
+
+#if defined(IMLIB2_SUPPORT)
+            eImageType::COMMON, // use it as fallback loader
 #endif
-            return (eImageType)idx;
-        }
-    }
-
-    std::string s(name);
-
-    // skip file without extension
-    const size_t pos = s.find_last_of('.');
-    if (std::string::npos != pos)
-    {
-        // skip non image file (detect by extension)
-        std::transform(s.begin(), s.end(), s.begin(), tolower);
-
-        static const sFormatExt format[] =
-        {
-            { ".jpeg",  eImageType::JPG  },
-            { ".jpg",   eImageType::JPG  },
-            { ".psd",   eImageType::PSD  },
-            { ".png",   eImageType::PNG  },
-            { ".gif",   eImageType::GIF  },
-            { ".ico",   eImageType::ICO  },
-            { ".tiff",  eImageType::TIF  },
-            { ".tif",   eImageType::TIF  },
-            { ".xwd",   eImageType::XWD  },
-            { ".xpm",   eImageType::XWD  },
-            { ".dds",   eImageType::DDS  },
-            { ".pnm",   eImageType::PNM  },
-            { ".pbm",   eImageType::PNM  },
-            { ".pgm",   eImageType::PNM  },
-            { ".ppm",   eImageType::PNM  },
-            { ".scr",   eImageType::SCR  },
-            { ".atr",   eImageType::SCR  },
-            { ".ifl",   eImageType::SCR  },
-            { ".bsc",   eImageType::SCR  },
-            { ".bmc4",  eImageType::SCR  },
-            { ".mc",    eImageType::SCR  },
-            { ".tga",   eImageType::TGA  },
-            { ".targa", eImageType::TGA  },
-            { ".bmp",   eImageType::BMP  },
-            { ".webp",  eImageType::WEBP },
         };
 
-        for (auto& fmt : format)
+        Buffer buffer;
+        for (auto type : SortedTypes)
         {
-            if (s.substr(pos) == fmt.ext)
+            if (m_formats[(size_t)type]->isSupported(file, buffer))
             {
-#if defined(LOADER_NAME)
-                ::printf("(II) Loader by ext: %s\n", typeToName(fmt.format));
-#endif
-                return fmt.format;
+                // ::printf("(II) Loader by type %s\n", typeToName(type));
+                return type;
             }
         }
 
-#if defined(IMLIB2_SUPPORT)
-        return eImageType::COMMON;
-#endif
+        ::printf("(WW) Loader not available for '%s'.\n", name);
     }
 
     return eImageType::NOTAVAILABLE;

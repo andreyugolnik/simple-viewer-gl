@@ -65,6 +65,18 @@ cFormatGif::~cFormatGif()
 {
 }
 
+bool cFormatGif::isSupported(cFile& file, Buffer& buffer) const
+{
+    if (!readBuffer(file, buffer, 6))
+    {
+        return false;
+    }
+
+    const auto h = buffer.data();
+    return (h[0] == 'G' && h[1] == 'I' && h[2] == 'F' && h[3] == '8' && h[5] == 'a')
+        && (h[4] == '7' || h[4] == '9');
+}
+
 bool cFormatGif::LoadImpl(const char* filename, sBitmapDescription& desc)
 {
     m_filename = filename;

@@ -17,6 +17,8 @@ public:
     cFormatWebP(const char* lib, iCallbacks* callbacks);
     ~cFormatWebP();
 
+    bool isSupported(cFile& file, Buffer& buffer) const override;
+
 private:
     bool LoadImpl(const char* filename, sBitmapDescription& desc) override;
 };

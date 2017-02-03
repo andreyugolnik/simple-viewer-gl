@@ -17,6 +17,8 @@ public:
     cFormatPnm(const char* lib, iCallbacks* callbacks);
     ~cFormatPnm();
 
+    bool isSupported(cFile& file, Buffer& buffer) const override;
+
 private:
     bool LoadImpl(const char* filename, sBitmapDescription& desc) override;
 };

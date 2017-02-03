@@ -11,7 +11,6 @@
 #include "../common/ZlibDecoder.h"
 #include "../common/bitmap_description.h"
 #include "../common/file.h"
-#include "../common/helpers.h"
 #include "AGEheader.h"
 #include "rle.h"
 
@@ -59,7 +58,7 @@ cFormatAge::~cFormatAge()
 
 bool cFormatAge::isSupported(cFile& file, Buffer& buffer) const
 {
-    if (!helpers::readBuffer(file, buffer, sizeof(AGE::Header)))
+    if (!readBuffer(file, buffer, sizeof(AGE::Header)))
     {
         return false;
     }

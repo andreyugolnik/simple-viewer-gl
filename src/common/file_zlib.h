@@ -21,9 +21,10 @@ public:
     cFileZlib(cFile* file);
     virtual ~cFileZlib();
 
-    virtual int seek(long offset, int whence);
-    virtual uint32_t read(void* ptr, uint32_t size);
-    virtual long getSize() const;
+    virtual long getOffset() const override;
+    virtual int seek(long offset, int whence) override;
+    virtual uint32_t read(void* ptr, uint32_t size) override;
+    virtual long getSize() const override;
 
 protected:
     cFile* m_file;

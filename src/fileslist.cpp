@@ -181,27 +181,27 @@ bool CFilesList::isValidExt(const std::string& path)
 #if defined(IMLIB2_SUPPORT)
         ".bmp",
 #endif
-        ".jpeg", ".jpg", // libjpeg
+        ".jpeg", ".jpg", ".jpe", ".jfif", // libjpeg
         ".tiff", ".tif", // libtiff
         ".png", // libpng
         ".gif", // giflib
         ".webp", // webp
 
         // internal loaders
+        ".age",
+        ".raw",
+        ".pvr", ".pvrtc",
         ".xpm",
         ".psd",
-        ".pnm",
-        ".tga", ".targa",
         ".ico",
-        ".lbm", ".id3", ".argb",
         ".xwd",
         ".dds",
-        ".raw",
-        ".bmp",
+        ".tga", ".targa",
+        ".lbm", ".id3", ".argb",
         ".pnm", ".pbm", ".pgm", ".ppm",
-        ".pvr", ".pvrtc",
         ".scr", ".atr", ".bsc", ".ifl", ".bmc4", ".mc",
     };
+
     for (size_t i = 0; i < helpers::countof(ext); i++)
     {
         if (s.substr(pos) == ext[i])

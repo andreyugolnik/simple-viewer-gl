@@ -977,7 +977,7 @@ namespace
 
 bool cFormatXpm::isSupported(cFile& file, Buffer& buffer) const
 {
-    if (!helpers::readBuffer(file, buffer, headerSize))
+    if (!readBuffer(file, buffer, headerSize))
     {
         return false;
     }

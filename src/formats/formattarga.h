@@ -17,6 +17,8 @@ public:
     cFormatTarga(const char* lib, iCallbacks* callbacks);
     ~cFormatTarga();
 
+    bool isSupported(cFile& file, Buffer& buffer) const override;
+
 private:
     bool LoadImpl(const char* filename, sBitmapDescription& desc) override;
 };

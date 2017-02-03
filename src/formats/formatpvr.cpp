@@ -10,7 +10,6 @@
 #include "formatpvr.h"
 #include "../common/bitmap_description.h"
 #include "../common/file_zlib.h"
-#include "../common/helpers.h"
 
 #include <cstring>
 
@@ -188,12 +187,12 @@ cFormatPvr::~cFormatPvr()
 
 bool cFormatPvr::isSupported(cFile& file, Buffer& buffer) const
 {
-    if (!helpers::readBuffer(file, buffer, 4))
+    if (!readBuffer(file, buffer, 4))
     {
         return false;
     }
 
-    return (::memcmp(&buffer[0], "ZPVR", 4) == 0 || ::memcmp(&buffer[0], "PVR", 3) == 0);
+    return !::memcmp(buffer.data(), "ZPVR", 4) || !::memcmp(buffer.data(), "PVR", 3);
 }
 
 bool cFormatPvr::LoadImpl(const char* filename, sBitmapDescription& desc)

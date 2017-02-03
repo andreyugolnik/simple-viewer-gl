@@ -41,6 +41,16 @@ namespace
         return nullptr;
     }
 
+    struct PngHeader
+    {
+        png_byte id[8]; // 8 is the maximum size that can be checked
+    };
+
+    bool isValidFormat(const PngHeader& header, unsigned fileSize)
+    {
+        return fileSize >= 8 && png_sig_cmp(header.id, 0, 8) == 0;
+    }
+
 }
 
 cFormatPng::cFormatPng(const char* lib, iCallbacks* callbacks)
@@ -50,6 +60,17 @@ cFormatPng::cFormatPng(const char* lib, iCallbacks* callbacks)
 
 cFormatPng::~cFormatPng()
 {
+}
+
+bool cFormatPng::isSupported(cFile& file, Buffer& buffer) const
+{
+    if (!readBuffer(file, buffer, sizeof(PngHeader)))
+    {
+        return false;
+    }
+
+    const auto h = reinterpret_cast<const PngHeader*>(buffer.data());
+    return isValidFormat(*h, file.getSize());
 }
 
 bool cFormatPng::LoadImpl(const char* filename, sBitmapDescription& desc)
@@ -62,11 +83,11 @@ bool cFormatPng::LoadImpl(const char* filename, sBitmapDescription& desc)
 
     desc.size = file.getSize();
 
-    png_byte header[8]; // 8 is the maximum size that can be checked
-    auto size = file.read(header, 8);
-    if (size != 8 || png_sig_cmp(header, 0, 8) != 0)
+    PngHeader header;
+    if (file.read(&header, sizeof(header)) != sizeof(header)
+        && isValidFormat(header, file.getSize()) == false)
     {
-        ::printf("(EE) File '%s' is not recognized as a PNG file.\n", filename);
+        ::printf("(EE) Is not recognized as a PNG file.\n");
         return false;
     }
 

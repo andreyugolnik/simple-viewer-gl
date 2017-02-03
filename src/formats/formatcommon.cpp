@@ -61,6 +61,11 @@ cFormatCommon::~cFormatCommon()
 {
 }
 
+bool cFormatCommon::isSupported(cFile& file, Buffer& buffer) const
+{
+    return true;
+}
+
 bool cFormatCommon::LoadImpl(const char* filename, sBitmapDescription& desc)
 {
     cFile file;

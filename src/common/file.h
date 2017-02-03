@@ -16,6 +16,7 @@ class cFileInterface
 public:
     virtual ~cFileInterface() { }
 
+    virtual long getOffset() const = 0;
     virtual int seek(long offset, int whence) = 0;
     virtual uint32_t read(void* ptr, uint32_t size) = 0;
     virtual long getSize() const = 0;
@@ -26,20 +27,20 @@ public:
 class cFile : public cFileInterface
 {
 public:
-    cFile();
     virtual ~cFile();
 
     bool open(const char* path, const char* mode = "rb");
     void close();
 
-    long getOffset() const;
     void* getHandle() const { return m_file; }
 
-    virtual int seek(long offset, int whence);
-    virtual uint32_t read(void* ptr, uint32_t size);
-    virtual long getSize() const { return m_size; }
+    virtual long getOffset() const override;
+    virtual int seek(long offset, int whence) override;
+    virtual uint32_t read(void* ptr, uint32_t size) override;
+    virtual long getSize() const override { return m_size; }
 
 protected:
-    void* m_file;
-    long m_size;
+    const char* m_path = nullptr;
+    void* m_file = nullptr;
+    long m_size = 0;
 };

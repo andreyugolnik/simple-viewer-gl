@@ -10,7 +10,6 @@
 #include "formatraw.h"
 #include "../common/bitmap_description.h"
 #include "../common/file.h"
-#include "../common/helpers.h"
 #include "rle.h"
 
 #include <cstring>
@@ -80,13 +79,13 @@ cFormatRaw::~cFormatRaw()
 
 bool cFormatRaw::isSupported(cFile& file, Buffer& buffer) const
 {
-    if (!helpers::readBuffer(file, buffer, sizeof(sHeader)))
+    if (!readBuffer(file, buffer, sizeof(sHeader)))
     {
         return false;
     }
 
-    const sHeader& header = *(sHeader*)&buffer[0];
-    return isValidFormat(header, file.getSize());
+    auto header = reinterpret_cast<const sHeader*>(buffer.data());
+    return isValidFormat(*header, file.getSize());
 }
 
 bool cFormatRaw::LoadImpl(const char* filename, sBitmapDescription& desc)

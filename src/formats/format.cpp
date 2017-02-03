@@ -9,6 +9,7 @@
 
 #include "format.h"
 #include "../common/callbacks.h"
+#include "../common/file.h"
 
 #include <cassert>
 #include <cstdio>
@@ -83,4 +84,20 @@ void cFormat::updateProgress(float percent)
         m_percent = percent;
         m_callbacks->doProgress(percent);
     }
+}
+
+bool cFormat::readBuffer(cFile& file, Buffer& buffer, uint32_t minSize) const
+{
+    const uint32_t size = buffer.size();
+    if (size < minSize)
+    {
+        buffer.resize(minSize);
+        const uint32_t length = minSize - size;
+        if (length != file.read(&buffer[size], length))
+        {
+            return false;
+        }
+    }
+
+    return minSize <= buffer.size();
 }
