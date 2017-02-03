@@ -385,7 +385,7 @@ cFormatBmp::~cFormatBmp()
 
 bool cFormatBmp::isSupported(cFile& file, Buffer& buffer) const
 {
-    if (!helpers::readBuffer(file, buffer, sizeof(BmpHeader)))
+    if (!readBuffer(file, buffer, sizeof(BmpHeader)))
     {
         return false;
     }
