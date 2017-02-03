@@ -1,7 +1,13 @@
 language: c
 
+cache: true
+
 os:
     - linux
+
+install:
+  - sudo apt-get -qq -y update
+  - sudo apt-get install cmake freetype
 
 compiler:
     - gcc
