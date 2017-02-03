@@ -69,8 +69,9 @@ bool cFormatPng::isSupported(cFile& file, Buffer& buffer) const
         return false;
     }
 
-    const auto h = reinterpret_cast<PngHeader*>(buffer.data());
-    return isValidFormat(*h, file.getSize());
+    PngHeader header;
+    ::memcpy(&header, buffer.data(), sizeof(header));
+    return isValidFormat(header, file.getSize());
 }
 
 bool cFormatPng::LoadImpl(const char* filename, sBitmapDescription& desc)
