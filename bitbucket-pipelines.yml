@@ -9,9 +9,9 @@ pipelines:
   default:
     - step:
         script: # Modify the commands below to build your repository.
-          - echo "deb http://ppa.launchpad.net/keithw/glfw3/ubuntu devel main" | tee -a /etc/apt/sources.list.d/fillwave_ext.list
-          - echo "deb-src http://ppa.launchpad.net/keithw/glfw3/ubuntu devel main" | tee -a /etc/apt/sources.list.d/fillwave_ext.list
+          - add-apt-repository ppa:keithw/glfw3
           - apt-get update
-          - apt-get install -y --force-yes cmake libglfw3-dev libfreetype6-dev libimlib2-dev libtiff5-dev libjpeg-dev libgif-dev libpng12-dev liblcms2-dev libwebp-dev
+          - apt-get install -y --force-yes cmake libglfw3-dev
+          - apt-get install -y --force-yes libfreetype6-dev libimlib2-dev libtiff5-dev libjpeg-dev libgif-dev libpng12-dev liblcms2-dev libwebp-dev
           - make clean
           - make release
