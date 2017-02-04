@@ -118,6 +118,40 @@ namespace
     };
 #pragma pack(pop)
 
+    enum class Version
+    {
+        Core,
+
+        Info,
+        V4,
+        V5,
+
+        Unknown,
+    };
+
+
+    Version getVersion(unsigned headerSize)
+    {
+        if (headerSize == sizeof(BITMAPCOREHEADER))
+        {
+            return Version::Core;
+        }
+        else if (headerSize == sizeof(BITMAPINFOHEADER))
+        {
+            return Version::Info;
+        }
+        else if (headerSize == sizeof(BITMAPV4HEADER))
+        {
+            return Version::V4;
+        }
+        else if (headerSize == sizeof(BITMAPV5HEADER))
+        {
+            return Version::V5;
+        }
+        
+        return Version::Unknown;
+    }
+
     enum class Compression
     {
         BI_RGB            = 0,  // none                           Most common
@@ -158,12 +192,16 @@ namespace
 
     void debugHeader(const BITMAPCOREHEADER& header)
     {
-        ::printf("-- BITMAPCOREHEADER\n");
-        ::printf("     header size   : %u\n", header.size);
-        ::printf("     image width   : %u\n", (uint32_t)header.width);
-        ::printf("     image height  : %u\n", (uint32_t)header.height);
-        ::printf("     planes        : %u\n", (uint32_t)header.planes);
-        ::printf("     bitCount      : %u\n", (uint32_t)header.bitCount);
+        auto ver = getVersion(header.size);
+        if (ver == Version::Core)
+        {
+            ::printf("-- BITMAPCOREHEADER\n");
+            ::printf("     header size   : %u\n", header.size);
+            ::printf("     image width   : %u\n", (uint32_t)header.width);
+            ::printf("     image height  : %u\n", (uint32_t)header.height);
+            ::printf("     planes        : %u\n", (uint32_t)header.planes);
+            ::printf("     bitCount      : %u\n", (uint32_t)header.bitCount);
+        }
     }
 
     void debugHeader(const BITMAPCOMMON& header)
@@ -177,7 +215,8 @@ namespace
         ::printf("     compression   : %s\n", compressionToName(header.compression));
         ::printf("     sizeImage     : %u\n", header.sizeImage);
 
-        if (header.size == sizeof(BITMAPINFOHEADER))
+        auto ver = getVersion(header.size);
+        if (ver == Version::Info)
         {
             auto& h = reinterpret_cast<const BITMAPINFOHEADER&>(header);
             ::printf("-- BITMAPINFOHEADER\n");
@@ -188,7 +227,7 @@ namespace
         }
         else
         {
-            if (header.size == sizeof(BITMAPV4HEADER) || header.size == sizeof(BITMAPV5HEADER))
+            if (ver == Version::V4 || ver == Version::V5)
             {
                 auto& h = reinterpret_cast<const BITMAPV4HEADER&>(header);
                 ::printf("-- BITMAPV4HEADER\n");
@@ -209,7 +248,7 @@ namespace
                 ::printf("     gammaBlue     : %u\n", h.gammaBlue);
             }
 
-            if (header.size == sizeof(BITMAPV5HEADER))
+            if (ver == Version::V5)
             {
                 auto& h = reinterpret_cast<const BITMAPV5HEADER&>(header);
                 ::printf("-- BITMAPV5HEADER\n");
@@ -418,21 +457,22 @@ bool cFormatBmp::LoadImpl(const char* filename, sBitmapDescription& desc)
     desc.size = file.getSize();
 
     auto offset = file.getOffset();
-    uint32_t dibSize = 0;
-    if (file.read(&dibSize, sizeof(dibSize)) != sizeof(dibSize))
+    BITMAPCOMMON common;
+    if (file.read(&common, sizeof(common)) != sizeof(common))
     {
         ::printf("(EE) Can't read DIB header size.\n");
         return false;
     }
-
     file.seek(offset, SEEK_SET);
 
-    if (dibSize == sizeof(BITMAPINFOHEADER)
-        || dibSize == sizeof(BITMAPV4HEADER)
-        || dibSize == sizeof(BITMAPV5HEADER))
+    auto ver = getVersion(common.size);
+
+    if (ver == Version::Info
+        || ver == Version::V4
+        || ver == Version::V5)
     {
         BITMAPV5HEADER header;
-        if (file.read(&header, dibSize) != dibSize)
+        if (file.read(&header, common.size) != common.size)
         {
             ::printf("(EE) Can't read DIB header.\n");
             return false;
@@ -492,7 +532,7 @@ bool cFormatBmp::LoadImpl(const char* filename, sBitmapDescription& desc)
     }
     else
     {
-        if (dibSize == sizeof(BITMAPCOREHEADER))
+        if (ver == Version::Core)
         {
             BITMAPCOREHEADER header;
             if (file.read(&header, sizeof(header)) != sizeof(header))
@@ -504,7 +544,7 @@ bool cFormatBmp::LoadImpl(const char* filename, sBitmapDescription& desc)
             debugHeader(header);
         }
 
-        ::printf("(EE) Unsupported BMP header size %u.\n", dibSize);
+        ::printf("(EE) Unsupported BMP header.\n");
 
         return false;
     }
