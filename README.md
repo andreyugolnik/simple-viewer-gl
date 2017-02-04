@@ -1,7 +1,7 @@
 ![CI status, master](https://api.shippable.com/projects/5894665c8d80360f008b75d4/badge?branch=master)
 ![CI coverage, master](https://api.shippable.com/projects/5894665c8d80360f008b75d4/coverageBadge?branch=master)
 
-##Simple Viewer GL - simple and tiny image viewer based on OpenGL.##
+###Simple Viewer GL - simple and tiny image viewer based on OpenGL.###
 
 The primary goal for writing **sviewgl** is to create an image viewer, which only has the most basic features required for fast image viewing. It has some vi-like key bindings and works nicely with tiling window managers (such as Ion3 and Notion).
 Supported formats: PNG, JPEG, PSD, GIF, TIFF, TARGA, ICO, BMP, PNM, DDS, BMP, XWD, SCR (ZX-Spectrum screen), XPM, WebP.
@@ -57,19 +57,20 @@ $ make release
 
 ##Dependencies##
 
- Name            | Debian package   | Description / Notes
------------------|------------------|---------------------
-**cmake**        | cmake            | Cross-platform family of tools designed to build, test and package software.
-**glfw3**        | libglfw3-dev     | Multi-platform library for creating windows with OpenGL contexts and receiving input and events.
-**imlib2**       | libimlib2-dev    | Common formats support.
-**jpeg**         | libjpeg-dev      | JPEG format support.
-**png**          | libpng12-dev     | PNG format support.
-**gif**          | libgif-dev       | GIF format support.
-**tiff**         | libtiff5-dev     | TIFF format support.
-**webp**         | libwebp-dev      | WebP format support.
-**freetype2**    | libfreetype6-dev | TTF/OTF font engine.
-**Little CMS 2** | liblcms2-dev     | Color management engine supporting ICC profiles.
-**zlib**         | zlib1g-dev       | Compression support.
+ Name            | Debian package               | Description / Notes
+-----------------|------------------------------|---------------------
+**cmake**        | cmake                        | *Cross-platform family of tools designed to build, test and package software.*
+**glfw3**        | libglfw3-dev                 | *Multi-platform library for creating windows with OpenGL contexts and receiving input and events.*
+**imlib2**       | libimlib2-dev                | *Common formats support.*
+**jpeg**         | libjpeg-dev                  | *JPEG format support.*
+**png**          | libpng12-dev                 | *PNG format support.*
+**gif**          | libgif-dev                   | *GIF format support.*
+**tiff**         | libtiff5-dev                 | *TIFF format support.*
+**webp**         | libwebp-dev                  | *WebP format support.*
+**freetype2**    | libfreetype6-dev             | *TTF/OTF font engine.
+**Little CMS 2** | liblcms2-dev                 | *Color management engine supporting ICC profiles.
+**zlib**         | zlib1g-dev                   | *Compression support.*
+**X11**          | libxrandr-dev libxcursor-dev | *X11 related libraries (Linux only)*
 
 ***
 ```
