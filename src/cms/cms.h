@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include "../types/types.h"
+
 class cCMS final
 {
 public:
@@ -20,15 +22,15 @@ public:
         Rgba,
         Rgb,
     };
-    void createTransform(const void* iccProfile, unsigned iccProfileSize, Pixel format);
+    void createTransform(const void* iccProfile, uint32_t iccProfileSize, Pixel format);
     void createTransform(const float* chr, const float* wp
-                         , const unsigned short* gmr
-                         , const unsigned short* gmg
-                         , const unsigned short* gmb
+                         , const uint16_t* gmr
+                         , const uint16_t* gmg
+                         , const uint16_t* gmb
                          , Pixel format);
     void destroyTransform();
 
-    void doTransform(void* input, void* output, unsigned sizeInPixels) const;
+    void doTransform(void* input, void* output, uint32_t sizeInPixels) const;
 
     bool hasTransform() const
     {

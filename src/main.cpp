@@ -9,6 +9,7 @@
 
 #include "viewer.h"
 #include "common/config.h"
+#include "types/types.h"
 
 #include <GLFW/glfw3.h>
 
@@ -60,9 +61,9 @@ namespace
         printf("  -wz            enable wheel zoom (default: %s);\n", getValue(config.wheelZoom));
         printf("  -mipmap VALUE  min texture size for mipmap creation (default: %u px);\n", config.mipmapTextureSize);
         printf("  -C RRGGBB      background color in hex format (default: %.2X%.2X%.2X);\n"
-               , (unsigned)(config.color.r * 255)
-               , (unsigned)(config.color.g * 255)
-               , (unsigned)(config.color.b * 255));
+               , (uint32_t)(config.bgColor.r)
+               , (uint32_t)(config.bgColor.g)
+               , (uint32_t)(config.bgColor.b));
 
         printf("\nAvailable keys:\n");
         printf("  <esc>         exit;\n");
@@ -226,10 +227,10 @@ int main(int argc, char* argv[])
         }
         else if (strncmp(argv[i], "-C", 2) == 0)
         {
-            unsigned r, g, b;
+            uint32_t r, g, b;
             if (3 == sscanf(argv[i + 1], "%2x%2x%2x", &r, &g, &b))
             {
-                config.color = { r / 255.0f, g / 255.0f, b / 255.0f };
+                config.bgColor = { (uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)255 };
                 i++;
             }
         }
@@ -237,7 +238,7 @@ int main(int argc, char* argv[])
         {
             if (i + 1 < argc)
             {
-                config.mipmapTextureSize = (unsigned)::atoi(argv[++i]);
+                config.mipmapTextureSize = (uint32_t)::atoi(argv[++i]);
             }
         }
         else

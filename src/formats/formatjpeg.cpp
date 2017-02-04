@@ -98,9 +98,7 @@ namespace
         *++s = 0; // nul terminate the string on the first of the final spaces
     }
 
-    typedef std::vector<std::string> ExifTags;
-
-    void addExifTag(ExifData* d, ExifIfd ifd, ExifTag tag, ExifTags& tagsList)
+    void addExifTag(ExifData* d, ExifIfd ifd, ExifTag tag, sBitmapDescription::ExifList& exifList)
     {
         ExifEntry* entry = exif_content_get_entry(d->ifd[ifd], tag);
         if (entry != nullptr)
@@ -112,10 +110,7 @@ namespace
             trimSpaces(buf);
             if (*buf)
             {
-                std::string result = exif_tag_get_name_in_ifd(tag, ifd);
-                result += ": ";
-                result += buf;
-                tagsList.push_back(result);
+                exifList.push_back({ exif_tag_get_name_in_ifd(tag, ifd), buf });
             }
         }
     }
@@ -449,33 +444,22 @@ bool cFormatJpeg::LoadImpl(const char* filename, sBitmapDescription& desc)
     {
         // dumpAllExif(ed);
 
-        ExifTags exifTags;
+        auto& exifList = desc.exifList;
 
-        addExifTag(ed, EXIF_IFD_0, EXIF_TAG_MAKE, exifTags);
-        addExifTag(ed, EXIF_IFD_0, EXIF_TAG_MODEL, exifTags);
-        addExifTag(ed, EXIF_IFD_0, EXIF_TAG_DATE_TIME, exifTags);
-        addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_FNUMBER, exifTags);
-        addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_EXPOSURE_MODE, exifTags);
-        addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_EXPOSURE_TIME, exifTags);
-        addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_EXPOSURE_PROGRAM, exifTags);
-        addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_ISO_SPEED_RATINGS, exifTags);
-        addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_PIXEL_X_DIMENSION, exifTags);
-        addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_PIXEL_Y_DIMENSION, exifTags);
-        addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_WHITE_BALANCE, exifTags);
-        addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_COLOR_SPACE, exifTags);
-        addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_DIGITAL_ZOOM_RATIO, exifTags);
-        addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_FLASH, exifTags);
-
-        if (exifTags.size())
-        {
-            for (const auto& tag : exifTags)
-            {
-                desc.exif += tag;
-                desc.exif += "\n";
-            }
-
-            ::printf("%s", desc.exif.c_str());
-        }
+        addExifTag(ed, EXIF_IFD_0, EXIF_TAG_MAKE, exifList);
+        addExifTag(ed, EXIF_IFD_0, EXIF_TAG_MODEL, exifList);
+        addExifTag(ed, EXIF_IFD_0, EXIF_TAG_DATE_TIME, exifList);
+        addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_FNUMBER, exifList);
+        addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_EXPOSURE_MODE, exifList);
+        addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_EXPOSURE_TIME, exifList);
+        addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_EXPOSURE_PROGRAM, exifList);
+        addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_ISO_SPEED_RATINGS, exifList);
+        addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_PIXEL_X_DIMENSION, exifList);
+        addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_PIXEL_Y_DIMENSION, exifList);
+        addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_WHITE_BALANCE, exifList);
+        addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_COLOR_SPACE, exifList);
+        addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_DIGITAL_ZOOM_RATIO, exifList);
+        addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_FLASH, exifList);
 
         exif_data_unref(ed);
     }

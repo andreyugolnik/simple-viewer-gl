@@ -107,8 +107,7 @@ void cViewer::addPaths(const char** paths, int count)
 
 void cViewer::applyConfig()
 {
-    const sColor& c = m_config->color;
-    m_checkerBoard->setColor(c.r, c.g, c.b);
+    m_checkerBoard->setColor(m_config->bgColor);
 }
 
 void cViewer::render()
@@ -197,7 +196,7 @@ void cViewer::update()
             m_selection->SetImageDimension(desc.width, desc.height);
         }
 
-        m_exifInfo->setData(desc.exif.c_str());
+        m_exifInfo->setExifList(desc.exifList);
 
         updateInfobar();
         centerWindow();
@@ -327,6 +326,12 @@ void cViewer::fnMouseButtons(int button, int action, int mods)
         {
             const cVector<float> point = screenToImage(m_lastMouse);
             m_selection->MouseButton(point.x, point.y, m_mouseLB);
+
+            auto& rect = m_selection->GetRect();
+            if (rect.IsSet() == false)
+            {
+                updatePixelInfo(m_lastMouse);
+            }
         }
         break;
 

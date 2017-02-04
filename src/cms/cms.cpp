@@ -24,7 +24,7 @@ cCMS::~cCMS()
     cmsCloseProfile(m_outProfile);
 }
 
-void cCMS::createTransform(const void* iccProfile, unsigned iccProfileSize, Pixel format)
+void cCMS::createTransform(const void* iccProfile, uint32_t iccProfileSize, Pixel format)
 {
     destroyTransform();
     if (iccProfile != nullptr)
@@ -35,9 +35,9 @@ void cCMS::createTransform(const void* iccProfile, unsigned iccProfileSize, Pixe
 }
 
 void cCMS::createTransform(const float* chr, const float* wp
-                           , const unsigned short* gmr
-                           , const unsigned short* gmg
-                           , const unsigned short* gmb
+                           , const uint16_t* gmr
+                           , const uint16_t* gmg
+                           , const uint16_t* gmb
                            , Pixel format)
 {
     cmsCIExyYTRIPLE Primaries;
@@ -61,7 +61,7 @@ void cCMS::createTransform(const float* chr, const float* wp
 
     auto inProfile = cmsCreateRGBProfileTHR(nullptr, &WhitePoint, &Primaries, Curve);
 
-    for (unsigned i = 0; i < 3; i++)
+    for (uint32_t i = 0; i < 3; i++)
     {
         cmsFreeToneCurve(Curve[i]);
     }
@@ -90,7 +90,7 @@ void cCMS::destroyTransform()
     }
 }
 
-void cCMS::doTransform(void* input, void* output, unsigned sizeInPixels) const
+void cCMS::doTransform(void* input, void* output, uint32_t sizeInPixels) const
 {
     assert(m_transform != nullptr);
     cmsDoTransform(m_transform, input, output, sizeInPixels);

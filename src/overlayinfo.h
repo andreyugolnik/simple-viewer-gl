@@ -10,9 +10,7 @@
 #pragma once
 
 #include "ftstring.h"
-#include "math/vector.h"
-#include "math/rect.h"
-#include "quadseries.h"
+#include "common/bitmap_description.h"
 
 #include <memory>
 
@@ -22,7 +20,7 @@ public:
     void init();
     void setRatio(float ratio);
 
-    void setData(const char* data);
+    void setExifList(const sBitmapDescription::ExifList& exifList);
     void render();
 
 private:
@@ -30,7 +28,7 @@ private:
 
 private:
     float m_ratio = 1.0f;
-    unsigned m_rows = 0;
+    std::string m_exif;
     std::unique_ptr<cQuad> m_bg;
     std::unique_ptr<cFTString> m_ft;
 };

@@ -8,33 +8,34 @@
 \**********************************************/
 
 #include "checkerboard.h"
+
 #include <cmath>
 #include <vector>
 
 namespace
 {
 
-    const unsigned m_cellSize = 16;
-    const unsigned m_texSize = m_cellSize * 2;
+    const uint32_t m_cellSize = 16;
+    const uint32_t m_texSize = m_cellSize * 2;
 
 }
 
 void cCheckerboard::init()
 {
-    std::vector<unsigned char> buffer(m_texSize * m_texSize);
+    std::vector<uint8_t> buffer(m_texSize * m_texSize);
     auto p = buffer.data();
 
-    unsigned idx = 0;
-    const unsigned char colors[2] = { 0xc8, 0x7d };
+    uint32_t idx = 0;
+    const uint8_t colors[2] = { 0xc8, 0x7d };
 
-    for (unsigned y = 0; y < m_texSize; y++)
+    for (uint32_t y = 0; y < m_texSize; y++)
     {
         if (y % m_cellSize == 0)
         {
             idx = (idx + 1) % 2;
         }
 
-        for (unsigned x = 0; x < m_texSize; x++)
+        for (uint32_t x = 0; x < m_texSize; x++)
         {
             if (x % m_cellSize == 0)
             {
@@ -65,7 +66,9 @@ void cCheckerboard::render(bool checkboardEanbled)
     }
     else
     {
-        glClearColor(m_r, m_g, m_b, 1);
+        const auto& c = m_color;
+        const float inv = 1.0f / 255.0f;
+        glClearColor(c.r * inv, c.g * inv, c.b * inv, c.a * inv);
         glClear(GL_COLOR_BUFFER_BIT);
     }
 }

@@ -34,26 +34,32 @@ struct sBitmapDescription
         isAnimation = false;
         delay       = 0;
 
-        exif.clear();
+        exifList.clear();
     }
 
     // buffer related
     Buffer bitmap;
     GLenum format     = GL_RGB;
-    unsigned bpp      = 0;
-    unsigned pitch    = 0;
-    unsigned width    = 0;
-    unsigned height   = 0;
+    uint32_t bpp      = 0;
+    uint32_t pitch    = 0;
+    uint32_t width    = 0;
+    uint32_t height   = 0;
 
     // file related
-    unsigned bppImage = 0;  // bit per pixel of original image
+    uint32_t bppImage = 0;  // bit per pixel of original image
     long size         = -1; // file size on disk
 
-    unsigned images   = 0;
-    unsigned current  = 0;
+    uint32_t images   = 0;
+    uint32_t current  = 0;
 
     bool isAnimation  = false;
-    unsigned delay    = 0; // frame animation delay
+    uint32_t delay    = 0; // frame animation delay
 
-    std::string exif; // separated by '\n'
+    struct ExifEntry
+    {
+        std::string tag;
+        std::string value;
+    };
+    typedef std::vector<ExifEntry> ExifList;
+    ExifList exifList;
 };

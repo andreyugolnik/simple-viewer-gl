@@ -24,8 +24,14 @@ public:
 
     const char* getName(int delta = 0);
     void removeFromDisk();
-    unsigned getCount() const { return (unsigned)m_files.size(); }
-    unsigned getIndex() const { return m_position; }
+    unsigned getCount() const
+    {
+        return (unsigned)m_files.size();
+    }
+    unsigned getIndex() const
+    {
+        return m_position;
+    }
 
 private:
     void parseDir();
@@ -40,4 +46,3 @@ private:
     unsigned m_position; // current position in list
     std::vector<std::string> m_files;
 };
-

@@ -10,6 +10,7 @@
 #include "progress.h"
 #include "common/helpers.h"
 #include "quad.h"
+#include "types/types.h"
 
 #include <algorithm>
 #include <cmath>
@@ -21,7 +22,7 @@ const float distance = dotSize + 2 * gap;
 void cProgress::init()
 {
     m_back.reset(new cQuad(distance * 2, distance * 2));
-    m_back->SetColor(0, 0, 0, 255);
+    m_back->setColor({ 0, 0, 0, 255 });
 
     for(auto& dot : m_dot)
     {
@@ -61,7 +62,7 @@ void cProgress::render()
                 const float alphaSpeed = 255.0f * 2.0f;
                 alpha = std::max<float>(0.0f, alpha - dt * alphaSpeed);
                 dot.alpha = alpha;
-                dot.dot->SetColor(255, 255, 255, alpha);
+                dot.dot->setColor({ 255, 255, 255, (uint8_t)alpha });
                 const float x = pos_x + (idx[i] % 2) * distance + gap;
                 const float y = pos_y + (idx[i] / 2) * distance + gap;
                 dot.dot->Render(x, y);

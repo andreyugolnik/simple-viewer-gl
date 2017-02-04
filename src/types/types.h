@@ -9,8 +9,5 @@
 
 #pragma once
 
-#include "../types/types.h"
-
-#include <vector>
-
-typedef std::vector<uint8_t> Buffer;
+#include <cstdint>
+#include <cstddef>

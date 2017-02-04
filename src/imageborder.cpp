@@ -13,19 +13,16 @@
 
 cImageBorder::cImageBorder()
 {
-    SetColor(25, 255, 25, 255);
+    setColor({ 25, 255, 25, 255 });
 }
 
 cImageBorder::~cImageBorder()
 {
 }
 
-void cImageBorder::SetColor(int r, int g, int b, int a)
+void cImageBorder::setColor(const cColor& color)
 {
-    m_line.v[0].a = m_line.v[1].a = m_line.v[2].a = m_line.v[3].a = a;
-    m_line.v[0].r = m_line.v[1].r = m_line.v[2].r = m_line.v[3].r = r;
-    m_line.v[0].g = m_line.v[1].g = m_line.v[2].g = m_line.v[3].g = g;
-    m_line.v[0].b = m_line.v[1].b = m_line.v[2].b = m_line.v[3].b = b;
+    m_line.v[0].color = m_line.v[1].color = m_line.v[2].color = m_line.v[3].color = color;
 }
 
 void cImageBorder::Render(float x, float y, float w, float h, float scale)

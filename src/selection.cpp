@@ -8,7 +8,7 @@
 \**********************************************/
 
 #include "selection.h"
-#include "math/vector.h"
+#include "types/vector.h"
 #include "quad.h"
 
 #include <algorithm>
@@ -21,27 +21,27 @@ namespace
     const float delta = 20.0f;
     const float delta2 = delta * 0.5f;
 
-    const unsigned m_cellSize = 8;
-    const unsigned m_texSize = m_cellSize * 2;
+    const uint32_t m_cellSize = 8;
+    const uint32_t m_texSize = m_cellSize * 2;
 
 }
 
 void cSelection::Init()
 {
-    std::vector<unsigned char> buffer(m_texSize * m_texSize);
+    std::vector<uint8_t> buffer(m_texSize * m_texSize);
     auto p = buffer.data();
 
-    unsigned idx = 0;
-    const unsigned char colors[2] = { 0x20, 0xff };
+    uint32_t idx = 0;
+    const uint8_t colors[2] = { 0x20, 0xff };
 
-    for (unsigned y = 0; y < m_texSize; y++)
+    for (uint32_t y = 0; y < m_texSize; y++)
     {
         if (y % m_cellSize == 0)
         {
             idx = (idx + 1) % 2;
         }
 
-        for (unsigned x = 0; x < m_texSize; x++)
+        for (uint32_t x = 0; x < m_texSize; x++)
         {
             if (x % m_cellSize == 0)
             {
@@ -89,15 +89,15 @@ void cSelection::MouseButton(float x, float y, bool pressed)
         m_mouseX = x;
         m_mouseY = y;
 
-        if (m_mode == MODE_NONE)
+        if (m_mode == eMouseMode::None)
         {
             if (inside)
             {
-                m_mode = (m_corner == CORNER_CR ? MODE_MOVE : MODE_RESIZE);
+                m_mode = (m_corner == (uint32_t)eCorner::CR ? eMouseMode::Move : eMouseMode::Resize);
             }
             else
             {
-                m_mode = MODE_SELECT;
+                m_mode = eMouseMode::Select;
                 clampPoint(x, y);
                 m_rc.SetLeftTop(x, y);
                 m_rc.Clear();
@@ -108,14 +108,14 @@ void cSelection::MouseButton(float x, float y, bool pressed)
         }
         else if (inside == false)
         {
-            m_mode = MODE_NONE;
+            m_mode = eMouseMode::None;
             m_rc.Clear();
             m_rc_test.Clear();
         }
     }
     else
     {
-        m_mode = MODE_NONE;
+        m_mode = eMouseMode::None;
         setScale(m_scale);
     }
 }
@@ -124,40 +124,40 @@ void cSelection::MouseMove(float x, float y)
 {
     updateCorner(x, y);
 
-    if (m_mode != MODE_NONE)
+    if (m_mode != eMouseMode::None)
     {
         float dx = x - m_mouseX;
         float dy = y - m_mouseY;
 
         switch (m_mode)
         {
-        case MODE_NONE:   // do nothing here
+        case eMouseMode::None:   // do nothing here
             break;
 
-        case MODE_SELECT:
+        case eMouseMode::Select:
             clampPoint(x, y);
             m_rc.SetRightBottom(x, y);
             break;
 
-        case MODE_MOVE:
+        case eMouseMode::Move:
             clampShiftDelta(dx, dy);
             m_rc.ShiftRect(dx, dy);
             break;
 
-        case MODE_RESIZE:
-            if ((m_corner & CORNER_UP))
+        case eMouseMode::Resize:
+            if ((m_corner & (uint32_t)eCorner::UP))
             {
                 m_rc.y1 += dy;
             }
-            if ((m_corner & CORNER_RT))
+            if ((m_corner & (uint32_t)eCorner::RT))
             {
                 m_rc.x2 += dx;
             }
-            if ((m_corner & CORNER_DN))
+            if ((m_corner & (uint32_t)eCorner::DN))
             {
                 m_rc.y2 += dy;
             }
-            if ((m_corner & CORNER_LT))
+            if ((m_corner & (uint32_t)eCorner::LT))
             {
                 m_rc.x1 += dx;
             }
@@ -208,16 +208,16 @@ void cSelection::Render(float dx, float dy)
         const float w = rc.GetWidth();
         const float h = rc.GetHeight();
         // top line
-        setColor(m_corner & CORNER_UP);
+        setColor(m_corner & (uint32_t)eCorner::UP);
         renderHorizontal(x - d, y - d, w + 2.0f * d, d);
         // bottom line
-        setColor(m_corner & CORNER_DN);
+        setColor(m_corner & (uint32_t)eCorner::DN);
         renderHorizontal(x - d, y + h + d, w + 2.0f * d, d);
         // left line
-        setColor(m_corner & CORNER_LT);
+        setColor(m_corner & (uint32_t)eCorner::LT);
         renderVertical(x - d, y, h, d);
         // right line
-        setColor(m_corner & CORNER_RT);
+        setColor(m_corner & (uint32_t)eCorner::RT);
         renderVertical(x + w + d, y, h, d);
     }
 }
@@ -241,7 +241,7 @@ int cSelection::GetCursor() const
 
 void cSelection::updateCorner(float x, float y)
 {
-    if (m_mode != MODE_NONE)
+    if (m_mode != eMouseMode::None)
     {
         return;
     }
@@ -254,35 +254,35 @@ void cSelection::updateCorner(float x, float y)
         CRect<float> rcLt(rc.x1, rc.y1, rc.x1 + d, rc.y2);
         if (rcLt.TestPoint(x, y))
         {
-            m_corner |= CORNER_LT;
+            m_corner |= (uint32_t)eCorner::LT;
         }
 
         CRect<float> rcRt(rc.x2 - d, rc.y1, rc.x2, rc.y2);
         if (rcRt.TestPoint(x, y))
         {
-            m_corner |= CORNER_RT;
+            m_corner |= (uint32_t)eCorner::RT;
         }
 
         CRect<float> rcUp(rc.x1, rc.y1, rc.x2, rc.y1 + d);
         if (rcUp.TestPoint(x, y))
         {
-            m_corner |= CORNER_UP;
+            m_corner |= (uint32_t)eCorner::UP;
         }
 
         CRect<float> rcDn(rc.x1, rc.y2 - d, rc.x2, rc.y2);
         if (rcDn.TestPoint(x, y))
         {
-            m_corner |= CORNER_DN;
+            m_corner |= (uint32_t)eCorner::DN;
         }
 
         if (!m_corner)
         {
-            m_corner = CORNER_CR;
+            m_corner = (uint32_t)eCorner::CR;
         }
     }
     else
     {
-        m_corner = CORNER_NONE;
+        m_corner = (uint32_t)eCorner::None;
     }
 }
 
@@ -320,10 +320,10 @@ void cSelection::setColor(bool selected)
 {
     if (selected == false)
     {
-        m_selection->SetColor(255, 255, 255, 255);
+        m_selection->setColor({ 255, 255, 255, 255 });
     }
     else
     {
-        m_selection->SetColor(0, 255, 0, 255);
+        m_selection->setColor({ 0, 255, 0, 255 });
     }
 }

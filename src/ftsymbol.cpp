@@ -33,7 +33,7 @@ cFTSymbol::~cFTSymbol()
 {
 }
 
-void cFTSymbol::Render(int x, int y)
+void cFTSymbol::render(int x, int y)
 {
     m_quad.v[0].x = x;
     m_quad.v[0].y = y;

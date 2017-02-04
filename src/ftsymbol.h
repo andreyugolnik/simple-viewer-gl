@@ -17,7 +17,7 @@ public:
     cFTSymbol(const sQuad& quad, int tw, int th, float tx, float ty, int w, int h);
     ~cFTSymbol();
 
-    void Render(int x, int y);
+    void render(int x, int y);
 
 private:
     sQuad m_quad;

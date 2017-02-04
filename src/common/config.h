@@ -9,10 +9,7 @@
 
 #pragma once
 
-struct sColor
-{
-    float r, g, b;
-};
+#include "../types/color.h"
 
 struct sConfig
 {
@@ -30,9 +27,9 @@ struct sConfig
     bool wheelZoom = false;
     bool keepScale = false;
 
-    unsigned mipmapTextureSize = 4096;
+    uint32_t mipmapTextureSize = 4096;
 
-    sColor color{ 0.0f, 0.0f, 1.0f };
+    cColor bgColor{ 0, 0, 255, 255 };
 };
 
 class cConfig final

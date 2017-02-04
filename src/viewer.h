@@ -11,7 +11,7 @@
 
 #include "common/callbacks.h"
 #include "common/scale.h"
-#include "math/vector.h"
+#include "types/vector.h"
 
 #include <vector>
 #include <memory>

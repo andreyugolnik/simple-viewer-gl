@@ -17,7 +17,7 @@ public:
     cImageBorder();
     ~cImageBorder();
 
-    void SetColor(int r, int g, int b, int a);
+    void setColor(const cColor& color);
     void Render(float x, float y, float w, float h, float scale);
     float GetBorderWidth() const;
 

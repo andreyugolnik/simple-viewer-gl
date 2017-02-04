@@ -10,6 +10,8 @@
 #pragma once
 
 #include "quad.h"
+#include "types/color.h"
+
 #include <memory>
 
 class cCheckerboard final
@@ -18,17 +20,12 @@ public:
     void init();
 
     void render(bool checkboardEanbled);
-    void setColor(float r, float g, float b)
+    void setColor(const cColor& color)
     {
-        m_r = r;
-        m_g = g;
-        m_b = b;
+        m_color = color;
     }
 
 private:
-    GLfloat m_r = 0.0f;
-    GLfloat m_g = 0.0f;
-    GLfloat m_b = 1.0f;
+    cColor m_color = { 0, 0, 255, 255 };
     std::unique_ptr<cQuad> m_cb;
 };
-

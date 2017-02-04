@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include <cstdint>
+#include "../types/types.h"
 
 class cFileInterface
 {

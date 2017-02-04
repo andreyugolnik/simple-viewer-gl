@@ -15,11 +15,10 @@
 namespace
 {
 
-    const int BORDER = 4;
-    const int ALPHA = 200;
+    const int Border = 4;
+    const int AlphaColor = 200;
     const int DesiredFontSize = 13;
     const int FRAME_DELTA = 10;
-    const int LINES_COUNT[2] = { 2, 4 };
 
 }
 
@@ -28,7 +27,7 @@ void cPixelInfo::Init()
     m_pixelInfo.reset();
 
     m_bg.reset(new cQuad(0, 0));
-    m_bg->SetColor(0, 0, 0, ALPHA);
+    m_bg->setColor({ 0, 0, 0, AlphaColor });
 
     const int format = imgPointerCross.bytes_per_pixel == 3 ? GL_RGB : GL_RGBA;
     m_pointer.reset(new cQuadSeries(imgPointerCross.width, imgPointerCross.height, imgPointerCross.pixel_data, format));
@@ -50,12 +49,18 @@ void cPixelInfo::setRatio(float ratio)
 void cPixelInfo::createFont()
 {
     m_ft.reset(new cFTString(DesiredFontSize * m_ratio));
-    m_ft->SetColor(255, 255, 255, ALPHA);
+    m_ft->setColor({ 255, 255, 255, AlphaColor });
 }
 
 void cPixelInfo::setPixelInfo(const sPixelInfo& pi)
 {
     m_pixelInfo = pi;
+
+    char buffer[100];
+    std::vector<std::string> info;
+
+    ::snprintf(buffer, sizeof(buffer), "pos: %d x %d", (int)pi.point.x, (int)pi.point.y);
+    info.push_back(buffer);
 
     char color[20] = { 0 };
 
@@ -75,7 +80,11 @@ void cPixelInfo::setPixelInfo(const sPixelInfo& pi)
                  , pi.r);
     }
 
-    static char info[200];
+    if (color[0])
+    {
+        info.push_back(color);
+    }
+
     if (pi.rc.IsSet())
     {
         const int x = pi.rc.x1;
@@ -83,26 +92,26 @@ void cPixelInfo::setPixelInfo(const sPixelInfo& pi)
         const int w = pi.rc.GetWidth();
         const int h = pi.rc.GetHeight();
 
-        ::snprintf(info, sizeof(info),
-                 "pos: %d x %d\n" \
-                 "%s" \
-                 "size: %d x %d\n" \
-                 "rect: %d, %d -> %d, %d"
-                 , (int)pi.point.x, (int)pi.point.y
-                 , color
-                 , w + 1, h + 1
-                 , x, y, x + w, y + h);
-    }
-    else
-    {
-        ::snprintf(info, sizeof(info),
-                 "pos: %d x %d\n" \
-                 "%s"
-                 , (int)pi.point.x, (int)pi.point.y
-                 , color);
+        ::snprintf(buffer, sizeof(buffer), "size: %d x %d", w + 1, h + 1);
+        info.push_back(buffer);
+
+        ::snprintf(buffer, sizeof(buffer), "rect: %d, %d -> %d, %d", x, y, x + w, y + h);
+        info.push_back(buffer);
     }
 
-    m_ft->Update(info);
+    float width = 0;
+    m_text.clear();
+
+    for (auto& s : info)
+    {
+        width = std::max<float>(width, m_ft->getStringWidth(s.c_str()));
+        m_text += s;
+        m_text += "\n";
+    }
+
+    width += 2 * Border * m_ratio;
+    const float height = (DesiredFontSize * info.size() + 2 * Border) * m_ratio;
+    m_bg->SetSpriteSize(width, height);
 }
 
 void cPixelInfo::Render()
@@ -111,17 +120,13 @@ void cPixelInfo::Render()
 
     if (isInsideImage(m_pixelInfo.point))
     {
-        const int frameWidth = m_ft->GetStringWidth() + 2 * BORDER * m_ratio;
-        const int frameHeight = (DesiredFontSize * LINES_COUNT[m_pixelInfo.rc.IsSet()] + 2 * BORDER) * m_ratio;
-
         const auto& viewport = cRenderer::getViewportSize();
-        const int x = std::min<int>(m_pixelInfo.mouse.x + FRAME_DELTA * m_ratio, viewport.x - frameWidth);
-        const int y = std::min<int>(m_pixelInfo.mouse.y + FRAME_DELTA * m_ratio, viewport.y - frameHeight);
+        const int x = std::min<int>(m_pixelInfo.mouse.x + FRAME_DELTA * m_ratio, viewport.x - m_bg->GetWidth());
+        const int y = std::min<int>(m_pixelInfo.mouse.y + FRAME_DELTA * m_ratio, viewport.y - m_bg->GetHeight());
 
-        m_bg->SetSpriteSize(frameWidth, frameHeight);
         m_bg->Render(x, y);
 
-        m_ft->Render(x + BORDER * m_ratio, y + DesiredFontSize * m_ratio);
+        m_ft->draw(x + Border * m_ratio, y + DesiredFontSize * m_ratio, m_text.c_str());
     }
 }
 

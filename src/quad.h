@@ -18,7 +18,7 @@ public:
     virtual ~cQuad();
 
     virtual void setData(const unsigned char* data);
-    virtual void SetColor(int r, int g, int b, int a);
+    virtual void setColor(const cColor& color);
     virtual void SetTextureRect(float x, float y, float w, float h);
     virtual void SetSpriteSize(float w, float h);
     virtual void Render(float x, float y);

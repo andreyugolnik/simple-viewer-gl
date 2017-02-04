@@ -9,7 +9,8 @@
 
 #pragma once
 
-#include "math/vector.h"
+#include "types/color.h"
+#include "types/vector.h"
 
 #include <GLFW/glfw3.h>
 
@@ -17,10 +18,7 @@ struct sVertex
 {
     GLfloat x, y;
     GLfloat tx, ty;
-    GLubyte r = 255;
-    GLubyte g = 255;
-    GLubyte b = 255;
-    GLubyte a = 255;
+    cColor color;
 };
 
 struct sLine
@@ -45,13 +43,13 @@ public:
     static bool isMipmapEnabled();
 
     static GLuint createTexture();
-    static void setData(GLuint tex, const unsigned char* data, unsigned w, unsigned h, GLenum format);
+    static void setData(GLuint tex, const uint8_t* data, uint32_t w, uint32_t h, GLenum format);
     static void deleteTexture(GLuint tex);
     static void bindTexture(GLuint tex);
 
-    static unsigned calculateTextureSize(unsigned size);
-    static void setColor(sLine* line, int r, int g, int b, int a);
-    static void setColor(sQuad* quad, int r, int g, int b, int a);
+    static uint32_t calculateTextureSize(uint32_t size);
+    static void setColor(sLine* line, const cColor& color);
+    static void setColor(sQuad* quad, const cColor& color);
 
     static void render(const sLine& quad);
     static void render(const sQuad& quad);
@@ -63,4 +61,3 @@ public:
 
     static bool checkError(const char* msg);
 };
-

@@ -11,9 +11,9 @@
 #include "../common/bitmap_description.h"
 #include "../common/file.h"
 #include "../common/helpers.h"
+#include "../types/types.h"
 
 #include <cstring>
-#include <cstdint>
 
 cFormatScr::cFormatScr(const char* lib, iCallbacks* callbacks)
     : cFormat(lib, callbacks)

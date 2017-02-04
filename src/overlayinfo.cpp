@@ -15,7 +15,7 @@ namespace
 {
 
     const int Border = 4.0f;
-    const int ALPHA = 200;
+    const int AlphaColor = 200;
     const int DesiredFontSize = 13;
 
 }
@@ -23,7 +23,7 @@ namespace
 void cOverlayInfo::init()
 {
     m_bg.reset(new cQuad(0, 0));
-    m_bg->SetColor(0, 0, 0, ALPHA);
+    m_bg->setColor({ 0, 0, 0, AlphaColor });
 
     createFont();
 }
@@ -40,36 +40,44 @@ void cOverlayInfo::setRatio(float ratio)
 void cOverlayInfo::createFont()
 {
     m_ft.reset(new cFTString(DesiredFontSize * m_ratio));
-    m_ft->SetColor(255, 255, 255, ALPHA);
+    m_ft->setColor({ 255, 255, 255, AlphaColor });
 }
 
-void cOverlayInfo::setData(const char* data)
+void cOverlayInfo::setExifList(const sBitmapDescription::ExifList& exifList)
 {
-    m_rows = 0;
-    for (auto p = data; *p != 0; p++)
-    {
-        if (*p == '\n')
-        {
-            m_rows++;
-        }
-    }
+    m_exif.clear();
 
-    m_ft->Update(data);
+    auto rows = exifList.size();
+    if (rows != 0)
+    {
+        float width = 0.0f;
+        for (const auto& e : exifList)
+        {
+            std::string tag;
+
+            tag += e.tag;
+            tag += ": ";
+            tag += e.value;
+            width = std::max<float>(width, m_ft->getStringWidth(tag.c_str()));
+
+            m_exif += tag;
+            m_exif += "\n";
+        }
+
+        width += 2.0f * Border * m_ratio;
+        const float height = (DesiredFontSize * rows + 2.0f * Border) * m_ratio;
+        m_bg->SetSpriteSize(width, height);
+    }
 }
 
 void cOverlayInfo::render()
 {
-    if (m_rows)
+    if (m_exif.empty() == false)
     {
-        const float frameWidth = m_ft->GetStringWidth() + 2.0f * Border * m_ratio;
-        const float frameHeight = (DesiredFontSize * m_rows + 2.0f * Border) * m_ratio;
-
         const float x = 5.0f;
         const float y = 5.0f;
 
-        m_bg->SetSpriteSize(frameWidth, frameHeight);
         m_bg->Render(x, y);
-
-        m_ft->Render(x + Border * m_ratio, y + DesiredFontSize * m_ratio);
+        m_ft->draw(x + Border * m_ratio, y + DesiredFontSize * m_ratio, m_exif.c_str());
     }
 }

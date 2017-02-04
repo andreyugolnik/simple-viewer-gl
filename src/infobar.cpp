@@ -41,7 +41,7 @@ cInfoBar::cInfoBar(const sConfig* config)
 void cInfoBar::init()
 {
     m_bg.reset(new cQuad(0, 0));
-    m_bg->SetColor(0, 0, 25, 240);
+    m_bg->setColor({ 0, 0, 25, 240 });
 
     createFont();
 }
@@ -58,12 +58,12 @@ void cInfoBar::setRatio(float ratio)
 void cInfoBar::createFont()
 {
     m_ft.reset(new cFTString(DesiredFontSize * m_ratio));
-    m_ft->SetColor(255, 255, 127, 255);
+    m_ft->setColor({ 255, 255, 127, 255 });
 
     if (m_config->debug)
     {
         m_fps.reset(new cFTString(DesiredFontSize * m_ratio));
-        m_fps->SetColor(0, 0, 0, 255);
+        m_fps->setColor({ 0, 0, 0, 255 });
     }
 }
 
@@ -83,7 +83,7 @@ void cInfoBar::render()
     m_bg->SetSpriteSize(width, DesiredHeight * m_ratio);
     m_bg->Render(x, y - DesiredHeight * m_ratio);
 
-    m_ft->Render(x, y - (DesiredHeight - DesiredFontSize) * m_ratio);
+    m_ft->draw(x, y - (DesiredHeight - DesiredFontSize) * m_ratio, m_bottominfo.c_str());
 
     if (m_fps.get() != nullptr)
     {
@@ -103,8 +103,7 @@ void cInfoBar::render()
 
         char buffer[20];
         ::snprintf(buffer, sizeof(buffer), "%.1f", fps);
-        m_fps->Update(buffer);
-        m_fps->Render(20, 20);
+        m_fps->draw(20, 20, buffer);
     }
 }
 
@@ -144,7 +143,7 @@ void cInfoBar::setInfo(const sInfo& p)
 
     glfwSetWindowTitle(cRenderer::getWindow(), name);
 
-    m_ft->Update(m_bottominfo.c_str());
+    // m_ft->setText(m_bottominfo.c_str());
 }
 
 const char* cInfoBar::getHumanSize(float& size)

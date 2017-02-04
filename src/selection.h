@@ -9,7 +9,8 @@
 
 #pragma once
 
-#include "math/rect.h"
+#include "types/rect.h"
+#include "types/types.h"
 
 #include <memory>
 
@@ -44,25 +45,25 @@ private:
     float m_mouseY = 0.0f;
     float m_scale = 1.0f;
 
-    enum eMouseMode
+    enum class eMouseMode
     {
-        MODE_NONE,
-        MODE_SELECT,
-        MODE_MOVE,
-        MODE_RESIZE
+        None,
+        Select,
+        Move,
+        Resize
     };
-    eMouseMode m_mode = eMouseMode::MODE_NONE;
+    eMouseMode m_mode = eMouseMode::None;
 
-    enum eCorner
+    enum class eCorner : uint32_t
     {
-        CORNER_NONE = 0,
-        CORNER_UP   = 1 << 0,
-        CORNER_RT   = 1 << 1,
-        CORNER_DN   = 1 << 2,
-        CORNER_LT   = 1 << 3,
-        CORNER_CR   = 1 << 4,
+        None = 0,
+        UP   = 1 << 0,
+        RT   = 1 << 1,
+        DN   = 1 << 2,
+        LT   = 1 << 3,
+        CR   = 1 << 4,
     };
-    unsigned m_corner = eCorner::CORNER_NONE;
+    uint32_t m_corner = (uint32_t)eCorner::None;
 
     std::unique_ptr<cQuad> m_selection;
     CRect<float> m_rc;

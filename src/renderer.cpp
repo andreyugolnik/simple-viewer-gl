@@ -9,7 +9,7 @@
 
 #include "renderer.h"
 #include "common/helpers.h"
-#include "math/vector.h"
+#include "types/vector.h"
 
 #include <algorithm>
 #include <cmath>
@@ -20,11 +20,11 @@ namespace
 
     GLFWwindow* Window = nullptr;
     cVector<float> ViewportSize;
-    unsigned CurrentTextureId = 0;
+    uint32_t CurrentTextureId = 0;
     sVertex Vb[4];
-    unsigned short Ib[6] = { 0, 1, 2, 0, 2, 3 };
+    uint16_t Ib[6] = { 0, 1, 2, 0, 2, 3 };
     bool Npot = false;
-    unsigned MaxTextureSize = 1024;
+    uint32_t MaxTextureSize = 1024;
     bool IsMipmapEnabled = false;
 
 }
@@ -36,7 +36,7 @@ void cRenderer::setWindow(GLFWwindow* window)
 
     int texture_max_size = (int)MaxTextureSize;
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &texture_max_size);
-    MaxTextureSize = std::min<unsigned>(MaxTextureSize, texture_max_size);
+    MaxTextureSize = std::min<uint32_t>(MaxTextureSize, texture_max_size);
     //printf("Max texture size: %d x %d.\n", MaxTextureSize, MaxTextureSize);
 
     Npot = glfwExtensionSupported("GL_ARB_texture_non_power_of_two");
@@ -57,7 +57,7 @@ void cRenderer::setWindow(GLFWwindow* window)
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
     glVertexPointer(2, GL_FLOAT, sizeof(sVertex), &Vb->x);
-    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(sVertex), &Vb->r);
+    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(sVertex), &Vb->color);
     glTexCoordPointer(2, GL_FLOAT, sizeof(sVertex), &Vb->tx);
 }
 
@@ -76,7 +76,7 @@ bool cRenderer::isMipmapEnabled()
     return IsMipmapEnabled;
 }
 
-void cRenderer::setData(GLuint tex, const unsigned char* data, unsigned w, unsigned h, GLenum format)
+void cRenderer::setData(GLuint tex, const uint8_t* data, uint32_t w, uint32_t h, GLenum format)
 {
     bindTexture(tex);
 
@@ -178,30 +178,24 @@ void cRenderer::bindTexture(GLuint tex)
     }
 }
 
-unsigned cRenderer::calculateTextureSize(unsigned size)
+uint32_t cRenderer::calculateTextureSize(uint32_t size)
 {
-    return std::min<unsigned>(MaxTextureSize, Npot ? size : helpers::nextPot(size));
+    return std::min<uint32_t>(MaxTextureSize, Npot ? size : helpers::nextPot(size));
 }
 
-void cRenderer::setColor(sLine* line, int r, int g, int b, int a)
+void cRenderer::setColor(sLine* line, const cColor& color)
 {
-    for (unsigned i = 0; i < 2; i++)
+    for (uint32_t i = 0; i < 2; i++)
     {
-        line->v[i].r = r;
-        line->v[i].g = g;
-        line->v[i].b = b;
-        line->v[i].a = a;
+        line->v[i].color = color;
     }
 }
 
-void cRenderer::setColor(sQuad* quad, int r, int g, int b, int a)
+void cRenderer::setColor(sQuad* quad, const cColor& color)
 {
-    for (unsigned i = 0; i < 4; i++)
+    for (uint32_t i = 0; i < 4; i++)
     {
-        quad->v[i].r = r;
-        quad->v[i].g = g;
-        quad->v[i].b = b;
-        quad->v[i].a = a;
+        quad->v[i].color = color;
     }
 }
 

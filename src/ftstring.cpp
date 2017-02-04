@@ -8,9 +8,15 @@
 \**********************************************/
 
 #include "ftstring.h"
+#include "common/unicode.h"
 #include "DroidSans.hpp"
 
 #include <vector>
+
+namespace
+{
+    uint32_t LinefeedCodepoint = 0;
+}
 
 cFTString::cFTString(int size)
     : m_height(size)
@@ -23,7 +29,11 @@ cFTString::cFTString(int size)
         ::printf("(EE) Error initiation FreeType2.\n");
     }
 
-    SetColor(255, 255, 255, 255);
+    setColor({ 255, 255, 255, 255 });
+
+    uint32_t state = 0;
+    const char* linefeed = "\n";
+    decode(&state, &LinefeedCodepoint, *linefeed);
 }
 
 cFTString::~cFTString()
@@ -36,113 +46,187 @@ cFTString::~cFTString()
     }
 }
 
-void cFTString::SetColor(int r, int g, int b, int a)
+void cFTString::setColor(const cColor& color)
 {
-    cRenderer::setColor(&m_quad, r, g, b, a);
+    cRenderer::setColor(&m_quad, color);
 }
 
-void cFTString::Update(const char* utf8)
-{
-    const auto size = ::mbstowcs(nullptr, utf8, 0) + 1;
-    if (size > m_unicode.size())
-    {
-        m_unicode.resize(size);
-    }
-    ::mbstowcs(m_unicode.data(), utf8, size);
-}
+// void cFTString::setText(const char* utf8)
+// {
+    // const auto size = ::mbstowcs(nullptr, utf8, 0) + 1;
+    // if (size > m_unicode.size())
+    // {
+        // m_unicode.resize(size);
+    // }
+    // ::mbstowcs(m_unicode.data(), utf8, size);
+// }
 
-void cFTString::Render(int x, int y)
-{
-    auto string = m_unicode.data();
-    if (string != nullptr)
-    {
-        int xStart = x;
+// void cFTString::render(int x, int y)
+// {
+    // auto string = m_unicode.data();
+    // if (string != nullptr)
+    // {
+        // int xStart = x;
 
-        while (*string)
+        // while (*string)
+        // {
+            // const auto i = *string;
+            // if (i == L'\n')
+            // {
+                // x = xStart;
+                // y += m_height;
+            // }
+            // else
+            // {
+                // const auto& it = m_mapSymbol.find(i);
+                // if (it == m_mapSymbol.end())
+                // {
+                    // generateNewSymbol(string);
+                    // continue;
+                // }
+                // if (it->second.p != nullptr)
+                // {
+                    // it->second.p->render(x + it->second.l, y - it->second.t);
+                    // x += it->second.ax;
+                // }
+            // }
+
+            // string++;
+        // }
+    // }
+// }
+
+void cFTString::draw(int x, int y, const char* utf8)
+{
+    auto xStart = x;
+
+    uint32_t codepoint;
+    uint32_t state = 0;
+
+    for (; *utf8 != 0; )
+    {
+        if (decode(&state, &codepoint, *utf8) == UTF8_ACCEPT)
         {
-            const auto i = *string;
-            if (i == L'\n')
+            if (codepoint == LinefeedCodepoint)
             {
                 x = xStart;
                 y += m_height;
             }
             else
             {
-                const auto& it = m_mapSymbol.find(i);
+                const auto& it = m_mapSymbol.find(codepoint);
                 if (it == m_mapSymbol.end())
                 {
-                    generateNewSymbol(string);
+                    generateNewSymbol(utf8);
                     continue;
                 }
                 if (it->second.p != nullptr)
                 {
-                    it->second.p->Render(x + it->second.l, y - it->second.t);
+                    it->second.p->render(x + it->second.l, y - it->second.t);
                     x += it->second.ax;
                 }
             }
-
-            string++;
         }
+
+        utf8++;
     }
 }
 
-unsigned cFTString::GetStringWidth()
+// uint32_t cFTString::getStringWidth()
+// {
+    // uint32_t widthMax = 0;
+    // auto string = m_unicode.data();
+    // if (string != nullptr)
+    // {
+        // uint32_t width = 0;
+        // while (*string)
+        // {
+            // const auto i = *string;
+            // if (i == L'\n')
+            // {
+                // width = 0;
+            // }
+            // else
+            // {
+                // const auto& it = m_mapSymbol.find(i);
+                // if (it == m_mapSymbol.end())
+                // {
+                    // generateNewSymbol(string);
+                    // continue;
+                // }
+                // if (it->second.p != nullptr)
+                // {
+                    // width += it->second.ax;
+                    // widthMax = std::max<uint32_t>(widthMax, width);
+                // }
+            // }
+
+            // string++;
+        // }
+    // }
+
+    // return widthMax;
+// }
+
+uint32_t cFTString::getStringWidth(const char* utf8)
 {
-    unsigned widthMax = 0;
-    auto string = m_unicode.data();
-    if (string != nullptr)
+    uint32_t codepoint;
+    uint32_t state = 0;
+
+    uint32_t width = 0;
+    for (; *utf8 != 0; )
     {
-        unsigned width = 0;
-        while (*string)
+        if (decode(&state, &codepoint, *utf8) == UTF8_ACCEPT)
         {
-            const auto i = *string;
-            if (i == L'\n')
+            if (codepoint == LinefeedCodepoint)
             {
-                width = 0;
-            }
-            else
-            {
-                const auto& it = m_mapSymbol.find(i);
-                if (it == m_mapSymbol.end())
-                {
-                    generateNewSymbol(string);
-                    continue;
-                }
-                if (it->second.p != nullptr)
-                {
-                    width += it->second.ax;
-                    widthMax = std::max<unsigned>(widthMax, width);
-                }
+                break;
             }
 
-            string++;
+            const auto& it = m_mapSymbol.find(codepoint);
+            if (it == m_mapSymbol.end())
+            {
+                generateNewSymbol(utf8);
+                continue;
+            }
+            if (it->second.p != nullptr)
+            {
+                width += it->second.ax;
+            }
         }
+
+        utf8++;
     }
 
-    return widthMax;
+    return width;
 }
 
-void cFTString::generateNewSymbol(const wchar_t* string)
+void cFTString::generateNewSymbol(const char* utf8)
 {
     if (m_ft != nullptr)
     {
-        m_symbols.reserve(m_symbols.size() + ::wcslen(string));
-        for (; *string != 0; string++)
-        {
-            bool dup = false;
-            const auto symbol = *string;
-            for (size_t i = 0, size = m_symbols.size(); i < size; i++)
-            {
-                if (m_symbols[i] == symbol)
-                {
-                    dup = true;
-                    break;
-                }
-            }
+        uint32_t codepoint;
+        uint32_t state = 0;
 
-            if (dup == false)
+        m_symbols.reserve(m_symbols.size() + ::strlen(utf8));
+        for (; *utf8 != 0; utf8++)
+        {
+            if (decode(&state, &codepoint, *utf8) == UTF8_ACCEPT)
             {
-                m_symbols.push_back(symbol);
+                bool dup = false;
+                for (size_t i = 0, size = m_symbols.size(); i < size; i++)
+                {
+                    if (m_symbols[i] == codepoint)
+                    {
+                        dup = true;
+                        break;
+                    }
+                }
+
+                if (dup == false)
+                {
+                    m_symbols.push_back(codepoint);
+                }
             }
         }
 
@@ -179,10 +263,10 @@ void cFTString::generate()
         if (err == 0)
         {
             FT_Bitmap bmp = slot->bitmap;
-            const unsigned size = bmp.pitch * bmp.rows;
+            const uint32_t size = bmp.pitch * bmp.rows;
 
             //str.p = 0;
-            str.bmp = new unsigned char[size];
+            str.bmp = new uint8_t[size];
             str.w = bmp.width;
             str.h = bmp.rows;
             str.pitch = bmp.pitch;
@@ -209,7 +293,7 @@ void cFTString::generate()
     }
     // ::printf("(II) Font texture size: %u x %u\n", m_texWidth, m_texHeight);
 
-    std::vector<unsigned char> buffer(m_texWidth * m_texHeight);
+    std::vector<uint8_t> buffer(m_texWidth * m_texHeight);
     ::memset(buffer.data(), 0, buffer.size());
 
     // regenerate texture
@@ -223,12 +307,12 @@ void cFTString::generate()
         const auto in = it.second.bmp;
         if (in != nullptr)
         {
-            for (unsigned y = 0; y < h; y++)
+            for (uint32_t y = 0; y < h; y++)
             {
                 size_t pos = dx + m_texWidth + (dy + y) * m_texWidth;
-                for (unsigned x = 0; x < w; x++)
+                for (uint32_t x = 0; x < w; x++)
                 {
-                    unsigned char pixel = in[x + y * pitch];
+                    uint8_t pixel = in[x + y * pitch];
                     buffer[pos++] = pixel;
                 }
             }
@@ -253,18 +337,18 @@ void cFTString::generate()
 
     FT_Done_Face(face);
 
-    // ::printf("(II) Texture (%u x %u) with %u / %u symbols has been created.\n", m_texWidth, m_texHeight, (unsigned)m_mapSymbol.size(), (unsigned)len);
+    // ::printf("(II) Texture (%u x %u) with %u / %u symbols has been created.\n", m_texWidth, m_texHeight, (uint32_t)m_mapSymbol.size(), (uint32_t)len);
 }
 
 bool cFTString::placeSymbols()
 {
-    unsigned maxRowHeight = 0;
+    uint32_t maxRowHeight = 0;
 
-    unsigned x = 0;
-    unsigned y = 0;
+    uint32_t x = 0;
+    uint32_t y = 0;
     for (auto& it : m_mapSymbol)
     {
-        maxRowHeight = std::max<unsigned>(maxRowHeight, it.second.h);
+        maxRowHeight = std::max<uint32_t>(maxRowHeight, it.second.h);
 
         if (y + maxRowHeight > m_texHeight)
         {

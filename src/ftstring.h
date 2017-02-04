@@ -11,6 +11,7 @@
 
 #include "quad.h"
 #include "ftsymbol.h"
+#include "types/color.h"
 
 #include <map>
 #include <memory>
@@ -26,13 +27,12 @@ public:
     explicit cFTString(int size);
     ~cFTString();
 
-    void SetColor(int r, int g, int b, int a);
-    void Update(const char* utf8);
-    void Render(int x, int y);
-    unsigned GetStringWidth();
+    void setColor(const cColor& color);
+    uint32_t getStringWidth(const char* utf8);
+    void draw(int x, int y, const char* utf8);
 
 private:
-    void generateNewSymbol(const wchar_t* string);
+    void generateNewSymbol(const char* utf8);
     void generate();
     bool placeSymbols();
     void clearSymbols();
@@ -40,19 +40,18 @@ private:
 private:
     int m_height;   // desired font size
     FT_Library m_ft;
-    std::vector<wchar_t> m_symbols; // all symbols placed on texture
-    std::vector<wchar_t> m_unicode;
-    unsigned m_texWidth;
-    unsigned m_texHeight;
+    std::vector<uint32_t> m_symbols; // all symbols placed on texture
+    uint32_t m_texWidth;
+    uint32_t m_texHeight;
     sQuad m_quad;
 
     struct Symbol
     {
         cFTSymbol* p;
-        unsigned char* bmp; // bitmap data
-        unsigned w, h, pitch; // bitmap width, height, pitch
+        uint8_t* bmp; // bitmap data
+        uint32_t w, h, pitch; // bitmap width, height, pitch
         int l, t, ax;
-        unsigned px, py; // texture symbol position
+        uint32_t px, py; // texture symbol position
     };
 
     std::map<wchar_t, Symbol> m_mapSymbol;

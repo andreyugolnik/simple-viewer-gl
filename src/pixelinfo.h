@@ -10,8 +10,8 @@
 #pragma once
 
 #include "ftstring.h"
-#include "math/vector.h"
-#include "math/rect.h"
+#include "types/vector.h"
+#include "types/rect.h"
 #include "quadseries.h"
 
 #include <memory>
@@ -65,6 +65,7 @@ private:
 private:
     float m_ratio = 1.0f;
     sPixelInfo m_pixelInfo;
+    std::string m_text;
     std::unique_ptr<cQuad> m_bg;
     std::unique_ptr<cQuadSeries> m_pointer;
     std::unique_ptr<cFTString> m_ft;

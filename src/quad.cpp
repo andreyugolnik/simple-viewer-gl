@@ -38,9 +38,9 @@ void cQuad::setData(const unsigned char* data)
     cRenderer::setData(m_quad.tex, data, m_tw, m_th, m_format);
 }
 
-void cQuad::SetColor(int r, int g, int b, int a)
+void cQuad::setColor(const cColor& color)
 {
-    cRenderer::setColor(&m_quad, r, g, b, a);
+    cRenderer::setColor(&m_quad, color);
 }
 
 void cQuad::SetTextureRect(float x, float y, float w, float h)
