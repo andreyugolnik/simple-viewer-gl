@@ -13,7 +13,7 @@ pipelines:
           - echo "deb-src http://ppa.launchpad.net/keithw/glfw3/ubuntu trusty main" | tee -a /etc/apt/sources.list.d/fillwave_ext.list
           - apt-key adv --recv-key --keyserver keyserver.ubuntu.com 3EB9326A7BF6DFCD
           - apt-get update
-          - apt-get install -y cmake libfreetype6-dev libimlib2-dev libtiff5-dev libjpeg-dev libgif-dev libpng12-dev liblcms2-dev libwebp-dev
-          - apt-get install -y --force-yes libglfw3-dev
+          - apt-get install -y --no-install-recommends cmake libfreetype6-dev libimlib2-dev libtiff5-dev libjpeg-dev libgif-dev libpng12-dev liblcms2-dev libwebp-dev
+          - apt-get install -y --no-install-recommends --force-yes libglfw3-dev
           - make clean
           - make release
