@@ -57,19 +57,20 @@ $ make release
 
 ##Dependencies##
 
- Name            | Debian package   | Description / Notes
------------------|------------------|---------------------
-**cmake**        | cmake            | *Cross-platform family of tools designed to build, test and package software.*
-**glfw3**        | libglfw3-dev     | *Multi-platform library for creating windows with OpenGL contexts and receiving input and events.*
-**imlib2**       | libimlib2-dev    | *Common formats support.*
-**jpeg**         | libjpeg-dev      | *JPEG format support.*
-**png**          | libpng12-dev     | *PNG format support.*
-**gif**          | libgif-dev       | *GIF format support.*
-**tiff**         | libtiff5-dev     | *TIFF format support.*
-**webp**         | libwebp-dev      | *WebP format support.*
-**freetype2**    | libfreetype6-dev | *TTF/OTF font engine.
-**Little CMS 2** | liblcms2-dev     | *Color management engine supporting ICC profiles.
-**zlib**         | zlib1g-dev       | *Compression support.*
+ Name            | Debian package               | Description / Notes
+-----------------|------------------------------|---------------------
+**cmake**        | cmake                        | *Cross-platform family of tools designed to build, test and package software.*
+**glfw3**        | libglfw3-dev                 | *Multi-platform library for creating windows with OpenGL contexts and receiving input and events.*
+**imlib2**       | libimlib2-dev                | *Common formats support.*
+**jpeg**         | libjpeg-dev                  | *JPEG format support.*
+**png**          | libpng12-dev                 | *PNG format support.*
+**gif**          | libgif-dev                   | *GIF format support.*
+**tiff**         | libtiff5-dev                 | *TIFF format support.*
+**webp**         | libwebp-dev                  | *WebP format support.*
+**freetype2**    | libfreetype6-dev             | *TTF/OTF font engine.
+**Little CMS 2** | liblcms2-dev                 | *Color management engine supporting ICC profiles.
+**zlib**         | zlib1g-dev                   | *Compression support.*
+**X11**          | libxrandr-dev libxcursor-dev | *X11 related libraries (Linux only)*
 
 ***
 ```
