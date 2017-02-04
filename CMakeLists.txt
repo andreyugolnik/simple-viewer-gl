@@ -19,12 +19,6 @@ endif()
 
 set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11" )
 
-# find_package(PkgConfig REQUIRED)
-# pkg_search_module(GLFW3 REQUIRED glfw3)
-
-# message(STATUS ${GLFW3_INCLUDE_DIRS})
-# message(STATUS ${GLFW3_LIBRARIES})
-
 find_package(OpenGL)
 find_package(GLFW)
 find_package(Freetype)
@@ -54,11 +48,11 @@ if(HAVE_RT_LIBRARY)
 endif(HAVE_RT_LIBRARY)
 
 include_directories(
-    ${GLFW_INCLUDE_DIRS}
-    ${FREETYPE_INCLUDE_DIRS}
     ${X11_INCLUDE_DIR}
     ${OPENGL_INCLUDE_DIR}
+    ${GLFW_INCLUDE_DIRS}
     ${ZLIB_INCLUDE_DIRS}
+    ${FREETYPE_INCLUDE_DIRS}
     ${WEBP_INCLUDE_DIRS}
     ${LCMS2_INCLUDE_DIR}
     )
@@ -81,15 +75,15 @@ target_link_libraries( sviewgl
     ${RT_LIBRARY}
     ${DL_LIBRARY}
     ${CMAKE_THREAD_LIBS_INIT}
-    ${FREETYPE_LIBRARY}
     ${GLFW_LIBRARIES}
     ${OPENGL_LIBRARY}
+    ${ZLIB_LIBRARIES}
     ${PNG_LIBRARY}
     ${JPEG_LIBRARY}
     ${TIFF_LIBRARY}
     ${GIF_LIBRARY}
-    ${ZLIB_LIBRARIES}
     ${WEBP_LIBRARIES}
+    ${FREETYPE_LIBRARY}
     ${LCMS2_LIBRARIES}
     )
 
