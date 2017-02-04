@@ -75,6 +75,7 @@ target_link_libraries( sviewgl
     ${RT_LIBRARY}
     ${DL_LIBRARY}
     ${CMAKE_THREAD_LIBS_INIT}
+    ${X11_LIBRARIES}
     ${GLFW_LIBRARIES}
     ${OPENGL_LIBRARY}
     ${ZLIB_LIBRARIES}
