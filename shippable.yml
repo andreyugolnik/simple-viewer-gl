@@ -7,7 +7,7 @@ install:
   - echo "deb http://ppa.launchpad.net/keithw/glfw3/ubuntu trusty main" | sudo tee -a /etc/apt/sources.list.d/fillwave_ext.list
   - echo "deb-src http://ppa.launchpad.net/keithw/glfw3/ubuntu trusty main" | sudo tee -a /etc/apt/sources.list.d/fillwave_ext.list
   - sudo apt-get -qq -y update
-  - sudo apt-get install cmake libxrandr-dev libxcursor-dev libfreetype6-dev libglfw3-dev liblcms2-dev
+  - sudo apt-get install cmake libxrandr-dev libxcursor-dev libfreetype6-dev libglfw3-dev liblcms2-dev libexif-dev
   - sudo apt-get install libimlib2-dev libtiff5-dev libjpeg-dev libgif-dev libpng12-dev libwebp-dev
 
 compiler:
