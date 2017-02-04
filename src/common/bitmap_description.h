@@ -34,7 +34,7 @@ struct sBitmapDescription
         isAnimation = false;
         delay       = 0;
 
-        info.clear();
+        exif.clear();
     }
 
     // buffer related
@@ -55,5 +55,5 @@ struct sBitmapDescription
     bool isAnimation  = false;
     unsigned delay    = 0; // frame animation delay
 
-    std::string info;       // additional info, such as EXIF
+    std::string exif; // separated by '\n'
 };

@@ -33,6 +33,9 @@ find_package(LCMS2)
 find_package(X11)
 find_package(Threads)
 
+find_package(PkgConfig)
+pkg_check_modules(EXIF libexif)
+
 if(IMLIB2_FOUND)
     add_definitions(-DIMLIB2_SUPPORT=1)
 endif()
@@ -55,6 +58,7 @@ include_directories(
     ${FREETYPE_INCLUDE_DIRS}
     ${WEBP_INCLUDE_DIRS}
     ${LCMS2_INCLUDE_DIR}
+    ${EXIF_INCLUDE_DIR}
     )
 
 if(IMLIB2_FOUND)
@@ -86,6 +90,7 @@ target_link_libraries( sviewgl
     ${WEBP_LIBRARIES}
     ${FREETYPE_LIBRARY}
     ${LCMS2_LIBRARIES}
+    ${EXIF_LIBRARIES}
     )
 
 if(IMLIB2_FOUND)

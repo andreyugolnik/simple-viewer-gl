@@ -141,8 +141,6 @@ bool cFormatRaw::LoadImpl(const char* filename, sBitmapDescription& desc)
     desc.pitch = desc.width * bytespp;
     desc.bitmap.resize(desc.pitch * desc.height);
 
-    desc.info = "AGE RAW format";
-
     if (rle)
     {
         std::vector<unsigned char> rle(header.data_size);
@@ -158,10 +156,12 @@ bool cFormatRaw::LoadImpl(const char* filename, sBitmapDescription& desc)
         if (header.format == FORMAT_RGB_RLE4 || header.format == FORMAT_RGBA_RLE4)
         {
             decoded = decoder.decodeBy4((unsigned*)&rle[0], rle.size() / 4, (unsigned*)&desc.bitmap[0], desc.bitmap.size() / 4);
+            m_formatName = "raw/rle32";
         }
         else
         {
             decoded = decoder.decode(&rle[0], rle.size(), &desc.bitmap[0], desc.bitmap.size());
+            m_formatName = "raw/rle";
         }
         if (!decoded)
         {

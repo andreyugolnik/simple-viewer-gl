@@ -115,8 +115,6 @@ bool cFormatAge::LoadImpl(const char* filename, sBitmapDescription& desc)
     desc.pitch = desc.width * bytespp;
     desc.bitmap.resize(desc.pitch * desc.height);
 
-    desc.info = "AGE image format";
-
     if (header.compression != AGE::Compression::NONE)
     {
         std::vector<unsigned char> in(header.data_size);
