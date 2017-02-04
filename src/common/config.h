@@ -20,6 +20,7 @@ struct sConfig
 
     bool hideInfobar = false;
     bool showPixelInfo = false;
+    bool showExif = false;
     bool hideCheckboard = false;
     bool fitImage = false;
     bool showImageBorder = false;

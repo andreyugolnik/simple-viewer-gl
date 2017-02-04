@@ -14,6 +14,7 @@
 #include "imageborder.h"
 #include "imageloader.h"
 #include "infobar.h"
+#include "overlayinfo.h"
 #include "pixelinfo.h"
 #include "progress.h"
 #include "quadimage.h"
@@ -45,6 +46,7 @@ cViewer::cViewer(sConfig* config)
     m_checkerBoard.reset(new cCheckerboard());
     m_infoBar.reset(new cInfoBar(config));
     m_pixelInfo.reset(new cPixelInfo());
+    m_exifInfo.reset(new cOverlayInfo());
     m_progress.reset(new cProgress());
     m_border.reset(new cImageBorder());
     m_selection.reset(new cSelection());
@@ -73,6 +75,7 @@ void cViewer::setWindow(GLFWwindow* window)
     m_checkerBoard->init();
     m_infoBar->init();
     m_pixelInfo->Init();
+    m_exifInfo->init();
     m_progress->init();
     m_selection->Init();
 
@@ -136,6 +139,11 @@ void cViewer::render()
     }
     cRenderer::resetGlobals();
 
+    if (m_config->showExif)
+    {
+        m_exifInfo->render();
+    }
+
     //if(m_showBorder == true)
     //{
     //switch(m_angle)
@@ -188,6 +196,8 @@ void cViewer::update()
             m_camera = cVector<float>(0, 0);
             m_selection->SetImageDimension(desc.width, desc.height);
         }
+
+        m_exifInfo->setData(desc.exif.c_str());
 
         updateInfobar();
         centerWindow();
@@ -243,6 +253,7 @@ void cViewer::fnResize(int width, int height)
     cRenderer::setViewportSize({ (float)frameWidth, (float)frameHeight });
 
     m_pixelInfo->setRatio(m_ratio.y);
+    m_exifInfo->setRatio(m_ratio.y);
     updatePixelInfo(m_lastMouse);
 
     m_infoBar->setRatio(m_ratio.y);
@@ -346,6 +357,10 @@ void cViewer::fnKeyboard(int key, int /*scancode*/, int action, int mods)
         m_config->hideInfobar = !m_config->hideInfobar;
         //calculateScale();
         centerWindow();
+        break;
+
+    case GLFW_KEY_E:
+        m_config->showExif = !m_config->showExif;
         break;
 
     case GLFW_KEY_P:

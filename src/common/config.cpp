@@ -71,6 +71,7 @@ void cConfig::read(sConfig& config) const
 
     config.hideInfobar = getBool(ini.getString(section, "hide_infobar"), false);
     config.showPixelInfo = getBool(ini.getString(section, "show_pixelinfo"), false);
+    config.showExif = getBool(ini.getString(section, "show_exif"), false);
     config.hideCheckboard = getBool(ini.getString(section, "hide_checkboard"), false);
     config.fitImage = getBool(ini.getString(section, "fit_image"), false);
     config.showImageBorder = getBool(ini.getString(section, "show_image_border"), false);

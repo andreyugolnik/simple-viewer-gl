@@ -21,10 +21,11 @@ class cFilesList;
 class cImageBorder;
 class cImageLoader;
 class cInfoBar;
+class cOverlayInfo;
 class cPixelInfo;
 class cProgress;
-class cSelection;
 class cQuadImage;
+class cSelection;
 struct GLFWwindow;
 struct sConfig;
 
@@ -130,6 +131,7 @@ private:
     std::unique_ptr<cImageLoader> m_loader;
     std::unique_ptr<cInfoBar> m_infoBar;
     std::unique_ptr<cPixelInfo> m_pixelInfo;
+    std::unique_ptr<cOverlayInfo> m_exifInfo;
     std::unique_ptr<cCheckerboard> m_checkerBoard;
     std::unique_ptr<cImageBorder> m_border;
     std::unique_ptr<cSelection> m_selection;

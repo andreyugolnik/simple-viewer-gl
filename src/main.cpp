@@ -22,7 +22,7 @@ namespace
 {
 
     const char* SimpleViewerTitle = "Simple Viewer GL";
-    const float SimpleViewerVersion = 2.82;
+    const float SimpleViewerVersion = 2.83;
 
     cViewer* m_viewer = nullptr;
 
@@ -53,6 +53,7 @@ namespace
         printf("  -c             disable chequerboard (default: %s);\n", getValue(!config.hideCheckboard));
         printf("  -i             disable on-screen info (default: %s);\n", getValue(!config.hideInfobar));
         printf("  -p             show pixel info (pixel color and coordinates, default: %s);\n", getValue(config.showPixelInfo));
+        printf("  -e             show exif info (default: %s);\n", getValue(config.showExif));
         printf("  -b             show border around image (default: %s);\n", getValue(config.showImageBorder));
         printf("  -f             start in fullscreen mode;\n");
         printf("  -r             recursive directory scan (default: %s);\n", getValue(config.recursiveScan));
@@ -73,11 +74,12 @@ namespace
         printf("  <pgup>        previous image in multi-page image;\n");
         printf("  <enter>       switch fullscreen / windowed mode;\n");
         printf("  <ctrl>+<del>  delete image from disk;\n");
-        printf("  <s>           fit image to window (quick algorithm);\n");
+        printf("  <s>           fit image to window;\n");
         printf("  <r>           rotate clockwise;\n");
         printf("  <shift>+<r>   rotate counterclockwise;\n");
         printf("  <c>           hide / show chequerboard;\n");
-        printf("  <i>           hide / show on screen info;\n");
+        printf("  <i>           hide / show on-screen info;\n");
+        printf("  <e>           hide / show exif popup;\n");
         printf("  <p>           hide / show pixel info;\n");
         printf("  <b>           hide / show border around image;\n");
         printf("\n");
@@ -189,6 +191,10 @@ int main(int argc, char* argv[])
         else if (strncmp(argv[i], "-p", 2) == 0)
         {
             config.showPixelInfo = true;
+        }
+        else if (strncmp(argv[i], "-e", 2) == 0)
+        {
+            config.showExif = true;
         }
         else if (strncmp(argv[i], "-cw", 3) == 0)
         {

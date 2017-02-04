@@ -18,6 +18,7 @@ Supported formats: `PNG`, `JPEG`, `PSD`, `GIF`, `TIFF`, `TARGA`, `ICO`, `BMP`, `
 * Lightweight and fast: utilize hardware-accelerated video card;
 * Support embeded ICC profiles;
 * GIF animation support;
+* Exif support;
 * Very simple interface;
 * Suitable for default image viewer of desktop;
 * Minimal lib dependency: look library requirements below;
@@ -46,6 +47,7 @@ Supported formats: `PNG`, `JPEG`, `PSD`, `GIF`, `TIFF`, `TARGA`, `ICO`, `BMP`, `
 * `<shift>+<s>`     - toggle 'keep scale' on image load;
 * `<c>`             - hide / show chequerboard;
 * `<i>`             - hide / show on-screen info;
+* `<e>`             - hide / show exif;
 * `<p>`             - hide / show pixel info;
 * `<b>`             - hide / show border around image;
 
@@ -77,6 +79,7 @@ $ make release
 `freetype2`    | *libfreetype6-dev*             | TTF/OTF font engine.
 `Little CMS 2` | *liblcms2-dev*                 | Color management engine supporting ICC profiles.
 `zlib`         | *zlib1g-dev*                   | Compression support.
+`exif`         | *libexif-dev*                  | Exif support.
 `X11`          | *libxrandr-dev libxcursor-dev* | X11 related libraries (Linux only)
 
 ```

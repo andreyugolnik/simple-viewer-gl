@@ -18,6 +18,9 @@ hide_infobar = false
 ; show or hide pixel info (default false)
 show_pixelinfo = false
 
+; show or hide Exif info (default false)
+show_exif = false
+
 ; enable or disable checkboard background (default false)
 hide_checkboard = false
 
