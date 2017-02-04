@@ -1,56 +1,55 @@
-PROJECT(sviewgl)
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+project(sviewgl)
+cmake_minimum_required(VERSION 2.6)
 
-INCLUDE(FindPkgConfig)
-INCLUDE(CheckLibraryExists)
+include(FindPkgConfig)
+include(CheckLibraryExists)
 
-SET(CMAKE_COLOR_MAKEFILE ON)
-SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+set(CMAKE_COLOR_MAKEFILE ON)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
 
-IF( CMAKE_BUILD_TYPE STREQUAL "Release" )
-    MESSAGE(STATUS "=== RELEASE MODE ===")
-    ADD_DEFINITIONS( "-DNDEBUG" )
-    ADD_DEFINITIONS( "-Wall -O2" )
-ELSE()
-    MESSAGE(STATUS "=== DEBUG MODE ===")
-    ADD_DEFINITIONS( "-DDEBUG" )
-    ADD_DEFINITIONS( "-Wall -Wextra -pedantic -O0 -g" )
-ENDIF()
+if( CMAKE_BUILD_TYPE STREQUAL "Release" )
+    message(STATUS "=== RELEASE MODE ===")
+    add_definitions( "-DNDEBUG" )
+    add_definitions( "-Wall -O2" )
+else()
+    message(STATUS "=== DEBUG MODE ===")
+    add_definitions( "-DDEBUG" )
+    add_definitions( "-Wall -Wextra -pedantic -O0 -g" )
+endif()
 
-SET( CMAKE_CXX_FLAGS "-std=c++11" )
+set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11" )
 
-FIND_PACKAGE(PkgConfig REQUIRED)
-PKG_SEARCH_MODULE(GLFW REQUIRED glfw3)
+find_package(PkgConfig REQUIRED)
+pkg_search_module(GLFW REQUIRED glfw3)
 
-FIND_PACKAGE(OpenGL)
-FIND_PACKAGE(Freetype)
-FIND_PACKAGE(PNG)
-FIND_PACKAGE(JPEG)
-FIND_PACKAGE(TIFF)
-FIND_PACKAGE(GIF)
-FIND_PACKAGE(ZLIB)
-FIND_PACKAGE(Imlib2)
-FIND_PACKAGE(WebP)
-FIND_PACKAGE(LCMS2)
-FIND_PACKAGE(X11)
+find_package(OpenGL)
+find_package(Freetype)
+find_package(PNG)
+find_package(JPEG)
+find_package(TIFF)
+find_package(GIF)
+find_package(ZLIB)
+find_package(Imlib2)
+find_package(WebP)
+find_package(LCMS2)
+find_package(X11)
+find_package(Threads)
 
-FIND_PACKAGE(Threads)
+if(IMLIB2_FOUND)
+    add_definitions(-DIMLIB2_SUPPORT=1)
+endif()
 
-IF(IMLIB2_FOUND)
-    ADD_DEFINITIONS(-DIMLIB2_SUPPORT=1)
-ENDIF()
+check_library_exists(dl dlclose "" HAVE_DL_LIBRARY)
+if(HAVE_DL_LIBRARY)
+    set(DL_LIBRARY "dl")
+endif(HAVE_DL_LIBRARY)
 
-CHECK_LIBRARY_EXISTS(dl dlclose "" HAVE_DL_LIBRARY)
-IF(HAVE_DL_LIBRARY)
-    SET(DL_LIBRARY "dl")
-ENDIF(HAVE_DL_LIBRARY)
+check_library_exists(rt clock_gettime "" HAVE_RT_LIBRARY)
+if(HAVE_RT_LIBRARY)
+    set(RT_LIBRARY "rt")
+endif(HAVE_RT_LIBRARY)
 
-CHECK_LIBRARY_EXISTS(rt clock_gettime "" HAVE_RT_LIBRARY)
-IF(HAVE_RT_LIBRARY)
-    SET(RT_LIBRARY "rt")
-ENDIF(HAVE_RT_LIBRARY)
-
-INCLUDE_DIRECTORIES(
+include_directories(
     ${GLFW_INCLUDE_DIRS}
     ${FREETYPE_INCLUDE_DIRS}
     ${X11_INCLUDE_DIR}
@@ -60,64 +59,21 @@ INCLUDE_DIRECTORIES(
     ${LCMS2_INCLUDE_DIR}
     )
 
-IF(IMLIB2_FOUND)
-INCLUDE_DIRECTORIES( ${INCLUDE_DIRECTORIES}
+if(IMLIB2_FOUND)
+include_directories( ${INCLUDE_DIRECTORIES}
     ${IMLIB2_INCLUDE_DIR}
     )
-ENDIF()
+endif()
 
-#LINK_DIRECTORIES(
+file( GLOB_RECURSE SOURCES "src/*.cpp" )
+
+add_executable( sviewgl ${SOURCES} )
+
+#link_directories(
     #${FREETYPE_LIBRARY_DIRS}
     #)
 
-ADD_EXECUTABLE( sviewgl
-    src/checkerboard.cpp
-    src/cms/cms.cpp
-    src/common/Ini.cpp
-    src/common/ZlibDecoder.cpp
-    src/common/config.cpp
-    src/common/file.cpp
-    src/common/file_zlib.cpp
-    src/common/helpers.cpp
-    src/fileslist.cpp
-    src/formats/AGEheader.cpp
-    src/formats/format.cpp
-    src/formats/formatage.cpp
-    src/formats/formatcommon.cpp
-    src/formats/formatdds.cpp
-    src/formats/formatgif.cpp
-    src/formats/formatico.cpp
-    src/formats/formatjpeg.cpp
-    src/formats/formatpng.cpp
-    src/formats/formatpnm.cpp
-    src/formats/formatpsd.cpp
-    src/formats/formatpvr.cpp
-    src/formats/formatraw.cpp
-    src/formats/formatscr.cpp
-    src/formats/formattarga.cpp
-    src/formats/formattiff.cpp
-    src/formats/formatwebp.cpp
-    src/formats/formatxpm.cpp
-    src/formats/formatxwd.cpp
-    src/formats/rle.cpp
-    src/ftstring.cpp
-    src/ftsymbol.cpp
-    src/imageborder.cpp
-    src/imageloader.cpp
-    src/infobar.cpp
-    src/main.cpp
-    src/notavailable.cpp
-    src/pixelinfo.cpp
-    src/progress.cpp
-    src/quad.cpp
-    src/quadimage.cpp
-    src/quadseries.cpp
-    src/renderer.cpp
-    src/selection.cpp
-    src/viewer.cpp
-    )
-
-TARGET_LINK_LIBRARIES( sviewgl
+target_link_libraries( sviewgl
     ${RT_LIBRARY}
     ${DL_LIBRARY}
     ${CMAKE_THREAD_LIBS_INIT}
@@ -134,9 +90,8 @@ TARGET_LINK_LIBRARIES( sviewgl
     ${LCMS2_LIBRARIES}
     )
 
-IF(IMLIB2_FOUND)
-TARGET_LINK_LIBRARIES( sviewgl
+if(IMLIB2_FOUND)
+target_link_libraries( sviewgl
     ${IMLIB2_LIBRARY}
     )
-ENDIF()
-
+endif()
