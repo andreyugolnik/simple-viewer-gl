@@ -10,7 +10,7 @@ pipelines:
     - step:
         script: # Modify the commands below to build your repository.
           - apt-get update
-          - apt-get install software-properties-common
+          - apt-get install -y --force-yes software-properties-common
           - add-apt-repository ppa:keithw/glfw3
           - apt-get update
           - apt-get install -y --force-yes cmake libglfw3-dev
