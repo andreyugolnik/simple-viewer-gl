@@ -11,7 +11,7 @@
 
 #include "types.h"
 
-struct cColor final
+class cColor final
 {
 public:
     cColor() = default;

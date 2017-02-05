@@ -9,7 +9,7 @@
 
 #include "quadseries.h"
 
-cQuadSeries::cQuadSeries(unsigned tw, unsigned th, const unsigned char* data, GLenum bitmapFormat)
+cQuadSeries::cQuadSeries(uint32_t tw, uint32_t th, const uint8_t* data, GLenum bitmapFormat)
     : cQuad(tw, th, data, bitmapFormat)
     , m_count(1)
     , m_frame(0)
@@ -20,19 +20,19 @@ cQuadSeries::~cQuadSeries()
 {
 }
 
-void cQuadSeries::Setup(unsigned width, unsigned height, unsigned count)
+void cQuadSeries::setup(uint32_t width, uint32_t height, uint32_t count)
 {
     m_w = width;
     m_h = height;
     m_count = count;
 }
 
-void cQuadSeries::SetFrame(unsigned frame)
+void cQuadSeries::setFrame(uint32_t frame)
 {
     m_frame = frame;
     m_frame %= m_count;
 
-    unsigned cols = (unsigned)(m_tw / m_w);
+    uint32_t cols = (uint32_t)(m_tw / m_w);
 
     float tx1 = m_frame * m_w;
     float ty1 = 0;

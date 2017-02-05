@@ -12,7 +12,7 @@
 #include <cmath>
 #include <cstdio>
 
-cQuad::cQuad(unsigned tw, unsigned th, const unsigned char* data, GLenum bitmapFormat)
+cQuad::cQuad(uint32_t tw, uint32_t th, const uint8_t* data, GLenum bitmapFormat)
     : m_tw(tw)
     , m_th(th)
     , m_format(bitmapFormat)
@@ -32,7 +32,7 @@ cQuad::~cQuad()
     cRenderer::deleteTexture(m_quad.tex);
 }
 
-void cQuad::setData(const unsigned char* data)
+void cQuad::setData(const uint8_t* data)
 {
     m_filter = true;
     cRenderer::setData(m_quad.tex, data, m_tw, m_th, m_format);

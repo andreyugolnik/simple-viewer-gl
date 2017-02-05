@@ -21,8 +21,8 @@ class cFilesList;
 class cImageBorder;
 class cImageLoader;
 class cInfoBar;
-class cOverlayInfo;
-class cPixelInfo;
+class cExifPopup;
+class cPixelPopup;
 class cProgress;
 class cQuadImage;
 class cSelection;
@@ -89,21 +89,21 @@ private:
     void updateScale(bool up);
     void updateFiltering();
     void updateInfobar();
-    void updatePixelInfo(const cVector<float>& pos);
+    void updatePixelInfo(const Vectorf& pos);
 
     void keyUp();
     void keyDown();
     void keyLeft();
     void keyRight();
-    void shiftCamera(const cVector<float>& delta);
-    cVector<float> screenToImage(const cVector<float>& pos) const;
-    cVector<float> calculateMousePosition(float x, float y) const;
+    void shiftCamera(const Vectorf& delta);
+    Vectorf screenToImage(const Vectorf& pos) const;
+    Vectorf calculateMousePosition(float x, float y) const;
     void updateMousePosition();
     void enablePixelInfo(bool show);
 
 private:
     sConfig* m_config;
-    cVector<float> m_ratio;
+    Vectorf m_ratio;
     bool m_imagePrepared = false;
     cScale m_scale;
     bool m_isWindowed;
@@ -115,8 +115,8 @@ private:
     //bool m_showBorder;
     //bool m_recursiveDir;
     bool m_mouseLB, m_mouseMB, m_mouseRB;
-    cVector<float> m_lastMouse;
-    cVector<float> m_camera;
+    Vectorf m_lastMouse;
+    Vectorf m_camera;
     cVector<int> m_prevPos;
     cVector<int> m_prevSize;
     int m_angle;
@@ -130,8 +130,8 @@ private:
     std::unique_ptr<cProgress> m_progress;
     std::unique_ptr<cImageLoader> m_loader;
     std::unique_ptr<cInfoBar> m_infoBar;
-    std::unique_ptr<cPixelInfo> m_pixelInfo;
-    std::unique_ptr<cOverlayInfo> m_exifInfo;
+    std::unique_ptr<cPixelPopup> m_pixelPopup;
+    std::unique_ptr<cExifPopup> m_exifPopup;
     std::unique_ptr<cCheckerboard> m_checkerBoard;
     std::unique_ptr<cImageBorder> m_border;
     std::unique_ptr<cSelection> m_selection;

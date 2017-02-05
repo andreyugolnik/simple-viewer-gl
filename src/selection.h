@@ -19,20 +19,20 @@ class cQuad;
 class cSelection final
 {
 public:
-    void Init();
-    void SetImageDimension(float w, float h);
-    void MouseButton(float x, float y, bool pressed);
-    void MouseMove(float x, float y);
-    void Render(float dx, float dy);
-    const CRect<float>& GetRect() const;
-    int GetCursor() const;
+    void init();
+    void setImageDimension(float w, float h);
+    void mouseButton(float x, float y, bool pressed);
+    void mouseMove(float x, float y);
+    void render(float dx, float dy);
+    const Rectf& getRect() const;
+    int getCursor() const;
     void setScale(float scale);
 
 private:
     void updateCorner(float x, float y);
     void renderHorizontal(float x, float y, float w, float scale);
     void renderVertical(float x, float y, float h, float scale);
-    void setImagePos(CRect<float>& rc, float dx, float dy);
+    void setImagePos(Rectf& rc, float dx, float dy);
     void clampPoint(float& x, float& y);
     void setColor(bool selected);
     void clampShiftDelta(float& dx, float& dy);
@@ -66,6 +66,6 @@ private:
     uint32_t m_corner = (uint32_t)eCorner::None;
 
     std::unique_ptr<cQuad> m_selection;
-    CRect<float> m_rc;
-    CRect<float> m_rc_test;
+    Rectf m_rc;
+    Rectf m_rc_test;
 };

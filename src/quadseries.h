@@ -14,13 +14,13 @@
 class cQuadSeries : public cQuad
 {
 public:
-    cQuadSeries(unsigned tw, unsigned th, const unsigned char* data, GLenum bitmapFormat);
+    cQuadSeries(uint32_t tw, uint32_t th, const uint8_t* data, GLenum bitmapFormat);
     virtual ~cQuadSeries();
 
-    void Setup(unsigned width, unsigned height, unsigned count);
-    void SetFrame(unsigned frame);
+    void setup(uint32_t width, uint32_t height, uint32_t count);
+    void setFrame(uint32_t frame);
 
 private:
-    unsigned m_count;
-    unsigned m_frame;
+    uint32_t m_count;
+    uint32_t m_frame;
 };

@@ -99,3 +99,6 @@ public:
     T x;
     T y;
 };
+
+typedef cVector<float> Vectorf;
+typedef cVector<int> Vectori;

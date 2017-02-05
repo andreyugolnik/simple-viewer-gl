@@ -54,10 +54,10 @@ public:
     static void render(const sLine& quad);
     static void render(const sQuad& quad);
 
-    static void setViewportSize(const cVector<float>& size);
-    static const cVector<float>& getViewportSize();
+    static void setViewportSize(const Vectorf& size);
+    static const Vectorf& getViewportSize();
     static void resetGlobals();
-    static void setGlobals(const cVector<float>& delta, float angle, float zoom);
+    static void setGlobals(const Vectorf& delta, float angle, float zoom);
 
     static bool checkError(const char* msg);
 };

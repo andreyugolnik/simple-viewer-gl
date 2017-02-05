@@ -7,7 +7,7 @@
 *
 \**********************************************/
 
-#include "pixelinfo.h"
+#include "pixelpopup.h"
 #include "img-pointer-cross.c"
 
 #include <cstring>
@@ -15,14 +15,14 @@
 namespace
 {
 
-    const int Border = 4;
     const int AlphaColor = 200;
     const int DesiredFontSize = 13;
-    const int FRAME_DELTA = 10;
+    const float Border = 4.0f;
+    const float FrameOffset = 10.0f;
 
 }
 
-void cPixelInfo::Init()
+void cPixelPopup::init()
 {
     m_pixelInfo.reset();
 
@@ -31,13 +31,13 @@ void cPixelInfo::Init()
 
     const int format = imgPointerCross.bytes_per_pixel == 3 ? GL_RGB : GL_RGBA;
     m_pointer.reset(new cQuadSeries(imgPointerCross.width, imgPointerCross.height, imgPointerCross.pixel_data, format));
-    m_pointer->Setup(21, 21, 10);
-    SetCursor(0);
+    m_pointer->setup(21, 21, 10);
+    setCursor(0);
 
     createFont();
 }
 
-void cPixelInfo::setRatio(float ratio)
+void cPixelPopup::setRatio(float ratio)
 {
     if (m_ratio != ratio)
     {
@@ -46,13 +46,13 @@ void cPixelInfo::setRatio(float ratio)
     }
 }
 
-void cPixelInfo::createFont()
+void cPixelPopup::createFont()
 {
     m_ft.reset(new cFTString(DesiredFontSize * m_ratio));
     m_ft->setColor({ 255, 255, 255, AlphaColor });
 }
 
-void cPixelInfo::setPixelInfo(const sPixelInfo& pi)
+void cPixelPopup::setPixelInfo(const sPixelInfo& pi)
 {
     m_pixelInfo = pi;
 
@@ -67,17 +67,17 @@ void cPixelInfo::setPixelInfo(const sPixelInfo& pi)
     if (pi.bpp == 32)
     {
         ::snprintf(color, sizeof(color), "argb: 0x%.2x%.2x%.2x%.2x\n"
-                 , pi.a, pi.r, pi.g, pi.b);
+                 , pi.color.a, pi.color.r, pi.color.g, pi.color.b);
     }
     else if (pi.bpp == 24 || pi.bpp == 16)
     {
         ::snprintf(color, sizeof(color), "rgb: 0x%.2x%.2x%.2x"
-                 , pi.r, pi.g, pi.b);
+                 , pi.color.r, pi.color.g, pi.color.b);
     }
     else if (pi.bpp == 8)
     {
         ::snprintf(color, sizeof(color), "color: 0x%.2x"
-                 , pi.r);
+                 , pi.color.r);
     }
 
     if (color[0])
@@ -85,12 +85,12 @@ void cPixelInfo::setPixelInfo(const sPixelInfo& pi)
         info.push_back(color);
     }
 
-    if (pi.rc.IsSet())
+    if (pi.rc.isSet())
     {
         const int x = pi.rc.x1;
         const int y = pi.rc.y1;
-        const int w = pi.rc.GetWidth();
-        const int h = pi.rc.GetHeight();
+        const int w = pi.rc.width();
+        const int h = pi.rc.height();
 
         ::snprintf(buffer, sizeof(buffer), "size: %d x %d", w + 1, h + 1);
         info.push_back(buffer);
@@ -109,33 +109,33 @@ void cPixelInfo::setPixelInfo(const sPixelInfo& pi)
         m_text += "\n";
     }
 
-    width += 2 * Border * m_ratio;
-    const float height = (DesiredFontSize * info.size() + 2 * Border) * m_ratio;
-    m_bg->SetSpriteSize(width, height);
+    m_width = width + 2 * Border * m_ratio;
+    m_height = (DesiredFontSize * info.size() + 2 * Border) * m_ratio;
 }
 
-void cPixelInfo::Render()
+void cPixelPopup::render()
 {
     m_pointer->Render(m_pixelInfo.mouse.x - 10, m_pixelInfo.mouse.y - 10);
 
     if (isInsideImage(m_pixelInfo.point))
     {
         const auto& viewport = cRenderer::getViewportSize();
-        const int x = std::min<int>(m_pixelInfo.mouse.x + FRAME_DELTA * m_ratio, viewport.x - m_bg->GetWidth());
-        const int y = std::min<int>(m_pixelInfo.mouse.y + FRAME_DELTA * m_ratio, viewport.y - m_bg->GetHeight());
+        const int x = std::min<int>(m_pixelInfo.mouse.x + FrameOffset * m_ratio, viewport.x - m_bg->GetWidth());
+        const int y = std::min<int>(m_pixelInfo.mouse.y + FrameOffset * m_ratio, viewport.y - m_bg->GetHeight());
 
+        m_bg->SetSpriteSize(m_width, m_height);
         m_bg->Render(x, y);
 
         m_ft->draw(x + Border * m_ratio, y + DesiredFontSize * m_ratio, m_text.c_str());
     }
 }
 
-bool cPixelInfo::isInsideImage(const cVector<float>& pos) const
+bool cPixelPopup::isInsideImage(const Vectorf& pos) const
 {
     return !(pos.x < 0 || pos.y < 0 || pos.x >= m_pixelInfo.imgWidth || pos.y >= m_pixelInfo.imgHeight);
 }
 
-void cPixelInfo::SetCursor(int cursor)
+void cPixelPopup::setCursor(int cursor)
 {
-    m_pointer->SetFrame(cursor);
+    m_pointer->setFrame(cursor);
 }

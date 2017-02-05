@@ -14,21 +14,21 @@
 class cQuad
 {
 public:
-    cQuad(unsigned tw, unsigned th, const unsigned char* data = 0, GLenum bitmapFormat = GL_RGB);
+    cQuad(uint32_t tw, uint32_t th, const uint8_t* data = 0, GLenum bitmapFormat = GL_RGB);
     virtual ~cQuad();
 
-    virtual void setData(const unsigned char* data);
+    virtual void setData(const uint8_t* data);
     virtual void setColor(const cColor& color);
     virtual void SetTextureRect(float x, float y, float w, float h);
     virtual void SetSpriteSize(float w, float h);
     virtual void Render(float x, float y);
     virtual void RenderEx(float x, float y, float w, float h, int rot = 0);
 
-    virtual unsigned GetTexWidth() const
+    virtual uint32_t GetTexWidth() const
     {
         return m_tw;
     }
-    virtual unsigned GetTexHeight() const
+    virtual uint32_t GetTexHeight() const
     {
         return m_th;
     }
@@ -51,8 +51,8 @@ public:
 
 protected:
     // texture size
-    unsigned m_tw;
-    unsigned m_th;
+    uint32_t m_tw;
+    uint32_t m_th;
     GLenum m_format;
 
     // sprite size

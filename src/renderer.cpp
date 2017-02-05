@@ -19,7 +19,7 @@ namespace
 {
 
     GLFWwindow* Window = nullptr;
-    cVector<float> ViewportSize;
+    Vectorf ViewportSize;
     uint32_t CurrentTextureId = 0;
     sVertex Vb[4];
     uint16_t Ib[6] = { 0, 1, 2, 0, 2, 3 };
@@ -221,12 +221,12 @@ void cRenderer::render(const sQuad& quad)
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, Ib);
 }
 
-const cVector<float>& cRenderer::getViewportSize()
+const Vectorf& cRenderer::getViewportSize()
 {
     return ViewportSize;
 }
 
-void cRenderer::setViewportSize(const cVector<float>& size)
+void cRenderer::setViewportSize(const Vectorf& size)
 {
     glViewport(0, 0, size.x, size.y);
     ViewportSize = size;
@@ -246,7 +246,7 @@ void cRenderer::resetGlobals()
     glRotatef(0.0f, 0.0f, 0.0f, -1.0f);
 }
 
-void cRenderer::setGlobals(const cVector<float>& delta, float angle, float zoom)
+void cRenderer::setGlobals(const Vectorf& delta, float angle, float zoom)
 {
     const float z = 1.0f / zoom;
     const float w = ViewportSize.x * z;

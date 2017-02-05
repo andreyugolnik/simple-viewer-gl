@@ -10,9 +10,10 @@
 #pragma once
 
 #include "ftstring.h"
-#include "types/vector.h"
-#include "types/rect.h"
 #include "quadseries.h"
+#include "types/color.h"
+#include "types/rect.h"
+#include "types/vector.h"
 
 #include <memory>
 
@@ -30,40 +31,38 @@ struct sPixelInfo
         imgWidth = 0;
         imgHeight = 0;
         bpp = 0;
-        r = 0;
-        g = 0;
-        b = 0;
-        a = 0;
-
+        color = { 0, 0, 0, 0 };
         rc = { 0.0f, 0.0f, 0.0f, 0.0f };
     }
 
-    cVector<float> mouse;
-    cVector<float> point;
-    unsigned imgWidth;
-    unsigned imgHeight;
-    unsigned bpp;
-    unsigned char r, g, b, a;
-    CRect<float> rc;
+    Vectorf mouse;
+    Vectorf point;
+    uint32_t imgWidth;
+    uint32_t imgHeight;
+    uint32_t bpp;
+    cColor color;
+    Rectf rc;
 };
 
-class cPixelInfo final
+class cPixelPopup final
 {
 public:
-    void Init();
+    void init();
 
     void setRatio(float ratio);
 
     void setPixelInfo(const sPixelInfo& pi);
-    void Render();
-    void SetCursor(int cursor);
+    void render();
+    void setCursor(int cursor);
 
 private:
     void createFont();
-    bool isInsideImage(const cVector<float>& pos) const;
+    bool isInsideImage(const Vectorf& pos) const;
 
 private:
     float m_ratio = 1.0f;
+    float m_width = 0.0f;
+    float m_height = 0.0f;
     sPixelInfo m_pixelInfo;
     std::string m_text;
     std::unique_ptr<cQuad> m_bg;

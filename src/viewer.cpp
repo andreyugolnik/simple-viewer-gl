@@ -10,12 +10,12 @@
 #include "viewer.h"
 #include "checkerboard.h"
 #include "common/config.h"
+#include "exifpopup.h"
 #include "fileslist.h"
 #include "imageborder.h"
 #include "imageloader.h"
 #include "infobar.h"
-#include "overlayinfo.h"
-#include "pixelinfo.h"
+#include "pixelpopup.h"
 #include "progress.h"
 #include "quadimage.h"
 #include "selection.h"
@@ -45,8 +45,8 @@ cViewer::cViewer(sConfig* config)
     m_loader.reset(new cImageLoader(this));
     m_checkerBoard.reset(new cCheckerboard());
     m_infoBar.reset(new cInfoBar(config));
-    m_pixelInfo.reset(new cPixelInfo());
-    m_exifInfo.reset(new cOverlayInfo());
+    m_pixelPopup.reset(new cPixelPopup());
+    m_exifPopup.reset(new cExifPopup());
     m_progress.reset(new cProgress());
     m_border.reset(new cImageBorder());
     m_selection.reset(new cSelection());
@@ -74,10 +74,10 @@ void cViewer::setWindow(GLFWwindow* window)
 
     m_checkerBoard->init();
     m_infoBar->init();
-    m_pixelInfo->Init();
-    m_exifInfo->init();
+    m_pixelPopup->init();
+    m_exifPopup->init();
     m_progress->init();
-    m_selection->Init();
+    m_selection->init();
 
     int width, height;
     glfwGetWindowSize(window, &width, &height);
@@ -133,14 +133,14 @@ void cViewer::render()
         }
         if (m_config->showPixelInfo && m_angle == 0)
         {
-            m_selection->Render(-half_w, -half_h);
+            m_selection->render(-half_w, -half_h);
         }
     }
     cRenderer::resetGlobals();
 
     if (m_config->showExif)
     {
-        m_exifInfo->render();
+        m_exifPopup->render();
     }
 
     //if(m_showBorder == true)
@@ -169,7 +169,7 @@ void cViewer::render()
 
     if (m_config->showPixelInfo && m_angle == 0)
     {
-        m_pixelInfo->Render();
+        m_pixelPopup->render();
     }
 
     m_progress->render();
@@ -192,11 +192,11 @@ void cViewer::update()
         {
             m_scale.setScalePercent(100);
             m_angle = 0;
-            m_camera = cVector<float>(0, 0);
-            m_selection->SetImageDimension(desc.width, desc.height);
+            m_camera = Vectorf(0, 0);
+            m_selection->setImageDimension(desc.width, desc.height);
         }
 
-        m_exifInfo->setExifList(desc.exifList);
+        m_exifPopup->setExifList(desc.exifList);
 
         updateInfobar();
         centerWindow();
@@ -251,8 +251,8 @@ void cViewer::fnResize(int width, int height)
 
     cRenderer::setViewportSize({ (float)frameWidth, (float)frameHeight });
 
-    m_pixelInfo->setRatio(m_ratio.y);
-    m_exifInfo->setRatio(m_ratio.y);
+    m_pixelPopup->setRatio(m_ratio.y);
+    m_exifPopup->setRatio(m_ratio.y);
     updatePixelInfo(m_lastMouse);
 
     m_infoBar->setRatio(m_ratio.y);
@@ -264,7 +264,7 @@ void cViewer::fnPosition(int x, int y)
     m_prevPos = { x, y };
 }
 
-cVector<float> cViewer::calculateMousePosition(float x, float y) const
+Vectorf cViewer::calculateMousePosition(float x, float y) const
 {
     x *= m_ratio.x;
     y *= m_ratio.y;
@@ -275,14 +275,14 @@ cVector<float> cViewer::calculateMousePosition(float x, float y) const
 
 void cViewer::fnMouse(float x, float y)
 {
-    const cVector<float> pos(calculateMousePosition(x, y));
+    const Vectorf pos(calculateMousePosition(x, y));
 
     if (m_mouseMB || m_mouseRB)
     {
-        const cVector<float> diff(m_lastMouse - pos);
+        const Vectorf diff(m_lastMouse - pos);
         m_lastMouse = pos;
 
-        if (diff != cVector<float>())
+        if (diff != Vectorf())
         {
             shiftCamera(diff);
         }
@@ -290,11 +290,11 @@ void cViewer::fnMouse(float x, float y)
 
     if (m_config->showPixelInfo)
     {
-        const int cursor = m_selection->GetCursor();
-        m_pixelInfo->SetCursor(cursor);
+        const int cursor = m_selection->getCursor();
+        m_pixelPopup->setCursor(cursor);
 
-        const cVector<float> point = screenToImage(pos);
-        m_selection->MouseMove(point.x, point.y);
+        const Vectorf point = screenToImage(pos);
+        m_selection->mouseMove(point.x, point.y);
 
         updatePixelInfo(pos);
     }
@@ -324,11 +324,11 @@ void cViewer::fnMouseButtons(int button, int action, int mods)
     case GLFW_MOUSE_BUTTON_LEFT:
         m_mouseLB = (action == GLFW_PRESS);
         {
-            const cVector<float> point = screenToImage(m_lastMouse);
-            m_selection->MouseButton(point.x, point.y, m_mouseLB);
+            const Vectorf point = screenToImage(m_lastMouse);
+            m_selection->mouseButton(point.x, point.y, m_mouseLB);
 
-            auto& rect = m_selection->GetRect();
-            if (rect.IsSet() == false)
+            auto& rect = m_selection->getRect();
+            if (rect.isSet() == false)
             {
                 updatePixelInfo(m_lastMouse);
             }
@@ -384,7 +384,7 @@ void cViewer::fnKeyboard(int key, int /*scancode*/, int action, int mods)
             {
                 m_scale.setScalePercent(100);
             }
-            m_camera = cVector<float>();
+            m_camera = Vectorf();
             centerWindow();
             updateInfobar();
             m_selection->setScale(m_scale.getScale());
@@ -495,30 +495,30 @@ void cViewer::fnKeyboard(int key, int /*scancode*/, int action, int mods)
 
 void cViewer::keyUp()
 {
-    shiftCamera(cVector<float>(0, -10 / m_scale.getScale()));
+    shiftCamera(Vectorf(0, -10 / m_scale.getScale()));
 }
 
 void cViewer::keyDown()
 {
-    shiftCamera(cVector<float>(0, 10 / m_scale.getScale()));
+    shiftCamera(Vectorf(0, 10 / m_scale.getScale()));
 }
 
 void cViewer::keyLeft()
 {
-    shiftCamera(cVector<float>(-10 / m_scale.getScale(), 0));
+    shiftCamera(Vectorf(-10 / m_scale.getScale(), 0));
 }
 
 void cViewer::keyRight()
 {
-    shiftCamera(cVector<float>(10 / m_scale.getScale(), 0));
+    shiftCamera(Vectorf(10 / m_scale.getScale(), 0));
 }
 
-void cViewer::shiftCamera(const cVector<float>& delta)
+void cViewer::shiftCamera(const Vectorf& delta)
 {
     m_camera += delta;
 
     const auto& viewport = cRenderer::getViewportSize();
-    cVector<float> half = (viewport / m_scale.getScale() + cVector<float>(m_image->getWidth(), m_image->getHeight())) * 0.5f;
+    Vectorf half = (viewport / m_scale.getScale() + Vectorf(m_image->getWidth(), m_image->getHeight())) * 0.5f;
     m_camera.x = std::max<float>(m_camera.x, -half.x);
     m_camera.x = std::min<float>(m_camera.x, half.x);
     m_camera.y = std::max<float>(m_camera.y, -half.y);
@@ -711,17 +711,17 @@ void cViewer::updateInfobar()
     m_infoBar->setInfo(s);
 }
 
-cVector<float> cViewer::screenToImage(const cVector<float>& pos) const
+Vectorf cViewer::screenToImage(const Vectorf& pos) const
 {
     const auto& viewport = cRenderer::getViewportSize();
-    return pos + m_camera - (viewport / m_scale.getScale() - cVector<float>(m_image->getWidth(), m_image->getHeight())) * 0.5f;
+    return pos + m_camera - (viewport / m_scale.getScale() - Vectorf(m_image->getWidth(), m_image->getHeight())) * 0.5f;
 }
 
-void cViewer::updatePixelInfo(const cVector<float>& pos)
+void cViewer::updatePixelInfo(const Vectorf& pos)
 {
     sPixelInfo pixelInfo;
 
-    const cVector<float> point = screenToImage(pos);
+    const Vectorf point = screenToImage(pos);
 
     pixelInfo.mouse = pos * m_scale.getScale();
     pixelInfo.point = point;
@@ -742,32 +742,37 @@ void cViewer::updatePixelInfo(const cVector<float>& pos)
             if (desc.bpp == 24 || desc.bpp == 32)
             {
                 const bool bgrx = desc.format == GL_BGRA || desc.format == GL_BGR;
-                pixelInfo.r = color[bgrx ? 0 : 2];
-                pixelInfo.g = color[1];
-                pixelInfo.b = color[bgrx ? 2 : 0];
-                pixelInfo.a = color[3];
+                pixelInfo.color =
+                {
+                    color[bgrx ? 0 : 2],
+                    color[1],
+                    color[bgrx ? 2 : 0],
+                    color[3],
+                };
             }
             else if (desc.bpp == 16)
             {
                 const float norm = 255 / 63;
-                pixelInfo.r = (color[0] >> 3) * norm;
-                pixelInfo.g = (((color[0] & 0x07) << 3) | ((color[1] & 0xe0) >> 5)) * norm;
-                pixelInfo.b = (color[1] >> 3) * norm;
+                pixelInfo.color = 
+                {
+                    (uint8_t)((color[0] >> 3) * norm),
+                    (uint8_t)((((color[0] & 0x07) << 3) | ((color[1] & 0xe0) >> 5)) * norm),
+                    (uint8_t)((color[1] >> 3) * norm),
+                    255
+                };
             }
             else if (desc.bpp == 8)
             {
-                pixelInfo.r = color[0];
-                pixelInfo.g = color[0];
-                pixelInfo.b = color[0];
+                pixelInfo.color.r = color[0];
             }
         }
 
         pixelInfo.imgWidth = m_image->getWidth();
         pixelInfo.imgHeight = m_image->getHeight();
-        pixelInfo.rc = m_selection->GetRect();
+        pixelInfo.rc = m_selection->getRect();
     }
 
-    m_pixelInfo->setPixelInfo(pixelInfo);
+    m_pixelPopup->setPixelInfo(pixelInfo);
 }
 
 void cViewer::showCursor(bool show)

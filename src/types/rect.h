@@ -12,10 +12,10 @@
 #include <cmath>
 
 template<typename T>
-class CRect final
+class cRect final
 {
 public:
-    CRect()
+    cRect()
         : m_isSet(false)
         , x1(static_cast<T>(0))
         , y1(static_cast<T>(0))
@@ -23,45 +23,45 @@ public:
         , y2(static_cast<T>(0))
     { }
 
-    CRect(T _x1, T _y1, T _x2, T _y2)
+    cRect(T X1, T Y1, T X2, T Y2)
         : m_isSet(true)
-        , x1(_x1)
-        , y1(_y1)
-        , x2(_x2)
-        , y2(_y2)
+        , x1(X1)
+        , y1(Y1)
+        , x2(X2)
+        , y2(Y2)
     { }
 
-    void Clear()
+    void clear()
     {
         m_isSet = false;
     }
 
-    bool IsSet() const
+    bool isSet() const
     {
         return m_isSet;
     }
 
-    void Set(T x1, T y1, T x2, T y2)
+    void set(T x1, T y1, T x2, T y2)
     {
-        SetLeftTop(x1, y1);
-        SetRightBottom(x2, y2);
+        setLeftTop(x1, y1);
+        setRightBottom(x2, y2);
     }
 
-    void SetLeftTop(T x, T y)
+    void setLeftTop(T x, T y)
     {
         x1 = x;
         y1 = y;
         m_isSet = true;
     }
 
-    void SetRightBottom(T x, T y)
+    void setRightBottom(T x, T y)
     {
         x2 = x;
         y2 = y;
         m_isSet = true;
     }
 
-    void ShiftRect(T dx, T dy)
+    void shiftRect(T dx, T dy)
     {
         x1 += dx;
         x2 += dx;
@@ -69,7 +69,7 @@ public:
         y2 += dy;
     }
 
-    void Encapsulate(T x, T y)
+    void encapsulate(T x, T y)
     {
         if (m_isSet)
         {
@@ -88,12 +88,12 @@ public:
         }
     }
 
-    bool TestPoint(T x, T y) const
+    bool testPoint(T x, T y) const
     {
         return !(!m_isSet || x < x1 || x >= x2 || y < y1 || y >= y2);
     }
 
-    bool Intersect(const CRect<T>* rc) const
+    bool intersect(const cRect<T>* rc) const
     {
         if (fabs(x1 + x2 - rc->x1 - rc->x2) < (x2 - x1 + rc->x2 - rc->x1) &&
             fabs(y1 + y2 - rc->y1 - rc->y2) < (y2 - y1 + rc->y2 - rc->y1))
@@ -103,17 +103,17 @@ public:
         return false;
     }
 
-    T GetWidth() const
+    T width() const
     {
         return (x2 >= x1) ? (x2 - x1) : (x1 - x2);
     }
 
-    T GetHeight() const
+    T height() const
     {
         return (y2 >= y1) ? (y2 - y1) : (y1 - y2);
     }
 
-    void Normalize()
+    void normalize()
     {
         if (x1 > x2)
         {
@@ -129,7 +129,7 @@ public:
         }
     }
 
-    CRect& operator=(const CRect<T>& rc)
+    cRect& operator=(const cRect<T>& rc)
     {
         if (&rc != this)
         {
@@ -151,3 +151,6 @@ public:
     T x2;
     T y2;
 };
+
+typedef cRect<float> Rectf;
+typedef cRect<int> Recti;
