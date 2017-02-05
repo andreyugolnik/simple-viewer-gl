@@ -66,8 +66,8 @@ public:
         if (m_isSet)
         {
             tl.x = v.x < tl.x ? v.x : tl.x;
-            br.x = v.x > br.x ? v.x : br.x;
             tl.y = v.y < tl.y ? v.y : tl.y;
+            br.x = v.x > br.x ? v.x : br.x;
             br.y = v.y > br.y ? v.y : br.y;
         }
         else

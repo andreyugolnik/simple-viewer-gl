@@ -86,18 +86,23 @@ void cPixelPopup::setPixelInfo(const sPixelInfo& pi)
         info.push_back(color);
     }
 
-    if (pi.rc.isSet())
+    auto& rc = m_pixelInfo.rc;
+    if (rc.isSet())
     {
-        const int x = pi.rc.tl.x;
-        const int y = pi.rc.tl.y;
-        const int w = pi.rc.width();
-        const int h = pi.rc.height();
+        rc.normalize();
+        const int x = rc.tl.x;
+        const int y = rc.tl.y;
+        const int w = rc.width();
+        const int h = rc.height();
 
-        ::snprintf(buffer, sizeof(buffer), "size: %d x %d", w + 1, h + 1);
+        ::snprintf(buffer, sizeof(buffer), "size: %d x %d", w, h);
         info.push_back(buffer);
 
-        ::snprintf(buffer, sizeof(buffer), "rect: %d, %d -> %d, %d", x, y, x + w, y + h);
-        info.push_back(buffer);
+        if (w > 0 && h > 0)
+        {
+            ::snprintf(buffer, sizeof(buffer), "rect: %d, %d -> %d, %d", x, y, x + w - 1, y + h - 1);
+            info.push_back(buffer);
+        }
     }
 
     float width = 0;

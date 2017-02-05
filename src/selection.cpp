@@ -19,8 +19,8 @@
 namespace
 {
 
-    const float delta = 20.0f;
-    const float delta2 = delta * 0.5f;
+    const int delta = 20;
+    const int delta2 = delta / 2;
 
     const uint32_t m_cellSize = 8;
     const uint32_t m_texSize = m_cellSize * 2;
@@ -60,7 +60,7 @@ void cSelection::init()
     m_selection->useFilter(false);
 }
 
-void cSelection::setImageDimension(float w, float h)
+void cSelection::setImageDimension(int w, int h)
 {
     m_imageWidth = w;
     m_imageHeight = h;
@@ -72,9 +72,9 @@ void cSelection::updateTestRect()
 {
     if (m_rc.isSet())
     {
-        auto rc = m_rc;
-        rc.normalize();
-        const float d = delta2 / cRenderer::getZoom();
+        m_rc.normalize();
+        auto& rc = m_rc;
+        const int d = delta2;
         m_rcTest.set({ rc.tl.x - d, rc.tl.y - d }, { rc.br.x + d, rc.br.y + d });
     }
 }
@@ -85,12 +85,11 @@ void cSelection::mouseButton(const Vectorf& p, bool pressed)
 
     if (pressed)
     {
-        auto pos = p;
+        Vectori pos = { (int)p.x, (int)p.y };
 
-        m_rc.normalize();
         const bool inside = m_rcTest.testPoint(pos);
 
-        m_mousePos = pos;
+        m_mousePos = p;
 
         if (m_mode == eMouseMode::None)
         {
@@ -101,10 +100,9 @@ void cSelection::mouseButton(const Vectorf& p, bool pressed)
             else
             {
                 m_mode = eMouseMode::Select;
-                clampPoint(pos);
                 m_rc.setLeftTop(pos);
                 m_rc.clear();
-                const float d = delta2 / cRenderer::getZoom();
+                const int d = delta2;
                 m_rcTest.setLeftTop(pos - d);
                 m_rcTest.clear();
             }
@@ -124,12 +122,15 @@ void cSelection::mouseButton(const Vectorf& p, bool pressed)
 
 void cSelection::mouseMove(const Vectorf& p)
 {
-    auto pos = p;
-    updateCorner(pos);
+    const Vectori pos = { (int)p.x, (int)p.y };
 
-    if (m_mode != eMouseMode::None)
+    if (m_mode == eMouseMode::None)
     {
-        auto delta = pos - m_mousePos;
+        updateCorner(pos);
+    }
+    else
+    {
+        Vectori delta = { pos.x - (int)m_mousePos.x, pos.y - (int)m_mousePos.y };
 
         switch (m_mode)
         {
@@ -137,7 +138,6 @@ void cSelection::mouseMove(const Vectorf& p)
             break;
 
         case eMouseMode::Select:
-            clampPoint(pos);
             m_rc.setRightBottom(pos);
             break;
 
@@ -166,53 +166,53 @@ void cSelection::mouseMove(const Vectorf& p)
             break;
         }
 
-        m_rc.tl.x = clamp<float>(0.0f, m_imageWidth - 1.0f, m_rc.tl.x);
-        m_rc.tl.y = clamp<float>(0.0f, m_imageHeight - 1.0f, m_rc.tl.y);
-        m_rc.br.x = clamp<float>(0.0f, m_imageWidth - 1.0f, m_rc.br.x);
-        m_rc.br.y = clamp<float>(0.0f, m_imageHeight - 1.0f, m_rc.br.y);
+        m_rc.tl.x = clamp<int>(0, m_imageWidth, m_rc.tl.x);
+        m_rc.tl.y = clamp<int>(0, m_imageHeight, m_rc.tl.y);
+        m_rc.br.x = clamp<int>(0, m_imageWidth, m_rc.br.x);
+        m_rc.br.y = clamp<int>(0, m_imageHeight, m_rc.br.y);
 
-        m_mousePos += delta;
+        m_mousePos = p;
     }
 }
 
-void cSelection::clampShiftDelta(Vectorf& delta)
+void cSelection::clampShiftDelta(Vectori& delta)
 {
-    delta.x = clamp<float>(-m_rc.tl.x, m_imageWidth - m_rc.br.x - 1.0f, delta.x);
-    delta.y = clamp<float>(-m_rc.tl.y, m_imageHeight - m_rc.br.y - 1.0f, delta.y);
+    delta.x = clamp<int>(-m_rc.tl.x, m_imageWidth - m_rc.br.x, delta.x);
+    delta.y = clamp<int>(-m_rc.tl.y, m_imageHeight - m_rc.br.y, delta.y);
 }
 
 void cSelection::render(const Vectorf& offset)
 {
     if (m_enabled && m_rc.isSet())
     {
-        Rectf rc;
-        setImagePos(rc, offset);
+        Recti rc;
+        setImagePos(rc, { (int)offset.x, (int)offset.y });
 
         rc.normalize();
-        const float x = rc.tl.x;
-        const float y = rc.tl.y;
-        const float w = rc.width() + 1.0f;
-        const float h = rc.height() + 1.0f;
+        const int x = rc.tl.x;
+        const int y = rc.tl.y;
+        const int w = rc.width();
+        const int h = rc.height();
 
-        const float thickness = 1.0f;
+        const int thickness = 4;
         const float d = thickness / cRenderer::getZoom();
 
         // top line
         setColor(m_corner & (uint32_t)eCorner::UP);
-        renderHorizontal(x - d, y - d, w + d * 2.0f, d);
+        renderHorizontal(x - d, y - d, w + d * 2, d);
         // bottom line
         setColor(m_corner & (uint32_t)eCorner::DN);
-        renderHorizontal(x - d, y + h + d, w + d * 2.0f, d);
+        renderHorizontal(x - d, y + h, w + d * 2, d);
         // left line
         setColor(m_corner & (uint32_t)eCorner::LT);
         renderVertical(x - d, y, h, d);
         // right line
         setColor(m_corner & (uint32_t)eCorner::RT);
-        renderVertical(x + w + d, y, h, d);
+        renderVertical(x + w, y, h, d);
     }
 }
 
-const Rectf& cSelection::getRect() const
+const Recti& cSelection::getRect() const
 {
     return m_rc;
 }
@@ -229,40 +229,35 @@ int cSelection::getCursor() const
     return cursor[m_corner];
 }
 
-void cSelection::updateCorner(const Vectorf& pos)
+void cSelection::updateCorner(const Vectori& pos)
 {
-    if (m_mode != eMouseMode::None)
-    {
-        return;
-    }
-
     updateTestRect();
     const auto& rc = m_rcTest;
     if (rc.testPoint(pos))
     {
         m_corner = 0;
 
-        const float d = delta / cRenderer::getZoom();
+        const int d = delta / cRenderer::getZoom();
 
-        const Rectf rcLt(rc.tl, { rc.tl.x + d, rc.br.y });
+        const Recti rcLt(rc.tl, { rc.tl.x + d, rc.br.y });
         if (rcLt.testPoint(pos))
         {
             m_corner |= (uint32_t)eCorner::LT;
         }
 
-        const Rectf rcRt({ rc.br.x - d, rc.tl.y }, rc.br);
+        const Recti rcRt({ rc.br.x - d, rc.tl.y }, rc.br);
         if (rcRt.testPoint(pos))
         {
             m_corner |= (uint32_t)eCorner::RT;
         }
 
-        const Rectf rcUp(rc.tl, { rc.br.x, rc.tl.y + d });
+        const Recti rcUp(rc.tl, { rc.br.x, rc.tl.y + d });
         if (rcUp.testPoint(pos))
         {
             m_corner |= (uint32_t)eCorner::UP;
         }
 
-        const Rectf rcDn({ rc.tl.x, rc.br.y - d }, rc.br);
+        const Recti rcDn({ rc.tl.x, rc.br.y - d }, rc.br);
         if (rcDn.testPoint(pos))
         {
             m_corner |= (uint32_t)eCorner::DN;
@@ -279,30 +274,24 @@ void cSelection::updateCorner(const Vectorf& pos)
     }
 }
 
-void cSelection::renderHorizontal(float x, float y, float w, float scale)
+void cSelection::renderHorizontal(float x, float y, float w, float thickness)
 {
     const auto offset = glfwGetTime() * 10.0f;
-    m_selection->SetTextureRect(offset, 0.0f, w, scale);
+    m_selection->SetTextureRect(offset, 0.0f, w, thickness);
     m_selection->Render(x, y);
 }
 
-void cSelection::renderVertical(float x, float y, float h, float scale)
+void cSelection::renderVertical(float x, float y, float h, float thickness)
 {
     const auto offset = glfwGetTime() * 10.0f;
-    m_selection->SetTextureRect(0.0f, offset, scale, h);
+    m_selection->SetTextureRect(0.0f, offset, thickness, h);
     m_selection->Render(x, y);
 }
 
-void cSelection::setImagePos(Rectf& rc, const Vectorf& offset)
+void cSelection::setImagePos(Recti& rc, const Vectori& offset)
 {
     rc = m_rc;
     rc.shiftRect(offset);
-}
-
-void cSelection::clampPoint(Vectorf& pos)
-{
-    pos.x = clamp<float>(0.0f, m_imageWidth - 1.0f, pos.x);
-    pos.y = clamp<float>(0.0f, m_imageHeight - 1.0f, pos.y);
 }
 
 void cSelection::setColor(bool selected)

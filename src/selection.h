@@ -21,27 +21,26 @@ class cSelection final
 {
 public:
     void init();
-    void setImageDimension(float w, float h);
+    void setImageDimension(int w, int h);
     void mouseButton(const Vectorf& pos, bool pressed);
     void mouseMove(const Vectorf& pos);
     void render(const Vectorf& offset);
-    const Rectf& getRect() const;
+    const Recti& getRect() const;
     int getCursor() const;
 
 private:
     void updateTestRect();
-    void updateCorner(const Vectorf& pos);
-    void renderHorizontal(float x, float y, float w, float scale);
-    void renderVertical(float x, float y, float h, float scale);
-    void setImagePos(Rectf& rc, const Vectorf& offset);
-    void clampPoint(Vectorf& pos);
+    void updateCorner(const Vectori& pos);
+    void renderHorizontal(float x, float y, float w, float thickness);
+    void renderVertical(float x, float y, float h, float thickness);
+    void setImagePos(Recti& rc, const Vectori& offset);
     void setColor(bool selected);
-    void clampShiftDelta(Vectorf& delta);
+    void clampShiftDelta(Vectori& delta);
 
 private:
     bool m_enabled = true;
-    float m_imageWidth = 0.0f;
-    float m_imageHeight = 0.0f;
+    int m_imageWidth = 0;
+    int m_imageHeight = 0;
     Vectorf m_mousePos = { 0.0f, 0.0f };
 
     enum class eMouseMode
@@ -65,6 +64,6 @@ private:
     uint32_t m_corner = (uint32_t)eCorner::None;
 
     std::unique_ptr<cQuad> m_selection;
-    Rectf m_rc;
-    Rectf m_rcTest;
+    Recti m_rc;
+    Recti m_rcTest;
 };
