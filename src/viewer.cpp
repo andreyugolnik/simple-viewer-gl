@@ -78,7 +78,7 @@ void cViewer::setWindow(GLFWwindow* window)
 {
     m_windowModeChangeRequested = false;
 
-    cRenderer::setWindow(window);
+    cRenderer::setWindow(window, 256);//m_config->limitTextureSize);
 
     m_checkerBoard->init();
     m_infoBar->init();
@@ -150,25 +150,6 @@ void cViewer::render()
     {
         m_exifPopup->render();
     }
-
-    //if(m_showBorder == true)
-    //{
-    //switch(m_angle)
-    //{
-    //case 0:
-    //m_border->Render(m_camera_x, m_camera_y, img_w, img_h, scale);
-    //break;
-    //case 90:
-    //m_border->Render(m_camera_x, m_camera_y, img_h, -img_w, scale);
-    //break;
-    //case 180:
-    //m_border->Render(m_camera_x, m_camera_y, -img_w, -img_h, scale);
-    //break;
-    //case 270:
-    //m_border->Render(m_camera_x, m_camera_y, -img_h, img_w, scale);
-    //break;
-    //}
-    //}
 
     if (m_config->hideInfobar == false)
     {
@@ -660,6 +641,8 @@ void cViewer::loadImage(int step)
 {
     m_subImageForced = false;
     m_animation = false;
+    m_image->stop();
+
     const char* file = m_filesList->getName(step);
     m_loader->loadImage(file);
 }
@@ -669,6 +652,8 @@ void cViewer::loadSubImage(int subStep)
     assert(subStep == -1 || subStep == 1);
 
     m_animation = false;
+    m_image->stop();
+
     auto& desc = m_loader->getDescription();
     const unsigned next = (desc.current + desc.images + subStep) % desc.images;
     if (desc.current != next)

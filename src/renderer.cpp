@@ -19,28 +19,31 @@ namespace
 {
 
     GLFWwindow* Window = nullptr;
+    Rectf ViewRect;
     Vectori ViewportSize;
     uint32_t CurrentTextureId = 0;
     sVertex Vb[4];
     uint16_t Ib[6] = { 0, 1, 2, 0, 2, 3 };
     bool Npot = false;
-    uint32_t MaxTextureSize = 1024;
+    uint32_t TextureSizeLimit = 1024;
     bool IsMipmapEnabled = false;
 
 }
 
-void cRenderer::setWindow(GLFWwindow* window)
+void cRenderer::setWindow(GLFWwindow* window, uint32_t maxTextureSize)
 {
     Window = window;
     CurrentTextureId = 0;
 
-    int texture_max_size = (int)MaxTextureSize;
-    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &texture_max_size);
-    MaxTextureSize = std::min<uint32_t>(MaxTextureSize, texture_max_size);
-    //printf("Max texture size: %d x %d.\n", MaxTextureSize, MaxTextureSize);
+    int maxSize = 512;
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxSize);
+    // ::printf("(II) Max texture size: %d.\n", maxSize);
+
+    TextureSizeLimit = std::min<uint32_t>(maxSize, maxTextureSize);
+    // ::printf("(II) Limit texture size: %u.\n", TextureSizeLimit);
 
     Npot = glfwExtensionSupported("GL_ARB_texture_non_power_of_two");
-    //printf("Non Power of Two extension %s\n", Npot ? "available." : "not available.");
+    // ::printf("(II) Non Power of Two extension %s\n", Npot ? "available." : "not available.");
 
     glEnable(GL_BLEND);
     glEnable(GL_TEXTURE_2D);
@@ -180,7 +183,10 @@ void cRenderer::bindTexture(GLuint tex)
 
 uint32_t cRenderer::calculateTextureSize(uint32_t size)
 {
-    return std::min<uint32_t>(MaxTextureSize, Npot ? size : helpers::nextPot(size));
+    const auto npotSize = Npot ? size : helpers::nextPot(size);
+    const auto newSize = std::min<uint32_t>(TextureSizeLimit, npotSize);
+    // ::printf("(II) Texutre size: %u.\n", newSize);
+    return newSize;
 }
 
 void cRenderer::setColor(sLine* line, const cColor& color)
@@ -234,6 +240,8 @@ void cRenderer::setViewportSize(const Vectori& size)
 
 void cRenderer::resetGlobals()
 {
+    ViewRect = { 0.0f, 0.0f, (float)ViewportSize.x, (float)ViewportSize.y };
+
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glOrtho(
@@ -246,14 +254,21 @@ void cRenderer::resetGlobals()
     glRotatef(0.0f, 0.0f, 0.0f, -1.0f);
 }
 
-void cRenderer::setGlobals(const Vectorf& delta, float angle, float zoom)
+const Rectf& cRenderer::getRect()
+{
+    return ViewRect;
+}
+
+void cRenderer::setGlobals(const Vectorf& offset, float angle, float zoom)
 {
     const float z = 1.0f / zoom;
     const float w = ViewportSize.x * z;
     const float h = ViewportSize.y * z;
 
-    const float x = delta.x - w * 0.5f;
-    const float y = delta.y - h * 0.5f;
+    const float x = offset.x - w * 0.5f;
+    const float y = offset.y - h * 0.5f;
+
+    ViewRect = { x, y, x + w, y + h };
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();

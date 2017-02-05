@@ -22,6 +22,8 @@ public:
     void clear();
     void setBuffer(unsigned width, unsigned height, unsigned pitch, unsigned format, unsigned bytesPP, const unsigned char* image);
     bool upload(unsigned mipmapTextureSize);
+
+    void stop();
     bool isUploading() const;
     float getProgress() const;
 
@@ -43,7 +45,19 @@ private:
     void clearOld();
     cQuad* findAndRemoveOld(unsigned col, unsigned row);
 
+    struct sChunk
+    {
+        unsigned col;
+        unsigned row;
+        cQuad* quad;
+    };
+
+    bool isInsideViewport(const sChunk& chunk, float x, float y) const;
+
 private:
+    bool m_started = false;
+    bool m_filter = false;
+
     unsigned m_texWidth = 0;
     unsigned m_texHeight = 0;
     unsigned m_texPitch = 0;
@@ -57,12 +71,6 @@ private:
     unsigned m_bytesPP = 0;
     const unsigned char* m_image = nullptr;
 
-    struct sChunk
-    {
-        unsigned col;
-        unsigned row;
-        cQuad* quad;
-    };
     std::vector<sChunk> m_chunks;
     std::vector<sChunk> m_chunksOld;
 

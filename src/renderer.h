@@ -10,6 +10,7 @@
 #pragma once
 
 #include "types/color.h"
+#include "types/rect.h"
 #include "types/vector.h"
 
 #include <GLFW/glfw3.h>
@@ -36,7 +37,7 @@ struct sQuad
 class cRenderer
 {
 public:
-    static void setWindow(GLFWwindow* window);
+    static void setWindow(GLFWwindow* window, uint32_t maxTextureSize);
     static GLFWwindow* getWindow();
 
     static void enableMipmap(bool enable);
@@ -56,8 +57,11 @@ public:
 
     static void setViewportSize(const Vectori& size);
     static const Vectori& getViewportSize();
+
     static void resetGlobals();
-    static void setGlobals(const Vectorf& delta, float angle, float zoom);
+    static void setGlobals(const Vectorf& offset, float angle, float zoom);
+
+    static const Rectf& getRect();
 
     static bool checkError(const char* msg);
 };

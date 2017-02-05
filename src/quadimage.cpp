@@ -58,19 +58,24 @@ void cQuadImage::clearOld()
     m_chunksOld.clear();
 }
 
+uint32_t calculatePitch(uint32_t width, uint32_t bytesPP)
+{
+    // texture pitch should be multiple by 4
+    return (uint32_t)::ceilf(width * bytesPP / 4.0f) * 4;
+}
+
 void cQuadImage::setBuffer(unsigned width, unsigned height, unsigned pitch, unsigned format, unsigned bytesPP, const unsigned char* image)
 {
     m_texWidth = cRenderer::calculateTextureSize(width);
     m_texHeight = cRenderer::calculateTextureSize(height);
 
-    // texture pitch should be multiple by 4
-    m_texPitch = (unsigned)ceilf(m_texWidth * bytesPP / 4.0f) * 4;
-    //const unsigned line = texWidth * bytesPP;
-    //const unsigned texPitch = line + (line % 4) * 4;
+    m_texPitch = calculatePitch(m_texWidth, bytesPP);
+    // ::printf("(II) Textue pitch: %u.\n", m_texPitch);
 
-    m_cols = (unsigned)ceilf((float)width / m_texWidth);
-    m_rows = (unsigned)ceilf((float)height / m_texHeight);
-    // printf("textures: %d (%d x %d) required\n", m_cols * m_rows, m_cols, m_rows);
+    m_cols = (unsigned)::ceilf((float)width / m_texWidth);
+    m_rows = (unsigned)::ceilf((float)height / m_texHeight);
+    // ::printf("(II) Image size: %u x %u.\n", width, height);
+    // ::printf("(II) Textures: %u (%u x %u) required\n", m_cols * m_rows, m_cols, m_rows);
 
     moveToOld();
 
@@ -81,9 +86,9 @@ void cQuadImage::setBuffer(unsigned width, unsigned height, unsigned pitch, unsi
     m_bytesPP = bytesPP;
     m_image = image;
 
-    // printf(" %d x %d, ", width, height);
-
     m_buffer.resize(m_texPitch * m_texHeight);
+
+    m_started = true;
 }
 
 bool cQuadImage::upload(unsigned mipmapTextureSize)
@@ -94,54 +99,69 @@ bool cQuadImage::upload(unsigned mipmapTextureSize)
     const unsigned col = size % m_cols;
     const unsigned row = size / m_cols;
 
-    const unsigned w = col < (m_cols - 1) ? m_texWidth : (m_width - m_texWidth * (m_cols - 1));
-    const unsigned h = row < (m_rows - 1) ? m_texHeight : (m_height - m_texHeight * (m_rows - 1));
-    // printf("cols %u : col %u : w %u\n", m_cols, col, w);
-    // printf("rows %u : row %u : h %u\n", m_rows, row, h);
+    const unsigned w = (col < m_cols - 1) ? m_texWidth : (m_width - m_texWidth * (m_cols - 1));
+    const unsigned h = (row < m_rows - 1) ? m_texHeight : (m_height - m_texHeight * (m_rows - 1));
+    // ::printf("cols %u : col %u : w %u\n", m_cols, col, w);
+    // ::printf("rows %u : row %u : h %u\n", m_rows, row, h);
 
-    unsigned dx = col * m_texPitch;
-    unsigned dy = row * m_texHeight;
-    unsigned count = w * m_bytesPP;
-    for (unsigned line = 0; line < h; line++)
+    const unsigned sx = col * m_texPitch;
+    const unsigned sy = row * m_texHeight;
+    const unsigned dstPitch = calculatePitch(w, m_bytesPP);
+    for (unsigned y = 0; y < h; y++)
     {
-        const unsigned src = dx + (dy + line) * m_pitch;
-        const unsigned dst = line * m_texPitch;
-        memcpy(&m_buffer[dst], &m_image[src], count);
+        const unsigned src = sx + (sy + y) * m_pitch;
+        if (src + dstPitch <= m_pitch * m_height)
+        {
+            const unsigned dst = y * dstPitch;
+            ::memcpy(&m_buffer[dst], &m_image[src], dstPitch);
+        }
+        else
+        {
+            ::printf("cols %u : col %u : w %u\n", m_cols, col, w);
+            ::printf("rows %u : row %u : h %u\n", m_rows, row, h);
+            ::printf("out at line %u sx %u sy %u bpp: %u\n", y, sx, sy, m_bytesPP);
+            break;
+        }
     }
 
     cRenderer::enableMipmap(m_width >= mipmapTextureSize || m_height >= mipmapTextureSize);
 
     cQuad* quad = findAndRemoveOld(col, row);
     if (quad == nullptr
-        || quad->GetTexWidth() != m_texWidth || quad->GetTexHeight() != m_texHeight
+        || quad->GetTexWidth() != w || quad->GetTexHeight() != h
         || quad->getFormat() != m_format)
     {
         delete quad;
-        quad = new cQuad(m_texWidth, m_texHeight, &m_buffer[0], m_format);
+        quad = new cQuad(w, h, m_buffer.data(), m_format);
     }
     else
     {
-        quad->setData(&m_buffer[0]);
+        quad->setData(m_buffer.data());
     }
 
-    quad->SetSpriteSize(w, h);
-    quad->useFilter(false);
+    quad->useFilter(m_filter);
 
     m_chunks.push_back({ col, row, quad });
 
     const bool isDone = isUploading() == false;
     if (isDone)
     {
-        clearOld();
-        m_buffer.resize(0);
+        stop();
     }
 
     return isDone;
 }
 
+void cQuadImage::stop()
+{
+    clearOld();
+    m_buffer.resize(0);
+    m_started = false;
+}
+
 bool cQuadImage::isUploading() const
 {
-    return m_chunks.size() < m_rows * m_cols;
+    return m_started && m_chunks.size() < m_rows * m_cols;
 }
 
 float cQuadImage::getProgress() const
@@ -151,41 +171,62 @@ float cQuadImage::getProgress() const
 
 void cQuadImage::useFilter(bool filter)
 {
+    m_filter = filter;
     for (auto& chunk : m_chunks)
     {
         chunk.quad->useFilter(filter);
     }
 }
 
+bool cQuadImage::isInsideViewport(const sChunk& chunk, float x, float y) const
+{
+    auto& rc = cRenderer::getRect();
+    return x + chunk.quad->GetWidth() >= rc.x1
+        && y + chunk.quad->GetHeight() >= rc.y1
+        && x < rc.x2
+        && y < rc.y2;
+}
+
 void cQuadImage::render()
 {
-    const float halfWidth = ceilf(m_width * 0.5f);
-    const float halfHeight = ceilf(m_height * 0.5f);
-    const unsigned texWidth = m_texWidth;
-    const unsigned texHeight = m_texHeight;
+    const float halfWidth = ::ceilf(m_width * 0.5f);
+    const float halfHeight = ::ceilf(m_height * 0.5f);
+    const float texWidth = m_texWidth;
+    const float texHeight = m_texHeight;
 
+    // uint32_t rendered = 0;
     for (const auto& chunk : m_chunksOld)
     {
         const float x = chunk.col * texWidth - halfWidth;
         const float y = chunk.row * texHeight - halfHeight;
-
-        chunk.quad->Render(x, y);
+        if (isInsideViewport(chunk, x, y))
+        {
+            // rendered++;
+            chunk.quad->Render(x, y);
+        }
     }
 
     for (const auto& chunk : m_chunks)
     {
         const float x = chunk.col * texWidth - halfWidth;
         const float y = chunk.row * texHeight - halfHeight;
-
-        chunk.quad->Render(x, y);
+        if (isInsideViewport(chunk, x, y))
+        {
+            // rendered++;
+            chunk.quad->Render(x, y);
+        }
     }
+
+    // ::printf("(II) Rendered: %u out of %u\n"
+             // , rendered
+             // , (uint32_t)(m_chunksOld.size() + m_chunks.size()));
 }
 
 void cQuadImage::moveToOld()
 {
     clearOld();
 
-    for (size_t i = 0, size = m_chunks.size(); i < size; )
+    for (size_t i = 0, size = m_chunks.size(); i < size;)
     {
         const auto& chunk = m_chunks[i];
         if (chunk.col >= m_cols || chunk.row >= m_rows)

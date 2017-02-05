@@ -110,7 +110,7 @@ private:
     //bool m_centerWindow;
     //bool m_allValid;
     //bool m_wheelZoom;
-    bool m_windowModeChangeRequested;
+    bool m_windowModeChangeRequested = false;
     //bool m_fitImage;
     //bool m_showBorder;
     //bool m_recursiveDir;
