@@ -67,7 +67,7 @@ void cPixelPopup::setPixelInfo(const sPixelInfo& pi)
 
     if (pi.bpp == 32)
     {
-        ::snprintf(color, sizeof(color), "argb: 0x%.2x%.2x%.2x%.2x\n"
+        ::snprintf(color, sizeof(color), "argb: 0x%.2x%.2x%.2x%.2x"
                  , pi.color.a, pi.color.r, pi.color.g, pi.color.b);
     }
     else if (pi.bpp == 24 || pi.bpp == 16)
