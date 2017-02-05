@@ -78,7 +78,7 @@ void cViewer::setWindow(GLFWwindow* window)
 {
     m_windowModeChangeRequested = false;
 
-    cRenderer::setWindow(window, 256);//m_config->limitTextureSize);
+    cRenderer::setWindow(window, 2048);
 
     m_checkerBoard->init();
     m_infoBar->init();
