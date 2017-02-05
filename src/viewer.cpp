@@ -177,19 +177,22 @@ void cViewer::update()
                            , desc.format, desc.bpp / 8
                            , desc.bitmap.data());
 
-        if (m_loader->getMode() == cImageLoader::Mode::Image && m_config->keepScale == false)
+        if (m_loader->getMode() == cImageLoader::Mode::Image)
         {
-            m_scale.setScalePercent(100);
-            m_angle = 0;
-            m_camera = Vectorf(0, 0);
+            if (m_config->keepScale == false)
+            {
+                m_scale.setScalePercent(100);
+                m_angle = 0;
+                m_camera = { 0.0f, 0.0f };
+            }
+
             m_selection->setImageDimension(desc.width, desc.height);
+            m_exifPopup->setExifList(desc.exifList);
+            centerWindow();
+            enablePixelInfo(m_config->showPixelInfo);
         }
 
-        m_exifPopup->setExifList(desc.exifList);
-
         updateInfobar();
-        centerWindow();
-        enablePixelInfo(m_config->showPixelInfo);
     }
 
     if (isUploading())

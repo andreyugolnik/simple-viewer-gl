@@ -74,9 +74,10 @@ void cSelection::setScale(float scale)
 
     if (m_rc.isSet())
     {
-        m_rc.normalize();
+        auto rc = m_rc;
+        rc.normalize();
         const float d = delta2 / scale;
-        m_rc_test.set(m_rc.x1 - d, m_rc.y1 - d, m_rc.x2 + d, m_rc.y2 + d);
+        m_rc_test.set(rc.x1 - d, rc.y1 - d, rc.x2 + d, rc.y2 + d);
     }
 }
 
