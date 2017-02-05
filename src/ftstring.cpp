@@ -51,7 +51,7 @@ void cFTString::draw(int x, int y, const char* utf8)
 {
     auto xStart = x;
 
-    uint32_t codepoint;
+    uint32_t codepoint = 0;
     auto s = (const uint8_t*)utf8;
     auto begin = utf8;
 
@@ -98,7 +98,7 @@ uint32_t cFTString::getStringWidth(const char* utf8)
 {
     uint32_t width = 0;
 
-    uint32_t codepoint;
+    uint32_t codepoint = 0;
     auto s = (const uint8_t*)utf8;
     auto begin = utf8;
 
@@ -145,7 +145,7 @@ void cFTString::generateNewSymbol(const char* utf8)
     {
         m_symbols.reserve(m_symbols.size() + ::strlen(utf8));
 
-        uint32_t codepoint;
+        uint32_t codepoint = 0;
         auto s = (const uint8_t*)utf8;
 
         for (uint32_t prev = 0, state = 0; *s; prev = state)
