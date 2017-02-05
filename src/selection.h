@@ -11,6 +11,7 @@
 
 #include "types/rect.h"
 #include "types/types.h"
+#include "types/vector.h"
 
 #include <memory>
 
@@ -21,28 +22,27 @@ class cSelection final
 public:
     void init();
     void setImageDimension(float w, float h);
-    void mouseButton(float x, float y, bool pressed);
-    void mouseMove(float x, float y);
-    void render(float dx, float dy);
+    void mouseButton(const Vectorf& pos, bool pressed);
+    void mouseMove(const Vectorf& pos);
+    void render(const Vectorf& offset);
     const Rectf& getRect() const;
     int getCursor() const;
     void setScale(float scale);
 
 private:
-    void updateCorner(float x, float y);
+    void updateCorner(const Vectorf& pos);
     void renderHorizontal(float x, float y, float w, float scale);
     void renderVertical(float x, float y, float h, float scale);
-    void setImagePos(Rectf& rc, float dx, float dy);
-    void clampPoint(float& x, float& y);
+    void setImagePos(Rectf& rc, const Vectorf& offset);
+    void clampPoint(Vectorf& pos);
     void setColor(bool selected);
-    void clampShiftDelta(float& dx, float& dy);
+    void clampShiftDelta(Vectorf& delta);
 
 private:
     bool m_enabled = true;
     float m_imageWidth = 0.0f;
     float m_imageHeight = 0.0f;
-    float m_mouseX = 0.0f;
-    float m_mouseY = 0.0f;
+    Vectorf m_mousePos = { 0.0f, 0.0f };
     float m_scale = 1.0f;
 
     enum class eMouseMode
@@ -67,5 +67,5 @@ private:
 
     std::unique_ptr<cQuad> m_selection;
     Rectf m_rc;
-    Rectf m_rc_test;
+    Rectf m_rcTest;
 };

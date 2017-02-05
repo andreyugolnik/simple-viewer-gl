@@ -20,6 +20,7 @@ namespace
 
     GLFWwindow* Window = nullptr;
     Rectf ViewRect;
+    float ViewZoom = 1.0f;
     Vectori ViewportSize;
     uint32_t CurrentTextureId = 0;
     sVertex Vb[4];
@@ -240,7 +241,8 @@ void cRenderer::setViewportSize(const Vectori& size)
 
 void cRenderer::resetGlobals()
 {
-    ViewRect = { 0.0f, 0.0f, (float)ViewportSize.x, (float)ViewportSize.y };
+    ViewRect = { { 0.0f, 0.0f }, { (float)ViewportSize.x, (float)ViewportSize.y } };
+    ViewZoom = 1.0f;
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -259,6 +261,11 @@ const Rectf& cRenderer::getRect()
     return ViewRect;
 }
 
+float cRenderer::getZoom()
+{
+    return ViewZoom;
+}
+
 void cRenderer::setGlobals(const Vectorf& offset, float angle, float zoom)
 {
     const float z = 1.0f / zoom;
@@ -268,7 +275,8 @@ void cRenderer::setGlobals(const Vectorf& offset, float angle, float zoom)
     const float x = offset.x - w * 0.5f;
     const float y = offset.y - h * 0.5f;
 
-    ViewRect = { x, y, x + w, y + h };
+    ViewRect = { { x, y }, { x + w, y + h } };
+    ViewZoom = zoom;
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();

@@ -62,6 +62,7 @@ public:
     static void setGlobals(const Vectorf& offset, float angle, float zoom);
 
     static const Rectf& getRect();
+    static float getZoom();
 
     static bool checkError(const char* msg);
 };

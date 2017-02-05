@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include "vector.h"
+
 #include <cmath>
 
 template<typename T>
@@ -17,18 +19,12 @@ class cRect final
 public:
     cRect()
         : m_isSet(false)
-        , x1(static_cast<T>(0))
-        , y1(static_cast<T>(0))
-        , x2(static_cast<T>(0))
-        , y2(static_cast<T>(0))
     { }
 
-    cRect(T X1, T Y1, T X2, T Y2)
+    cRect(const cVector<T>& topLeft, const cVector<T>& bottomRight)
         : m_isSet(true)
-        , x1(X1)
-        , y1(Y1)
-        , x2(X2)
-        , y2(Y2)
+        , tl(topLeft)
+        , br(bottomRight)
     { }
 
     void clear()
@@ -41,62 +37,56 @@ public:
         return m_isSet;
     }
 
-    void set(T x1, T y1, T x2, T y2)
+    void set(const cVector<T>& topLeft, const cVector<T>& bottomRight)
     {
-        setLeftTop(x1, y1);
-        setRightBottom(x2, y2);
+        setLeftTop(topLeft);
+        setRightBottom(bottomRight);
     }
 
-    void setLeftTop(T x, T y)
+    void setLeftTop(const cVector<T>& topLeft)
     {
-        x1 = x;
-        y1 = y;
         m_isSet = true;
+        tl = topLeft;
     }
 
-    void setRightBottom(T x, T y)
+    void setRightBottom(const cVector<T>& bottomRight)
     {
-        x2 = x;
-        y2 = y;
         m_isSet = true;
+        br = bottomRight;
     }
 
-    void shiftRect(T dx, T dy)
+    void shiftRect(const cVector<T>& delta)
     {
-        x1 += dx;
-        x2 += dx;
-        y1 += dy;
-        y2 += dy;
+        tl += delta;
+        br += delta;
     }
 
-    void encapsulate(T x, T y)
+    void encapsulate(const cVector<T>& v)
     {
         if (m_isSet)
         {
-            x1 = x < x1 ? x : x1;
-            x2 = x > x2 ? x : x2;
-            y1 = y < y1 ? y : y1;
-            y2 = y > y2 ? y : y2;
+            tl.x = v.x < tl.x ? v.x : tl.x;
+            br.x = v.x > br.x ? v.x : br.x;
+            tl.y = v.y < tl.y ? v.y : tl.y;
+            br.y = v.y > br.y ? v.y : br.y;
         }
         else
         {
             m_isSet = true;
-            x1 = x;
-            x2 = x;
-            y1 = y;
-            y2 = y;
+            tl = v;
+            br = v;
         }
     }
 
-    bool testPoint(T x, T y) const
+    bool testPoint(const cVector<T>& v) const
     {
-        return !(!m_isSet || x < x1 || x >= x2 || y < y1 || y >= y2);
+        return !(!m_isSet || v.x < tl.x || v.x >= br.x || v.y < tl.y || v.y >= br.y);
     }
 
-    bool intersect(const cRect<T>* rc) const
+    bool intersect(const cRect<T>& rc) const
     {
-        if (fabs(x1 + x2 - rc->x1 - rc->x2) < (x2 - x1 + rc->x2 - rc->x1) &&
-            fabs(y1 + y2 - rc->y1 - rc->y2) < (y2 - y1 + rc->y2 - rc->y1))
+        if (fabs(tl.x + br.x - rc.tl.x - rc.br.x) < (br.x - tl.x + rc.br.x - rc.tl.x) &&
+            fabs(tl.y + br.y - rc.tl.y - rc.br.y) < (br.y - tl.y + rc.br.y - rc.tl.y))
         {
             return true;
         }
@@ -105,27 +95,27 @@ public:
 
     T width() const
     {
-        return (x2 >= x1) ? (x2 - x1) : (x1 - x2);
+        return (br.x >= tl.x) ? (br.x - tl.x) : (tl.x - br.x);
     }
 
     T height() const
     {
-        return (y2 >= y1) ? (y2 - y1) : (y1 - y2);
+        return (br.y >= tl.y) ? (br.y - tl.y) : (tl.y - br.y);
     }
 
     void normalize()
     {
-        if (x1 > x2)
+        if (tl.x > br.x)
         {
-            auto x = x2;
-            x2 = x1;
-            x1 = x;
+            auto x = br.x;
+            br.x = tl.x;
+            tl.x = x;
         }
-        if (y1 > y2)
+        if (tl.y > br.y)
         {
-            auto y = y2;
-            y2 = y1;
-            y1 = y;
+            auto y = br.y;
+            br.y = tl.y;
+            tl.y = y;
         }
     }
 
@@ -134,10 +124,10 @@ public:
         if (&rc != this)
         {
             m_isSet = rc.m_isSet;
-            x1 = rc.x1;
-            x2 = rc.x2;
-            y1 = rc.y1;
-            y2 = rc.y2;
+            tl.x = rc.tl.x;
+            br.x = rc.br.x;
+            tl.y = rc.tl.y;
+            br.y = rc.br.y;
         }
         return *this;
     }
@@ -146,10 +136,8 @@ private:
     bool m_isSet;
 
 public:
-    T x1;
-    T y1;
-    T x2;
-    T y2;
+    cVector<T> tl;
+    cVector<T> br;
 };
 
 typedef cRect<float> Rectf;

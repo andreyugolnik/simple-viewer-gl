@@ -32,7 +32,7 @@ struct sPixelInfo
         imgHeight = 0;
         bpp = 0;
         color = { 0, 0, 0, 0 };
-        rc = { 0.0f, 0.0f, 0.0f, 0.0f };
+        rc = { { 0.0f, 0.0f }, { 0.0f, 0.0f } };
     }
 
     Vectorf mouse;

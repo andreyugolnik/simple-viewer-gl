@@ -88,8 +88,8 @@ void cPixelPopup::setPixelInfo(const sPixelInfo& pi)
 
     if (pi.rc.isSet())
     {
-        const int x = pi.rc.x1;
-        const int y = pi.rc.y1;
+        const int x = pi.rc.tl.x;
+        const int y = pi.rc.tl.y;
         const int w = pi.rc.width();
         const int h = pi.rc.height();
 

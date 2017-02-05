@@ -130,8 +130,8 @@ void cViewer::render()
 
     m_image->render();
 
-    const float half_w = ceilf(m_image->getWidth() * 0.5f);
-    const float half_h = ceilf(m_image->getHeight() * 0.5f);
+    const float half_w = ::ceilf(m_image->getWidth() * 0.5f);
+    const float half_h = ::ceilf(m_image->getHeight() * 0.5f);
 
     if (m_loader->isLoaded())
     {
@@ -141,7 +141,7 @@ void cViewer::render()
         }
         if (m_config->showPixelInfo && m_angle == 0)
         {
-            m_selection->render(-half_w, -half_h);
+            m_selection->render({ -half_w, -half_h });
         }
     }
     cRenderer::resetGlobals();
@@ -280,7 +280,7 @@ void cViewer::fnMouse(const Vectorf& pos)
         m_pixelPopup->setCursor(cursor);
 
         const Vectorf point = screenToImage(posFixed);
-        m_selection->mouseMove(point.x, point.y);
+        m_selection->mouseMove(point);
 
         updatePixelInfo(posFixed);
     }
@@ -310,7 +310,7 @@ void cViewer::fnMouseButtons(int button, int action, int mods)
         m_mouseLB = (action == GLFW_PRESS);
         {
             const Vectorf point = screenToImage(m_lastMouse);
-            m_selection->mouseButton(point.x, point.y, m_mouseLB);
+            m_selection->mouseButton(point, m_mouseLB);
 
             auto& rect = m_selection->getRect();
             if (rect.isSet() == false)
@@ -617,8 +617,8 @@ void cViewer::centerWindow()
             const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
             // calculate window size
-            int imgw = m_image->getWidth() + (m_config->showImageBorder ? m_border->GetBorderWidth() * 2 : 0);
-            int imgh = m_image->getHeight() + (m_config->showImageBorder ? m_border->GetBorderWidth() * 2 : 0);
+            int imgw = m_image->getWidth() + (m_config->showImageBorder ? m_border->getThickness() * 2 : 0);
+            int imgh = m_image->getHeight() + (m_config->showImageBorder ? m_border->getThickness() * 2 : 0);
             imgw = std::max<int>(imgw, DEF_WINDOW_W * m_ratio.x);
             imgh = std::max<int>(imgh, DEF_WINDOW_H * m_ratio.y);
 

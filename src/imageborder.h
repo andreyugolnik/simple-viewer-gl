@@ -19,11 +19,21 @@ public:
 
     void setColor(const cColor& color);
     void Render(float x, float y, float w, float h, float scale);
-    float GetBorderWidth() const;
+
+    void setThickness(float thickness)
+    {
+        m_thickness = thickness;
+    }
+
+    float getThickness() const
+    {
+        return m_thickness;
+    }
 
 private:
     void renderLine(float x, float y, float w, float h);
 
 private:
     sQuad m_line;
+    float m_thickness = 2.0f;
 };

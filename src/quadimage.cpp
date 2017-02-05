@@ -9,6 +9,7 @@
 
 #include "quadimage.h"
 #include "quad.h"
+#include "imageborder.h"
 
 #include <cassert>
 #include <cmath>
@@ -182,10 +183,12 @@ void cQuadImage::useFilter(bool filter)
 bool cQuadImage::isInsideViewport(const sChunk& chunk, float x, float y) const
 {
     auto& rc = cRenderer::getRect();
-    return x + chunk.quad->GetWidth() >= rc.x1
-        && y + chunk.quad->GetHeight() >= rc.y1
-        && x < rc.x2
-        && y < rc.y2;
+    const Rectf rcQuad
+    {
+        { x, y },
+        { x + chunk.quad->GetWidth(), y + chunk.quad->GetHeight() }
+    };
+    return rc.intersect(rcQuad);
 }
 
 void cQuadImage::render()
@@ -195,14 +198,12 @@ void cQuadImage::render()
     const float texWidth = m_texWidth;
     const float texHeight = m_texHeight;
 
-    // uint32_t rendered = 0;
     for (const auto& chunk : m_chunksOld)
     {
         const float x = chunk.col * texWidth - halfWidth;
         const float y = chunk.row * texHeight - halfHeight;
         if (isInsideViewport(chunk, x, y))
         {
-            // rendered++;
             chunk.quad->Render(x, y);
         }
     }
@@ -213,14 +214,50 @@ void cQuadImage::render()
         const float y = chunk.row * texHeight - halfHeight;
         if (isInsideViewport(chunk, x, y))
         {
-            // rendered++;
             chunk.quad->Render(x, y);
         }
     }
 
-    // ::printf("(II) Rendered: %u out of %u\n"
-             // , rendered
-             // , (uint32_t)(m_chunksOld.size() + m_chunks.size()));
+#if 0
+    cImageBorder border;
+    border.setColor({ 0, 0, 255, 255 });
+    border.setThickness(0.5f);
+    const float zoom = cRenderer::getZoom();
+
+    uint32_t rendered = 0;
+    static uint32_t prevRendered = 0;
+
+    for (const auto& chunk : m_chunksOld)
+    {
+        const float x = chunk.col * texWidth - halfWidth;
+        const float y = chunk.row * texHeight - halfHeight;
+        if (isInsideViewport(chunk, x, y))
+        {
+            rendered++;
+            border.Render(x, y, chunk.quad->GetWidth(), chunk.quad->GetHeight(), zoom);
+        }
+    }
+
+    for (const auto& chunk : m_chunks)
+    {
+        const float x = chunk.col * texWidth - halfWidth;
+        const float y = chunk.row * texHeight - halfHeight;
+        if (isInsideViewport(chunk, x, y))
+        {
+            rendered++;
+            border.Render(x, y, chunk.quad->GetWidth(), chunk.quad->GetHeight(), zoom);
+        }
+    }
+
+    if (prevRendered != rendered)
+    {
+        const auto total = (uint32_t)(m_chunksOld.size() + m_chunks.size());
+        prevRendered = rendered;
+        ::printf("(II) Total chunks: %u rendered: %u\n"
+                 , total
+                 , rendered);
+    }
+#endif
 }
 
 void cQuadImage::moveToOld()

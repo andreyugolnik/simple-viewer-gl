@@ -65,7 +65,7 @@ void cSelection::setImageDimension(float w, float h)
     m_imageWidth = w;
     m_imageHeight = h;
     m_rc.clear();
-    m_rc_test.clear();
+    m_rcTest.clear();
 }
 
 void cSelection::setScale(float scale)
@@ -77,19 +77,20 @@ void cSelection::setScale(float scale)
         auto rc = m_rc;
         rc.normalize();
         const float d = delta2 / scale;
-        m_rc_test.set(rc.x1 - d, rc.y1 - d, rc.x2 + d, rc.y2 + d);
+        m_rcTest.set({ rc.tl.x - d, rc.tl.y - d }, { rc.br.x + d, rc.br.y + d });
     }
 }
 
-void cSelection::mouseButton(float x, float y, bool pressed)
+void cSelection::mouseButton(const Vectorf& p, bool pressed)
 {
     if (pressed)
     {
-        m_rc.normalize();
-        const bool inside = m_rc_test.testPoint(x, y);
+        auto pos = p;
 
-        m_mouseX = x;
-        m_mouseY = y;
+        m_rc.normalize();
+        const bool inside = m_rcTest.testPoint(pos);
+
+        m_mousePos = pos;
 
         if (m_mode == eMouseMode::None)
         {
@@ -100,19 +101,19 @@ void cSelection::mouseButton(float x, float y, bool pressed)
             else
             {
                 m_mode = eMouseMode::Select;
-                clampPoint(x, y);
-                m_rc.setLeftTop(x, y);
+                clampPoint(pos);
+                m_rc.setLeftTop(pos);
                 m_rc.clear();
                 const float d = delta2 / m_scale;
-                m_rc_test.setLeftTop(x - d, y - d);
-                m_rc_test.clear();
+                m_rcTest.setLeftTop(pos - d);
+                m_rcTest.clear();
             }
         }
         else if (inside == false)
         {
             m_mode = eMouseMode::None;
             m_rc.clear();
-            m_rc_test.clear();
+            m_rcTest.clear();
         }
     }
     else
@@ -122,14 +123,14 @@ void cSelection::mouseButton(float x, float y, bool pressed)
     }
 }
 
-void cSelection::mouseMove(float x, float y)
+void cSelection::mouseMove(const Vectorf& p)
 {
-    updateCorner(x, y);
+    auto pos = p;
+    updateCorner(pos);
 
     if (m_mode != eMouseMode::None)
     {
-        float dx = x - m_mouseX;
-        float dy = y - m_mouseY;
+        auto delta = pos - m_mousePos;
 
         switch (m_mode)
         {
@@ -137,61 +138,60 @@ void cSelection::mouseMove(float x, float y)
             break;
 
         case eMouseMode::Select:
-            clampPoint(x, y);
-            m_rc.setRightBottom(x, y);
+            clampPoint(pos);
+            m_rc.setRightBottom(pos);
             break;
 
         case eMouseMode::Move:
-            clampShiftDelta(dx, dy);
-            m_rc.shiftRect(dx, dy);
+            clampShiftDelta(delta);
+            m_rc.shiftRect(delta);
             break;
 
         case eMouseMode::Resize:
             if ((m_corner & (uint32_t)eCorner::UP))
             {
-                m_rc.y1 += dy;
+                m_rc.tl.y += delta.y;
             }
             if ((m_corner & (uint32_t)eCorner::RT))
             {
-                m_rc.x2 += dx;
+                m_rc.br.x += delta.x;
             }
             if ((m_corner & (uint32_t)eCorner::DN))
             {
-                m_rc.y2 += dy;
+                m_rc.br.y += delta.y;
             }
             if ((m_corner & (uint32_t)eCorner::LT))
             {
-                m_rc.x1 += dx;
+                m_rc.tl.x += delta.x;
             }
             break;
         }
 
-        m_rc.x1 = clamp<float>(0.0f, m_imageWidth - 1.0f, m_rc.x1);
-        m_rc.y1 = clamp<float>(0.0f, m_imageHeight - 1.0f, m_rc.y1);
-        m_rc.x2 = clamp<float>(0.0f, m_imageWidth - 1.0f, m_rc.x2);
-        m_rc.y2 = clamp<float>(0.0f, m_imageHeight - 1.0f, m_rc.y2);
+        m_rc.tl.x = clamp<float>(0.0f, m_imageWidth - 1.0f, m_rc.tl.x);
+        m_rc.tl.y = clamp<float>(0.0f, m_imageHeight - 1.0f, m_rc.tl.y);
+        m_rc.br.x = clamp<float>(0.0f, m_imageWidth - 1.0f, m_rc.br.x);
+        m_rc.br.y = clamp<float>(0.0f, m_imageHeight - 1.0f, m_rc.br.y);
 
-        m_mouseX += dx;
-        m_mouseY += dy;
+        m_mousePos += delta;
     }
 }
 
-void cSelection::clampShiftDelta(float& dx, float& dy)
+void cSelection::clampShiftDelta(Vectorf& delta)
 {
-    dx = clamp<float>(-m_rc.x1, m_imageWidth - m_rc.x2 - 1.0f, dx);
-    dy = clamp<float>(-m_rc.y1, m_imageHeight - m_rc.y2 - 1.0f, dy);
+    delta.x = clamp<float>(-m_rc.tl.x, m_imageWidth - m_rc.br.x - 1.0f, delta.x);
+    delta.y = clamp<float>(-m_rc.tl.y, m_imageHeight - m_rc.br.y - 1.0f, delta.y);
 }
 
-void cSelection::render(float dx, float dy)
+void cSelection::render(const Vectorf& offset)
 {
     if (m_enabled && m_rc.isSet())
     {
         Rectf rc;
-        setImagePos(rc, dx, dy);
+        setImagePos(rc, offset);
 
         const float d = 1.0f / m_scale;
-        const float x = std::min<float>(rc.x1, rc.x2);
-        const float y = std::min<float>(rc.y1, rc.y2);
+        const float x = std::min<float>(rc.tl.x, rc.br.x);
+        const float y = std::min<float>(rc.tl.y, rc.br.y);
         const float w = rc.width();
         const float h = rc.height();
         // top line
@@ -226,38 +226,40 @@ int cSelection::getCursor() const
     return cursor[m_corner];
 }
 
-void cSelection::updateCorner(float x, float y)
+void cSelection::updateCorner(const Vectorf& pos)
 {
     if (m_mode != eMouseMode::None)
     {
         return;
     }
 
-    const Rectf& rc = m_rc_test;
-    if (rc.testPoint(x, y))
+    const auto& rc = m_rcTest;
+    if (rc.testPoint(pos))
     {
         m_corner = 0;
+
         const float d = delta / m_scale;
-        Rectf rcLt(rc.x1, rc.y1, rc.x1 + d, rc.y2);
-        if (rcLt.testPoint(x, y))
+
+        const Rectf rcLt(rc.tl, { rc.tl.x + d, rc.br.y });
+        if (rcLt.testPoint(pos))
         {
             m_corner |= (uint32_t)eCorner::LT;
         }
 
-        Rectf rcRt(rc.x2 - d, rc.y1, rc.x2, rc.y2);
-        if (rcRt.testPoint(x, y))
+        const Rectf rcRt({ rc.br.x - d, rc.tl.y }, rc.br);
+        if (rcRt.testPoint(pos))
         {
             m_corner |= (uint32_t)eCorner::RT;
         }
 
-        Rectf rcUp(rc.x1, rc.y1, rc.x2, rc.y1 + d);
-        if (rcUp.testPoint(x, y))
+        const Rectf rcUp(rc.tl, { rc.br.x, rc.tl.y + d });
+        if (rcUp.testPoint(pos))
         {
             m_corner |= (uint32_t)eCorner::UP;
         }
 
-        Rectf rcDn(rc.x1, rc.y2 - d, rc.x2, rc.y2);
-        if (rcDn.testPoint(x, y))
+        const Rectf rcDn({ rc.tl.x, rc.br.y - d }, rc.br);
+        if (rcDn.testPoint(pos))
         {
             m_corner |= (uint32_t)eCorner::DN;
         }
@@ -287,18 +289,16 @@ void cSelection::renderVertical(float x, float y, float h, float scale)
     m_selection->Render(x, y);
 }
 
-void cSelection::setImagePos(Rectf& rc, float dx, float dy)
+void cSelection::setImagePos(Rectf& rc, const Vectorf& offset)
 {
-    rc.x1 = m_rc.x1 + dx;
-    rc.x2 = m_rc.x2 + dx;
-    rc.y1 = m_rc.y1 + dy;
-    rc.y2 = m_rc.y2 + dy;
+    rc = m_rc;
+    rc.shiftRect(offset);
 }
 
-void cSelection::clampPoint(float& x, float& y)
+void cSelection::clampPoint(Vectorf& pos)
 {
-    x = clamp<float>(0.0f, m_imageWidth - 1.0f, x);
-    y = clamp<float>(0.0f, m_imageHeight - 1.0f, y);
+    pos.x = clamp<float>(0.0f, m_imageWidth - 1.0f, pos.x);
+    pos.y = clamp<float>(0.0f, m_imageHeight - 1.0f, pos.y);
 }
 
 void cSelection::setColor(bool selected)

@@ -41,6 +41,11 @@ public:
         return cVector(-x, -y);
     }
 
+    cVector operator- (T scalar) const
+    {
+        return cVector(x - scalar, y - scalar);
+    }
+
     cVector operator- (const cVector& v) const
     {
         return cVector(x - v.x, y - v.y);
