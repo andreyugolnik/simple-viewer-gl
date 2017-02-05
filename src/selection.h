@@ -27,9 +27,9 @@ public:
     void render(const Vectorf& offset);
     const Rectf& getRect() const;
     int getCursor() const;
-    void setScale(float scale);
 
 private:
+    void updateTestRect();
     void updateCorner(const Vectorf& pos);
     void renderHorizontal(float x, float y, float w, float scale);
     void renderVertical(float x, float y, float h, float scale);
@@ -43,7 +43,6 @@ private:
     float m_imageWidth = 0.0f;
     float m_imageHeight = 0.0f;
     Vectorf m_mousePos = { 0.0f, 0.0f };
-    float m_scale = 1.0f;
 
     enum class eMouseMode
     {

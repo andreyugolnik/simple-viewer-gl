@@ -137,7 +137,7 @@ void cViewer::render()
     {
         if (m_config->showImageBorder)
         {
-            m_border->Render(-half_w, -half_h, m_image->getWidth(), m_image->getHeight(), scale);
+            m_border->render(-half_w, -half_h, m_image->getWidth(), m_image->getHeight());
         }
         if (m_config->showPixelInfo && m_angle == 0)
         {
@@ -372,7 +372,6 @@ void cViewer::fnKeyboard(int key, int /*scancode*/, int action, int mods)
             m_camera = Vectorf();
             centerWindow();
             updateInfobar();
-            m_selection->setScale(m_scale.getScale());
         }
         break;
 
@@ -463,7 +462,6 @@ void cViewer::fnKeyboard(int key, int /*scancode*/, int action, int mods)
             m_config->fitImage = false;
             centerWindow();
             updateInfobar();
-            m_selection->setScale(m_scale.getScale());
         }
         else if (key >= GLFW_KEY_1 && key <= GLFW_KEY_9)
         {
@@ -472,7 +470,6 @@ void cViewer::fnKeyboard(int key, int /*scancode*/, int action, int mods)
             m_config->fitImage = false;
             centerWindow();
             updateInfobar();
-            m_selection->setScale(m_scale.getScale());
         }
         break;
     }
@@ -558,7 +555,6 @@ void cViewer::calculateScale()
         {
             m_scale.setScalePercent(100);
         }
-        m_selection->setScale(m_scale.getScale());
     }
 
     updateFiltering();
@@ -586,7 +582,6 @@ void cViewer::updateScale(bool up)
         }
     }
     m_scale.setScalePercent(scale);
-    m_selection->setScale(m_scale.getScale());
 
     updateFiltering();
     updateInfobar();

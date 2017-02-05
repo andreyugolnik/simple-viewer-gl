@@ -18,7 +18,7 @@ public:
     ~cImageBorder();
 
     void setColor(const cColor& color);
-    void Render(float x, float y, float w, float h, float scale);
+    void render(float x, float y, float w, float h);
 
     void setThickness(float thickness)
     {

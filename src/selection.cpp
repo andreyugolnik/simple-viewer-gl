@@ -68,21 +68,21 @@ void cSelection::setImageDimension(float w, float h)
     m_rcTest.clear();
 }
 
-void cSelection::setScale(float scale)
+void cSelection::updateTestRect()
 {
-    m_scale = scale;
-
     if (m_rc.isSet())
     {
         auto rc = m_rc;
         rc.normalize();
-        const float d = delta2 / scale;
+        const float d = delta2 / cRenderer::getZoom();
         m_rcTest.set({ rc.tl.x - d, rc.tl.y - d }, { rc.br.x + d, rc.br.y + d });
     }
 }
 
 void cSelection::mouseButton(const Vectorf& p, bool pressed)
 {
+    updateTestRect();
+
     if (pressed)
     {
         auto pos = p;
@@ -104,7 +104,7 @@ void cSelection::mouseButton(const Vectorf& p, bool pressed)
                 clampPoint(pos);
                 m_rc.setLeftTop(pos);
                 m_rc.clear();
-                const float d = delta2 / m_scale;
+                const float d = delta2 / cRenderer::getZoom();
                 m_rcTest.setLeftTop(pos - d);
                 m_rcTest.clear();
             }
@@ -119,7 +119,6 @@ void cSelection::mouseButton(const Vectorf& p, bool pressed)
     else
     {
         m_mode = eMouseMode::None;
-        setScale(m_scale);
     }
 }
 
@@ -189,17 +188,21 @@ void cSelection::render(const Vectorf& offset)
         Rectf rc;
         setImagePos(rc, offset);
 
-        const float d = 1.0f / m_scale;
-        const float x = std::min<float>(rc.tl.x, rc.br.x);
-        const float y = std::min<float>(rc.tl.y, rc.br.y);
-        const float w = rc.width();
-        const float h = rc.height();
+        rc.normalize();
+        const float x = rc.tl.x;
+        const float y = rc.tl.y;
+        const float w = rc.width() + 1.0f;
+        const float h = rc.height() + 1.0f;
+
+        const float thickness = 1.0f;
+        const float d = thickness / cRenderer::getZoom();
+
         // top line
         setColor(m_corner & (uint32_t)eCorner::UP);
-        renderHorizontal(x - d, y - d, w + 2.0f * d, d);
+        renderHorizontal(x - d, y - d, w + d * 2.0f, d);
         // bottom line
         setColor(m_corner & (uint32_t)eCorner::DN);
-        renderHorizontal(x - d, y + h + d, w + 2.0f * d, d);
+        renderHorizontal(x - d, y + h + d, w + d * 2.0f, d);
         // left line
         setColor(m_corner & (uint32_t)eCorner::LT);
         renderVertical(x - d, y, h, d);
@@ -233,12 +236,13 @@ void cSelection::updateCorner(const Vectorf& pos)
         return;
     }
 
+    updateTestRect();
     const auto& rc = m_rcTest;
     if (rc.testPoint(pos))
     {
         m_corner = 0;
 
-        const float d = delta / m_scale;
+        const float d = delta / cRenderer::getZoom();
 
         const Rectf rcLt(rc.tl, { rc.tl.x + d, rc.br.y });
         if (rcLt.testPoint(pos))

@@ -25,9 +25,9 @@ void cImageBorder::setColor(const cColor& color)
     m_line.v[0].color = m_line.v[1].color = m_line.v[2].color = m_line.v[3].color = color;
 }
 
-void cImageBorder::Render(float x, float y, float w, float h, float scale)
+void cImageBorder::render(float x, float y, float w, float h)
 {
-    const float delta = getThickness() / scale;
+    const float delta = getThickness() / cRenderer::getZoom();
 
     renderLine(x - delta, y - delta, w + delta * 2, delta); // up
     renderLine(x - delta, y + h,     w + delta * 2, delta); // down

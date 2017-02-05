@@ -71,23 +71,7 @@ void cQuad::SetTextureRect(float x, float y, float w, float h)
 
 void cQuad::SetSpriteSize(float w, float h)
 {
-    m_w = w;
-    m_h = h;
-
-    const float invTw = m_tw ? (1.0f / m_tw) : 0.0f;
-    const float invTh = m_th ? (1.0f / m_th) : 0.0f;
-
-    m_quad.v[0].tx = 0.0f;
-    m_quad.v[0].ty = 0.0f;
-
-    m_quad.v[1].tx = w * invTw;
-    m_quad.v[1].ty = 0.0f;
-
-    m_quad.v[2].tx = w * invTw;
-    m_quad.v[2].ty = h * invTh;
-
-    m_quad.v[3].tx = 0.0f;
-    m_quad.v[3].ty = h * invTh;
+    SetTextureRect(0.0f, 0.0f, w, h);
 }
 
 void cQuad::Render(float x, float y)
