@@ -33,7 +33,7 @@ void cSelection::init()
     auto p = buffer.data();
 
     uint32_t idx = 0;
-    const uint8_t colors[2] = { 0x20, 0xff };
+    const uint8_t colors[2] = { 0x30, 0xe0 };
 
     for (uint32_t y = 0; y < m_texSize; y++)
     {
@@ -134,7 +134,7 @@ void cSelection::mouseMove(const Vectorf& p)
 
         switch (m_mode)
         {
-        case eMouseMode::None:   // do nothing here
+        case eMouseMode::None: // do nothing here
             break;
 
         case eMouseMode::Select:
@@ -237,7 +237,7 @@ void cSelection::updateCorner(const Vectori& pos)
     {
         m_corner = 0;
 
-        const int d = delta / cRenderer::getZoom();
+        const int d = delta2;
 
         const Recti rcLt(rc.tl, { rc.tl.x + d, rc.br.y });
         if (rcLt.testPoint(pos))
@@ -277,15 +277,15 @@ void cSelection::updateCorner(const Vectori& pos)
 void cSelection::renderHorizontal(float x, float y, float w, float thickness)
 {
     const auto offset = glfwGetTime() * 10.0f;
-    m_selection->SetTextureRect(offset, 0.0f, w, thickness);
-    m_selection->Render(x, y);
+    m_selection->SetTextureRect(offset, 0.0f, w * cRenderer::getZoom(), thickness);
+    m_selection->RenderEx(x, y, w, thickness);
 }
 
 void cSelection::renderVertical(float x, float y, float h, float thickness)
 {
     const auto offset = glfwGetTime() * 10.0f;
-    m_selection->SetTextureRect(0.0f, offset, thickness, h);
-    m_selection->Render(x, y);
+    m_selection->SetTextureRect(0.0f, offset, thickness, h * cRenderer::getZoom());
+    m_selection->RenderEx(x, y, thickness, h);
 }
 
 void cSelection::setImagePos(Recti& rc, const Vectori& offset)
