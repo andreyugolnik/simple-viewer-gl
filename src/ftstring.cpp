@@ -15,7 +15,7 @@
 
 namespace
 {
-    uint32_t LinefeedCodepoint = 0;
+    uint32_t LinefeedCodepoint = (uint32_t)'\n';
 }
 
 cFTString::cFTString(int size)
@@ -30,10 +30,6 @@ cFTString::cFTString(int size)
     }
 
     setColor({ 255, 255, 255, 255 });
-
-    uint32_t state = 0;
-    const char* linefeed = "\n";
-    decode(&state, &LinefeedCodepoint, *linefeed);
 }
 
 cFTString::~cFTString()
@@ -51,61 +47,18 @@ void cFTString::setColor(const cColor& color)
     cRenderer::setColor(&m_quad, color);
 }
 
-// void cFTString::setText(const char* utf8)
-// {
-    // const auto size = ::mbstowcs(nullptr, utf8, 0) + 1;
-    // if (size > m_unicode.size())
-    // {
-        // m_unicode.resize(size);
-    // }
-    // ::mbstowcs(m_unicode.data(), utf8, size);
-// }
-
-// void cFTString::render(int x, int y)
-// {
-    // auto string = m_unicode.data();
-    // if (string != nullptr)
-    // {
-        // int xStart = x;
-
-        // while (*string)
-        // {
-            // const auto i = *string;
-            // if (i == L'\n')
-            // {
-                // x = xStart;
-                // y += m_height;
-            // }
-            // else
-            // {
-                // const auto& it = m_mapSymbol.find(i);
-                // if (it == m_mapSymbol.end())
-                // {
-                    // generateNewSymbol(string);
-                    // continue;
-                // }
-                // if (it->second.p != nullptr)
-                // {
-                    // it->second.p->render(x + it->second.l, y - it->second.t);
-                    // x += it->second.ax;
-                // }
-            // }
-
-            // string++;
-        // }
-    // }
-// }
-
 void cFTString::draw(int x, int y, const char* utf8)
 {
     auto xStart = x;
 
     uint32_t codepoint;
-    uint32_t state = 0;
+    auto s = (const uint8_t*)utf8;
+    auto begin = utf8;
 
-    for (; *utf8 != 0; )
+    for (uint32_t prev = 0, state = 0; *s; prev = state)
     {
-        if (decode(&state, &codepoint, *utf8) == UTF8_ACCEPT)
+        const uint32_t result = decode(&state, &codepoint, *s);
+        if (result == UTF8_ACCEPT)
         {
             if (codepoint == LinefeedCodepoint)
             {
@@ -117,7 +70,7 @@ void cFTString::draw(int x, int y, const char* utf8)
                 const auto& it = m_mapSymbol.find(codepoint);
                 if (it == m_mapSymbol.end())
                 {
-                    generateNewSymbol(utf8);
+                    generateNewSymbol(begin);
                     continue;
                 }
                 if (it->second.p != nullptr)
@@ -126,57 +79,33 @@ void cFTString::draw(int x, int y, const char* utf8)
                     x += it->second.ax;
                 }
             }
+            begin = (const char*)s + 1;
+        }
+        else if (result == UTF8_REJECT)
+        {
+            state = UTF8_ACCEPT;
+            if (prev != UTF8_ACCEPT)
+            {
+                continue;
+            }
         }
 
-        utf8++;
+        s++;
     }
 }
 
-// uint32_t cFTString::getStringWidth()
-// {
-    // uint32_t widthMax = 0;
-    // auto string = m_unicode.data();
-    // if (string != nullptr)
-    // {
-        // uint32_t width = 0;
-        // while (*string)
-        // {
-            // const auto i = *string;
-            // if (i == L'\n')
-            // {
-                // width = 0;
-            // }
-            // else
-            // {
-                // const auto& it = m_mapSymbol.find(i);
-                // if (it == m_mapSymbol.end())
-                // {
-                    // generateNewSymbol(string);
-                    // continue;
-                // }
-                // if (it->second.p != nullptr)
-                // {
-                    // width += it->second.ax;
-                    // widthMax = std::max<uint32_t>(widthMax, width);
-                // }
-            // }
-
-            // string++;
-        // }
-    // }
-
-    // return widthMax;
-// }
-
 uint32_t cFTString::getStringWidth(const char* utf8)
 {
-    uint32_t codepoint;
-    uint32_t state = 0;
-
     uint32_t width = 0;
-    for (; *utf8 != 0; )
+
+    uint32_t codepoint;
+    auto s = (const uint8_t*)utf8;
+    auto begin = utf8;
+
+    for (uint32_t prev = 0, state = 0; *s; prev = state)
     {
-        if (decode(&state, &codepoint, *utf8) == UTF8_ACCEPT)
+        const uint32_t result = decode(&state, &codepoint, *s);
+        if (result == UTF8_ACCEPT)
         {
             if (codepoint == LinefeedCodepoint)
             {
@@ -186,16 +115,25 @@ uint32_t cFTString::getStringWidth(const char* utf8)
             const auto& it = m_mapSymbol.find(codepoint);
             if (it == m_mapSymbol.end())
             {
-                generateNewSymbol(utf8);
+                generateNewSymbol(begin);
                 continue;
             }
             if (it->second.p != nullptr)
             {
                 width += it->second.ax;
             }
+            begin = (const char*)s + 1;
+        }
+        else if (result == UTF8_REJECT)
+        {
+            state = UTF8_ACCEPT;
+            if (prev != UTF8_ACCEPT)
+            {
+                continue;
+            }
         }
 
-        utf8++;
+        s++;
     }
 
     return width;
@@ -205,13 +143,15 @@ void cFTString::generateNewSymbol(const char* utf8)
 {
     if (m_ft != nullptr)
     {
-        uint32_t codepoint;
-        uint32_t state = 0;
-
         m_symbols.reserve(m_symbols.size() + ::strlen(utf8));
-        for (; *utf8 != 0; utf8++)
+
+        uint32_t codepoint;
+        auto s = (const uint8_t*)utf8;
+
+        for (uint32_t prev = 0, state = 0; *s; prev = state)
         {
-            if (decode(&state, &codepoint, *utf8) == UTF8_ACCEPT)
+            const uint32_t result = decode(&state, &codepoint, *s);
+            if (result == UTF8_ACCEPT)
             {
                 bool dup = false;
                 for (size_t i = 0, size = m_symbols.size(); i < size; i++)
@@ -228,6 +168,16 @@ void cFTString::generateNewSymbol(const char* utf8)
                     m_symbols.push_back(codepoint);
                 }
             }
+            else if (result == UTF8_REJECT)
+            {
+                state = UTF8_ACCEPT;
+                if (prev != UTF8_ACCEPT)
+                {
+                    continue;
+                }
+            }
+
+            s++;
         }
 
         generate();

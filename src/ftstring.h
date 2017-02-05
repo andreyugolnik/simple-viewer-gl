@@ -40,7 +40,7 @@ private:
 private:
     int m_height;   // desired font size
     FT_Library m_ft;
-    std::vector<uint32_t> m_symbols; // all symbols placed on texture
+    std::vector<uint16_t> m_symbols; // all symbols placed on texture
     uint32_t m_texWidth;
     uint32_t m_texHeight;
     sQuad m_quad;
@@ -54,5 +54,5 @@ private:
         uint32_t px, py; // texture symbol position
     };
 
-    std::map<wchar_t, Symbol> m_mapSymbol;
+    std::map<uint16_t, Symbol> m_mapSymbol;
 };
