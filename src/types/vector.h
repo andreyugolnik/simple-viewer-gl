@@ -35,46 +35,55 @@ public:
         y = v.y;
         return *this;
     }
+
     cVector operator- () const
     {
         return cVector(-x, -y);
     }
+
     cVector operator- (const cVector& v) const
     {
         return cVector(x - v.x, y - v.y);
     }
+
     cVector operator+ (const cVector& v) const
     {
         return cVector(x + v.x, y + v.y);
     }
+
     cVector& operator-= (const cVector& v)
     {
         x -= v.x;
         y -= v.y;
         return *this;
     }
+
     cVector& operator-= (T val)
     {
         x -= val;
         y -= val;
         return *this;
     }
+
     cVector& operator+= (const cVector& v)
     {
         x += v.x;
         y += v.y;
         return *this;
     }
+
     cVector& operator+= (T val)
     {
         x += val;
         y += val;
         return *this;
     }
+
     bool operator== (const cVector& v) const
     {
         return (x == v.x && y == v.y);
     }
+
     bool operator!= (const cVector& v) const
     {
         return (x != v.x || y != v.y);
@@ -84,10 +93,24 @@ public:
     {
         return cVector(x / scalar, y / scalar);
     }
+
     cVector operator* (T scalar) const
     {
         return cVector(x * scalar, y * scalar);
     }
+
+    cVector operator* (const cVector& v) const
+    {
+        return cVector(x * v.x, y * v.y);
+    }
+
+    cVector& operator*= (const cVector& v)
+    {
+        x *= v.x;
+        y *= v.y;
+        return *this;
+    }
+
     cVector& operator*= (T scalar)
     {
         x *= scalar;

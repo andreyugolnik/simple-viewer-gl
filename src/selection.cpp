@@ -8,8 +8,9 @@
 \**********************************************/
 
 #include "selection.h"
-#include "types/vector.h"
 #include "quad.h"
+#include "types/math.h"
+#include "types/vector.h"
 
 #include <algorithm>
 #include <cstdio>
@@ -164,11 +165,10 @@ void cSelection::mouseMove(float x, float y)
             break;
         }
 
-        m_rc.x1 = m_rc.x1 >= 0.0f ? m_rc.x1 : 0.0f;
-        m_rc.y1 = m_rc.y1 >= 0.0f ? m_rc.y1 : 0.0f;
-
-        m_rc.x2 = m_rc.x2 < m_imageWidth  ? m_rc.x2 : m_imageWidth  - 1.0f;
-        m_rc.y2 = m_rc.y2 < m_imageHeight ? m_rc.y2 : m_imageHeight - 1.0f;
+        m_rc.x1 = clamp<float>(0.0f, m_imageWidth - 1.0f, m_rc.x1);
+        m_rc.y1 = clamp<float>(0.0f, m_imageHeight - 1.0f, m_rc.y1);
+        m_rc.x2 = clamp<float>(0.0f, m_imageWidth - 1.0f, m_rc.x2);
+        m_rc.y2 = clamp<float>(0.0f, m_imageHeight - 1.0f, m_rc.y2);
 
         m_mouseX += dx;
         m_mouseY += dy;
@@ -177,22 +177,8 @@ void cSelection::mouseMove(float x, float y)
 
 void cSelection::clampShiftDelta(float& dx, float& dy)
 {
-    if (m_rc.x1 + dx < 0.0f)
-    {
-        dx = -m_rc.x1;
-    }
-    else if (m_rc.x2 + dx >= m_imageWidth)
-    {
-        dx = m_imageWidth - 1.0f - m_rc.x2;
-    }
-    if (m_rc.y1 + dy < 0.0f)
-    {
-        dy = -m_rc.y1;
-    }
-    else if (m_rc.y2 + dy >= m_imageHeight)
-    {
-        dy = m_imageHeight - 1.0f - m_rc.y2;
-    }
+    dx = clamp<float>(-m_rc.x1, m_imageWidth - m_rc.x2 - 1.0f, dx);
+    dy = clamp<float>(-m_rc.y1, m_imageHeight - m_rc.y2 - 1.0f, dy);
 }
 
 void cSelection::render(float dx, float dy)
@@ -310,10 +296,8 @@ void cSelection::setImagePos(Rectf& rc, float dx, float dy)
 
 void cSelection::clampPoint(float& x, float& y)
 {
-    x = std::max<float>(x, 0.0f);
-    x = std::min<float>(x, m_imageWidth - 1.0f);
-    y = std::max<float>(y, 0.0f);
-    y = std::min<float>(y, m_imageHeight - 1.0f);
+    x = clamp<float>(0.0f, m_imageWidth - 1.0f, x);
+    y = clamp<float>(0.0f, m_imageHeight - 1.0f, y);
 }
 
 void cSelection::setColor(bool selected)

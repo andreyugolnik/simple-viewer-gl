@@ -88,12 +88,12 @@ namespace
 
     void callbackResize(GLFWwindow* /*window*/, int width, int height)
     {
-        m_viewer->fnResize(width, height);
+        m_viewer->fnResize({ width, height });
     }
 
     void callbackPosition(GLFWwindow* /*window*/, int x, int y)
     {
-        m_viewer->fnPosition(x, y);
+        m_viewer->fnPosition({ x, y });
     }
 
     void callbackRedraw(GLFWwindow* /*window*/)
@@ -113,12 +113,12 @@ namespace
 
     void callbackMouse(GLFWwindow* /*window*/, double x, double y)
     {
-        m_viewer->fnMouse(x, y);
+        m_viewer->fnMouse({ (float)x, (float)y });
     }
 
     void callbackMouseScroll(GLFWwindow* /*window*/, double x, double y)
     {
-        m_viewer->fnMouseScroll(x, y);
+        m_viewer->fnMouseScroll({ (float)x, (float)y });
     }
 
 #if GLFW_VERSION_MAJOR >= 3 && GLFW_VERSION_MINOR >= 1

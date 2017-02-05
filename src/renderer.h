@@ -54,8 +54,8 @@ public:
     static void render(const sLine& quad);
     static void render(const sQuad& quad);
 
-    static void setViewportSize(const Vectorf& size);
-    static const Vectorf& getViewportSize();
+    static void setViewportSize(const Vectori& size);
+    static const Vectori& getViewportSize();
     static void resetGlobals();
     static void setGlobals(const Vectorf& delta, float angle, float zoom);
 

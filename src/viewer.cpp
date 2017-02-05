@@ -31,6 +31,14 @@ namespace
     const int DEF_WINDOW_W = 300;
     const int DEF_WINDOW_H = 200;
 
+    bool FixeScale(int& scale, int step)
+    {
+        const int oldScale = scale;
+        scale /= step;
+        scale *= step;
+        return oldScale != scale;
+    }
+
 }
 
 cViewer::cViewer(sConfig* config)
@@ -79,14 +87,14 @@ void cViewer::setWindow(GLFWwindow* window)
     m_progress->init();
     m_selection->init();
 
-    int width, height;
-    glfwGetWindowSize(window, &width, &height);
+    Vectori winSize;
+    glfwGetWindowSize(window, &winSize.x, &winSize.y);
 
-    int frameWidth, frameHeight;
-    glfwGetFramebufferSize(window, &frameWidth, &frameHeight);
-    m_ratio = { (float)frameWidth / width, (float)frameHeight / height };
+    Vectori fbSize;
+    glfwGetFramebufferSize(window, &fbSize.x, &fbSize.y);
+    m_ratio = { (float)fbSize.x / winSize.x, (float)fbSize.y / winSize.y };
 
-    fnResize(width, height);
+    fnResize(winSize);
 }
 
 void cViewer::addPaths(const char** paths, int count)
@@ -233,23 +241,21 @@ bool cViewer::isUploading() const
     return m_image->isUploading();
 }
 
-void cViewer::fnResize(int width, int height)
+void cViewer::fnResize(const Vectori& size)
 {
     GLFWwindow* window = cRenderer::getWindow();
 
     if (m_isWindowed)
     {
-        m_prevSize = { width, height };
+        m_prevSize = size;
 
-        int x, y;
-        glfwGetWindowPos(window, &x, &y);
-        m_prevPos = { x, y };
+        glfwGetWindowPos(window, &m_prevPos.x, &m_prevPos.y);
     }
 
-    int frameWidth, frameHeight;
-    glfwGetFramebufferSize(window, &frameWidth, &frameHeight);
+    Vectori fbSize;
+    glfwGetFramebufferSize(window, &fbSize.x, &fbSize.y);
 
-    cRenderer::setViewportSize({ (float)frameWidth, (float)frameHeight });
+    cRenderer::setViewportSize(fbSize);
 
     m_pixelPopup->setRatio(m_ratio.y);
     m_exifPopup->setRatio(m_ratio.y);
@@ -259,28 +265,24 @@ void cViewer::fnResize(int width, int height)
     updateInfobar();
 }
 
-void cViewer::fnPosition(int x, int y)
+void cViewer::fnPosition(const Vectori& pos)
 {
-    m_prevPos = { x, y };
+    m_prevPos = pos;
 }
 
-Vectorf cViewer::calculateMousePosition(float x, float y) const
+Vectorf cViewer::calculateMousePosition(const Vectorf& pos) const
 {
-    x *= m_ratio.x;
-    y *= m_ratio.y;
-
-    const float scale = m_scale.getScale();
-    return { x / scale, y / scale };
+    return pos * m_ratio / m_scale.getScale();
 }
 
-void cViewer::fnMouse(float x, float y)
+void cViewer::fnMouse(const Vectorf& pos)
 {
-    const Vectorf pos(calculateMousePosition(x, y));
+    const auto posFixed = calculateMousePosition(pos);
 
     if (m_mouseMB || m_mouseRB)
     {
-        const Vectorf diff(m_lastMouse - pos);
-        m_lastMouse = pos;
+        const Vectorf diff(m_lastMouse - posFixed);
+        m_lastMouse = posFixed;
 
         if (diff != Vectorf())
         {
@@ -293,10 +295,10 @@ void cViewer::fnMouse(float x, float y)
         const int cursor = m_selection->getCursor();
         m_pixelPopup->setCursor(cursor);
 
-        const Vectorf point = screenToImage(pos);
+        const Vectorf point = screenToImage(posFixed);
         m_selection->mouseMove(point.x, point.y);
 
-        updatePixelInfo(pos);
+        updatePixelInfo(posFixed);
     }
     else
     {
@@ -304,12 +306,11 @@ void cViewer::fnMouse(float x, float y)
     }
 }
 
-void cViewer::fnMouseScroll(float x, float y)
+void cViewer::fnMouseScroll(const Vectorf& pos)
 {
-    (void)x;
     if (m_config->wheelZoom)
     {
-        updateScale(y > 0.0f);
+        updateScale(pos.y > 0.0f);
     }
 }
 
@@ -495,30 +496,32 @@ void cViewer::fnKeyboard(int key, int /*scancode*/, int action, int mods)
 
 void cViewer::keyUp()
 {
-    shiftCamera(Vectorf(0, -10 / m_scale.getScale()));
+    shiftCamera({ 0, -10 / m_scale.getScale() });
 }
 
 void cViewer::keyDown()
 {
-    shiftCamera(Vectorf(0, 10 / m_scale.getScale()));
+    shiftCamera({ 0, 10 / m_scale.getScale() });
 }
 
 void cViewer::keyLeft()
 {
-    shiftCamera(Vectorf(-10 / m_scale.getScale(), 0));
+    shiftCamera({ -10 / m_scale.getScale(), 0 });
 }
 
 void cViewer::keyRight()
 {
-    shiftCamera(Vectorf(10 / m_scale.getScale(), 0));
+    shiftCamera({ 10 / m_scale.getScale(), 0 });
 }
 
 void cViewer::shiftCamera(const Vectorf& delta)
 {
     m_camera += delta;
 
+    const float inv = 1.0f / m_scale.getScale();
     const auto& viewport = cRenderer::getViewportSize();
-    Vectorf half = (viewport / m_scale.getScale() + Vectorf(m_image->getWidth(), m_image->getHeight())) * 0.5f;
+    const auto half = Vectorf(viewport.x * inv + m_image->getWidth()
+                               , viewport.y * inv + m_image->getHeight()) * 0.5f;
     m_camera.x = std::max<float>(m_camera.x, -half.x);
     m_camera.x = std::min<float>(m_camera.x, half.x);
     m_camera.y = std::max<float>(m_camera.y, -half.y);
@@ -575,14 +578,6 @@ void cViewer::calculateScale()
     }
 
     updateFiltering();
-}
-
-bool FixeScale(int& scale, int step)
-{
-    const int oldScale = scale;
-    scale /= step;
-    scale *= step;
-    return oldScale != scale;
 }
 
 // TODO update m_camera_x / m_camera_y according current mouse position
@@ -713,8 +708,11 @@ void cViewer::updateInfobar()
 
 Vectorf cViewer::screenToImage(const Vectorf& pos) const
 {
+    const float inv = 1.0f / m_scale.getScale();
     const auto& viewport = cRenderer::getViewportSize();
-    return pos + m_camera - (viewport / m_scale.getScale() - Vectorf(m_image->getWidth(), m_image->getHeight())) * 0.5f;
+    return pos + m_camera -
+        Vectorf(viewport.x * inv - m_image->getWidth()
+                , viewport.y * inv - m_image->getHeight()) * 0.5f;
 }
 
 void cViewer::updatePixelInfo(const Vectorf& pos)
@@ -753,7 +751,7 @@ void cViewer::updatePixelInfo(const Vectorf& pos)
             else if (desc.bpp == 16)
             {
                 const float norm = 255 / 63;
-                pixelInfo.color = 
+                pixelInfo.color =
                 {
                     (uint8_t)((color[0] >> 3) * norm),
                     (uint8_t)((((color[0] & 0x07) << 3) | ((color[1] & 0xe0) >> 5)) * norm),
@@ -807,7 +805,7 @@ void cViewer::updateMousePosition()
 
     double x, y;
     glfwGetCursorPos(window, &x, &y);
-    m_lastMouse = calculateMousePosition(x, y);
+    m_lastMouse = calculateMousePosition({ (float)x, (float)y });
 }
 
 void cViewer::enablePixelInfo(bool show)

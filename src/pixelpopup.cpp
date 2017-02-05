@@ -9,6 +9,7 @@
 
 #include "pixelpopup.h"
 #include "img-pointer-cross.c"
+#include "types/math.h"
 
 #include <cstring>
 
@@ -115,13 +116,15 @@ void cPixelPopup::setPixelInfo(const sPixelInfo& pi)
 
 void cPixelPopup::render()
 {
-    m_pointer->Render(m_pixelInfo.mouse.x - 10, m_pixelInfo.mouse.y - 10);
+    const float mx = ::ceilf(m_pixelInfo.mouse.x);
+    const float my = ::ceilf(m_pixelInfo.mouse.y);
+    m_pointer->Render(mx - 10.0f, my - 10.0f);
 
     if (isInsideImage(m_pixelInfo.point))
     {
         const auto& viewport = cRenderer::getViewportSize();
-        const int x = std::min<int>(m_pixelInfo.mouse.x + FrameOffset * m_ratio, viewport.x - m_bg->GetWidth());
-        const int y = std::min<int>(m_pixelInfo.mouse.y + FrameOffset * m_ratio, viewport.y - m_bg->GetHeight());
+        const float x = clamp<float>(0.0f, viewport.x - m_bg->GetWidth(), ::ceilf(mx + FrameOffset * m_ratio));
+        const float y = clamp<float>(0.0f, viewport.y - m_bg->GetHeight(), ::ceilf(my + FrameOffset * m_ratio));
 
         m_bg->SetSpriteSize(m_width, m_height);
         m_bg->Render(x, y);

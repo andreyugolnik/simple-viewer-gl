@@ -58,11 +58,11 @@ public:
         m_isWindowed = windowed;
     }
 
-    const cVector<int>& getWindowPosition() const
+    const Vectori& getWindowPosition() const
     {
         return m_prevPos;
     }
-    const cVector<int>& getWindowSize() const
+    const Vectori& getWindowSize() const
     {
         return m_prevSize;
     }
@@ -72,11 +72,11 @@ public:
     virtual void doProgress(float progress) override;
     virtual void endLoading() override;
 
-    void fnResize(int width, int height);
+    void fnResize(const Vectori& size);
     void centerWindow();
-    void fnPosition(int x, int y);
-    void fnMouse(float x, float y);
-    void fnMouseScroll(float x, float y);
+    void fnPosition(const Vectori& pos);
+    void fnMouse(const Vectorf& pos);
+    void fnMouseScroll(const Vectorf& pos);
     void fnMouseButtons(int button, int action, int mods);
     void fnKeyboard(int key, int scancode, int action, int mods);
     void showCursor(bool show);
@@ -97,7 +97,7 @@ private:
     void keyRight();
     void shiftCamera(const Vectorf& delta);
     Vectorf screenToImage(const Vectorf& pos) const;
-    Vectorf calculateMousePosition(float x, float y) const;
+    Vectorf calculateMousePosition(const Vectorf& pos) const;
     void updateMousePosition();
     void enablePixelInfo(bool show);
 
@@ -117,8 +117,8 @@ private:
     bool m_mouseLB, m_mouseMB, m_mouseRB;
     Vectorf m_lastMouse;
     Vectorf m_camera;
-    cVector<int> m_prevPos;
-    cVector<int> m_prevSize;
+    Vectori m_prevPos;
+    Vectori m_prevSize;
     int m_angle;
 
     bool m_subImageForced = false;

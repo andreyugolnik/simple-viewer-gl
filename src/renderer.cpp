@@ -19,7 +19,7 @@ namespace
 {
 
     GLFWwindow* Window = nullptr;
-    Vectorf ViewportSize;
+    Vectori ViewportSize;
     uint32_t CurrentTextureId = 0;
     sVertex Vb[4];
     uint16_t Ib[6] = { 0, 1, 2, 0, 2, 3 };
@@ -221,14 +221,14 @@ void cRenderer::render(const sQuad& quad)
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, Ib);
 }
 
-const Vectorf& cRenderer::getViewportSize()
+const Vectori& cRenderer::getViewportSize()
 {
     return ViewportSize;
 }
 
-void cRenderer::setViewportSize(const Vectorf& size)
+void cRenderer::setViewportSize(const Vectori& size)
 {
-    glViewport(0, 0, size.x, size.y);
+    glViewport(0, 0, (GLsizei)size.x, (GLsizei)size.y);
     ViewportSize = size;
 }
 
