@@ -43,7 +43,9 @@ private:
     std::vector<uint16_t> m_symbols; // all symbols placed on texture
     uint32_t m_texWidth;
     uint32_t m_texHeight;
-    sQuad m_quad;
+
+    GLuint m_texId = 0;
+    cColor m_color;
 
     struct Symbol
     {

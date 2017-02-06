@@ -35,7 +35,7 @@ cFTString::cFTString(int size)
 cFTString::~cFTString()
 {
     clearSymbols();
-    cRenderer::deleteTexture(m_quad.tex);
+    cRenderer::deleteTexture(m_texId);
     if (m_ft != nullptr)
     {
         FT_Done_FreeType(m_ft);
@@ -44,7 +44,7 @@ cFTString::~cFTString()
 
 void cFTString::setColor(const cColor& color)
 {
-    cRenderer::setColor(&m_quad, color);
+    m_color = color;
 }
 
 void cFTString::draw(int x, int y, const char* utf8)
@@ -75,7 +75,7 @@ void cFTString::draw(int x, int y, const char* utf8)
                 }
                 if (it->second.p != nullptr)
                 {
-                    it->second.p->render(x + it->second.l, y - it->second.t);
+                    it->second.p->render(x + it->second.l, y - it->second.t, m_color);
                     x += it->second.ax;
                 }
             }
@@ -269,17 +269,17 @@ void cFTString::generate()
         }
     }
 
-    if (m_quad.tex == 0)
+    if (m_texId == 0)
     {
-        m_quad.tex = cRenderer::createTexture();
+        m_texId = cRenderer::createTexture();
     }
-    cRenderer::setData(m_quad.tex, buffer.data(), m_texWidth, m_texHeight, GL_ALPHA);
+    cRenderer::setData(m_texId, buffer.data(), m_texWidth, m_texHeight, GL_ALPHA);
 
     for (auto& it : m_mapSymbol)
     {
         if (it.second.bmp != nullptr)
         {
-            it.second.p = new cFTSymbol(m_quad, m_texWidth, m_texHeight, it.second.px, it.second.py, it.second.w, it.second.h + 1);
+            it.second.p = new cFTSymbol(m_texId, m_texWidth, m_texHeight, it.second.px, it.second.py, it.second.w, it.second.h + 1);
             delete[] it.second.bmp;
             it.second.bmp = nullptr;
         }
