@@ -725,10 +725,10 @@ void cViewer::updatePixelInfo(const Vectorf& pos)
                 const bool bgrx = desc.format == GL_BGRA || desc.format == GL_BGR;
                 pixelInfo.color =
                 {
-                    color[bgrx ? 0 : 2],
-                    color[1],
                     color[bgrx ? 2 : 0],
-                    color[3],
+                    color[1],
+                    color[bgrx ? 0 : 2],
+                    desc.bpp == 32 ? color[3] : (uint8_t)255
                 };
             }
             else if (desc.bpp == 16)
