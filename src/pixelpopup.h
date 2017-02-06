@@ -56,16 +56,36 @@ public:
     void setCursor(int cursor);
 
 private:
-    void createFont();
+    void createFont(int fontSize);
     bool isInsideImage(const Vectorf& pos) const;
 
 private:
-    float m_ratio = 1.0f;
-    float m_width = 0.0f;
-    float m_height = 0.0f;
+    float m_ratio = 0.0f;
+    Vectorf m_bgSize;
+
+    float m_border = 4.0f;
+    float m_rowHeight = 0.0f;
+    Vectorf m_iconOffset;
+
     sPixelInfo m_pixelInfo;
-    std::string m_text;
+
+    struct Info
+    {
+        enum class Type
+        {
+            Position,
+            Color,
+            Size,
+            Rect,
+        };
+        Type type;
+        bool insideOnly;
+        std::string text;
+    };
+    std::vector<Info> m_info;
+
     std::unique_ptr<cQuad> m_bg;
     std::unique_ptr<cQuadSeries> m_pointer;
+    std::unique_ptr<cQuadSeries> m_icons;
     std::unique_ptr<cFTString> m_ft;
 };
