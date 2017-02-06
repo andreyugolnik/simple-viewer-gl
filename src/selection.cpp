@@ -14,6 +14,7 @@
 
 #include <algorithm>
 #include <cstdio>
+#include <cstdlib>
 #include <vector>
 
 namespace
@@ -95,7 +96,7 @@ void cSelection::mouseButton(const Vectorf& p, bool pressed)
         {
             if (inside)
             {
-                m_mode = (m_corner == (uint32_t)eCorner::CR ? eMouseMode::Move : eMouseMode::Resize);
+                m_mode = (m_corner == (uint32_t)Edge::CR ? eMouseMode::Move : eMouseMode::Resize);
             }
             else
             {
@@ -116,6 +117,11 @@ void cSelection::mouseButton(const Vectorf& p, bool pressed)
     }
     else
     {
+        if (m_rc.width() == 0 || m_rc.height() == 0)
+        {
+            m_rc.clear();
+            m_rcTest.clear();
+        }
         m_mode = eMouseMode::None;
     }
 }
@@ -147,19 +153,19 @@ void cSelection::mouseMove(const Vectorf& p)
             break;
 
         case eMouseMode::Resize:
-            if ((m_corner & (uint32_t)eCorner::UP))
+            if ((m_corner & (uint32_t)Edge::Top))
             {
                 m_rc.tl.y += delta.y;
             }
-            if ((m_corner & (uint32_t)eCorner::RT))
+            if ((m_corner & (uint32_t)Edge::Right))
             {
                 m_rc.br.x += delta.x;
             }
-            if ((m_corner & (uint32_t)eCorner::DN))
+            if ((m_corner & (uint32_t)Edge::Bottom))
             {
                 m_rc.br.y += delta.y;
             }
-            if ((m_corner & (uint32_t)eCorner::LT))
+            if ((m_corner & (uint32_t)Edge::Left))
             {
                 m_rc.tl.x += delta.x;
             }
@@ -197,17 +203,63 @@ void cSelection::render(const Vectorf& offset)
         const int thickness = 4;
         const float d = thickness / cRenderer::getZoom();
 
+#if 0
+        const Vectori delta{ delta2, delta2 };
+        if (m_corner & (uint32_t)Edge::Top)
+        {
+            if (m_corner & (uint32_t)Edge::Right)
+            {
+                const Vectori pos{ rc.br.x, rc.tl.y - delta2 };
+                renderRect(pos, pos + delta, d);
+            }
+            else if (m_corner & (uint32_t)Edge::Left)
+            {
+                renderRect(rc.tl - delta, rc.tl, d);
+            }
+            else
+            {
+                const Vectori pos{ rc.tl.x, rc.tl.y - delta2 };
+                renderRect(pos, { rc.br.x, rc.tl.y }, d);
+            }
+        }
+        else if (m_corner & (uint32_t)Edge::Bottom)
+        {
+            if (m_corner & (uint32_t)Edge::Right)
+            {
+                renderRect(rc.br, rc.br + delta, d);
+            }
+            else if (m_corner & (uint32_t)Edge::Left)
+            {
+                const Vectori pos{ rc.tl.x - delta2, rc.br.y };
+                renderRect(pos, { rc.tl.x, rc.br.y + delta2 }, d);
+            }
+            else
+            {
+                const Vectori pos{ rc.br.x, rc.br.y + delta2 };
+                renderRect({ rc.tl.x, rc.br.y }, pos, d);
+            }
+        }
+        else if (m_corner & (uint32_t)Edge::Left)
+        {
+            renderRect({ rc.tl.x - delta2, rc.tl.y }, { rc.tl.x, rc.br.y }, d);
+        }
+        else if (m_corner & (uint32_t)Edge::Right)
+        {
+            renderRect({ rc.br.x, rc.tl.y }, { rc.br.x + delta2, rc.br.y }, d);
+        }
+#endif
+
         // top line
-        setColor(m_corner & (uint32_t)eCorner::UP);
+        setColor(m_corner & (uint32_t)Edge::Top);
         renderHorizontal(x - d, y - d, w + d * 2, d);
         // bottom line
-        setColor(m_corner & (uint32_t)eCorner::DN);
+        setColor(m_corner & (uint32_t)Edge::Bottom);
         renderHorizontal(x - d, y + h, w + d * 2, d);
         // left line
-        setColor(m_corner & (uint32_t)eCorner::LT);
+        setColor(m_corner & (uint32_t)Edge::Left);
         renderVertical(x - d, y, h, d);
         // right line
-        setColor(m_corner & (uint32_t)eCorner::RT);
+        setColor(m_corner & (uint32_t)Edge::Right);
         renderVertical(x + w, y, h, d);
     }
 }
@@ -242,50 +294,62 @@ void cSelection::updateCorner(const Vectori& pos)
         const Recti rcLt(rc.tl, { rc.tl.x + d, rc.br.y });
         if (rcLt.testPoint(pos))
         {
-            m_corner |= (uint32_t)eCorner::LT;
+            m_corner |= (uint32_t)Edge::Left;
         }
 
         const Recti rcRt({ rc.br.x - d, rc.tl.y }, rc.br);
         if (rcRt.testPoint(pos))
         {
-            m_corner |= (uint32_t)eCorner::RT;
+            m_corner |= (uint32_t)Edge::Right;
         }
 
         const Recti rcUp(rc.tl, { rc.br.x, rc.tl.y + d });
         if (rcUp.testPoint(pos))
         {
-            m_corner |= (uint32_t)eCorner::UP;
+            m_corner |= (uint32_t)Edge::Top;
         }
 
         const Recti rcDn({ rc.tl.x, rc.br.y - d }, rc.br);
         if (rcDn.testPoint(pos))
         {
-            m_corner |= (uint32_t)eCorner::DN;
+            m_corner |= (uint32_t)Edge::Bottom;
         }
 
         if (!m_corner)
         {
-            m_corner = (uint32_t)eCorner::CR;
+            m_corner = (uint32_t)Edge::CR;
         }
     }
     else
     {
-        m_corner = (uint32_t)eCorner::None;
+        m_corner = (uint32_t)Edge::None;
     }
 }
 
-void cSelection::renderHorizontal(float x, float y, float w, float thickness)
+void cSelection::renderHorizontal(int x, int y, int w, float thickness)
 {
     const auto offset = glfwGetTime() * 10.0f;
     m_selection->SetTextureRect(offset, 0.0f, w * cRenderer::getZoom(), thickness);
     m_selection->RenderEx(x, y, w, thickness);
 }
 
-void cSelection::renderVertical(float x, float y, float h, float thickness)
+void cSelection::renderVertical(int x, int y, int h, float thickness)
 {
     const auto offset = glfwGetTime() * 10.0f;
     m_selection->SetTextureRect(0.0f, offset, thickness, h * cRenderer::getZoom());
     m_selection->RenderEx(x, y, thickness, h);
+}
+
+void cSelection::renderRect(const Vectori& tl, const Vectori& br, float thickness)
+{
+    setColor(true);
+    const auto d = thickness;
+    const auto w = br.x - tl.x;
+    const auto h = br.y - tl.y;
+    renderHorizontal(tl.x, tl.y, w, d);
+    renderHorizontal(tl.x, br.y, w, d);
+    renderVertical(tl.x, tl.y, h, d);
+    renderVertical(br.x, tl.y, h, d);
 }
 
 void cSelection::setImagePos(Recti& rc, const Vectori& offset)

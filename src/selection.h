@@ -31,8 +31,9 @@ public:
 private:
     void updateTestRect();
     void updateCorner(const Vectori& pos);
-    void renderHorizontal(float x, float y, float w, float thickness);
-    void renderVertical(float x, float y, float h, float thickness);
+    void renderHorizontal(int x, int y, int w, float thickness);
+    void renderVertical(int x, int y, int h, float thickness);
+    void renderRect(const Vectori& tl, const Vectori& br, float thickness);
     void setImagePos(Recti& rc, const Vectori& offset);
     void setColor(bool selected);
     void clampShiftDelta(Vectori& delta);
@@ -52,16 +53,16 @@ private:
     };
     eMouseMode m_mode = eMouseMode::None;
 
-    enum class eCorner : uint32_t
+    enum class Edge : uint32_t
     {
         None = 0,
-        UP   = 1 << 0,
-        RT   = 1 << 1,
-        DN   = 1 << 2,
-        LT   = 1 << 3,
+        Top   = 1 << 0,
+        Right   = 1 << 1,
+        Bottom   = 1 << 2,
+        Left   = 1 << 3,
         CR   = 1 << 4,
     };
-    uint32_t m_corner = (uint32_t)eCorner::None;
+    uint32_t m_corner = (uint32_t)Edge::None;
 
     std::unique_ptr<cQuad> m_selection;
     Recti m_rc;
