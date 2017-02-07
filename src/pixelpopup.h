@@ -65,7 +65,6 @@ private:
 
     float m_border = 4.0f;
     float m_rowHeight = 0.0f;
-    Vectorf m_iconOffset;
 
     sPixelInfo m_pixelInfo;
 
@@ -81,6 +80,7 @@ private:
         Type type;
         bool insideOnly;
         std::string text;
+        Vectorf offset;
     };
     std::vector<Info> m_info;
 

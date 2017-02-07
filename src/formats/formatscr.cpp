@@ -179,7 +179,7 @@ void cFormatScr::loadScB(const unsigned char* buffer, sBitmapDescription& desc) 
 
 void cFormatScr::loadAtr(const unsigned char* buffer, sBitmapDescription& desc) const
 {
-    const unsigned char px[2] = { 0b01010101, 0b10101010 };
+    const unsigned char px[2] = { 0x55, 0xaa };// { 0b01010101, 0b10101010 };
 
     const unsigned char* zxColors = buffer;
     auto out = (sPixelRGB*)desc.bitmap.data();

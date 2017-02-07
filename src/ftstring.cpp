@@ -21,6 +21,7 @@ namespace
 cFTString::cFTString(int size)
     : m_height(size)
     , m_ft(nullptr)
+    , m_texId(0)
     , m_texWidth(256)
     , m_texHeight(256)
 {
@@ -47,9 +48,9 @@ void cFTString::setColor(const cColor& color)
     m_color = color;
 }
 
-void cFTString::draw(int x, int y, const char* utf8)
+void cFTString::draw(const Vectorf& pos, const char* utf8)
 {
-    auto xStart = x;
+    auto p = pos;
 
     uint32_t codepoint = 0;
     auto s = (const uint8_t*)utf8;
@@ -62,8 +63,8 @@ void cFTString::draw(int x, int y, const char* utf8)
         {
             if (codepoint == LinefeedCodepoint)
             {
-                x = xStart;
-                y += m_height;
+                p.x = pos.x;
+                p.y += m_height;
             }
             else
             {
@@ -73,10 +74,11 @@ void cFTString::draw(int x, int y, const char* utf8)
                     generateNewSymbol(begin);
                     continue;
                 }
-                if (it->second.p != nullptr)
+                const auto& symbol = it->second;
+                if (symbol.p != nullptr)
                 {
-                    it->second.p->render(x + it->second.l, y - it->second.t, m_color);
-                    x += it->second.ax;
+                    symbol.p->render(p + symbol.offset, m_color);
+                    p.x += symbol.ax;
                 }
             }
             begin = (const char*)s + 1;
@@ -94,9 +96,9 @@ void cFTString::draw(int x, int y, const char* utf8)
     }
 }
 
-uint32_t cFTString::getStringWidth(const char* utf8)
+Vectorf cFTString::getBounds(const char* utf8) const
 {
-    uint32_t width = 0;
+    Vectorf bounds{ 0.0f, 0.0f };
 
     uint32_t codepoint = 0;
     auto s = (const uint8_t*)utf8;
@@ -118,9 +120,12 @@ uint32_t cFTString::getStringWidth(const char* utf8)
                 generateNewSymbol(begin);
                 continue;
             }
-            if (it->second.p != nullptr)
+
+            const auto& symbol = it->second;
+            if (symbol.p != nullptr)
             {
-                width += it->second.ax;
+                bounds.x += symbol.ax;
+                bounds.y = std::max<float>(bounds.y, symbol.offset.y + symbol.h);
             }
             begin = (const char*)s + 1;
         }
@@ -136,10 +141,10 @@ uint32_t cFTString::getStringWidth(const char* utf8)
         s++;
     }
 
-    return width;
+    return bounds;
 }
 
-void cFTString::generateNewSymbol(const char* utf8)
+void cFTString::generateNewSymbol(const char* utf8) const
 {
     if (m_ft != nullptr)
     {
@@ -184,7 +189,7 @@ void cFTString::generateNewSymbol(const char* utf8)
     }
 }
 
-void cFTString::generate()
+void cFTString::generate() const
 {
     FT_Face face;
 
@@ -207,24 +212,18 @@ void cFTString::generate()
     FT_GlyphSlot slot = face->glyph;
     for (const auto& charcode : m_symbols)
     {
-        err = FT_Load_Char(face, (FT_ULong)charcode, FT_LOAD_RENDER);
         Symbol str;
-        ::memset(&str, 0, sizeof(str));
-        if (err == 0)
+        if (FT_Load_Char(face, (FT_ULong)charcode, FT_LOAD_RENDER) == 0)
         {
             FT_Bitmap bmp = slot->bitmap;
             const uint32_t size = bmp.pitch * bmp.rows;
 
-            //str.p = 0;
             str.bmp = new uint8_t[size];
             str.w = bmp.width;
             str.h = bmp.rows;
             str.pitch = bmp.pitch;
-            str.l = slot->bitmap_left;
-            str.t = slot->bitmap_top;
-            str.ax = slot->advance.x >> 6;
-            //str.px    = 0;
-            //str.py    = 0;
+            str.offset = { (float)slot->bitmap_left, m_height - (float)slot->bitmap_top };
+            str.ax = slot->advance.x / 64.0f;
             ::memcpy(str.bmp, bmp.buffer, size);
         }
         m_mapSymbol[charcode] = str;
@@ -247,23 +246,24 @@ void cFTString::generate()
     ::memset(buffer.data(), 0, buffer.size());
 
     // regenerate texture
-    for (auto& it : m_mapSymbol)
+    for (const auto& it : m_mapSymbol)
     {
-        const auto dx = it.second.px;
-        const auto dy = it.second.py;
-        const auto w = it.second.w;
-        const auto h = it.second.h;
-        const auto pitch = it.second.pitch;
-        const auto in = it.second.bmp;
+        auto& symbol = it.second;
+        const auto in = symbol.bmp;
         if (in != nullptr)
         {
-            for (uint32_t y = 0; y < h; y++)
+            const auto x = symbol.x;
+            const auto y = symbol.y;
+            const auto w = symbol.w;
+            const auto h = symbol.h;
+            const auto p = symbol.pitch;
+            const auto pitch = m_texWidth;
+            for(uint32_t dy = 0; dy < h; dy++)
             {
-                size_t pos = dx + m_texWidth + (dy + y) * m_texWidth;
-                for (uint32_t x = 0; x < w; x++)
+                auto pos = &buffer[x + (y + dy) * pitch];
+                for(uint32_t dx = 0; dx < w; dx++)
                 {
-                    uint8_t pixel = in[x + y * pitch];
-                    buffer[pos++] = pixel;
+                    *pos++ = in[dx + dy * p];
                 }
             }
         }
@@ -277,11 +277,12 @@ void cFTString::generate()
 
     for (auto& it : m_mapSymbol)
     {
-        if (it.second.bmp != nullptr)
+        auto& symbol = it.second;
+        if (symbol.bmp != nullptr)
         {
-            it.second.p = new cFTSymbol(m_texId, m_texWidth, m_texHeight, it.second.px, it.second.py, it.second.w, it.second.h + 1);
-            delete[] it.second.bmp;
-            it.second.bmp = nullptr;
+            symbol.p = new cFTSymbol(m_texId, m_texWidth, m_texHeight, symbol.x, symbol.y, symbol.w, symbol.h);
+            delete[] symbol.bmp;
+            symbol.bmp = nullptr;
         }
     }
 
@@ -290,7 +291,7 @@ void cFTString::generate()
     // ::printf("(II) Texture (%u x %u) with %u / %u symbols has been created.\n", m_texWidth, m_texHeight, (uint32_t)m_mapSymbol.size(), (uint32_t)len);
 }
 
-bool cFTString::placeSymbols()
+bool cFTString::placeSymbols() const
 {
     uint32_t maxRowHeight = 0;
 
@@ -298,32 +299,35 @@ bool cFTString::placeSymbols()
     uint32_t y = 0;
     for (auto& it : m_mapSymbol)
     {
-        maxRowHeight = std::max<uint32_t>(maxRowHeight, it.second.h);
+        auto& symbol = it.second;
+
+        maxRowHeight = std::max<uint32_t>(maxRowHeight, symbol.h);
 
         if (y + maxRowHeight > m_texHeight)
         {
             return false;
         }
 
-        if (x + it.second.w > m_texWidth)
+        if (x + symbol.w > m_texWidth)
         {
             x = 0;
             y += maxRowHeight + 1;
+            maxRowHeight = symbol.h;
             if (y + maxRowHeight > m_texHeight)
             {
                 return false;
             }
         }
 
-        it.second.px = x;
-        it.second.py = y;
-        x += it.second.w + 1;
+        symbol.x = x;
+        symbol.y = y;
+        x += symbol.w + 1;
     }
 
     return true;
 }
 
-void cFTString::clearSymbols()
+void cFTString::clearSymbols() const
 {
     for (auto& it : m_mapSymbol)
     {

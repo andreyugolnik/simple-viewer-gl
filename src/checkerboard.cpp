@@ -61,8 +61,8 @@ void cCheckerboard::render(bool checkboardEanbled)
         int height;
         glfwGetFramebufferSize(cRenderer::getWindow(), &width, &height);
 
-        m_cb->SetTextureRect(0, 0, width, height);
-        m_cb->Render(0.0f, 0.0f);
+        m_cb->setTextureRect({ 0.0f, 0.0f }, { (float)width, (float)height });
+        m_cb->render({ 0.0f, 0.0f });
     }
     else
     {

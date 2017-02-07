@@ -17,9 +17,6 @@
 namespace
 {
 
-    const float DesiredHeight = 18;
-    const int DesiredFontSize = 12;
-
     const char* getName(const char* path)
     {
         if (path != nullptr)
@@ -42,34 +39,33 @@ void cInfoBar::init()
 {
     m_bg.reset(new cQuad(0, 0));
     m_bg->setColor({ 0, 0, 25, 240 });
-
-    createFont();
 }
 
-void cInfoBar::setRatio(float ratio)
+void cInfoBar::setRatio(float scale)
 {
-    if (m_ratio != ratio)
+    scale = 1.0f;
+    // if (m_scale != scale)
     {
-        m_ratio = ratio;
-        createFont();
+        m_scale = scale;
+
+        const int DesiredFontSize = 30;
+        createFont(DesiredFontSize * scale);
     }
+
+    const float DesiredHeight = 36;
+    m_height = DesiredHeight * scale;
 }
 
-void cInfoBar::createFont()
+void cInfoBar::createFont(int fontSize)
 {
-    m_ft.reset(new cFTString(DesiredFontSize * m_ratio));
+    m_ft.reset(new cFTString(fontSize));
     m_ft->setColor({ 255, 255, 127, 255 });
 
     if (m_config->debug)
     {
-        m_fps.reset(new cFTString(DesiredFontSize * m_ratio));
+        m_fps.reset(new cFTString(fontSize));
         m_fps->setColor({ 0, 0, 0, 255 });
     }
-}
-
-float cInfoBar::getHeight() const
-{
-    return m_ratio * DesiredHeight;
 }
 
 void cInfoBar::render()
@@ -78,12 +74,12 @@ void cInfoBar::render()
     int height;
     glfwGetFramebufferSize(cRenderer::getWindow(), &width, &height);
 
-    const float x = 0.0f;
-    const float y = height;
-    m_bg->SetSpriteSize(width, DesiredHeight * m_ratio);
-    m_bg->Render(x, y - DesiredHeight * m_ratio);
+    Vectorf pos { 0.0f, height - m_height };
+    m_bg->setSpriteSize({ (float)width, m_height });
+    m_bg->render(pos);
 
-    m_ft->draw(x, y - (DesiredHeight - DesiredFontSize) * m_ratio, m_bottominfo.c_str());
+    pos += Vectorf{ 3, (m_height - m_bounds.y) * 0.5f - 2.0f };
+    m_ft->draw(pos, m_bottominfo.c_str());
 
     if (m_fps.get() != nullptr)
     {
@@ -103,7 +99,7 @@ void cInfoBar::render()
 
         char buffer[20];
         ::snprintf(buffer, sizeof(buffer), "%.1f", fps);
-        m_fps->draw(20, 20, buffer);
+        m_fps->draw({ 20.0f, 20.0f }, buffer);
     }
 }
 
@@ -130,20 +126,19 @@ void cInfoBar::setInfo(const sInfo& p)
 
     char title[1000] = { 0 };
     ::snprintf(title, sizeof(title)
-             , "%s%s%s | %s | %u x %u x %u bpp (%.1f%%) | mem: %.1f %s (%.1f %s)"
-             , idx_img
-             , name
-             , sub_image
-             , p.type
-             , p.width, p.height, p.bpp, p.scale * 100.0f
-             , file_size, file_s.c_str()
-             , mem_size, mem_s.c_str());
+               , "%s%s%s | %s | %u x %u x %u bpp (%.1f%%) | mem: %.1f %s (%.1f %s)"
+               , idx_img
+               , name
+               , sub_image
+               , p.type
+               , p.width, p.height, p.bpp, p.scale * 100.0f
+               , file_size, file_s.c_str()
+               , mem_size, mem_s.c_str());
 
     m_bottominfo = title;
+    m_bounds = m_ft->getBounds(title);
 
     glfwSetWindowTitle(cRenderer::getWindow(), name);
-
-    // m_ft->setText(m_bottominfo.c_str());
 }
 
 const char* cInfoBar::getHumanSize(float& size)

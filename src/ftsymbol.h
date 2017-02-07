@@ -14,13 +14,13 @@
 class cFTSymbol final
 {
 public:
-    cFTSymbol(GLuint texId, int tw, int th, float tx, float ty, int w, int h);
+    cFTSymbol(GLuint texId, float tw, float th, float tx, float ty, float w, float h);
     ~cFTSymbol();
 
-    void render(int x, int y, const cColor& color);
+    void render(const Vectorf& pos, const cColor& color);
 
 private:
-    int m_w;
-    int m_h;
+    float m_w;
+    float m_h;
     sQuad m_quad;
 };

@@ -9,7 +9,7 @@
 
 #include "ftsymbol.h"
 
-cFTSymbol::cFTSymbol(GLuint texId, int tw, int th, float tx, float ty, int w, int h)
+cFTSymbol::cFTSymbol(GLuint texId, float tw, float th, float tx, float ty, float w, float h)
     : m_w(w)
     , m_h(h)
 {
@@ -33,19 +33,19 @@ cFTSymbol::~cFTSymbol()
 {
 }
 
-void cFTSymbol::render(int x, int y, const cColor& color)
+void cFTSymbol::render(const Vectorf& pos, const cColor& color)
 {
-    m_quad.v[0].x = x;
-    m_quad.v[0].y = y;
+    m_quad.v[0].x = pos.x;
+    m_quad.v[0].y = pos.y;
     m_quad.v[0].color = color;
-    m_quad.v[1].x = x + m_w;
-    m_quad.v[1].y = y;
+    m_quad.v[1].x = pos.x + m_w;
+    m_quad.v[1].y = pos.y;
     m_quad.v[1].color = color;
-    m_quad.v[2].x = x + m_w;
-    m_quad.v[2].y = y + m_h;
+    m_quad.v[2].x = pos.x + m_w;
+    m_quad.v[2].y = pos.y + m_h;
     m_quad.v[2].color = color;
-    m_quad.v[3].x = x;
-    m_quad.v[3].y = y + m_h;
+    m_quad.v[3].x = pos.x;
+    m_quad.v[3].y = pos.y + m_h;
     m_quad.v[3].color = color;
 
     cRenderer::render(m_quad);

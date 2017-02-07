@@ -195,12 +195,12 @@ void cSelection::render(const Vectorf& offset)
         setImagePos(rc, { (int)offset.x, (int)offset.y });
 
         rc.normalize();
-        const int x = rc.tl.x;
-        const int y = rc.tl.y;
-        const int w = rc.width();
-        const int h = rc.height();
+        const float x = rc.tl.x;
+        const float y = rc.tl.y;
+        const float w = rc.width();
+        const float h = rc.height();
 
-        const int thickness = 4;
+        const float thickness = 4.0f;
         const float d = thickness / cRenderer::getZoom();
 
 #if 0
@@ -251,16 +251,16 @@ void cSelection::render(const Vectorf& offset)
 
         // top line
         setColor(m_corner & (uint32_t)Edge::Top);
-        renderHorizontal(x - d, y - d, w + d * 2, d);
+        renderHorizontal({ x - d, y - d }, w + d * 2, d);
         // bottom line
         setColor(m_corner & (uint32_t)Edge::Bottom);
-        renderHorizontal(x - d, y + h, w + d * 2, d);
+        renderHorizontal({ x - d, y + h }, w + d * 2, d);
         // left line
         setColor(m_corner & (uint32_t)Edge::Left);
-        renderVertical(x - d, y, h, d);
+        renderVertical({ x - d, y }, h, d);
         // right line
         setColor(m_corner & (uint32_t)Edge::Right);
-        renderVertical(x + w, y, h, d);
+        renderVertical({ x + w, y }, h, d);
     }
 }
 
@@ -326,18 +326,18 @@ void cSelection::updateCorner(const Vectori& pos)
     }
 }
 
-void cSelection::renderHorizontal(int x, int y, int w, float thickness)
+void cSelection::renderHorizontal(const Vectorf& pos, float w, float thickness)
 {
-    const auto offset = glfwGetTime() * 10.0f;
-    m_selection->SetTextureRect(offset, 0.0f, w * cRenderer::getZoom(), thickness);
-    m_selection->RenderEx(x, y, w, thickness);
+    const float offset = glfwGetTime() * 10.0f;
+    m_selection->setTextureRect({ offset, 0.0f }, { w * cRenderer::getZoom(), thickness });
+    m_selection->renderEx(pos, { w, thickness });
 }
 
-void cSelection::renderVertical(int x, int y, int h, float thickness)
+void cSelection::renderVertical(const Vectorf& pos, float h, float thickness)
 {
-    const auto offset = glfwGetTime() * 10.0f;
-    m_selection->SetTextureRect(0.0f, offset, thickness, h * cRenderer::getZoom());
-    m_selection->RenderEx(x, y, thickness, h);
+    const float offset = glfwGetTime() * 10.0f;
+    m_selection->setTextureRect({ 0.0f, offset }, { thickness, h * cRenderer::getZoom() });
+    m_selection->renderEx(pos, { thickness, h });
 }
 
 void cSelection::renderRect(const Vectori& tl, const Vectori& br, float thickness)
@@ -346,10 +346,10 @@ void cSelection::renderRect(const Vectori& tl, const Vectori& br, float thicknes
     const auto d = thickness;
     const auto w = br.x - tl.x;
     const auto h = br.y - tl.y;
-    renderHorizontal(tl.x, tl.y, w, d);
-    renderHorizontal(tl.x, br.y, w, d);
-    renderVertical(tl.x, tl.y, h, d);
-    renderVertical(br.x, tl.y, h, d);
+    renderHorizontal({ (float)tl.x, (float)tl.y }, w, d);
+    renderHorizontal({ (float)tl.x, (float)br.y }, w, d);
+    renderVertical({ (float)tl.x, (float)tl.y }, h, d);
+    renderVertical({ (float)br.x, (float)tl.y }, h, d);
 }
 
 void cSelection::setImagePos(Recti& rc, const Vectori& offset)

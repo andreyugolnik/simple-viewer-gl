@@ -130,7 +130,7 @@ bool cQuadImage::upload(unsigned mipmapTextureSize)
 
     cQuad* quad = findAndRemoveOld(col, row);
     if (quad == nullptr
-        || quad->GetTexWidth() != w || quad->GetTexHeight() != h
+        || quad->getTexWidth() != w || quad->getTexHeight() != h
         || quad->getFormat() != m_format)
     {
         delete quad;
@@ -180,14 +180,11 @@ void cQuadImage::useFilter(bool filter)
     }
 }
 
-bool cQuadImage::isInsideViewport(const sChunk& chunk, float x, float y) const
+bool cQuadImage::isInsideViewport(const sChunk& chunk, const Vectorf& pos) const
 {
     auto& rc = cRenderer::getRect();
-    const Rectf rcQuad
-    {
-        { x, y },
-        { x + chunk.quad->GetWidth(), y + chunk.quad->GetHeight() }
-    };
+    const auto& size = chunk.quad->getSize();
+    const Rectf rcQuad{ pos, pos + size };
     return rc.intersect(rcQuad);
 }
 
@@ -200,21 +197,27 @@ void cQuadImage::render()
 
     for (const auto& chunk : m_chunksOld)
     {
-        const float x = chunk.col * texWidth - halfWidth;
-        const float y = chunk.row * texHeight - halfHeight;
-        if (isInsideViewport(chunk, x, y))
+        const Vectorf pos
         {
-            chunk.quad->Render(x, y);
+            chunk.col * texWidth - halfWidth,
+            chunk.row * texHeight - halfHeight
+        };
+        if (isInsideViewport(chunk, pos))
+        {
+            chunk.quad->render(pos);
         }
     }
 
     for (const auto& chunk : m_chunks)
     {
-        const float x = chunk.col * texWidth - halfWidth;
-        const float y = chunk.row * texHeight - halfHeight;
-        if (isInsideViewport(chunk, x, y))
+        const Vectorf pos
         {
-            chunk.quad->Render(x, y);
+            chunk.col * texWidth - halfWidth,
+            chunk.row * texHeight - halfHeight
+        };
+        if (isInsideViewport(chunk, pos))
+        {
+            chunk.quad->render(pos);
         }
     }
 
@@ -229,23 +232,29 @@ void cQuadImage::render()
 
     for (const auto& chunk : m_chunksOld)
     {
-        const float x = chunk.col * texWidth - halfWidth;
-        const float y = chunk.row * texHeight - halfHeight;
-        if (isInsideViewport(chunk, x, y))
+        const Vectorf pos
+        {
+            chunk.col * texWidth - halfWidth,
+            chunk.row * texHeight - halfHeight
+        };
+        if (isInsideViewport(chunk, pos))
         {
             rendered++;
-            border.Render(x, y, chunk.quad->GetWidth(), chunk.quad->GetHeight(), zoom);
+            border.render(pos, chunk.quad->getSize(), zoom);
         }
     }
 
     for (const auto& chunk : m_chunks)
     {
-        const float x = chunk.col * texWidth - halfWidth;
-        const float y = chunk.row * texHeight - halfHeight;
-        if (isInsideViewport(chunk, x, y))
+        const Vectorf pos
+        {
+            chunk.col * texWidth - halfWidth,
+            chunk.row * texHeight - halfHeight
+        };
+        if (isInsideViewport(chunk, pos))
         {
             rendered++;
-            border.Render(x, y, chunk.quad->GetWidth(), chunk.quad->GetHeight(), zoom);
+            border.render(pos, chunk.quad->getSize(), zoom);
         }
     }
 

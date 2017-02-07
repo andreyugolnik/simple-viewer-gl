@@ -16,15 +16,14 @@ cQuad::cQuad(uint32_t tw, uint32_t th, const uint8_t* data, GLenum bitmapFormat)
     : m_tw(tw)
     , m_th(th)
     , m_format(bitmapFormat)
-    , m_w(tw)
-    , m_h(th)
+    , m_size(tw, th)
     , m_filter(true)
 {
     m_quad.tex = cRenderer::createTexture();
     setData(data);
 
     // by deafult set whole texture size
-    SetSpriteSize(tw, th);
+    setSpriteSize({ (float)tw, (float)th });
 }
 
 cQuad::~cQuad()
@@ -43,18 +42,17 @@ void cQuad::setColor(const cColor& color)
     cRenderer::setColor(&m_quad, color);
 }
 
-void cQuad::SetTextureRect(float x, float y, float w, float h)
+void cQuad::setTextureRect(const Vectorf& pos, const Vectorf& size)
 {
-    m_w = w;
-    m_h = h;
+    m_size = size;
 
     const float invTw = m_tw ? (1.0f / m_tw) : 0.0f;
     const float invTh = m_th ? (1.0f / m_th) : 0.0f;
 
-    const float tx1 = x * invTw;
-    const float ty1 = y * invTh;
-    const float tx2 = (x + w) * invTw;
-    const float ty2 = (y + h) * invTh;
+    const float tx1 = pos.x * invTw;
+    const float ty1 = pos.y * invTh;
+    const float tx2 = (pos.x + size.x) * invTw;
+    const float ty2 = (pos.y + size.y) * invTh;
 
     m_quad.v[0].tx = tx1;
     m_quad.v[0].ty = ty1;
@@ -69,43 +67,43 @@ void cQuad::SetTextureRect(float x, float y, float w, float h)
     m_quad.v[3].ty = ty2;
 }
 
-void cQuad::SetSpriteSize(float w, float h)
+void cQuad::setSpriteSize(const Vectorf& size)
 {
-    SetTextureRect(0.0f, 0.0f, w, h);
+    setTextureRect({ 0.0f, 0.0f }, size);
 }
 
-void cQuad::Render(float x, float y)
+void cQuad::render(const Vectorf& pos)
 {
-    RenderEx(x, y, m_w, m_h);
+    renderEx(pos, m_size);
 }
 
-void cQuad::RenderEx(float x, float y, float w, float h, int angle)
+void cQuad::renderEx(const Vectorf& pos, const Vectorf& size, int angle)
 {
     if (angle == 0)
     {
-        m_quad.v[0].x = x;
-        m_quad.v[0].y = y;
-        m_quad.v[1].x = x + w;
-        m_quad.v[1].y = y;
-        m_quad.v[2].x = x + w;
-        m_quad.v[2].y = y + h;
-        m_quad.v[3].x = x;
-        m_quad.v[3].y = y + h;
+        m_quad.v[0].x = pos.x;
+        m_quad.v[0].y = pos.y;
+        m_quad.v[1].x = pos.x + size.x;
+        m_quad.v[1].y = pos.y;
+        m_quad.v[2].x = pos.x + size.x;
+        m_quad.v[2].y = pos.y + size.y;
+        m_quad.v[3].x = pos.x;
+        m_quad.v[3].y = pos.y + size.y;
     }
     else
     {
         const float a = M_PI * angle / 180.0f;
-        const float c = cosf(a);
-        const float s = sinf(a);
+        const float c = ::cosf(a);
+        const float s = ::sinf(a);
 
-        m_quad.v[0].x = x;
-        m_quad.v[0].y = y;
-        m_quad.v[1].x = x + w * c;
-        m_quad.v[1].y = y + w * s;
-        m_quad.v[2].x = x + w * c - h * s;
-        m_quad.v[2].y = y + w * s + h * c;
-        m_quad.v[3].x = x - h * s;
-        m_quad.v[3].y = y + h * c;
+        m_quad.v[0].x = pos.x;
+        m_quad.v[0].y = pos.y;
+        m_quad.v[1].x = pos.x + size.x * c;
+        m_quad.v[1].y = pos.y + size.x * s;
+        m_quad.v[2].x = pos.x + size.x * c - size.y * s;
+        m_quad.v[2].y = pos.y + size.x * s + size.y * c;
+        m_quad.v[3].x = pos.x - size.y * s;
+        m_quad.v[3].y = pos.y + size.y * c;
     }
 
     cRenderer::render(m_quad);

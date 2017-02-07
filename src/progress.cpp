@@ -24,7 +24,7 @@ void cProgress::init()
     m_back.reset(new cQuad(distance * 2, distance * 2));
     m_back->setColor({ 0, 0, 0, 255 });
 
-    for(auto& dot : m_dot)
+    for (auto& dot : m_dot)
     {
         dot.dot.reset(new cQuad(dotSize, dotSize));
     }
@@ -36,7 +36,7 @@ void cProgress::render()
     {
         const float dt = 1.0f / 30.0f;
         m_time -= dt;
-        if(m_time <= 0.0f)
+        if (m_time <= 0.0f)
         {
             const float nextSpeed = 0.2f;
             m_time = nextSpeed;
@@ -47,25 +47,27 @@ void cProgress::render()
         int w, h;
         glfwGetFramebufferSize(cRenderer::getWindow(), &w, &h);
 
-        const float pos_x = w - distance * 2;
-        const float pos_y = h - distance * 2;
+        const Vectorf pos{ w - distance * 2.0f, h - distance * 2.0f };
 
-        m_back->Render(pos_x, pos_y);
+        m_back->render(pos);
 
-        static const unsigned idx[4] = { 0, 1, 3, 2 };
-        for(size_t i = 0; i < helpers::countof(m_dot); i++)
+        static const uint32_t idx[4] = { 0, 1, 3, 2 };
+        for (size_t i = 0; i < helpers::countof(m_dot); i++)
         {
             auto& dot = m_dot[i];
             float alpha = dot.alpha;
-            if(alpha > 0.0f)
+            if (alpha > 0.0f)
             {
                 const float alphaSpeed = 255.0f * 2.0f;
                 alpha = std::max<float>(0.0f, alpha - dt * alphaSpeed);
                 dot.alpha = alpha;
                 dot.dot->setColor({ 255, 255, 255, (uint8_t)alpha });
-                const float x = pos_x + (idx[i] % 2) * distance + gap;
-                const float y = pos_y + (idx[i] / 2) * distance + gap;
-                dot.dot->Render(x, y);
+                const Vectorf offset
+                {
+                    (idx[i] % 2) * distance + gap,
+                    (idx[i] / 2) * distance + gap
+                };
+                dot.dot->render(pos + offset);
             }
         }
     }

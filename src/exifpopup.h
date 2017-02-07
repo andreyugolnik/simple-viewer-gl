@@ -24,13 +24,19 @@ public:
     void render();
 
 private:
-    void createFont();
+    void createFont(int fontSize);
 
 private:
     float m_ratio = 1.0f;
-    float m_width = 0.0f;
-    float m_height = 0.0f;
-    std::string m_exif;
+    struct Exif
+    {
+        Vectorf tagOffset;
+        std::string tag;
+        Vectorf valueOffset;
+        std::string value;
+    };
+    std::vector<Exif> m_exif;
+    Vectorf m_bgSize;
     std::unique_ptr<cQuad> m_bg;
     std::unique_ptr<cFTString> m_ft;
 };

@@ -22,8 +22,7 @@ cQuadSeries::~cQuadSeries()
 
 void cQuadSeries::setup(uint32_t width, uint32_t height, uint32_t count)
 {
-    m_w = width;
-    m_h = height;
+    m_size = { (float)width, (float)height };
     m_count = count;
 }
 
@@ -32,20 +31,23 @@ void cQuadSeries::setFrame(uint32_t frame)
     m_frame = frame;
     m_frame %= m_count;
 
-    uint32_t cols = (uint32_t)(m_tw / m_w);
+    const float w = m_size.x;
+    const float h = m_size.y;
 
-    float tx1 = m_frame * m_w;
+    uint32_t cols = (uint32_t)(m_tw / w);
+
+    float tx1 = m_frame * w;
     float ty1 = 0;
 
-    if (tx1 > m_tw - m_w && cols > 0)
+    if (tx1 > m_tw - w && cols > 0)
     {
-        m_frame -= (int)(m_tw / m_w);
-        tx1 =  m_w * (m_frame % cols);
-        ty1 += m_h * (1 + m_frame / cols);
+        m_frame -= (int)(m_tw / w);
+        tx1 =  w * (m_frame % cols);
+        ty1 += h * (1 + m_frame / cols);
     }
 
-    float tx2 = (tx1 + m_w) / m_tw;
-    float ty2 = (ty1 + m_h) / m_th;
+    float tx2 = (tx1 + w) / m_tw;
+    float ty2 = (ty1 + h) / m_th;
 
     tx1 /= m_tw;
     ty1 /= m_th;

@@ -22,8 +22,7 @@ namespace
     const float IconsWidth = 26.0f;
     const float IconsHeight = 26.0f;
 
-    const float TextOffsetX = 40.0f;
-    const float TextOffsetY = 22.0f;
+    const float TextOffset = 16.0f;
 
     const int AlphaColor = 200;
     const cColor GrayColor{ 155, 155, 155, AlphaColor };
@@ -53,19 +52,13 @@ void cPixelPopup::setRatio(float ratio)
     ratio = 1.0f;
     // if (m_ratio != ratio)
     {
-        const float RowHeight = 40.0f;
+        const float RowHeight = 36.0f;
         m_rowHeight = RowHeight * ratio;
 
         const float Border = 10.0f;
         m_border = Border * ratio;
 
-        m_iconOffset =
-        {
-            (m_rowHeight - IconsWidth) * 0.5f,
-            (m_rowHeight - IconsHeight) * 0.5f
-        };
-
-        const int desiredFontSize = 28;
+        const int desiredFontSize = 30;
         createFont(desiredFontSize * ratio);
 
         m_ratio = ratio;
@@ -85,7 +78,7 @@ void cPixelPopup::setPixelInfo(const sPixelInfo& pi)
     m_info.clear();
 
     ::snprintf(buffer, sizeof(buffer), "%d x %d", (int)pi.point.x, (int)pi.point.y);
-    m_info.push_back({ Info::Type::Position, true, buffer });
+    m_info.push_back({ Info::Type::Position, true, buffer, {} });
 
     {
         buffer[0] = 0;
@@ -108,7 +101,7 @@ void cPixelPopup::setPixelInfo(const sPixelInfo& pi)
 
         if (buffer[0])
         {
-            m_info.push_back({ Info::Type::Color, true, buffer });
+            m_info.push_back({ Info::Type::Color, true, buffer, {} });
         }
     }
 
@@ -122,21 +115,28 @@ void cPixelPopup::setPixelInfo(const sPixelInfo& pi)
         const int h = rc.height();
 
         ::snprintf(buffer, sizeof(buffer), "%d x %d", w, h);
-        m_info.push_back({ Info::Type::Size, false, buffer });
+        m_info.push_back({ Info::Type::Size, false, buffer, {} });
 
         ::snprintf(buffer, sizeof(buffer), "%d, %d -> %d, %d", x, y, x + w - 1, y + h - 1);
-        m_info.push_back({ Info::Type::Rect, false, buffer });
+        m_info.push_back({ Info::Type::Rect, false, buffer, {} });
     }
 
     float width = 0;
     for (auto& s : m_info)
     {
-        width = std::max<float>(width, m_ft->getStringWidth(s.text.c_str()));
+        auto bounds = m_ft->getBounds(s.text.c_str());
+        width = std::max<float>(width, bounds.x);
+
+        s.offset =
+        {
+            IconsWidth + TextOffset,
+            (m_rowHeight - bounds.y) * 0.5f - 4.0f
+        };
     }
 
     m_bgSize =
     {
-        TextOffsetX + IconsWidth + width + 2.0f * m_border,
+        IconsWidth + TextOffset + width + 2.0f * m_border,
         m_rowHeight * m_info.size() + 2.0f * m_border
     };
 }
@@ -145,33 +145,37 @@ void cPixelPopup::render()
 {
     const float mx = ::ceilf(m_pixelInfo.mouse.x);
     const float my = ::ceilf(m_pixelInfo.mouse.y);
-    m_pointer->Render(mx - 10.0f, my - 10.0f);
+    m_pointer->render({ mx - 10.0f, my - 10.0f });
 
     const bool isInside = isInsideImage(m_pixelInfo.point);
     // if (isInside)
     {
         const auto& viewport = cRenderer::getViewportSize();
-        const float x = clamp<float>(0.0f, viewport.x - m_bg->GetWidth(), ::ceilf(mx + InfoOffset));
-        const float y = clamp<float>(0.0f, viewport.y - m_bg->GetHeight(), ::ceilf(my + InfoOffset));
+        const auto& size = m_bg->getSize();
 
-        m_bg->SetSpriteSize(m_bgSize.x, m_bgSize.y);
-        m_bg->Render(x, y);
+        Vectorf pos
+        {
+            clamp<float>(0.0f, viewport.x - size.x, ::ceilf(mx + InfoOffset)),
+            clamp<float>(0.0f, viewport.y - size.y, ::ceilf(my + InfoOffset))
+        };
 
-        const float startx = x + m_border;
-        const float starty = y + m_border;
+        m_bg->setSpriteSize(m_bgSize);
+        m_bg->render(pos);
+
+        pos += Vectorf{ m_border, m_border };
+        const Vectorf iconOffset{ 0.0f, (m_rowHeight - IconsHeight) * 0.5f };
         for (size_t i = 0, size = m_info.size(); i < size; i++)
         {
             const auto& s = m_info[i];
 
-            const float x = startx + m_iconOffset.x;
-            const float y = starty + m_iconOffset.y + i * m_rowHeight;
-
-            m_icons->setColor(s.type == Info::Type::Color && isInside ? m_pixelInfo.color : GrayColor);
+            // m_icons->setColor(s.type == Info::Type::Color && isInside ? m_pixelInfo.color : GrayColor);
             m_icons->setFrame(i);
-            m_icons->Render(x, y);
+            m_icons->render(pos + iconOffset);
 
-            m_ft->setColor(isInside == s.insideOnly ? WhiteColor : GrayColor);
-            m_ft->draw(TextOffsetX + x, TextOffsetY + y, s.text.c_str());
+            m_ft->setColor(isInside == true || isInside == s.insideOnly ? WhiteColor : GrayColor);
+            m_ft->draw(pos + s.offset, s.text.c_str());
+
+            pos.y += m_rowHeight;
         }
     }
 }

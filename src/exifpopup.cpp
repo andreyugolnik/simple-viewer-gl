@@ -14,9 +14,9 @@
 namespace
 {
 
-    const int Border = 4.0f;
     const int AlphaColor = 200;
-    const int DesiredFontSize = 13;
+    const float Border = 10.0f;
+    const float RowHeight = 30.0f;
 
 }
 
@@ -24,22 +24,22 @@ void cExifPopup::init()
 {
     m_bg.reset(new cQuad(0, 0));
     m_bg->setColor({ 0, 0, 0, AlphaColor });
-
-    createFont();
 }
 
 void cExifPopup::setRatio(float ratio)
 {
-    if (m_ratio != ratio)
+    ratio = 1.0f;
+    // if (m_ratio != ratio)
     {
         m_ratio = ratio;
-        createFont();
+        const int DesiredFontSize = 26;
+        createFont(DesiredFontSize * ratio);
     }
 }
 
-void cExifPopup::createFont()
+void cExifPopup::createFont(int fontSize)
 {
-    m_ft.reset(new cFTString(DesiredFontSize * m_ratio));
+    m_ft.reset(new cFTString(fontSize));
     m_ft->setColor({ 255, 255, 255, AlphaColor });
 }
 
@@ -51,21 +51,24 @@ void cExifPopup::setExifList(const sBitmapDescription::ExifList& exifList)
     if (rows != 0)
     {
         float width = 0.0f;
+        float row = 0.0f;
+        const float space = m_ft->getBounds(" ").x;
         for (const auto& e : exifList)
         {
-            std::string tag;
+            auto tagBounds = m_ft->getBounds(e.tag.c_str());
+            auto valueBounds = m_ft->getBounds(e.value.c_str());
 
-            tag += e.tag;
-            tag += ": ";
-            tag += e.value;
-            width = std::max<float>(width, m_ft->getStringWidth(tag.c_str()));
+            m_exif.push_back({ { 0.0f, row }, e.tag, { tagBounds.x + space, row }, e.value });
 
-            m_exif += tag;
-            m_exif += "\n";
+            row += RowHeight;
+            width = std::max<float>(width, tagBounds.x + valueBounds.x);
         }
 
-        m_width = width + 2.0f * Border * m_ratio;
-        m_height = (DesiredFontSize * rows + 2.0f * Border) * m_ratio;
+        m_bgSize = 
+        {
+            width + space + 2.0f * Border,
+            RowHeight * rows + 2.0f * Border
+        };
     }
 }
 
@@ -73,11 +76,20 @@ void cExifPopup::render()
 {
     if (m_exif.empty() == false)
     {
-        const float x = 5.0f;
-        const float y = 5.0f;
+        Vectorf pos{ 5.0f, 5.0f };
 
-        m_bg->SetSpriteSize(m_width, m_height);
-        m_bg->Render(x, y);
-        m_ft->draw(x + Border * m_ratio, y + DesiredFontSize * m_ratio, m_exif.c_str());
+        m_bg->setSpriteSize(m_bgSize);
+        m_bg->render(pos);
+
+        const cColor tagColor{ 255, 255, 150, AlphaColor };
+        const cColor valueColor{ 255, 255, 255, AlphaColor };
+        pos += Vectorf{ Border, Border };
+        for (const auto& s : m_exif)
+        {
+            m_ft->setColor(tagColor);
+            m_ft->draw(pos + s.tagOffset, s.tag.c_str());
+            m_ft->setColor(valueColor);
+            m_ft->draw(pos + s.valueOffset, s.value.c_str());
+        };
     }
 }

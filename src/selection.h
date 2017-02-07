@@ -31,8 +31,8 @@ public:
 private:
     void updateTestRect();
     void updateCorner(const Vectori& pos);
-    void renderHorizontal(int x, int y, int w, float thickness);
-    void renderVertical(int x, int y, int h, float thickness);
+    void renderHorizontal(const Vectorf& pos, float w, float thickness);
+    void renderVertical(const Vectorf& pos, float h, float thickness);
     void renderRect(const Vectori& tl, const Vectori& br, float thickness);
     void setImagePos(Recti& rc, const Vectori& offset);
     void setColor(bool selected);

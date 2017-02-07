@@ -19,27 +19,23 @@ public:
 
     virtual void setData(const uint8_t* data);
     virtual void setColor(const cColor& color);
-    virtual void SetTextureRect(float x, float y, float w, float h);
-    virtual void SetSpriteSize(float w, float h);
-    virtual void Render(float x, float y);
-    virtual void RenderEx(float x, float y, float w, float h, int rot = 0);
+    virtual void setTextureRect(const Vectorf& pos, const Vectorf& size);
+    virtual void setSpriteSize(const Vectorf& size);
+    virtual void render(const Vectorf& pos);
+    virtual void renderEx(const Vectorf& pos, const Vectorf& size, int rot = 0);
 
-    virtual uint32_t GetTexWidth() const
+    virtual uint32_t getTexWidth() const
     {
         return m_tw;
     }
-    virtual uint32_t GetTexHeight() const
+    virtual uint32_t getTexHeight() const
     {
         return m_th;
     }
 
-    virtual float GetWidth() const
+    virtual const Vectorf& getSize() const
     {
-        return m_w;
-    }
-    virtual float GetHeight() const
-    {
-        return m_h;
+        return m_size;
     }
 
     virtual void useFilter(bool filter);
@@ -56,8 +52,7 @@ protected:
     GLenum m_format;
 
     // sprite size
-    float m_w;
-    float m_h;
+    Vectorf m_size;
 
     bool m_filter;
 

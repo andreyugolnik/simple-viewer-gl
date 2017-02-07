@@ -28,33 +28,41 @@ public:
     ~cFTString();
 
     void setColor(const cColor& color);
-    uint32_t getStringWidth(const char* utf8);
-    void draw(int x, int y, const char* utf8);
+    Vectorf getBounds(const char* utf8) const;
+
+    void draw(const Vectorf& pos, const char* utf8);
 
 private:
-    void generateNewSymbol(const char* utf8);
-    void generate();
-    bool placeSymbols();
-    void clearSymbols();
+    void generateNewSymbol(const char* utf8) const;
+    void generate() const;
+    bool placeSymbols() const;
+    void clearSymbols() const;
 
 private:
     int m_height;   // desired font size
     FT_Library m_ft;
-    std::vector<uint16_t> m_symbols; // all symbols placed on texture
-    uint32_t m_texWidth;
-    uint32_t m_texHeight;
 
-    GLuint m_texId = 0;
     cColor m_color;
 
     struct Symbol
     {
-        cFTSymbol* p;
-        uint8_t* bmp; // bitmap data
-        uint32_t w, h, pitch; // bitmap width, height, pitch
-        int l, t, ax;
-        uint32_t px, py; // texture symbol position
+        cFTSymbol* p = nullptr;
+
+        uint8_t* bmp = nullptr; // bitmap data
+        uint32_t w = 0;
+        uint32_t h = 0;
+        uint32_t pitch = 0;
+
+        Vectorf offset{ 0.0f, 0.0f };
+        float ax = 0.0f;
+
+        uint32_t x = 0;
+        uint32_t y = 0; // texture symbol position
     };
 
-    std::map<uint16_t, Symbol> m_mapSymbol;
+    mutable GLuint m_texId;
+    mutable uint32_t m_texWidth;
+    mutable uint32_t m_texHeight;
+    mutable std::vector<uint16_t> m_symbols; // all symbols placed on texture
+    mutable std::map<uint16_t, Symbol> m_mapSymbol;
 };

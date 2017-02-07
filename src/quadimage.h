@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include "types/vector.h"
+
 #include <vector>
 
 class cQuad;
@@ -52,7 +54,7 @@ private:
         cQuad* quad;
     };
 
-    bool isInsideViewport(const sChunk& chunk, float x, float y) const;
+    bool isInsideViewport(const sChunk& chunk, const Vectorf& pos) const;
 
 private:
     bool m_started = false;

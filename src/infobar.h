@@ -24,8 +24,11 @@ public:
 
     void init();
 
-    void setRatio(float ratio);
-    float getHeight() const;
+    void setRatio(float scale);
+    float getHeight() const
+    {
+        return m_height;
+    }
 
     struct sInfo
     {
@@ -48,13 +51,16 @@ public:
 
 private:
     const char* getHumanSize(float& size);
-    void createFont();
+    void createFont(int fontSize);
 
 private:
     const sConfig* m_config;
 
-    float m_ratio = 1.0f;
+    float m_scale = 0.0f;
     std::string m_bottominfo;
+    Vectorf m_bounds;
+
+    float m_height = 0.0f;
     std::unique_ptr<cQuad> m_bg;
     std::unique_ptr<cFTString> m_ft;
     std::unique_ptr<cFTString> m_fps;
