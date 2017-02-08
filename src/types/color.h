@@ -24,6 +24,14 @@ public:
     {
     }
 
+    static const cColor Transparent;
+    static const cColor Black;
+    static const cColor White;
+    static const cColor Red;
+    static const cColor Green;
+    static const cColor Blue;
+    static const cColor Yellow;
+
 public:
     uint8_t r = 255;
     uint8_t g = 255;

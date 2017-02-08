@@ -18,14 +18,14 @@ public:
         , y(static_cast<T>(0))
     {
     }
-    cVector(T _x, T _y)
-        : x(_x)
-        , y(_y)
+    cVector(T X, T Y)
+        : x(X)
+        , y(Y)
     {
     }
-    cVector(const cVector& _v)
-        : x(_v.x)
-        , y(_v.y)
+    cVector(const cVector& v)
+        : x(v.x)
+        , y(v.y)
     {
     }
 

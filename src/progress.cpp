@@ -22,7 +22,7 @@ const float distance = dotSize + 2 * gap;
 void cProgress::init()
 {
     m_back.reset(new cQuad(distance * 2, distance * 2));
-    m_back->setColor({ 0, 0, 0, 255 });
+    m_back->setColor(cColor::Black);
 
     for (auto& dot : m_dot)
     {

@@ -360,12 +360,5 @@ void cSelection::setImagePos(Recti& rc, const Vectori& offset)
 
 void cSelection::setColor(bool selected)
 {
-    if (selected == false)
-    {
-        m_selection->setColor({ 255, 255, 255, 255 });
-    }
-    else
-    {
-        m_selection->setColor({ 0, 255, 0, 255 });
-    }
+    m_selection->setColor(selected == false ? cColor::White : cColor::Green);
 }

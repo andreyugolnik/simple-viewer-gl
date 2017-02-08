@@ -13,7 +13,7 @@
 
 cImageBorder::cImageBorder()
 {
-    setColor({ 25, 255, 25, 255 });
+    setColor(cColor::White);
 }
 
 cImageBorder::~cImageBorder()

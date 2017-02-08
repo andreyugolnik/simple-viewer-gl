@@ -30,7 +30,7 @@ cFTString::cFTString(int size)
         ::printf("(EE) Error initiation FreeType2.\n");
     }
 
-    setColor({ 255, 255, 255, 255 });
+    setColor(cColor::White);
 }
 
 cFTString::~cFTString()
