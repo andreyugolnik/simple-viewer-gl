@@ -733,18 +733,56 @@ void cViewer::updatePixelInfo(const Vectorf& pos)
             }
             else if (desc.bpp == 16)
             {
-                const float norm = 255 / 63;
-                pixelInfo.color =
+                const uint16_t c = ((uint16_t)color[1] << 8) | (uint16_t)color[0];
+                if (desc.format == GL_UNSIGNED_SHORT_5_6_5)
                 {
-                    (uint8_t)((color[0] >> 3) * norm),
-                    (uint8_t)((((color[0] & 0x07) << 3) | ((color[1] & 0xe0) >> 5)) * norm),
-                    (uint8_t)((color[1] >> 3) * norm),
-                    255
-                };
+                    const float norm5 = 255.0f / 0x1f;
+                    const float norm6 = 255.0f / 0x3f;
+                    pixelInfo.color =
+                    {
+                        (uint8_t)(((c >> 11) & 0x1f) * norm5),
+                        (uint8_t)(((c >>  5) & 0x3f) * norm6),
+                        (uint8_t)(((c >>  0) & 0x1f) * norm5),
+                        255
+                    };
+                }
+                else if (desc.format == GL_UNSIGNED_SHORT_4_4_4_4)
+                {
+                    const float norm4 = 255.0f / 0x0f;
+                    pixelInfo.color =
+                    {
+                        (uint8_t)(((c >> 12) & 0x0f) * norm4),
+                        (uint8_t)(((c >>  8) & 0x0f) * norm4),
+                        (uint8_t)(((c >>  4) & 0x0f) * norm4),
+                        (uint8_t)(((c >>  0) & 0x0f) * norm4),
+                    };
+                }
+                else if (desc.format == GL_UNSIGNED_SHORT_5_5_5_1)
+                {
+                    const float norm5 = 255.0f / 0x1f;
+                    pixelInfo.color =
+                    {
+                        (uint8_t)(((c >> 11) & 0x1f) * norm5),
+                        (uint8_t)(((c >>  5) & 0x3f) * norm5),
+                        (uint8_t)(((c >>  0) & 0x1f) * norm5),
+                        (uint8_t)(((c >> 15) & 0x01) * 255)
+                    };
+                }
+                else if (desc.format == GL_LUMINANCE_ALPHA)
+                {
+                    const uint8_t c = color[0];
+                    const uint8_t a = color[1];
+                    pixelInfo.color = { c, c, c, a };
+                }
+                else
+                {
+                    ::printf("(EE) Not implemented 16 bpp format: 0x%x\n", desc.format);
+                }
             }
             else if (desc.bpp == 8)
             {
-                pixelInfo.color.r = color[0];
+                const uint8_t c = color[0];
+                pixelInfo.color = { c, c, c, 255 };
             }
         }
 

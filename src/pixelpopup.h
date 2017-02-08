@@ -70,15 +70,15 @@ private:
 
     struct Info
     {
-        enum class Type
+        enum class Icon
         {
             Position,
             Color,
             Size,
             Rect,
         };
-        Type type;
-        bool insideOnly;
+        Icon icon;
+        cColor color;
         std::string text;
         Vectorf offset;
     };

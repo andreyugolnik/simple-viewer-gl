@@ -74,35 +74,24 @@ void cPixelPopup::setPixelInfo(const sPixelInfo& pi)
 {
     m_pixelInfo = pi;
 
+    const bool isInside = isInsideImage(m_pixelInfo.point);
+
     char buffer[100];
     m_info.clear();
 
     ::snprintf(buffer, sizeof(buffer), "%d x %d", (int)pi.point.x, (int)pi.point.y);
-    m_info.push_back({ Info::Type::Position, true, buffer, {} });
+    m_info.push_back({ Info::Icon::Position, isInside ? WhiteColor : GrayColor, buffer, {} });
 
+    if (isInside)
     {
-        buffer[0] = 0;
-
-        if (pi.bpp == 32)
-        {
-            ::snprintf(buffer, sizeof(buffer), "0x%.2x%.2x%.2x%.2x"
-                       , pi.color.a, pi.color.r, pi.color.g, pi.color.b);
-        }
-        else if (pi.bpp == 24 || pi.bpp == 16)
-        {
-            ::snprintf(buffer, sizeof(buffer), "0x%.2x%.2x%.2x"
-                       , pi.color.r, pi.color.g, pi.color.b);
-        }
-        else if (pi.bpp == 8)
-        {
-            ::snprintf(buffer, sizeof(buffer), "0x%.2x"
-                       , pi.color.r);
-        }
-
-        if (buffer[0])
-        {
-            m_info.push_back({ Info::Type::Color, true, buffer, {} });
-        }
+        const auto& c = pi.color;
+        ::snprintf(buffer, sizeof(buffer), "rgba %.2X %.2X %.2X %.2X"
+                   , c.r, c.g, c.b, c.a);
+        m_info.push_back({ Info::Icon::Color, WhiteColor, buffer, {} });
+    }
+    else
+    {
+        m_info.push_back({ Info::Icon::Color, GrayColor, "rgba - - - -", {} });
     }
 
     auto& rc = m_pixelInfo.rc;
@@ -115,10 +104,10 @@ void cPixelPopup::setPixelInfo(const sPixelInfo& pi)
         const int h = rc.height();
 
         ::snprintf(buffer, sizeof(buffer), "%d x %d", w, h);
-        m_info.push_back({ Info::Type::Size, false, buffer, {} });
+        m_info.push_back({ Info::Icon::Size, WhiteColor, buffer, {} });
 
         ::snprintf(buffer, sizeof(buffer), "%d, %d -> %d, %d", x, y, x + w - 1, y + h - 1);
-        m_info.push_back({ Info::Type::Rect, false, buffer, {} });
+        m_info.push_back({ Info::Icon::Rect, WhiteColor, buffer, {} });
     }
 
     float width = 0;
@@ -147,36 +136,30 @@ void cPixelPopup::render()
     const float my = ::ceilf(m_pixelInfo.mouse.y);
     m_pointer->render({ mx - 10.0f, my - 10.0f });
 
-    const bool isInside = isInsideImage(m_pixelInfo.point);
-    // if (isInside)
+    const auto& viewport = cRenderer::getViewportSize();
+    const auto& size = m_bg->getSize();
+
+    Vectorf pos
     {
-        const auto& viewport = cRenderer::getViewportSize();
-        const auto& size = m_bg->getSize();
+        clamp<float>(0.0f, viewport.x - size.x, ::ceilf(mx + InfoOffset)),
+        clamp<float>(0.0f, viewport.y - size.y, ::ceilf(my + InfoOffset))
+    };
 
-        Vectorf pos
-        {
-            clamp<float>(0.0f, viewport.x - size.x, ::ceilf(mx + InfoOffset)),
-            clamp<float>(0.0f, viewport.y - size.y, ::ceilf(my + InfoOffset))
-        };
+    m_bg->setSpriteSize(m_bgSize);
+    m_bg->render(pos);
 
-        m_bg->setSpriteSize(m_bgSize);
-        m_bg->render(pos);
+    pos += Vectorf{ m_border, m_border };
+    const Vectorf iconOffset{ 0.0f, (m_rowHeight - IconsHeight) * 0.5f };
+    for (const auto& s : m_info)
+    {
+        // m_icons->setColor(s.Icon == Info::Icon::Color && isInside ? m_pixelInfo.color : GrayColor);
+        m_icons->setFrame((uint32_t)s.icon);
+        m_icons->render(pos + iconOffset);
 
-        pos += Vectorf{ m_border, m_border };
-        const Vectorf iconOffset{ 0.0f, (m_rowHeight - IconsHeight) * 0.5f };
-        for (size_t i = 0, size = m_info.size(); i < size; i++)
-        {
-            const auto& s = m_info[i];
+        m_ft->setColor(s.color);
+        m_ft->draw(pos + s.offset, s.text.c_str());
 
-            // m_icons->setColor(s.type == Info::Type::Color && isInside ? m_pixelInfo.color : GrayColor);
-            m_icons->setFrame(i);
-            m_icons->render(pos + iconOffset);
-
-            m_ft->setColor(isInside == true || isInside == s.insideOnly ? WhiteColor : GrayColor);
-            m_ft->draw(pos + s.offset, s.text.c_str());
-
-            pos.y += m_rowHeight;
-        }
+        pos.y += m_rowHeight;
     }
 }
 
