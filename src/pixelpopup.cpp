@@ -132,8 +132,8 @@ void cPixelPopup::setPixelInfo(const sPixelInfo& pi)
 
 void cPixelPopup::render()
 {
-    const float mx = ::ceilf(m_pixelInfo.mouse.x);
-    const float my = ::ceilf(m_pixelInfo.mouse.y);
+    const float mx = ::roundf(m_pixelInfo.mouse.x);
+    const float my = ::roundf(m_pixelInfo.mouse.y);
     m_pointer->render({ mx - 10.0f, my - 10.0f });
 
     const auto& viewport = cRenderer::getViewportSize();
@@ -141,8 +141,8 @@ void cPixelPopup::render()
 
     Vectorf pos
     {
-        clamp<float>(0.0f, viewport.x - size.x, ::ceilf(mx + InfoOffset)),
-        clamp<float>(0.0f, viewport.y - size.y, ::ceilf(my + InfoOffset))
+        clamp<float>(0.0f, viewport.x - size.x, ::roundf(mx + InfoOffset)),
+        clamp<float>(0.0f, viewport.y - size.y, ::roundf(my + InfoOffset))
     };
 
     m_bg->setSpriteSize(m_bgSize);

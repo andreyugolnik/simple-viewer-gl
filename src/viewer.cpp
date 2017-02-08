@@ -130,8 +130,8 @@ void cViewer::render()
 
     m_image->render();
 
-    const float half_w = ::ceilf(m_image->getWidth() * 0.5f);
-    const float half_h = ::ceilf(m_image->getHeight() * 0.5f);
+    const float half_w = ::roundf(m_image->getWidth() * 0.5f);
+    const float half_h = ::roundf(m_image->getHeight() * 0.5f);
 
     if (m_loader->isLoaded())
     {
@@ -280,7 +280,7 @@ void cViewer::fnMouse(const Vectorf& pos)
         m_pixelPopup->setCursor(cursor);
 
         const Vectorf point = screenToImage(posFixed);
-        m_selection->mouseMove(point);
+        m_selection->mouseMove(point, m_scale.getScale());
 
         updatePixelInfo(posFixed);
     }
@@ -310,7 +310,7 @@ void cViewer::fnMouseButtons(int button, int action, int mods)
         m_mouseLB = (action == GLFW_PRESS);
         {
             const Vectorf point = screenToImage(m_lastMouse);
-            m_selection->mouseButton(point, m_mouseLB);
+            m_selection->mouseButton(point, m_scale.getScale(), m_mouseLB);
 
             auto& rect = m_selection->getRect();
             if (rect.isSet() == false)
@@ -788,7 +788,8 @@ void cViewer::updatePixelInfo(const Vectorf& pos)
 
         pixelInfo.imgWidth = m_image->getWidth();
         pixelInfo.imgHeight = m_image->getHeight();
-        pixelInfo.rc = m_selection->getRect();
+        const auto& rc = m_selection->getRect();
+        pixelInfo.rc = { { (int)rc.tl.x, (int)rc.tl.y }, { (int)rc.br.x, (int)rc.br.y } };
     }
 
     m_pixelPopup->setPixelInfo(pixelInfo);

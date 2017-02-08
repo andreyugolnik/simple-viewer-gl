@@ -22,21 +22,23 @@ class cSelection final
 public:
     void init();
     void setImageDimension(int w, int h);
-    void mouseButton(const Vectorf& pos, bool pressed);
-    void mouseMove(const Vectorf& pos);
+    void mouseButton(const Vectorf& pos, float scale, bool pressed);
+    void mouseMove(const Vectorf& pos, float scale);
     void render(const Vectorf& offset);
-    const Recti& getRect() const;
+    const Rectf& getRect() const;
     int getCursor() const;
 
 private:
-    void updateTestRect();
-    void updateCorner(const Vectori& pos);
+    void updateTestRect(float scale);
+    void updateCorner(const Vectorf& pos, float scale);
     void renderHorizontal(const Vectorf& pos, float w, float thickness);
     void renderVertical(const Vectorf& pos, float h, float thickness);
-    void renderRect(const Vectori& tl, const Vectori& br, float thickness);
-    void setImagePos(Recti& rc, const Vectori& offset);
+#if 0
+    void renderRect(const Vectorf& tl, const Vectorf& br, float thickness);
+#endif
+    void setImagePos(Rectf& rc, const Vectorf& offset);
     void setColor(bool selected);
-    void clampShiftDelta(Vectori& delta);
+    void clampShiftDelta(Vectorf& delta);
 
 private:
     bool m_enabled = true;
@@ -55,16 +57,16 @@ private:
 
     enum class Edge : uint32_t
     {
-        None = 0,
-        Top   = 1 << 0,
-        Right   = 1 << 1,
-        Bottom   = 1 << 2,
+        None   = 0,
+        Top    = 1 << 0,
+        Right  = 1 << 1,
+        Bottom = 1 << 2,
         Left   = 1 << 3,
-        CR   = 1 << 4,
+        Center = 1 << 4,
     };
     uint32_t m_corner = (uint32_t)Edge::None;
 
     std::unique_ptr<cQuad> m_selection;
-    Recti m_rc;
-    Recti m_rcTest;
+    Rectf m_rc;
+    Rectf m_rcTest;
 };
