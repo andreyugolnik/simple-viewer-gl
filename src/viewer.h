@@ -76,6 +76,7 @@ public:
     void centerWindow();
     void fnPosition(const Vectori& pos);
     void fnMouse(const Vectorf& pos);
+    void fnCursorEnter(bool entered);
     void fnMouseScroll(const Vectorf& pos);
     void fnMouseButtons(int button, int action, int mods);
     void fnKeyboard(int key, int scancode, int action, int mods);
@@ -107,6 +108,7 @@ private:
     bool m_imagePrepared = false;
     cScale m_scale;
     bool m_isWindowed;
+    bool m_cursorInside = false;
     //bool m_centerWindow;
     //bool m_allValid;
     //bool m_wheelZoom;

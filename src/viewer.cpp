@@ -156,7 +156,7 @@ void cViewer::render()
         m_infoBar->render();
     }
 
-    if (m_config->showPixelInfo && m_angle == 0)
+    if (m_config->showPixelInfo && m_cursorInside && m_angle == 0)
     {
         m_pixelPopup->render();
     }
@@ -288,6 +288,11 @@ void cViewer::fnMouse(const Vectorf& pos)
     {
         showCursor(true);
     }
+}
+
+void cViewer::fnCursorEnter(bool entered)
+{
+    m_cursorInside = entered;
 }
 
 void cViewer::fnMouseScroll(const Vectorf& pos)

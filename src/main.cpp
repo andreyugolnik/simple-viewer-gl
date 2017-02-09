@@ -116,6 +116,11 @@ namespace
         m_viewer->fnMouse({ (float)x, (float)y });
     }
 
+    void callbackCursorEnter(GLFWwindow* /*window*/, int entered)
+    {
+        m_viewer->fnCursorEnter(entered != 0);
+    }
+
     void callbackMouseScroll(GLFWwindow* /*window*/, double x, double y)
     {
         m_viewer->fnMouseScroll({ (float)x, (float)y });
@@ -144,6 +149,7 @@ namespace
         glfwSetInputMode(window, GLFW_STICKY_MOUSE_BUTTONS, 1);
         glfwSetMouseButtonCallback(window, callbackMouseButtons);
         glfwSetCursorPosCallback(window, callbackMouse);
+        glfwSetCursorEnterCallback(window, callbackCursorEnter);
         glfwSetScrollCallback(window, callbackMouseScroll);
 
 #if GLFW_VERSION_MAJOR >= 3 && GLFW_VERSION_MINOR >= 1
