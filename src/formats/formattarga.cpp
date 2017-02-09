@@ -17,32 +17,30 @@ namespace
 #pragma pack(push, 1)
     struct sTARGAHeader
     {
-        unsigned char idLength;
-        unsigned char colorMapType;
-        unsigned char imageType;
+        uint8_t idLength;
+        uint8_t colorMapType;
+        uint8_t imageType;
 
-        unsigned short firstEntryIndex;
-        unsigned short colorMapLength;
-        unsigned char colorMapEntrySize;
+        uint16_t firstEntryIndex;
+        uint16_t colorMapLength;
+        uint8_t colorMapEntrySize;
 
-        unsigned short xOrigin;
-        unsigned short yOrigin;
-        unsigned short width;
-        unsigned short height;
-        unsigned char pixelDepth;
-        unsigned char imageDescriptor;
+        uint16_t xOrigin;
+        uint16_t yOrigin;
+        uint16_t width;
+        uint16_t height;
+        uint8_t pixelDepth;
+        uint8_t imageDescriptor;
     };
 #pragma pack(pop)
 
-    bool colormapped(const sTARGAHeader& header, const unsigned char* tga, sBitmapDescription& desc)
+    bool colormapped(const sTARGAHeader& header, const uint8_t* tga, sBitmapDescription& desc)
     {
         // Uncompressed Color-mapped Image
         if (header.imageType == 1)
         {
             if (header.pixelDepth == 8)
             {
-                // ::printf("  INFO: uncompressed 8 bit\n");
-
                 if (header.colorMapEntrySize == 24)
                 {
                     desc.bppImage = 8;
@@ -50,16 +48,16 @@ namespace
                     desc.pitch = desc.width * 3;
                     desc.bitmap.resize(desc.pitch * desc.height);
 
-                    unsigned tgaPitch = header.width;
+                    uint32_t tgaPitch = header.width;
                     auto cmdData = tga + sizeof(sTARGAHeader) + header.idLength;
-                    unsigned cmtWidth  = header.colorMapEntrySize / 8;
+                    uint32_t cmtWidth  = header.colorMapEntrySize / 8;
                     tga += header.colorMapLength * cmtWidth;
 
-                    for (unsigned y = 0; y < header.height; y++)
+                    for (uint32_t y = 0; y < header.height; y++)
                     {
-                        unsigned dp = (header.height - y - 1) * desc.pitch;
-                        unsigned sp = (header.height - y - 1) * tgaPitch;
-                        for (unsigned x = 0; x < header.width; x++)
+                        uint32_t dp = (header.height - y - 1) * desc.pitch;
+                        uint32_t sp = (header.height - y - 1) * tgaPitch;
+                        for (uint32_t x = 0; x < header.width; x++)
                         {
                             desc.bitmap[dp + 0] = cmdData[tga[sp] * cmtWidth + 0];
                             desc.bitmap[dp + 1] = cmdData[tga[sp] * cmtWidth + 1];
@@ -96,25 +94,24 @@ namespace
         }
     }
 
-    bool rgbUncompressed(const sTARGAHeader& header, const unsigned char* tga, sBitmapDescription& desc)
+    bool rgbUncompressed(const sTARGAHeader& header, const uint8_t* tga, sBitmapDescription& desc)
     {
         if (header.pixelDepth == 16)
         {
-            // ::printf("  INFO: uncompressed 16 bit\n");
             desc.bppImage = 16;
             desc.bpp = 24;
             desc.pitch = desc.width * 3;
             desc.bitmap.resize(desc.pitch * desc.height);
 
-            unsigned tgaPitch = header.width * 2;
+            uint32_t tgaPitch = header.width * 2;
 
-            for (unsigned y = 0; y < header.height; y++)
+            for (uint32_t y = 0; y < header.height; y++)
             {
-                unsigned dp = (header.height - y - 1) * desc.pitch;
-                unsigned sp = (header.height - y - 1) * tgaPitch;
-                for (unsigned x = 0; x < header.width; x++)
+                uint32_t dp = (header.height - y - 1) * desc.pitch;
+                uint32_t sp = (header.height - y - 1) * tgaPitch;
+                for (uint32_t x = 0; x < header.width; x++)
                 {
-                    auto c = *(unsigned short*)&tga[sp];
+                    auto c = *(uint16_t*)&tga[sp];
                     desc.bitmap[dp + 0] = (((c >>  0) & 31) * 255) / 31;
                     desc.bitmap[dp + 1] = (((c >>  5) & 31) * 255) / 31;
                     desc.bitmap[dp + 2] = (((c >> 10) & 31) * 255) / 31;
@@ -125,18 +122,17 @@ namespace
         }
         else if (header.pixelDepth == 24)
         {
-            // ::printf("  INFO: uncompressed 24 bit\n");
-            unsigned pitch = header.width * 3;
+            uint32_t pitch = header.width * 3;
 
             desc.bppImage = 24;
             desc.bpp = 24;
             desc.pitch = pitch;
             desc.bitmap.resize(desc.pitch * desc.height);
 
-            for (unsigned y = 0; y < header.height; y++)
+            for (uint32_t y = 0; y < header.height; y++)
             {
-                unsigned idx = (header.height - y - 1) * pitch;
-                for (unsigned x = 0; x < header.width; x++)
+                uint32_t idx = (header.height - y - 1) * pitch;
+                for (uint32_t x = 0; x < header.width; x++)
                 {
                     desc.bitmap[idx + 0] = tga[idx + 0];
                     desc.bitmap[idx + 1] = tga[idx + 1];
@@ -147,18 +143,17 @@ namespace
         }
         else if (header.pixelDepth == 32)
         {
-            // ::printf("  INFO: uncompressed 32 bit\n");
-            unsigned pitch = header.width * 4;
+            uint32_t pitch = header.width * 4;
 
             desc.bpp = 32;
             desc.bppImage = 32;
             desc.pitch = pitch;
             desc.bitmap.resize(desc.pitch * desc.height);
 
-            for (unsigned y = 0; y < header.height; y++)
+            for (uint32_t y = 0; y < header.height; y++)
             {
-                unsigned idx = (header.height - y - 1) * pitch;
-                for (unsigned x = 0; x < header.width; x++)
+                uint32_t idx = (header.height - y - 1) * pitch;
+                for (uint32_t x = 0; x < header.width; x++)
                 {
                     desc.bitmap[idx + 0] = tga[idx + 0];
                     desc.bitmap[idx + 1] = tga[idx + 1];
@@ -177,66 +172,65 @@ namespace
         return true;
     }
 
-    bool rgbCompressed(const sTARGAHeader& header, const unsigned char* tga, sBitmapDescription& desc)
+    bool rgbCompressed(const sTARGAHeader& header, const uint8_t* tga, sBitmapDescription& desc)
     {
-        unsigned dwWidth  = 0;
-        unsigned dwHeight = 0;
-        unsigned dp       = 0;
-        unsigned sp       = 0;
+        uint32_t width  = 0;
+        uint32_t height = 0;
+        uint32_t dp     = 0;
+        uint32_t sp     = 0;
 
         if (header.pixelDepth == 16)
         {
-            // ::printf("  INFO: compressed 16 bit\n");
             desc.bppImage = 16;
             desc.bpp = 24;
             desc.pitch = desc.width * 3;
             desc.bitmap.resize(desc.pitch * desc.height);
 
-            while (dwHeight < header.height)
+            while (height < header.height)
             {
-                unsigned char cunkHead = tga[sp++];
-                unsigned char isPacked = cunkHead & 128;
-                unsigned char count    = (cunkHead & 127) + 1;
+                uint8_t cunkHead = tga[sp++];
+                uint8_t isPacked = cunkHead & 128;
+                uint8_t count    = (cunkHead & 127) + 1;
 
                 if (isPacked == 0)
                 {
-                    for (unsigned x = 0; x < count; x++)
+                    for (uint32_t x = 0; x < count; x++)
                     {
-                        if (dwWidth == header.width)
+                        if (width == header.width)
                         {
-                            dwWidth = 0;
-                            dwHeight++;
-                            dp += ((4 - ((header.width % 4) == 0 ? 4 : header.width % 4)) * 3);
-                            if (dwHeight == header.height)
+                            width = 0;
+                            height++;
+                            // dp += ((4 - ((header.width % 4) == 0 ? 4 : header.width % 4)) * 3);
+                            if (height == header.height)
                             {
                                 break;
                             }
                         }
-                        auto c = *(unsigned short*)&tga[sp];
-                        desc.bitmap[dp + 0] = (unsigned char)(((c >>  0) & 31) * 255) / 31;
-                        desc.bitmap[dp + 1] = (unsigned char)(((c >>  5) & 31) * 255) / 31;
-                        desc.bitmap[dp + 2] = (unsigned char)(((c >> 10) & 31) * 255) / 31;
+                        auto c = *(uint16_t*)&tga[sp];
+                        desc.bitmap[dp + 0] = (uint8_t)(((c >>  0) & 31) * 255) / 31;
+                        desc.bitmap[dp + 1] = (uint8_t)(((c >>  5) & 31) * 255) / 31;
+                        desc.bitmap[dp + 2] = (uint8_t)(((c >> 10) & 31) * 255) / 31;
                         dp += 3;
                         sp += 2;
-                        dwWidth++;
+                        width++;
                     }
                 }
                 else
                 {
-                    auto c = *(unsigned short*)&tga[sp];
-                    auto r = (unsigned char)(((c >>  0) & 31) * 255) / 31;
-                    auto g = (unsigned char)(((c >>  5) & 31) * 255) / 31;
-                    auto b = (unsigned char)(((c >> 10) & 31) * 255) / 31;
+                    auto c = *(uint16_t*)&tga[sp];
+                    auto r = (uint8_t)(((c >>  0) & 31) * 255) / 31;
+                    auto g = (uint8_t)(((c >>  5) & 31) * 255) / 31;
+                    auto b = (uint8_t)(((c >> 10) & 31) * 255) / 31;
                     sp += 2;
 
-                    for (unsigned x = 0; x < count; x++)
+                    for (uint32_t x = 0; x < count; x++)
                     {
-                        if (dwWidth == header.width)
+                        if (width == header.width)
                         {
-                            dwWidth = 0;
-                            dwHeight++;
-                            dp += ((4 - ((header.width % 4) == 0 ? 4 : header.width % 4)) * 3);
-                            if (dwHeight == header.height)
+                            width = 0;
+                            height++;
+                            // dp += ((4 - ((header.width % 4) == 0 ? 4 : header.width % 4)) * 3);
+                            if (height == header.height)
                             {
                                 break;
                             }
@@ -245,35 +239,34 @@ namespace
                         desc.bitmap[dp + 1] = g;
                         desc.bitmap[dp + 2] = b;
                         dp += 3;
-                        dwWidth++;
+                        width++;
                     }
                 }
             }
         }
         else if (header.pixelDepth == 24)
         {
-            // ::printf("  INFO: compressed 24 bit\n");
             desc.bppImage = 24;
             desc.bpp = 24;
             desc.pitch = desc.width * 3;
             desc.bitmap.resize(desc.pitch * desc.height);
 
-            while (dwHeight < header.height)
+            while (height < header.height)
             {
-                unsigned char cunkHead = tga[sp++];
-                unsigned char isPacked  = cunkHead & 128;
-                unsigned char count     = (cunkHead & 127) + 1;
+                uint8_t cunkHead = tga[sp++];
+                uint8_t isPacked = cunkHead & 128;
+                uint8_t count    = (cunkHead & 127) + 1;
 
                 if (isPacked == 0)
                 {
-                    for (unsigned x = 0; x < count; x++)
+                    for (uint32_t x = 0; x < count; x++)
                     {
-                        if (dwWidth == header.width)
+                        if (width == header.width)
                         {
-                            dwWidth = 0;
-                            dwHeight++;
-                            dp  += ((4 - ((header.width % 4) == 0 ? 4 : header.width % 4)) * 3);
-                            if (dwHeight == header.height)
+                            width = 0;
+                            height++;
+                            // dp  += ((4 - ((header.width % 4) == 0 ? 4 : header.width % 4)) * 3);
+                            if (height == header.height)
                             {
                                 break;
                             }
@@ -283,23 +276,23 @@ namespace
                         desc.bitmap[dp + 2] = tga[sp + 2];
                         dp += 3;
                         sp += 3;
-                        dwWidth++;
+                        width++;
                     }
                 }
                 else
                 {
-                    unsigned char r = tga[sp + 0];
-                    unsigned char g = tga[sp + 1];
-                    unsigned char b = tga[sp + 2];
+                    uint8_t r = tga[sp + 0];
+                    uint8_t g = tga[sp + 1];
+                    uint8_t b = tga[sp + 2];
                     sp += 3;
-                    for (unsigned x = 0; x < count; x++)
+                    for (uint32_t x = 0; x < count; x++)
                     {
-                        if (dwWidth == header.width)
+                        if (width == header.width)
                         {
-                            dwWidth = 0;
-                            dwHeight++;
-                            dp += ((4 - ((header.width % 4) == 0 ? 4 : header.width % 4)) * 3);
-                            if (dwHeight == header.height)
+                            width = 0;
+                            height++;
+                            // dp += ((4 - ((header.width % 4) == 0 ? 4 : header.width % 4)) * 3);
+                            if (height == header.height)
                             {
                                 break;
                             }
@@ -308,74 +301,108 @@ namespace
                         desc.bitmap[dp + 1] = g;
                         desc.bitmap[dp + 2] = b;
                         dp += 3;
-                        dwWidth++;
+                        width++;
                     }
                 }
             }
         }
         else if (header.pixelDepth == 32)
         {
-            // ::printf("  INFO: compressed 32 bit\n");
             desc.bppImage = 32;
             desc.bpp = 32;
             desc.pitch = desc.width * 4;
             desc.bitmap.resize(desc.pitch * desc.height);
 
-            while (dwHeight < header.height)
+            while (height < header.height)
             {
-                unsigned char cunkHead = tga[sp++];
-                unsigned char isPacked  = cunkHead & 128;
-                unsigned char count     = (cunkHead & 127) + 1;
+                uint8_t cunkHead = tga[sp++];
+                uint8_t isPacked = cunkHead & 128;
+                uint8_t count    = (cunkHead & 127) + 1;
 
                 if (isPacked == 0)
                 {
-                    for (unsigned x = 0; x < count; x++)
+                    for (uint32_t x = 0; x < count; x++)
                     {
-                        if (dwWidth == header.width)
+                        if (width == header.width)
                         {
-                            dwWidth = 0;
-                            dwHeight++;
-                            dp += ((4 - ((header.width % 4) == 0 ? 4 : header.width % 4)) * 3);
-                            if (dwHeight == header.height)
+                            width = 0;
+                            height++;
+                            // dp += ((4 - ((header.width % 4) == 0 ? 4 : header.width % 4)) * 3);
+                            if (height == header.height)
                             {
                                 break;
                             }
                         }
-                        desc.bitmap[dp + 0] = tga[sp + 0];
+                        uint32_t dp = desc.pitch * (desc.height - height - 1) + width * 4;
+                        desc.bitmap[dp + 0] = tga[sp + 2];
                         desc.bitmap[dp + 1] = tga[sp + 1];
-                        desc.bitmap[dp + 2] = tga[sp + 2];
+                        desc.bitmap[dp + 2] = tga[sp + 0];
                         desc.bitmap[dp + 3] = tga[sp + 3];
                         dp += 4;
                         sp += 4;
-                        dwWidth++;
+                        width++;
                     }
                 }
                 else
                 {
-                    unsigned char r = tga[sp + 0];
-                    unsigned char g = tga[sp + 1];
-                    unsigned char b = tga[sp + 2];
-                    unsigned char a = tga[sp + 3];
+                    uint8_t r = tga[sp + 2];
+                    uint8_t g = tga[sp + 1];
+                    uint8_t b = tga[sp + 0];
+                    uint8_t a = tga[sp + 3];
                     sp += 4;
 
-                    for (unsigned x = 0; x < count; x++)
+                    for (uint32_t x = 0; x < count; x++)
                     {
-                        if (dwWidth == header.width)
+                        if (width == header.width)
                         {
-                            dwWidth = 0;
-                            dwHeight++;
-                            dp  += ((4 - ((header.width % 4) == 0 ? 4 : header.width % 4)) * 3);
-                            if (dwHeight == header.height)
+                            width = 0;
+                            height++;
+                            // dp  += ((4 - ((header.width % 4) == 0 ? 4 : header.width % 4)) * 3);
+                            if (height == header.height)
                             {
                                 break;
                             }
                         }
+                        uint32_t dp = desc.pitch * (desc.height - height - 1) + width * 4;
                         desc.bitmap[dp + 0] = r;
                         desc.bitmap[dp + 1] = g;
                         desc.bitmap[dp + 2] = b;
                         desc.bitmap[dp + 3] = a;
                         dp += 4;
-                        dwWidth++;
+                        width++;
+                    }
+                }
+            }
+
+            {
+                auto tga_data = desc.bitmap.data();
+                int tga_comp = 4;
+
+                if (0) //tga_inverted
+                {
+                    for (int j = 0; j * 2 < desc.height; ++j)
+                    {
+                        int index1 = j * desc.width * tga_comp;
+                        int index2 = (desc.height - 1 - j) * desc.width * tga_comp;
+                        for (int i = desc.width * tga_comp; i > 0; --i)
+                        {
+                            unsigned char temp = tga_data[index1];
+                            tga_data[index1] = tga_data[index2];
+                            tga_data[index2] = temp;
+                            ++index1;
+                            ++index2;
+                        }
+                    }
+                }
+                if (0) //tga_comp >= 3 && !tga_rgb16
+                {
+                    unsigned char* tga_pixel = tga_data;
+                    for (int i = 0; i < desc.width * desc.height; ++i)
+                    {
+                        unsigned char temp = tga_pixel[0];
+                        tga_pixel[0] = tga_pixel[2];
+                        tga_pixel[2] = temp;
+                        tga_pixel += tga_comp;
                     }
                 }
             }
@@ -409,9 +436,9 @@ bool cFormatTarga::isSupported(cFile& file, Buffer& buffer) const
 
     const auto h = reinterpret_cast<const sTARGAHeader*>(buffer.data());
     return h->colorMapType <= 1
-        && h->width > 0 && h->height > 0
-        && (h->imageType <= 3 || (h->imageType >= 9 && h->imageType <= 11))
-        && (h->pixelDepth == 8 || h->pixelDepth == 16 || h->pixelDepth == 24 || h->pixelDepth == 32);
+           && h->width > 0 && h->height > 0
+           && (h->imageType <= 3 || (h->imageType >= 9 && h->imageType <= 11))
+           && (h->pixelDepth == 8 || h->pixelDepth == 16 || h->pixelDepth == 24 || h->pixelDepth == 32);
 }
 
 bool cFormatTarga::LoadImpl(const char* filename, sBitmapDescription& desc)
@@ -424,21 +451,36 @@ bool cFormatTarga::LoadImpl(const char* filename, sBitmapDescription& desc)
 
     desc.size = file.getSize();
 
-    std::vector<unsigned char> tga(desc.size);
-    if (tga.size() != file.read(tga.data(), tga.size()))
+    std::vector<uint8_t> tga(desc.size);
+    if (desc.size != file.read(tga.data(), desc.size))
     {
         ::printf("(EE) Can't read TARGA data.\n");
         return false;
     }
 
     auto& header = *reinterpret_cast<const sTARGAHeader*>(tga.data());
+    auto tga_data = reinterpret_cast<const uint8_t*>(tga.data() + sizeof(sTARGAHeader));
 
     desc.width = header.width;
     desc.height = header.height;
 
+    // ::printf("------------------------\n");
+    // ::printf("(II) idLength:          %u\n", (uint32_t)header.idLength);
+    // ::printf("(II) colorMapType:      %u\n", (uint32_t)header.colorMapType);
+    // ::printf("(II) imageType:         %u\n", (uint32_t)header.imageType);
+    // ::printf("(II) firstEntryIndex:   %u\n", (uint32_t)header.firstEntryIndex);
+    // ::printf("(II) colorMapLength:    %u\n", (uint32_t)header.colorMapLength);
+    // ::printf("(II) colorMapEntrySize: %u\n", (uint32_t)header.colorMapEntrySize);
+    // ::printf("(II) xOrigin:           %u\n", (uint32_t)header.xOrigin);
+    // ::printf("(II) yOrigin:           %u\n", (uint32_t)header.yOrigin);
+    // ::printf("(II) width:             %u\n", (uint32_t)header.width);
+    // ::printf("(II) height:            %u\n", (uint32_t)header.height);
+    // ::printf("(II) pixelDepth:        %u\n", (uint32_t)header.pixelDepth);
+    // ::printf("(II) imageDescriptor:   %u\n", (uint32_t)header.imageDescriptor);
+
     if (header.colorMapType == 1)
     {
-        colormapped(header, tga.data(), desc);
+        colormapped(header, tga_data, desc);
         m_formatName = "targa/palette";
     }
     else if (header.colorMapType == 0)
@@ -446,12 +488,12 @@ bool cFormatTarga::LoadImpl(const char* filename, sBitmapDescription& desc)
         // RGB - uncompressed
         if (header.imageType == 2)
         {
-            rgbUncompressed(header, tga.data(), desc);
+            rgbUncompressed(header, tga_data, desc);
         }
         // RGB - compressed
         else if (header.imageType == 10)
         {
-            rgbCompressed(header, tga.data(), desc);
+            rgbCompressed(header, tga_data, desc);
         }
         else
         {
