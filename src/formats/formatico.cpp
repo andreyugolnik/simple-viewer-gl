@@ -111,7 +111,7 @@ bool cFormatIco::isSupported(cFile& file, Buffer& buffer) const
     }
 
     const auto h = reinterpret_cast<const IcoHeader*>(buffer.data());
-    return (h->reserved == 0
+    return (h->reserved == 0 && h->count > 0
             && h->count * sizeof(IcoDirentry) <= (size_t)file.getSize()
             && (h->type == 1 || h->type == 2));
 }
