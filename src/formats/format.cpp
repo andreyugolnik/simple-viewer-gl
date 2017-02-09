@@ -8,6 +8,7 @@
 \**********************************************/
 
 #include "format.h"
+#include "../common/bitmap_description.h"
 #include "../common/callbacks.h"
 #include "../common/file.h"
 
@@ -58,22 +59,37 @@ bool cFormat::LoadSubImage(unsigned subImage, sBitmapDescription& desc)
     return LoadSubImageImpl(subImage, desc);
 }
 
-void cFormat::dumpFormat()
+void cFormat::dumpFormat() const
 {
     switch (m_support)
     {
     case eSupport::Unsupported:
-        printf("(WW) %s format unsupported.\n", m_formatName);
+        ::printf("(WW) %s format unsupported.\n", m_formatName);
         break;
 
     case eSupport::ExternalLib:
-        printf("%s format supported by external lib.\n", m_formatName);
+        ::printf("(II) %s format supported by external lib.\n", m_formatName);
         break;
 
     case eSupport::Internal:
-        printf("%s format has internal support.\n", m_formatName);
+        ::printf("(II) %s format has internal support.\n", m_formatName);
         break;
     }
+}
+
+void cFormat::dump(sBitmapDescription& desc) const
+{
+    // ::printf("(II) %s\n", getFormatName(format));
+    ::printf("(II) bits per pixel: %u\n", desc.bpp);
+    ::printf("(II) image bpp:      %u\n", desc.bppImage);
+    ::printf("(II) width:          %u\n", desc.width);
+    ::printf("(II) height:         %u\n", desc.height);
+    ::printf("(II) pitch:          %u\n", desc.pitch);
+    ::printf("(II) size:           %ld\n", desc.size);
+    ::printf("(II) frames count:   %u\n", desc.images);
+    ::printf("(II) current frame:  %u\n", desc.current);
+    ::printf("(II) animation:      %s\n", desc.isAnimation ? "true" : "false");
+    ::printf("(II) frame duration: %u\n", desc.delay);
 }
 
 void cFormat::updateProgress(float percent)

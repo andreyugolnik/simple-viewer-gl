@@ -38,7 +38,8 @@ public:
         m_stop = true;
     }
 
-    virtual void dumpFormat();
+    virtual void dumpFormat() const;
+    virtual void dump(sBitmapDescription& desc) const;
 
 protected:
     cFormat(const char* libName, iCallbacks* callbacks);

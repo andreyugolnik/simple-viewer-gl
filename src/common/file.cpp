@@ -32,7 +32,7 @@ bool cFile::open(const char* path, const char* mode)
         return true;
     }
 
-    printf("(EE) Can't open \"%s\".", path);
+    ::printf("(EE) Can't open \"%s\".\n", path);
     return false;
 }
 
