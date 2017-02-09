@@ -34,6 +34,26 @@ namespace
     };
 #pragma pack(pop)
 
+    void invert(sBitmapDescription& desc)
+    {
+        auto tga_data = desc.bitmap.data();
+        int tga_comp = desc.bpp / 8;
+
+        for (uint32_t j = 0; j * 2 < desc.height; ++j)
+        {
+            uint32_t index1 = j * desc.width * tga_comp;
+            uint32_t index2 = (desc.height - 1 - j) * desc.width * tga_comp;
+            for (uint32_t i = desc.width * tga_comp; i > 0; --i)
+            {
+                const uint8_t temp = tga_data[index1];
+                tga_data[index1] = tga_data[index2];
+                tga_data[index2] = temp;
+                ++index1;
+                ++index2;
+            }
+        }
+    }
+
     bool colormapped(const sTARGAHeader& header, const uint8_t* tga, sBitmapDescription& desc)
     {
         // Uncompressed Color-mapped Image
@@ -47,6 +67,7 @@ namespace
                     desc.bpp = 24;
                     desc.pitch = desc.width * 3;
                     desc.bitmap.resize(desc.pitch * desc.height);
+                    auto out = desc.bitmap.data();
 
                     uint32_t tgaPitch = header.width;
                     auto cmdData = tga + sizeof(sTARGAHeader) + header.idLength;
@@ -59,9 +80,9 @@ namespace
                         uint32_t sp = (header.height - y - 1) * tgaPitch;
                         for (uint32_t x = 0; x < header.width; x++)
                         {
-                            desc.bitmap[dp + 0] = cmdData[tga[sp] * cmtWidth + 0];
-                            desc.bitmap[dp + 1] = cmdData[tga[sp] * cmtWidth + 1];
-                            desc.bitmap[dp + 2] = cmdData[tga[sp] * cmtWidth + 2];
+                            out[dp + 0] = cmdData[tga[sp] * cmtWidth + 0];
+                            out[dp + 1] = cmdData[tga[sp] * cmtWidth + 1];
+                            out[dp + 2] = cmdData[tga[sp] * cmtWidth + 2];
                             dp += 3;
                             sp++;
                         }
@@ -102,6 +123,7 @@ namespace
             desc.bpp = 24;
             desc.pitch = desc.width * 3;
             desc.bitmap.resize(desc.pitch * desc.height);
+            auto out = desc.bitmap.data();
 
             uint32_t tgaPitch = header.width * 2;
 
@@ -112,9 +134,9 @@ namespace
                 for (uint32_t x = 0; x < header.width; x++)
                 {
                     auto c = *(uint16_t*)&tga[sp];
-                    desc.bitmap[dp + 0] = (((c >>  0) & 31) * 255) / 31;
-                    desc.bitmap[dp + 1] = (((c >>  5) & 31) * 255) / 31;
-                    desc.bitmap[dp + 2] = (((c >> 10) & 31) * 255) / 31;
+                    out[dp + 0] = (((c >>  0) & 31) * 255) / 31;
+                    out[dp + 1] = (((c >>  5) & 31) * 255) / 31;
+                    out[dp + 2] = (((c >> 10) & 31) * 255) / 31;
                     dp += 3;
                     sp += 2;
                 }
@@ -128,15 +150,16 @@ namespace
             desc.bpp = 24;
             desc.pitch = pitch;
             desc.bitmap.resize(desc.pitch * desc.height);
+            auto out = desc.bitmap.data();
 
             for (uint32_t y = 0; y < header.height; y++)
             {
                 uint32_t idx = (header.height - y - 1) * pitch;
                 for (uint32_t x = 0; x < header.width; x++)
                 {
-                    desc.bitmap[idx + 0] = tga[idx + 0];
-                    desc.bitmap[idx + 1] = tga[idx + 1];
-                    desc.bitmap[idx + 2] = tga[idx + 2];
+                    out[idx + 0] = tga[idx + 0];
+                    out[idx + 1] = tga[idx + 1];
+                    out[idx + 2] = tga[idx + 2];
                     idx += 3;
                 }
             }
@@ -149,16 +172,17 @@ namespace
             desc.bppImage = 32;
             desc.pitch = pitch;
             desc.bitmap.resize(desc.pitch * desc.height);
+            auto out = desc.bitmap.data();
 
             for (uint32_t y = 0; y < header.height; y++)
             {
                 uint32_t idx = (header.height - y - 1) * pitch;
                 for (uint32_t x = 0; x < header.width; x++)
                 {
-                    desc.bitmap[idx + 0] = tga[idx + 0];
-                    desc.bitmap[idx + 1] = tga[idx + 1];
-                    desc.bitmap[idx + 2] = tga[idx + 2];
-                    desc.bitmap[idx + 3] = tga[idx + 3];
+                    out[idx + 0] = tga[idx + 0];
+                    out[idx + 1] = tga[idx + 1];
+                    out[idx + 2] = tga[idx + 2];
+                    out[idx + 3] = tga[idx + 3];
                     idx += 4;
                 }
             }
@@ -185,6 +209,7 @@ namespace
             desc.bpp = 24;
             desc.pitch = desc.width * 3;
             desc.bitmap.resize(desc.pitch * desc.height);
+            auto out = desc.bitmap.data();
 
             while (height < header.height)
             {
@@ -207,9 +232,9 @@ namespace
                             }
                         }
                         auto c = *(uint16_t*)&tga[sp];
-                        desc.bitmap[dp + 0] = (uint8_t)(((c >>  0) & 31) * 255) / 31;
-                        desc.bitmap[dp + 1] = (uint8_t)(((c >>  5) & 31) * 255) / 31;
-                        desc.bitmap[dp + 2] = (uint8_t)(((c >> 10) & 31) * 255) / 31;
+                        out[dp + 0] = (uint8_t)(((c >>  0) & 31) * 255) / 31;
+                        out[dp + 1] = (uint8_t)(((c >>  5) & 31) * 255) / 31;
+                        out[dp + 2] = (uint8_t)(((c >> 10) & 31) * 255) / 31;
                         dp += 3;
                         sp += 2;
                         width++;
@@ -235,9 +260,9 @@ namespace
                                 break;
                             }
                         }
-                        desc.bitmap[dp + 0] = r;
-                        desc.bitmap[dp + 1] = g;
-                        desc.bitmap[dp + 2] = b;
+                        out[dp + 0] = r;
+                        out[dp + 1] = g;
+                        out[dp + 2] = b;
                         dp += 3;
                         width++;
                     }
@@ -250,6 +275,7 @@ namespace
             desc.bpp = 24;
             desc.pitch = desc.width * 3;
             desc.bitmap.resize(desc.pitch * desc.height);
+            auto out = desc.bitmap.data();
 
             while (height < header.height)
             {
@@ -271,9 +297,9 @@ namespace
                                 break;
                             }
                         }
-                        desc.bitmap[dp + 0] = tga[sp + 0];
-                        desc.bitmap[dp + 1] = tga[sp + 1];
-                        desc.bitmap[dp + 2] = tga[sp + 2];
+                        out[dp + 0] = tga[sp + 0];
+                        out[dp + 1] = tga[sp + 1];
+                        out[dp + 2] = tga[sp + 2];
                         dp += 3;
                         sp += 3;
                         width++;
@@ -297,9 +323,9 @@ namespace
                                 break;
                             }
                         }
-                        desc.bitmap[dp + 0] = r;
-                        desc.bitmap[dp + 1] = g;
-                        desc.bitmap[dp + 2] = b;
+                        out[dp + 0] = r;
+                        out[dp + 1] = g;
+                        out[dp + 2] = b;
                         dp += 3;
                         width++;
                     }
@@ -312,6 +338,7 @@ namespace
             desc.bpp = 32;
             desc.pitch = desc.width * 4;
             desc.bitmap.resize(desc.pitch * desc.height);
+            auto out = desc.bitmap.data();
 
             while (height < header.height)
             {
@@ -334,10 +361,10 @@ namespace
                             }
                         }
                         uint32_t dp = desc.pitch * (desc.height - height - 1) + width * 4;
-                        desc.bitmap[dp + 0] = tga[sp + 2];
-                        desc.bitmap[dp + 1] = tga[sp + 1];
-                        desc.bitmap[dp + 2] = tga[sp + 0];
-                        desc.bitmap[dp + 3] = tga[sp + 3];
+                        out[dp + 0] = tga[sp + 2];
+                        out[dp + 1] = tga[sp + 1];
+                        out[dp + 2] = tga[sp + 0];
+                        out[dp + 3] = tga[sp + 3];
                         dp += 4;
                         sp += 4;
                         width++;
@@ -364,45 +391,12 @@ namespace
                             }
                         }
                         uint32_t dp = desc.pitch * (desc.height - height - 1) + width * 4;
-                        desc.bitmap[dp + 0] = r;
-                        desc.bitmap[dp + 1] = g;
-                        desc.bitmap[dp + 2] = b;
-                        desc.bitmap[dp + 3] = a;
+                        out[dp + 0] = r;
+                        out[dp + 1] = g;
+                        out[dp + 2] = b;
+                        out[dp + 3] = a;
                         dp += 4;
                         width++;
-                    }
-                }
-            }
-
-            {
-                auto tga_data = desc.bitmap.data();
-                int tga_comp = 4;
-
-                if (0) //tga_inverted
-                {
-                    for (int j = 0; j * 2 < desc.height; ++j)
-                    {
-                        int index1 = j * desc.width * tga_comp;
-                        int index2 = (desc.height - 1 - j) * desc.width * tga_comp;
-                        for (int i = desc.width * tga_comp; i > 0; --i)
-                        {
-                            unsigned char temp = tga_data[index1];
-                            tga_data[index1] = tga_data[index2];
-                            tga_data[index2] = temp;
-                            ++index1;
-                            ++index2;
-                        }
-                    }
-                }
-                if (0) //tga_comp >= 3 && !tga_rgb16
-                {
-                    unsigned char* tga_pixel = tga_data;
-                    for (int i = 0; i < desc.width * desc.height; ++i)
-                    {
-                        unsigned char temp = tga_pixel[0];
-                        tga_pixel[0] = tga_pixel[2];
-                        tga_pixel[2] = temp;
-                        tga_pixel += tga_comp;
                     }
                 }
             }
