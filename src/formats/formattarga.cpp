@@ -34,6 +34,7 @@ namespace
     };
 #pragma pack(pop)
 
+#if 0
     void invert(sBitmapDescription& desc)
     {
         auto tga_data = desc.bitmap.data();
@@ -53,6 +54,7 @@ namespace
             }
         }
     }
+#endif
 
     bool colormapped(const sTARGAHeader& header, const uint8_t* tga, sBitmapDescription& desc)
     {
@@ -70,8 +72,8 @@ namespace
                     auto out = desc.bitmap.data();
 
                     uint32_t tgaPitch = header.width;
-                    auto cmdData = tga + sizeof(sTARGAHeader) + header.idLength;
-                    uint32_t cmtWidth  = header.colorMapEntrySize / 8;
+                    auto cmdData = tga + header.idLength;
+                    uint32_t cmtWidth = header.colorMapEntrySize / 8;
                     tga += header.colorMapLength * cmtWidth;
 
                     for (uint32_t y = 0; y < header.height; y++)
@@ -80,9 +82,9 @@ namespace
                         uint32_t sp = (header.height - y - 1) * tgaPitch;
                         for (uint32_t x = 0; x < header.width; x++)
                         {
-                            out[dp + 0] = cmdData[tga[sp] * cmtWidth + 0];
+                            out[dp + 0] = cmdData[tga[sp] * cmtWidth + 2];
                             out[dp + 1] = cmdData[tga[sp] * cmtWidth + 1];
-                            out[dp + 2] = cmdData[tga[sp] * cmtWidth + 2];
+                            out[dp + 2] = cmdData[tga[sp] * cmtWidth + 0];
                             dp += 3;
                             sp++;
                         }
@@ -157,9 +159,9 @@ namespace
                 uint32_t idx = (header.height - y - 1) * pitch;
                 for (uint32_t x = 0; x < header.width; x++)
                 {
-                    out[idx + 0] = tga[idx + 0];
+                    out[idx + 0] = tga[idx + 2];
                     out[idx + 1] = tga[idx + 1];
-                    out[idx + 2] = tga[idx + 2];
+                    out[idx + 2] = tga[idx + 0];
                     idx += 3;
                 }
             }
@@ -179,9 +181,9 @@ namespace
                 uint32_t idx = (header.height - y - 1) * pitch;
                 for (uint32_t x = 0; x < header.width; x++)
                 {
-                    out[idx + 0] = tga[idx + 0];
+                    out[idx + 0] = tga[idx + 2];
                     out[idx + 1] = tga[idx + 1];
-                    out[idx + 2] = tga[idx + 2];
+                    out[idx + 2] = tga[idx + 0];
                     out[idx + 3] = tga[idx + 3];
                     idx += 4;
                 }
@@ -225,7 +227,6 @@ namespace
                         {
                             width = 0;
                             height++;
-                            // dp += ((4 - ((header.width % 4) == 0 ? 4 : header.width % 4)) * 3);
                             if (height == header.height)
                             {
                                 break;
@@ -254,7 +255,6 @@ namespace
                         {
                             width = 0;
                             height++;
-                            // dp += ((4 - ((header.width % 4) == 0 ? 4 : header.width % 4)) * 3);
                             if (height == header.height)
                             {
                                 break;
@@ -291,15 +291,14 @@ namespace
                         {
                             width = 0;
                             height++;
-                            // dp  += ((4 - ((header.width % 4) == 0 ? 4 : header.width % 4)) * 3);
                             if (height == header.height)
                             {
                                 break;
                             }
                         }
-                        out[dp + 0] = tga[sp + 0];
+                        out[dp + 0] = tga[sp + 2];
                         out[dp + 1] = tga[sp + 1];
-                        out[dp + 2] = tga[sp + 2];
+                        out[dp + 2] = tga[sp + 0];
                         dp += 3;
                         sp += 3;
                         width++;
@@ -307,9 +306,9 @@ namespace
                 }
                 else
                 {
-                    uint8_t r = tga[sp + 0];
+                    uint8_t r = tga[sp + 2];
                     uint8_t g = tga[sp + 1];
-                    uint8_t b = tga[sp + 2];
+                    uint8_t b = tga[sp + 0];
                     sp += 3;
                     for (uint32_t x = 0; x < count; x++)
                     {
@@ -317,7 +316,6 @@ namespace
                         {
                             width = 0;
                             height++;
-                            // dp += ((4 - ((header.width % 4) == 0 ? 4 : header.width % 4)) * 3);
                             if (height == header.height)
                             {
                                 break;
