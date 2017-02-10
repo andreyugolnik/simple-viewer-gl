@@ -613,17 +613,17 @@ void cViewer::centerWindow()
     {
         if (m_config->centerWindow)
         {
-            GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-            const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-
             // calculate window size
             int imgw = m_image->getWidth() + (m_config->showImageBorder ? m_border->getThickness() * 2 : 0);
             int imgh = m_image->getHeight() + (m_config->showImageBorder ? m_border->getThickness() * 2 : 0);
-            imgw = std::max<int>(imgw, DEF_WINDOW_W * m_ratio.x);
-            imgh = std::max<int>(imgh, DEF_WINDOW_H * m_ratio.y);
+            imgw = std::max<int>(imgw / m_ratio.x, DEF_WINDOW_W);
+            imgh = std::max<int>(imgh / m_ratio.y, DEF_WINDOW_H);
 
-            const int width = std::min<int>(imgw / m_ratio.x, mode->width / m_ratio.x);
-            const int height = std::min<int>(imgh / m_ratio.y, mode->height / m_ratio.y);
+            auto monitor = glfwGetPrimaryMonitor();
+            auto mode = glfwGetVideoMode(monitor);
+
+            const int width = std::min<int>(imgw, mode->width);
+            const int height = std::min<int>(imgh, mode->height);
 
             // calculate window position
             const int x = (mode->width - width) / 2;
