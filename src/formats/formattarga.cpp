@@ -79,14 +79,14 @@ namespace
     inline uint32_t getIndex(uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint32_t components, Origin origin)
     {
         const uint32_t idx = origin == Origin::LowerLeft
-                            ? getIndexLowerLeft(x, y, width, height, components)
-                            : getIndexUpperLeft(x, y, width, height, components);
+                             ? getIndexLowerLeft(x, y, width, height, components)
+                             : getIndexUpperLeft(x, y, width, height, components);
         return idx;
     }
 
     bool colormapped(const sTARGAHeader& header, const uint8_t* tga, sBitmapDescription& desc)
     {
-        if (header.imageType != 1 && header.imageType != 9)
+        if (header.colorMapType != 1)
         {
             ::printf("(EE) Unknown color-mapped format.\n");
             return false;
@@ -205,6 +205,12 @@ namespace
 
     bool rgbUncompressed(const sTARGAHeader& header, const uint8_t* tga, sBitmapDescription& desc)
     {
+        if (header.colorMapType != 0)
+        {
+            ::printf("(EE) Unknown color-mapped format.\n");
+            return false;
+        }
+
         const auto origin = getOrigin(header.imageDescriptor);
         uint32_t sp = 0;
 
@@ -284,6 +290,12 @@ namespace
 
     bool rgbCompressed(const sTARGAHeader& header, const uint8_t* tga, sBitmapDescription& desc)
     {
+        if (header.colorMapType != 0)
+        {
+            ::printf("(EE) Unknown color-mapped format.\n");
+            return false;
+        }
+
         const auto origin = getOrigin(header.imageDescriptor);
         uint32_t x = 0;
         uint32_t y = 0;
@@ -509,7 +521,7 @@ bool cFormatTarga::isSupported(cFile& file, Buffer& buffer) const
     const auto h = reinterpret_cast<const sTARGAHeader*>(buffer.data());
     return h->colorMapType <= 1
            && h->width > 0 && h->height > 0
-           && (h->imageType <= 3 || (h->imageType >= 9 && h->imageType <= 11))
+           && (h->imageType <= 3 || (h->imageType >= 9 && h->imageType <= 11) || h->imageType == 32 || h->imageType == 33)
            && (h->pixelDepth == 8 || h->pixelDepth == 16 || h->pixelDepth == 24 || h->pixelDepth == 32);
 }
 
@@ -536,50 +548,54 @@ bool cFormatTarga::LoadImpl(const char* filename, sBitmapDescription& desc)
     desc.width = header.width;
     desc.height = header.height;
 
-    ::printf("------------------------\n");
-    ::printf("(II) idLength:          %u\n", (uint32_t)header.idLength);
-    ::printf("(II) colorMapType:      %u\n", (uint32_t)header.colorMapType);
-    ::printf("(II) imageType:         %u\n", (uint32_t)header.imageType);
-    ::printf("(II) firstEntryIndex:   %u\n", (uint32_t)header.firstEntryIndex);
-    ::printf("(II) colorMapLength:    %u\n", (uint32_t)header.colorMapLength);
-    ::printf("(II) colorMapEntrySize: %u\n", (uint32_t)header.colorMapEntrySize);
-    ::printf("(II) xOrigin:           %u\n", (uint32_t)header.xOrigin);
-    ::printf("(II) yOrigin:           %u\n", (uint32_t)header.yOrigin);
-    ::printf("(II) width:             %u\n", (uint32_t)header.width);
-    ::printf("(II) height:            %u\n", (uint32_t)header.height);
-    ::printf("(II) pixelDepth:        %u\n", (uint32_t)header.pixelDepth);
-    ::printf("(II) imageDescriptor:   %u\n", (uint32_t)header.imageDescriptor);
+    // ::printf("(II) idLength:          %u\n", (uint32_t)header.idLength);
+    // ::printf("(II) colorMapType:      %u\n", (uint32_t)header.colorMapType);
+    // ::printf("(II) imageType:         %u\n", (uint32_t)header.imageType);
+    // ::printf("(II) firstEntryIndex:   %u\n", (uint32_t)header.firstEntryIndex);
+    // ::printf("(II) colorMapLength:    %u\n", (uint32_t)header.colorMapLength);
+    // ::printf("(II) colorMapEntrySize: %u\n", (uint32_t)header.colorMapEntrySize);
+    // ::printf("(II) xOrigin:           %u\n", (uint32_t)header.xOrigin);
+    // ::printf("(II) yOrigin:           %u\n", (uint32_t)header.yOrigin);
+    // ::printf("(II) width:             %u\n", (uint32_t)header.width);
+    // ::printf("(II) height:            %u\n", (uint32_t)header.height);
+    // ::printf("(II) pixelDepth:        %u\n", (uint32_t)header.pixelDepth);
+    // ::printf("(II) imageDescriptor:   %u\n", (uint32_t)header.imageDescriptor);
 
-    if (header.colorMapType == 1)
+    bool result = false;
+
+    // 1 - Uncompressed, color-mapped images.
+    // 2 - Uncompressed, RGB images.
+    // 3 - Uncompressed, black and white images.
+    // 9 - Runlength encoded color-mapped images.
+    // 10 - Runlength encoded RGB images.
+    // 11 - Compressed, black and white images.
+    // 32 - Compressed color-mapped data, using Huffman, Delta, and runlength encoding.
+    // 33 - Compressed color-mapped data, using Huffman, Delta, and runlength encoding. 4-pass quadtree-type process.
+    if (header.imageType == 1 || header.imageType == 9)
     {
-        colormapped(header, tga_data, desc);
-        m_formatName = "targa/palette";
+        result = colormapped(header, tga_data, desc);
     }
-    else if (header.colorMapType == 0)
+    else if (header.imageType == 2)
     {
-        // RGB - uncompressed
-        if (header.imageType == 2)
-        {
-            rgbUncompressed(header, tga_data, desc);
-            m_formatName = "targa";
-        }
-        // RGB - compressed
-        else if (header.imageType == 10)
-        {
-            rgbCompressed(header, tga_data, desc);
-            m_formatName = "targa/rle";
-        }
-        else
-        {
-            ::printf("(EE) unknown image type, may be it black and white\n");
-            return false;
-        }
+        result = rgbUncompressed(header, tga_data, desc);
     }
-    else
+    else if (header.imageType == 10)
     {
-        ::printf("(EE) unknown color map type\n");
+        result = rgbCompressed(header, tga_data, desc);
+    }
+
+    if (result == false)
+    {
+        ::printf("(EE) Unknown image type.\n");
         return false;
     }
+
+    m_formatName = (header.imageType == 9
+                    || header.imageType == 10
+                    || header.imageType == 11
+                    || header.imageType == 32
+                    || header.imageType == 33)
+                   ?  "targa/rle" : "targa";
 
     desc.format = desc.bpp == 32 ? GL_RGBA : GL_RGB;
 
