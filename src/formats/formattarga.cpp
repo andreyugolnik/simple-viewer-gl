@@ -34,91 +34,180 @@ namespace
     };
 #pragma pack(pop)
 
-#if 0
-    void invert(sBitmapDescription& desc)
+    enum class Origin
     {
-        auto tga_data = desc.bitmap.data();
-        int tga_comp = desc.bpp / 8;
+#if 0
+        LowerRight,
+        UpperRight,
+#endif
+        LowerLeft,
+        UpperLeft,
+    };
 
-        for (uint32_t j = 0; j * 2 < desc.height; ++j)
-        {
-            uint32_t index1 = j * desc.width * tga_comp;
-            uint32_t index2 = (desc.height - 1 - j) * desc.width * tga_comp;
-            for (uint32_t i = desc.width * tga_comp; i > 0; --i)
-            {
-                const uint8_t temp = tga_data[index1];
-                tga_data[index1] = tga_data[index2];
-                tga_data[index2] = temp;
-                ++index1;
-                ++index2;
-            }
-        }
+    Origin getOrigin(uint8_t imageDescriptor)
+    {
+        // return (Origin)((imageDescriptor >> 4) & 0x03);
+        return (imageDescriptor & (1 << 5)) ? Origin::UpperLeft : Origin::LowerLeft;
+    }
+
+    inline uint32_t getIndexUpperLeft(uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint32_t components)
+    {
+        const uint32_t pitch = width * components;
+        return y * pitch + x * components;
+    }
+
+    inline uint32_t getIndexLowerLeft(uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint32_t components)
+    {
+        const uint32_t pitch = width * components;
+        return (height - y - 1) * pitch + x * components;
+    }
+
+#if 0
+    inline uint32_t getIndexUpperRight(uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint32_t components)
+    {
+        const uint32_t pitch = width * components;
+        return y * pitch + (width - x - 1) * components;
+    }
+
+    inline uint32_t getIndexLowerRight(uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint32_t components)
+    {
+        const uint32_t pitch = width * components;
+        return (height - y - 1) * pitch + (width - x - 1) * components;
     }
 #endif
 
+    inline uint32_t getIndex(uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint32_t components, Origin origin)
+    {
+        const uint32_t idx = origin == Origin::LowerLeft
+                            ? getIndexLowerLeft(x, y, width, height, components)
+                            : getIndexUpperLeft(x, y, width, height, components);
+        return idx;
+    }
+
     bool colormapped(const sTARGAHeader& header, const uint8_t* tga, sBitmapDescription& desc)
     {
-        // Uncompressed Color-mapped Image
+        if (header.imageType != 1 && header.imageType != 9)
+        {
+            ::printf("(EE) Unknown color-mapped format.\n");
+            return false;
+        }
+
+        if (header.pixelDepth != 8)
+        {
+            ::printf("(EE) Non 8 bit color-mapped format.\n");
+            return false;
+        }
+
+        if (header.colorMapEntrySize != 24)
+        {
+            ::printf("(EE) 8 bit with non 24 bit color map entry size currently not supported.\n");
+        }
+
+        desc.bppImage = 8;
+        desc.bpp = 24;
+        desc.pitch = desc.width * 3;
+        desc.bitmap.resize(desc.pitch * desc.height);
+        auto out = desc.bitmap.data();
+
+        auto cmdData = tga + header.idLength;
+        const uint32_t cmtWidth = header.colorMapEntrySize / 8;
+        tga += header.colorMapLength * cmtWidth;
+
+        const auto origin = getOrigin(header.imageDescriptor);
+
         if (header.imageType == 1)
         {
-            if (header.pixelDepth == 8)
+            // ::printf("(II) Uncompressed color-mapped image.\n");
+
+            uint32_t sp = 0;
+            for (uint32_t y = 0; y < header.height; y++)
             {
-                if (header.colorMapEntrySize == 24)
+                uint32_t dp = getIndex(0, y, desc.width, desc.height, 3, origin);
+                for (uint32_t x = 0; x < header.width; x++)
                 {
-                    desc.bppImage = 8;
-                    desc.bpp = 24;
-                    desc.pitch = desc.width * 3;
-                    desc.bitmap.resize(desc.pitch * desc.height);
-                    auto out = desc.bitmap.data();
+                    out[dp + 0] = cmdData[tga[sp] * cmtWidth + 2];
+                    out[dp + 1] = cmdData[tga[sp] * cmtWidth + 1];
+                    out[dp + 2] = cmdData[tga[sp] * cmtWidth + 0];
+                    dp += 3;
+                    sp++;
+                }
+            }
 
-                    uint32_t tgaPitch = header.width;
-                    auto cmdData = tga + header.idLength;
-                    uint32_t cmtWidth = header.colorMapEntrySize / 8;
-                    tga += header.colorMapLength * cmtWidth;
+            return true;
+        }
+        else if (header.imageType == 9)
+        {
+            // ::printf("(II) Compressed color-mapped image.\n");
 
-                    for (uint32_t y = 0; y < header.height; y++)
+            uint32_t sp = 0;
+            uint32_t x = 0;
+            uint32_t y = 0;
+
+            while (y < header.height)
+            {
+                const uint8_t cunkHead = tga[sp++];
+                const bool isPacked = (cunkHead & 128) != 0;
+                const uint8_t count = (cunkHead & 127) + 1;
+
+                if (isPacked)
+                {
+                    const uint8_t b = cmdData[tga[sp] * cmtWidth + 0];
+                    const uint8_t g = cmdData[tga[sp] * cmtWidth + 1];
+                    const uint8_t r = cmdData[tga[sp] * cmtWidth + 2];
+                    sp++;
+
+                    for (uint32_t i = 0; i < count; i++)
                     {
-                        uint32_t dp = (header.height - y - 1) * desc.pitch;
-                        uint32_t sp = (header.height - y - 1) * tgaPitch;
-                        for (uint32_t x = 0; x < header.width; x++)
+                        if (x == header.width)
                         {
-                            out[dp + 0] = cmdData[tga[sp] * cmtWidth + 2];
-                            out[dp + 1] = cmdData[tga[sp] * cmtWidth + 1];
-                            out[dp + 2] = cmdData[tga[sp] * cmtWidth + 0];
-                            dp += 3;
-                            sp++;
+                            x = 0;
+                            y++;
+                            if (y == header.height)
+                            {
+                                break;
+                            }
                         }
+                        const uint32_t dp = getIndex(x, y, desc.width, desc.height, 3, origin);
+                        out[dp + 0] = r;
+                        out[dp + 1] = g;
+                        out[dp + 2] = b;
+                        x++;
                     }
-
-                    return true;
                 }
                 else
                 {
-                    ::printf("(EE) uncompressed 8 bit with non 24 bit color map entry size currently not supported\n");
+                    for (uint32_t i = 0; i < count; i++)
+                    {
+                        if (x == header.width)
+                        {
+                            x = 0;
+                            y++;
+                            if (y == header.height)
+                            {
+                                break;
+                            }
+                        }
+                        const uint32_t dp = getIndex(x, y, desc.width, desc.height, 3, origin);
+                        out[dp + 0] = cmdData[tga[sp] * cmtWidth + 2];
+                        out[dp + 1] = cmdData[tga[sp] * cmtWidth + 1];
+                        out[dp + 2] = cmdData[tga[sp] * cmtWidth + 0];
+                        sp++;
+                        x++;
+                    }
                 }
             }
-            else
-            {
-                ::printf("(EE) non 8 bit color-mapped format\n");
-            }
 
-            return false;
+            return true;
         }
-        // Compressed Color-mapped Image
-        else if (header.imageType == 9)
-        {
-            ::printf("(EE) compressed 8 bit currently not supported\n");
-            return false;
-        }
-        else
-        {
-            ::printf("(EE) unknown color-mapped format\n");
-            return false;
-        }
+
+        return false;
     }
 
     bool rgbUncompressed(const sTARGAHeader& header, const uint8_t* tga, sBitmapDescription& desc)
     {
+        const auto origin = getOrigin(header.imageDescriptor);
+        uint32_t sp = 0;
+
         if (header.pixelDepth == 16)
         {
             desc.bppImage = 16;
@@ -127,12 +216,9 @@ namespace
             desc.bitmap.resize(desc.pitch * desc.height);
             auto out = desc.bitmap.data();
 
-            uint32_t tgaPitch = header.width * 2;
-
             for (uint32_t y = 0; y < header.height; y++)
             {
-                uint32_t dp = (header.height - y - 1) * desc.pitch;
-                uint32_t sp = (header.height - y - 1) * tgaPitch;
+                uint32_t dp = getIndex(0, y, desc.width, desc.height, 3, origin);
                 for (uint32_t x = 0; x < header.width; x++)
                 {
                     auto c = *(uint16_t*)&tga[sp];
@@ -146,46 +232,44 @@ namespace
         }
         else if (header.pixelDepth == 24)
         {
-            uint32_t pitch = header.width * 3;
-
             desc.bppImage = 24;
             desc.bpp = 24;
-            desc.pitch = pitch;
+            desc.pitch = desc.width * 3;
             desc.bitmap.resize(desc.pitch * desc.height);
             auto out = desc.bitmap.data();
 
             for (uint32_t y = 0; y < header.height; y++)
             {
-                uint32_t idx = (header.height - y - 1) * pitch;
+                uint32_t dp = getIndex(0, y, desc.width, desc.height, 3, origin);
                 for (uint32_t x = 0; x < header.width; x++)
                 {
-                    out[idx + 0] = tga[idx + 2];
-                    out[idx + 1] = tga[idx + 1];
-                    out[idx + 2] = tga[idx + 0];
-                    idx += 3;
+                    out[dp + 0] = tga[sp + 2];
+                    out[dp + 1] = tga[sp + 1];
+                    out[dp + 2] = tga[sp + 0];
+                    dp += 3;
+                    sp += 3;
                 }
             }
         }
         else if (header.pixelDepth == 32)
         {
-            uint32_t pitch = header.width * 4;
-
             desc.bpp = 32;
             desc.bppImage = 32;
-            desc.pitch = pitch;
+            desc.pitch = desc.width * 4;
             desc.bitmap.resize(desc.pitch * desc.height);
             auto out = desc.bitmap.data();
 
             for (uint32_t y = 0; y < header.height; y++)
             {
-                uint32_t idx = (header.height - y - 1) * pitch;
+                uint32_t dp = getIndex(0, y, desc.width, desc.height, 4, origin);
                 for (uint32_t x = 0; x < header.width; x++)
                 {
-                    out[idx + 0] = tga[idx + 2];
-                    out[idx + 1] = tga[idx + 1];
-                    out[idx + 2] = tga[idx + 0];
-                    out[idx + 3] = tga[idx + 3];
-                    idx += 4;
+                    out[dp + 0] = tga[sp + 2];
+                    out[dp + 1] = tga[sp + 1];
+                    out[dp + 2] = tga[sp + 0];
+                    out[dp + 3] = tga[sp + 3];
+                    dp += 4;
+                    sp += 4;
                 }
             }
         }
@@ -200,10 +284,10 @@ namespace
 
     bool rgbCompressed(const sTARGAHeader& header, const uint8_t* tga, sBitmapDescription& desc)
     {
-        uint32_t width  = 0;
-        uint32_t height = 0;
-        uint32_t dp     = 0;
-        uint32_t sp     = 0;
+        const auto origin = getOrigin(header.imageDescriptor);
+        uint32_t x = 0;
+        uint32_t y = 0;
+        uint32_t sp = 0;
 
         if (header.pixelDepth == 16)
         {
@@ -213,58 +297,58 @@ namespace
             desc.bitmap.resize(desc.pitch * desc.height);
             auto out = desc.bitmap.data();
 
-            while (height < header.height)
+            while (y < header.height)
             {
-                uint8_t cunkHead = tga[sp++];
-                uint8_t isPacked = cunkHead & 128;
-                uint8_t count    = (cunkHead & 127) + 1;
+                const uint8_t cunkHead = tga[sp++];
+                const bool isPacked = (cunkHead & 128) != 0;
+                const uint8_t count = (cunkHead & 127) + 1;
 
-                if (isPacked == 0)
+                if (isPacked == false)
                 {
-                    for (uint32_t x = 0; x < count; x++)
+                    for (uint32_t i = 0; i < count; i++)
                     {
-                        if (width == header.width)
+                        if (x == header.width)
                         {
-                            width = 0;
-                            height++;
-                            if (height == header.height)
+                            x = 0;
+                            y++;
+                            if (y == header.height)
                             {
                                 break;
                             }
                         }
                         auto c = *(uint16_t*)&tga[sp];
+                        const uint32_t dp = getIndex(x, y, desc.width, desc.height, 3, origin);
                         out[dp + 0] = (uint8_t)(((c >>  0) & 31) * 255) / 31;
                         out[dp + 1] = (uint8_t)(((c >>  5) & 31) * 255) / 31;
                         out[dp + 2] = (uint8_t)(((c >> 10) & 31) * 255) / 31;
-                        dp += 3;
                         sp += 2;
-                        width++;
+                        x++;
                     }
                 }
                 else
                 {
-                    auto c = *(uint16_t*)&tga[sp];
-                    auto r = (uint8_t)(((c >>  0) & 31) * 255) / 31;
-                    auto g = (uint8_t)(((c >>  5) & 31) * 255) / 31;
-                    auto b = (uint8_t)(((c >> 10) & 31) * 255) / 31;
+                    const auto c = *(uint16_t*)&tga[sp];
+                    const auto r = (uint8_t)(((c >>  0) & 31) * 255) / 31;
+                    const auto g = (uint8_t)(((c >>  5) & 31) * 255) / 31;
+                    const auto b = (uint8_t)(((c >> 10) & 31) * 255) / 31;
                     sp += 2;
 
-                    for (uint32_t x = 0; x < count; x++)
+                    for (uint32_t i = 0; i < count; i++)
                     {
-                        if (width == header.width)
+                        if (x == header.width)
                         {
-                            width = 0;
-                            height++;
-                            if (height == header.height)
+                            x = 0;
+                            y++;
+                            if (y == header.height)
                             {
                                 break;
                             }
                         }
+                        const uint32_t dp = getIndex(x, y, desc.width, desc.height, 3, origin);
                         out[dp + 0] = r;
                         out[dp + 1] = g;
                         out[dp + 2] = b;
-                        dp += 3;
-                        width++;
+                        x++;
                     }
                 }
             }
@@ -277,55 +361,55 @@ namespace
             desc.bitmap.resize(desc.pitch * desc.height);
             auto out = desc.bitmap.data();
 
-            while (height < header.height)
+            while (y < header.height)
             {
-                uint8_t cunkHead = tga[sp++];
-                uint8_t isPacked = cunkHead & 128;
-                uint8_t count    = (cunkHead & 127) + 1;
+                const uint8_t cunkHead = tga[sp++];
+                const bool isPacked = (cunkHead & 128) != 0;
+                const uint8_t count = (cunkHead & 127) + 1;
 
-                if (isPacked == 0)
+                if (isPacked == false)
                 {
-                    for (uint32_t x = 0; x < count; x++)
+                    for (uint32_t i = 0; i < count; i++)
                     {
-                        if (width == header.width)
+                        if (x == header.width)
                         {
-                            width = 0;
-                            height++;
-                            if (height == header.height)
+                            x = 0;
+                            y++;
+                            if (y == header.height)
                             {
                                 break;
                             }
                         }
+                        const uint32_t dp = getIndex(x, y, desc.width, desc.height, 3, origin);
                         out[dp + 0] = tga[sp + 2];
                         out[dp + 1] = tga[sp + 1];
                         out[dp + 2] = tga[sp + 0];
-                        dp += 3;
                         sp += 3;
-                        width++;
+                        x++;
                     }
                 }
                 else
                 {
-                    uint8_t r = tga[sp + 2];
-                    uint8_t g = tga[sp + 1];
-                    uint8_t b = tga[sp + 0];
+                    const uint8_t b = tga[sp + 0];
+                    const uint8_t g = tga[sp + 1];
+                    const uint8_t r = tga[sp + 2];
                     sp += 3;
-                    for (uint32_t x = 0; x < count; x++)
+                    for (uint32_t i = 0; i < count; i++)
                     {
-                        if (width == header.width)
+                        if (x == header.width)
                         {
-                            width = 0;
-                            height++;
-                            if (height == header.height)
+                            x = 0;
+                            y++;
+                            if (y == header.height)
                             {
                                 break;
                             }
                         }
+                        const uint32_t dp = getIndex(x, y, desc.width, desc.height, 3, origin);
                         out[dp + 0] = r;
                         out[dp + 1] = g;
                         out[dp + 2] = b;
-                        dp += 3;
-                        width++;
+                        x++;
                     }
                 }
             }
@@ -338,70 +422,66 @@ namespace
             desc.bitmap.resize(desc.pitch * desc.height);
             auto out = desc.bitmap.data();
 
-            while (height < header.height)
+            while (y < header.height)
             {
-                uint8_t cunkHead = tga[sp++];
-                uint8_t isPacked = cunkHead & 128;
-                uint8_t count    = (cunkHead & 127) + 1;
+                const uint8_t cunkHead = tga[sp++];
+                const bool isPacked = (cunkHead & 128) != 0;
+                const uint8_t count = (cunkHead & 127) + 1;
 
-                if (isPacked == 0)
+                if (isPacked == false)
                 {
-                    for (uint32_t x = 0; x < count; x++)
+                    for (uint32_t i = 0; i < count; i++)
                     {
-                        if (width == header.width)
+                        if (x == header.width)
                         {
-                            width = 0;
-                            height++;
-                            // dp += ((4 - ((header.width % 4) == 0 ? 4 : header.width % 4)) * 3);
-                            if (height == header.height)
+                            x = 0;
+                            y++;
+                            if (y == header.height)
                             {
                                 break;
                             }
                         }
-                        uint32_t dp = desc.pitch * (desc.height - height - 1) + width * 4;
+                        const uint32_t dp = getIndex(x, y, desc.width, desc.height, 4, origin);
                         out[dp + 0] = tga[sp + 2];
                         out[dp + 1] = tga[sp + 1];
                         out[dp + 2] = tga[sp + 0];
                         out[dp + 3] = tga[sp + 3];
-                        dp += 4;
                         sp += 4;
-                        width++;
+                        x++;
                     }
                 }
                 else
                 {
-                    uint8_t r = tga[sp + 2];
-                    uint8_t g = tga[sp + 1];
-                    uint8_t b = tga[sp + 0];
-                    uint8_t a = tga[sp + 3];
+                    const uint8_t b = tga[sp + 0];
+                    const uint8_t g = tga[sp + 1];
+                    const uint8_t r = tga[sp + 2];
+                    const uint8_t a = tga[sp + 3];
                     sp += 4;
 
-                    for (uint32_t x = 0; x < count; x++)
+                    for (uint32_t i = 0; i < count; i++)
                     {
-                        if (width == header.width)
+                        if (x == header.width)
                         {
-                            width = 0;
-                            height++;
-                            // dp  += ((4 - ((header.width % 4) == 0 ? 4 : header.width % 4)) * 3);
-                            if (height == header.height)
+                            x = 0;
+                            y++;
+                            if (y == header.height)
                             {
                                 break;
                             }
                         }
-                        uint32_t dp = desc.pitch * (desc.height - height - 1) + width * 4;
+                        const uint32_t dp = getIndex(x, y, desc.width, desc.height, 4, origin);
                         out[dp + 0] = r;
                         out[dp + 1] = g;
                         out[dp + 2] = b;
                         out[dp + 3] = a;
-                        dp += 4;
-                        width++;
+                        x++;
                     }
                 }
             }
         }
         else
         {
-            ::printf("(EE) unsupported compressed RGB format\n");
+            ::printf("(EE) Unsupported compressed RGB format\n");
             return false;
         }
 
@@ -456,19 +536,19 @@ bool cFormatTarga::LoadImpl(const char* filename, sBitmapDescription& desc)
     desc.width = header.width;
     desc.height = header.height;
 
-    // ::printf("------------------------\n");
-    // ::printf("(II) idLength:          %u\n", (uint32_t)header.idLength);
-    // ::printf("(II) colorMapType:      %u\n", (uint32_t)header.colorMapType);
-    // ::printf("(II) imageType:         %u\n", (uint32_t)header.imageType);
-    // ::printf("(II) firstEntryIndex:   %u\n", (uint32_t)header.firstEntryIndex);
-    // ::printf("(II) colorMapLength:    %u\n", (uint32_t)header.colorMapLength);
-    // ::printf("(II) colorMapEntrySize: %u\n", (uint32_t)header.colorMapEntrySize);
-    // ::printf("(II) xOrigin:           %u\n", (uint32_t)header.xOrigin);
-    // ::printf("(II) yOrigin:           %u\n", (uint32_t)header.yOrigin);
-    // ::printf("(II) width:             %u\n", (uint32_t)header.width);
-    // ::printf("(II) height:            %u\n", (uint32_t)header.height);
-    // ::printf("(II) pixelDepth:        %u\n", (uint32_t)header.pixelDepth);
-    // ::printf("(II) imageDescriptor:   %u\n", (uint32_t)header.imageDescriptor);
+    ::printf("------------------------\n");
+    ::printf("(II) idLength:          %u\n", (uint32_t)header.idLength);
+    ::printf("(II) colorMapType:      %u\n", (uint32_t)header.colorMapType);
+    ::printf("(II) imageType:         %u\n", (uint32_t)header.imageType);
+    ::printf("(II) firstEntryIndex:   %u\n", (uint32_t)header.firstEntryIndex);
+    ::printf("(II) colorMapLength:    %u\n", (uint32_t)header.colorMapLength);
+    ::printf("(II) colorMapEntrySize: %u\n", (uint32_t)header.colorMapEntrySize);
+    ::printf("(II) xOrigin:           %u\n", (uint32_t)header.xOrigin);
+    ::printf("(II) yOrigin:           %u\n", (uint32_t)header.yOrigin);
+    ::printf("(II) width:             %u\n", (uint32_t)header.width);
+    ::printf("(II) height:            %u\n", (uint32_t)header.height);
+    ::printf("(II) pixelDepth:        %u\n", (uint32_t)header.pixelDepth);
+    ::printf("(II) imageDescriptor:   %u\n", (uint32_t)header.imageDescriptor);
 
     if (header.colorMapType == 1)
     {
@@ -481,19 +561,19 @@ bool cFormatTarga::LoadImpl(const char* filename, sBitmapDescription& desc)
         if (header.imageType == 2)
         {
             rgbUncompressed(header, tga_data, desc);
+            m_formatName = "targa";
         }
         // RGB - compressed
         else if (header.imageType == 10)
         {
             rgbCompressed(header, tga_data, desc);
+            m_formatName = "targa/rle";
         }
         else
         {
             ::printf("(EE) unknown image type, may be it black and white\n");
             return false;
         }
-
-        m_formatName = "targa/rgb";
     }
     else
     {
