@@ -8,8 +8,9 @@
 \**********************************************/
 
 #include "quadimage.h"
-#include "quad.h"
+#include "common/helpers.h"
 #include "imageborder.h"
+#include "quad.h"
 
 #include <cassert>
 #include <cmath>
@@ -60,18 +61,12 @@ void cQuadImage::clearOld()
     m_chunksOld.clear();
 }
 
-uint32_t calculatePitch(uint32_t width, uint32_t bytesPP)
-{
-    // texture pitch should be multiple by 4
-    return (uint32_t)::ceilf(width * bytesPP / 4.0f) * 4;
-}
-
 void cQuadImage::setBuffer(unsigned width, unsigned height, unsigned pitch, unsigned format, unsigned bytesPP, const unsigned char* image)
 {
     m_texWidth = cRenderer::calculateTextureSize(width);
     m_texHeight = cRenderer::calculateTextureSize(height);
 
-    m_texPitch = calculatePitch(m_texWidth, bytesPP);
+    m_texPitch = helpers::calculatePitch(m_texWidth, bytesPP);
     // ::printf("(II) Textue pitch: %u.\n", m_texPitch);
 
     m_cols = (unsigned)::ceilf((float)width / m_texWidth);
@@ -108,7 +103,7 @@ bool cQuadImage::upload(unsigned mipmapTextureSize)
 
     const unsigned sx = col * m_texPitch;
     const unsigned sy = row * m_texHeight;
-    const unsigned dstPitch = calculatePitch(w, m_bytesPP);
+    const unsigned dstPitch = helpers::calculatePitch(w, m_bytesPP);
     for (unsigned y = 0; y < h; y++)
     {
         const unsigned src = sx + (sy + y) * m_pitch;

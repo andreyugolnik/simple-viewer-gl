@@ -9,6 +9,8 @@
 
 #include "helpers.h"
 
+#include <cmath>
+
 namespace helpers
 {
 
@@ -51,6 +53,12 @@ namespace helpers
         n = n | (n >> 8);
         n = n | (n >> 16);
         return n + 1;
+    }
+
+    uint32_t calculatePitch(uint32_t width, uint32_t bytesPP)
+    {
+        // texture pitch should be multiple by 4
+        return (uint32_t)::ceilf(width * bytesPP / 4.0f) * 4;
     }
 
 }
