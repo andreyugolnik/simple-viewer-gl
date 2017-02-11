@@ -98,10 +98,10 @@ void cPixelPopup::setPixelInfo(const sPixelInfo& pi)
     if (rc.isSet())
     {
         rc.normalize();
-        const int x = rc.tl.x;
-        const int y = rc.tl.y;
-        const int w = rc.width();
-        const int h = rc.height();
+        const int x = (int)rc.tl.x;
+        const int y = (int)rc.tl.y;
+        const int w = (int)rc.width();
+        const int h = (int)rc.height();
 
         ::snprintf(buffer, sizeof(buffer), "%d x %d", w, h);
         m_info.push_back({ Info::Icon::Size, WhiteColor, buffer, {} });

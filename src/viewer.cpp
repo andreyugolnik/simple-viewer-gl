@@ -793,8 +793,7 @@ void cViewer::updatePixelInfo(const Vectorf& pos)
 
         pixelInfo.imgWidth = m_image->getWidth();
         pixelInfo.imgHeight = m_image->getHeight();
-        const auto& rc = m_selection->getRect();
-        pixelInfo.rc = { { (int)rc.tl.x, (int)rc.tl.y }, { (int)rc.br.x, (int)rc.br.y } };
+        pixelInfo.rc = m_selection->getRect();
     }
 
     m_pixelPopup->setPixelInfo(pixelInfo);

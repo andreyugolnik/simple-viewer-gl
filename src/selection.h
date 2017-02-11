@@ -41,7 +41,6 @@ private:
     void clampShiftDelta(Vectorf& delta);
 
 private:
-    bool m_enabled = true;
     int m_imageWidth = 0;
     int m_imageHeight = 0;
     Vectorf m_mousePos = { 0.0f, 0.0f };

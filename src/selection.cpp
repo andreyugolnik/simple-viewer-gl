@@ -187,7 +187,7 @@ void cSelection::clampShiftDelta(Vectorf& delta)
 
 void cSelection::render(const Vectorf& offset)
 {
-    if (m_enabled && m_rc.isSet())
+    if (m_rc.isSet())
     {
         Rectf rc;
         setImagePos(rc, offset);

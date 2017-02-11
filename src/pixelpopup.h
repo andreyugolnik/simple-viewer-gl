@@ -32,7 +32,7 @@ struct sPixelInfo
         imgHeight = 0;
         bpp = 0;
         color = { 0, 0, 0, 0 };
-        rc = { { 0, 0 }, { 0, 0 } };
+        rc.clear();
     }
 
     Vectorf mouse;
@@ -41,7 +41,7 @@ struct sPixelInfo
     uint32_t imgHeight;
     uint32_t bpp;
     cColor color;
-    Recti rc;
+    Rectf rc;
 };
 
 class cPixelPopup final
