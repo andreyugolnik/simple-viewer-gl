@@ -38,7 +38,7 @@ void cQuadImage::clear()
     m_height = 0;
     m_pitch = 0;
     m_format = 0;
-    m_bytesPP = 0;
+    m_bpp = 0;
     m_image = nullptr;
 
     clearOld();
@@ -61,16 +61,17 @@ void cQuadImage::clearOld()
     m_chunksOld.clear();
 }
 
-void cQuadImage::setBuffer(unsigned width, unsigned height, unsigned pitch, unsigned format, unsigned bytesPP, const unsigned char* image)
+void cQuadImage::setBuffer(uint32_t width, uint32_t height, uint32_t pitch, uint32_t format, uint32_t bpp, const uint8_t* image)
 {
     m_texWidth = cRenderer::calculateTextureSize(width);
     m_texHeight = cRenderer::calculateTextureSize(height);
+    // ::printf("(II) Textue size: %u x %u.\n", m_texWidth, m_texHeight);
 
-    m_texPitch = helpers::calculatePitch(m_texWidth, bytesPP);
+    m_texPitch = helpers::calculatePitch(m_texWidth, bpp);
     // ::printf("(II) Textue pitch: %u.\n", m_texPitch);
 
-    m_cols = (unsigned)::ceilf((float)width / m_texWidth);
-    m_rows = (unsigned)::ceilf((float)height / m_texHeight);
+    m_cols = (uint32_t)::ceilf((float)width / m_texWidth);
+    m_rows = (uint32_t)::ceilf((float)height / m_texHeight);
     // ::printf("(II) Image size: %u x %u.\n", width, height);
     // ::printf("(II) Textures: %u (%u x %u) required\n", m_cols * m_rows, m_cols, m_rows);
 
@@ -80,7 +81,7 @@ void cQuadImage::setBuffer(unsigned width, unsigned height, unsigned pitch, unsi
     m_height = height;
     m_pitch = pitch;
     m_format = format;
-    m_bytesPP = bytesPP;
+    m_bpp = bpp;
     m_image = image;
 
     m_buffer.resize(m_texPitch * m_texHeight);
@@ -88,35 +89,39 @@ void cQuadImage::setBuffer(unsigned width, unsigned height, unsigned pitch, unsi
     m_started = true;
 }
 
-bool cQuadImage::upload(unsigned mipmapTextureSize)
+bool cQuadImage::upload(uint32_t mipmapTextureSize)
 {
     const auto size = m_chunks.size();
     assert(size < m_rows * m_cols);
 
-    const unsigned col = size % m_cols;
-    const unsigned row = size / m_cols;
+    const uint32_t col = size % m_cols;
+    const uint32_t row = size / m_cols;
 
-    const unsigned w = (col < m_cols - 1) ? m_texWidth : (m_width - m_texWidth * (m_cols - 1));
-    const unsigned h = (row < m_rows - 1) ? m_texHeight : (m_height - m_texHeight * (m_rows - 1));
+    const uint32_t w = (col < m_cols - 1) ? m_texWidth : (m_width - m_texWidth * (m_cols - 1));
+    const uint32_t h = (row < m_rows - 1) ? m_texHeight : (m_height - m_texHeight * (m_rows - 1));
     // ::printf("cols %u : col %u : w %u\n", m_cols, col, w);
     // ::printf("rows %u : row %u : h %u\n", m_rows, row, h);
 
-    const unsigned sx = col * m_texPitch;
-    const unsigned sy = row * m_texHeight;
-    const unsigned dstPitch = helpers::calculatePitch(w, m_bytesPP);
-    for (unsigned y = 0; y < h; y++)
+    const uint32_t sx = col * m_texPitch;
+    const uint32_t sy = row * m_texHeight;
+    const uint32_t dstPitch = helpers::calculatePitch(w, m_bpp);
+
+    auto out = m_buffer.data();
+    const auto in = m_image;
+
+    for (uint32_t y = 0; y < h; y++)
     {
-        const unsigned src = sx + (sy + y) * m_pitch;
+        const uint32_t src = sx + (sy + y) * m_pitch;
         if (src + dstPitch <= m_pitch * m_height)
         {
-            const unsigned dst = y * dstPitch;
-            ::memcpy(&m_buffer[dst], &m_image[src], dstPitch);
+            const uint32_t dst = y * dstPitch;
+            ::memcpy(out + dst, in + src, dstPitch);
         }
         else
         {
             ::printf("cols %u : col %u : w %u\n", m_cols, col, w);
             ::printf("rows %u : row %u : h %u\n", m_rows, row, h);
-            ::printf("out at line %u sx %u sy %u bpp: %u\n", y, sx, sy, m_bytesPP);
+            ::printf("out at line %u sx %u sy %u bpp: %u\n", y, sx, sy, m_bpp);
             break;
         }
     }
@@ -129,11 +134,11 @@ bool cQuadImage::upload(unsigned mipmapTextureSize)
         || quad->getFormat() != m_format)
     {
         delete quad;
-        quad = new cQuad(w, h, m_buffer.data(), m_format);
+        quad = new cQuad(w, h, out, m_format);
     }
     else
     {
-        quad->setData(m_buffer.data());
+        quad->setData(out);
     }
 
     quad->useFilter(m_filter);
@@ -288,7 +293,7 @@ void cQuadImage::moveToOld()
     m_chunks.clear();
 }
 
-cQuad* cQuadImage::findAndRemoveOld(unsigned col, unsigned row)
+cQuad* cQuadImage::findAndRemoveOld(uint32_t col, uint32_t row)
 {
     cQuad* quad = nullptr;
 

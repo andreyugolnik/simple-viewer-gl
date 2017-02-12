@@ -174,7 +174,7 @@ void cViewer::update()
 
         auto& desc = m_loader->getDescription();
         m_image->setBuffer(desc.width, desc.height, desc.pitch
-                           , desc.format, desc.bpp / 8
+                           , desc.format, desc.bpp
                            , desc.bitmap.data());
 
         if (m_loader->getMode() == cImageLoader::Mode::Image)

@@ -23,7 +23,7 @@ namespace
     {
         const char delims[] = "\n\0";
 
-        for (unsigned i = 0; i < helpers::countof(delims); i++)
+        for (uint32_t i = 0; i < helpers::countof(delims); i++)
         {
             if (delims[i] == ch)
             {
@@ -46,14 +46,14 @@ namespace
             return false;
         }
 
-        const unsigned bufferSize = 20;
-        unsigned bufferOffset = 0;
+        const uint32_t bufferSize = 20;
+        uint32_t bufferOffset = 0;
 
         while (remain != 0)
         {
             auto offset = file.getOffset();
 
-            const auto size = std::min<unsigned>(remain, bufferSize);
+            const auto size = std::min<uint32_t>(remain, bufferSize);
             line.resize(line.size() + size);
 
             auto buffer = line.data() + bufferOffset;
@@ -64,7 +64,7 @@ namespace
                 return true;
             }
 
-            for (unsigned i = 0; i < size; i++)
+            for (uint32_t i = 0; i < size; i++)
             {
                 auto ch = buffer[i];
                 if (isEndLine(ch))
@@ -73,7 +73,7 @@ namespace
                     line.resize(bufferOffset + i + 1);
                     line[line.size() - 1] = 0;
                     file.seek(offset, SEEK_SET);
-                    // ::printf("- stop char detected, seek to: %u\n", (unsigned)offset);
+                    // ::printf("- stop char detected, seek to: %u\n", (uint32_t)offset);
                     return true;
                 }
             }
@@ -92,19 +92,27 @@ namespace
         desc.format = GL_LUMINANCE;
         desc.bpp = 8;
         desc.bppImage = 1;
-        desc.pitch = desc.width * desc.bpp / 8;
+        desc.pitch = helpers::calculatePitch(desc.width, desc.bpp);
         desc.bitmap.resize(desc.pitch * desc.height);
 
-        size_t idx = 0;
         Line line;
+
+        uint32_t x = 0;
+        uint32_t y = 0;
 
         auto out = desc.bitmap.data();
         while (getline(line, file))
         {
             for (auto word = ::strtok(line.data(), TokenSep); word != nullptr; word = ::strtok(nullptr, TokenSep))
             {
-                const auto val = (unsigned)::atoi(word) != 0 ? 0 : 255;
-                out[idx++] = val;
+                const auto val = (uint32_t)::atoi(word) != 0 ? 0 : 255;
+                if (x == desc.width)
+                {
+                    y++;
+                    x = 0;
+                }
+                const size_t idx = y * desc.pitch + x++;
+                out[idx] = val;
             }
         }
 
@@ -116,12 +124,12 @@ namespace
         desc.format = GL_LUMINANCE;
         desc.bpp = 8;
         desc.bppImage = 1;
-        desc.pitch = desc.width * desc.bpp / 8;
+        desc.pitch = helpers::calculatePitch(desc.width, desc.bpp);
         desc.bitmap.resize(desc.pitch * desc.height);
-        const unsigned width = (unsigned)::ceilf(desc.width / 8.0f) * 8;
-        std::vector<unsigned char> buffer(width / 8);
+        const uint32_t width = (uint32_t)::ceilf(desc.width / 8.0f) * 8;
+        std::vector<uint8_t> buffer(width / 8);
 
-        for (unsigned row = 0; row < desc.height; row++)
+        for (uint32_t row = 0; row < desc.height; row++)
         {
             if (buffer.size() != file.read(buffer.data(), buffer.size()))
             {
@@ -130,13 +138,13 @@ namespace
 
             auto out = desc.bitmap.data() + row * desc.pitch;
             size_t idx = 0;
-            for (unsigned i = 0; i < buffer.size(); i++)
+            for (uint32_t i = 0; i < buffer.size(); i++)
             {
-                const auto byte = (unsigned char)buffer[i];
-                for (unsigned b = 0; b < 8; b++)
+                const auto byte = buffer[i];
+                for (uint32_t b = 0; b < 8; b++)
                 {
-                    const unsigned bit = 0x80 >> b;
-                    const unsigned char val = (byte & bit) != 0 ? 0 : 255;
+                    const uint32_t bit = 0x80 >> b;
+                    const uint8_t val = (byte & bit) != 0 ? 0 : 255;
                     out[idx++] = val;
                 }
             }
@@ -145,51 +153,61 @@ namespace
         return true;
     }
 
-    bool readAscii8(cFile& file, sBitmapDescription& desc, unsigned maxValue)
+    bool readAscii8(cFile& file, sBitmapDescription& desc, uint32_t maxValue)
     {
         desc.format = GL_LUMINANCE;
         desc.bpp = 8;
         desc.bppImage = 8;
-        desc.pitch = desc.width * desc.bpp / 8;
+        desc.pitch = helpers::calculatePitch(desc.width, desc.bpp);
         desc.bitmap.resize(desc.pitch * desc.height);
 
-        size_t idx = 0;
         Line line;
 
         const float norm = 255.0f / maxValue;
+
+        uint32_t count = 0;
+        uint32_t x = 0;
+        uint32_t y = 0;
 
         auto out = desc.bitmap.data();
         while (getline(line, file))
         {
             for (auto word = ::strtok(line.data(), TokenSep); word != nullptr; word = ::strtok(nullptr, TokenSep))
             {
-                const auto val = (unsigned)(::atoi(word) * norm);
-                out[idx++] = val;
+                count++;
+                const auto val = (uint32_t)(::atoi(word) * norm);
+                if (x == desc.width)
+                {
+                    y++;
+                    x = 0;
+                }
+                const size_t idx = y * desc.pitch + x++;
+                out[idx] = val;
             }
         }
 
-        return idx == desc.bitmap.size();
+        return count == desc.width * desc.height;
     }
 
-    bool readRaw8(cFile& file, sBitmapDescription& desc, unsigned maxValue)
+    bool readRaw8(cFile& file, sBitmapDescription& desc, uint32_t maxValue)
     {
         desc.format = GL_LUMINANCE;
         desc.bpp = 8;
         desc.bppImage = 8;
-        desc.pitch = desc.width * desc.bpp / 8;
+        desc.pitch = helpers::calculatePitch(desc.width, desc.bpp);
         desc.bitmap.resize(desc.pitch * desc.height);
-        std::vector<unsigned char> buffer(desc.width);
+        std::vector<uint8_t> buffer(desc.width);
 
         const float norm = 255.0f / maxValue;
 
-        for (unsigned row = 0; row < desc.height; row++)
+        for (uint32_t row = 0; row < desc.height; row++)
         {
             file.read(buffer.data(), buffer.size());
 
             auto out = desc.bitmap.data() + row * desc.pitch;
-            for (unsigned i = 0; i < desc.width; i++)
+            for (uint32_t i = 0; i < desc.width; i++)
             {
-                const auto val = (unsigned char)(buffer[i] * norm);
+                const auto val = (uint8_t)(buffer[i] * norm);
                 out[i] = val;
             }
         }
@@ -197,49 +215,69 @@ namespace
         return true;
     }
 
-    bool readAscii24(cFile& file, sBitmapDescription& desc, unsigned maxValue)
+    bool readAscii24(cFile& file, sBitmapDescription& desc, uint32_t maxValue)
     {
         desc.bpp = desc.bppImage = 24;
-        desc.pitch = desc.width * desc.bpp / 8;
+        desc.pitch = helpers::calculatePitch(desc.width, desc.bpp);
         desc.bitmap.resize(desc.pitch * desc.height);
 
-        size_t idx = 0;
         Line line;
 
         const float norm = 255.0f / maxValue;
 
+        uint32_t count = 0;
+        uint32_t x = 0;
+        uint32_t y = 0;
+
+        auto out = desc.bitmap.data();
         while (getline(line, file))
         {
             for (auto word = ::strtok(line.data(), TokenSep); word != nullptr; word = ::strtok(nullptr, TokenSep))
             {
-                const auto val = (unsigned)(::atoi(word) * norm);
-                desc.bitmap[idx++] = val;
+                count++;
+                const auto val = (uint32_t)(::atoi(word) * norm);
+                if (x == desc.width * 3)
+                {
+                    y++;
+                    x = 0;
+                }
+                const size_t idx = y * desc.pitch + x++;
+                out[idx] = val;
             }
         }
 
-        return idx == desc.bitmap.size();
+        return count == desc.width * desc.height * 3;
     }
 
-    bool readRaw24(cFile& file, sBitmapDescription& desc, unsigned maxValue)
+    bool readRaw24(cFile& file, sBitmapDescription& desc, uint32_t maxValue)
     {
         desc.bpp = desc.bppImage = 24;
-        desc.pitch = desc.width * desc.bpp / 8;
+        desc.pitch = helpers::calculatePitch(desc.width, desc.bpp);
         desc.bitmap.resize(desc.pitch * desc.height);
 
-        const bool result = desc.bitmap.size() == file.read(desc.bitmap.data(), desc.bitmap.size());
+        auto out = desc.bitmap.data();
+        const float norm = 255.0f / maxValue;
 
-        if (result && maxValue < 255)
+        std::vector<uint8_t> buffer(desc.width * 3);
+        for (uint32_t y = 0; y < desc.height; y++)
         {
-            const float norm = 255.0f / maxValue;
-
-            auto out = desc.bitmap.data();
-            for (size_t i = 0, size = desc.bitmap.size(); i < size; i++)
+            if (buffer.size() != file.read(buffer.data(), buffer.size()))
             {
-                *out *= norm;
+                return false;
             }
+
+            if (maxValue < 255)
+            {
+                for (size_t i = 0, size = buffer.size(); i < size; i++)
+                {
+                    buffer[i] *= norm;
+                }
+            }
+
+            ::memcpy(out + desc.pitch * y, buffer.data(), buffer.size());
         }
 
-        return result;
+        return true;
     }
 
 }
@@ -277,8 +315,8 @@ bool cFormatPnm::LoadImpl(const char* filename, sBitmapDescription& desc)
     bool result = false;
     Line line;
 
-    unsigned format = 0;
-    unsigned maxValue = 0;
+    uint32_t format = 0;
+    uint32_t maxValue = 0;
 
     enum class Token
     {
@@ -323,17 +361,17 @@ bool cFormatPnm::LoadImpl(const char* filename, sBitmapDescription& desc)
 
                 case Token::Width:
                     token = Token::Height;
-                    desc.width = (unsigned)::atoi(word);
+                    desc.width = (uint32_t)::atoi(word);
                     break;
 
                 case Token::Height:
                     token = (format != 4 && format != 1) ? Token::MaxValue : Token::Data;
-                    desc.height = (unsigned)::atoi(word);
+                    desc.height = (uint32_t)::atoi(word);
                     break;
 
                 case Token::MaxValue:
                     token = Token::Data;
-                    maxValue = (unsigned)::atoi(word);
+                    maxValue = (uint32_t)::atoi(word);
                     break;
 
                 case Token::Data: // do nothing

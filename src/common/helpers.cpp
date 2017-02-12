@@ -56,10 +56,10 @@ namespace helpers
         return n + 1;
     }
 
-    uint32_t calculatePitch(uint32_t width, uint32_t bytesPP)
+    uint32_t calculatePitch(uint32_t width, uint32_t bpp)
     {
         // texture pitch should be multiple by 4
-        return (uint32_t)::ceilf(width * bytesPP / 4.0f) * 4;
+        return (uint32_t)::ceilf(width * (bpp / 8) / 4.0f) * 4;
     }
 
     uint64_t getTime()

@@ -271,7 +271,7 @@ bool cFormatIco::loadPngFrame(sBitmapDescription& desc, cFile& file, const IcoDi
     desc.width = png_get_image_width(png, info);
     desc.height = png_get_image_height(png, info);
     desc.bpp = png_get_bit_depth(png, info) * png_get_channels(png, info);
-    desc.pitch = helpers::calculatePitch(desc.width, desc.bpp / 8);//png_get_rowbytes(png, info);
+    desc.pitch = helpers::calculatePitch(desc.width, desc.bpp);//png_get_rowbytes(png, info);
 
     // read file
     if (setjmp(png_jmpbuf(png)) != 0)

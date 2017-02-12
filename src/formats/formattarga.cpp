@@ -116,8 +116,7 @@ namespace
 
         desc.bppImage = 8;
         desc.bpp = 24;
-        // desc.pitch = desc.width * 3;
-        desc.pitch = helpers::calculatePitch(desc.width, 3);
+        desc.pitch = helpers::calculatePitch(desc.width, desc.bpp);
         desc.bitmap.resize(desc.pitch * desc.height);
         auto out = desc.bitmap.data();
 
@@ -230,8 +229,7 @@ namespace
         {
             desc.bppImage = 16;
             desc.bpp = 24;
-            // desc.pitch = desc.width * 3;
-            desc.pitch = helpers::calculatePitch(desc.width, 3);
+            desc.pitch = helpers::calculatePitch(desc.width, desc.bpp);
             desc.bitmap.resize(desc.pitch * desc.height);
             auto out = desc.bitmap.data();
 
@@ -253,8 +251,7 @@ namespace
         {
             desc.bppImage = 24;
             desc.bpp = 24;
-            // desc.pitch = desc.width * 3;
-            desc.pitch = helpers::calculatePitch(desc.width, 3);
+            desc.pitch = helpers::calculatePitch(desc.width, desc.bpp);
             desc.bitmap.resize(desc.pitch * desc.height);
             auto out = desc.bitmap.data();
 
@@ -275,8 +272,7 @@ namespace
         {
             desc.bpp = 32;
             desc.bppImage = 32;
-            // desc.pitch = desc.width * 4;
-            desc.pitch = helpers::calculatePitch(desc.width, 4);
+            desc.pitch = helpers::calculatePitch(desc.width, desc.bpp);
             desc.bitmap.resize(desc.pitch * desc.height);
             auto out = desc.bitmap.data();
 
@@ -320,8 +316,7 @@ namespace
         {
             desc.bppImage = 16;
             desc.bpp = 24;
-            // desc.pitch = desc.width * 3;
-            desc.pitch = helpers::calculatePitch(desc.width, 3);
+            desc.pitch = helpers::calculatePitch(desc.width, desc.bpp);
             desc.bitmap.resize(desc.pitch * desc.height);
             auto out = desc.bitmap.data();
 
@@ -385,8 +380,7 @@ namespace
         {
             desc.bppImage = 24;
             desc.bpp = 24;
-            // desc.pitch = desc.width * 3;
-            desc.pitch = helpers::calculatePitch(desc.width, 3);
+            desc.pitch = helpers::calculatePitch(desc.width, desc.bpp);
             desc.bitmap.resize(desc.pitch * desc.height);
             auto out = desc.bitmap.data();
 
@@ -447,8 +441,7 @@ namespace
         {
             desc.bppImage = 32;
             desc.bpp = 32;
-            // desc.pitch = desc.width * 4;
-            desc.pitch = helpers::calculatePitch(desc.width, 4);
+            desc.pitch = helpers::calculatePitch(desc.width, desc.bpp);
             desc.bitmap.resize(desc.pitch * desc.height);
             auto out = desc.bitmap.data();
 

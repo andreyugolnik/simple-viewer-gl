@@ -22,8 +22,8 @@ public:
     ~cQuadImage();
 
     void clear();
-    void setBuffer(unsigned width, unsigned height, unsigned pitch, unsigned format, unsigned bytesPP, const unsigned char* image);
-    bool upload(unsigned mipmapTextureSize);
+    void setBuffer(uint32_t width, uint32_t height, uint32_t pitch, uint32_t format, uint32_t bpp, const uint8_t* image);
+    bool upload(uint32_t mipmapTextureSize);
 
     void stop();
     bool isUploading() const;
@@ -32,12 +32,12 @@ public:
     void useFilter(bool filter);
     void render();
 
-    unsigned getWidth() const
+    uint32_t getWidth() const
     {
         return m_width;
     }
 
-    unsigned getHeight() const
+    uint32_t getHeight() const
     {
         return m_height;
     }
@@ -45,12 +45,12 @@ public:
 private:
     void moveToOld();
     void clearOld();
-    cQuad* findAndRemoveOld(unsigned col, unsigned row);
+    cQuad* findAndRemoveOld(uint32_t col, uint32_t row);
 
     struct sChunk
     {
-        unsigned col;
-        unsigned row;
+        uint32_t col;
+        uint32_t row;
         cQuad* quad;
     };
 
@@ -60,21 +60,21 @@ private:
     bool m_started = false;
     bool m_filter = false;
 
-    unsigned m_texWidth = 0;
-    unsigned m_texHeight = 0;
-    unsigned m_texPitch = 0;
-    unsigned m_cols = 0;
-    unsigned m_rows = 0;
+    uint32_t m_texWidth = 0;
+    uint32_t m_texHeight = 0;
+    uint32_t m_texPitch = 0;
+    uint32_t m_cols = 0;
+    uint32_t m_rows = 0;
 
-    unsigned m_width = 0;
-    unsigned m_height = 0;
-    unsigned m_pitch = 0;
-    unsigned m_format = 0;
-    unsigned m_bytesPP = 0;
-    const unsigned char* m_image = nullptr;
+    uint32_t m_width = 0;
+    uint32_t m_height = 0;
+    uint32_t m_pitch = 0;
+    uint32_t m_format = 0;
+    uint32_t m_bpp = 0;
+    const uint8_t* m_image = nullptr;
 
     std::vector<sChunk> m_chunks;
     std::vector<sChunk> m_chunksOld;
 
-    std::vector<unsigned char> m_buffer;
+    std::vector<uint8_t> m_buffer;
 };

@@ -371,9 +371,9 @@ bool cFormatJpeg::LoadImpl(const char* filename, sBitmapDescription& desc)
 
     desc.width = cinfo.output_width;
     desc.height = cinfo.output_height;
-    desc.pitch = helpers::calculatePitch(cinfo.output_width, cinfo.output_components);
     desc.bpp = cinfo.output_components * 8;
     desc.bppImage = cinfo.num_components * 8;
+    desc.pitch = helpers::calculatePitch(desc.width, desc.bpp);
     desc.bitmap.resize(desc.pitch * desc.height);
     desc.format = GL_RGB;
 

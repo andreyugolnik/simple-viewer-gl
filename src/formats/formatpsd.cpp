@@ -372,7 +372,7 @@ bool cFormatPsd::LoadImpl(const char* filename, sBitmapDescription& desc)
     }
 
     // convert or copy channel buffers to RGB / RGBA
-    desc.pitch = helpers::calculatePitch(desc.width, std::min<uint32_t>(channels, 4));
+    desc.pitch = helpers::calculatePitch(desc.width, desc.bpp);
     desc.bitmap.resize(desc.pitch * desc.height);
     const auto bitmap = desc.bitmap.data();
 
@@ -467,8 +467,8 @@ bool cFormatPsd::LoadImpl(const char* filename, sBitmapDescription& desc)
 
         if (channels == 2)
         {
-            // desc.pitch = desc.width * 4;
-            desc.pitch = helpers::calculatePitch(desc.width, 4);
+            desc.bpp = 32;
+            desc.pitch = helpers::calculatePitch(desc.width, desc.bpp);
             desc.bitmap.resize(desc.pitch * desc.height);
 
             desc.format = GL_RGBA;
@@ -499,8 +499,8 @@ bool cFormatPsd::LoadImpl(const char* filename, sBitmapDescription& desc)
         }
         else if (channels == 1)
         {
-            // desc.pitch = desc.width * 3;
-            desc.pitch = helpers::calculatePitch(desc.width, 3);
+            desc.bpp = 24;
+            desc.pitch = helpers::calculatePitch(desc.width, desc.bpp);
             desc.bitmap.resize(desc.pitch * desc.height);
             auto bitmap = desc.bitmap.data();
 

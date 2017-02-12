@@ -485,7 +485,7 @@ bool cFormatBmp::LoadImpl(const char* filename, sBitmapDescription& desc)
 
         setGLformat(header.bitCount, desc);
 
-        desc.pitch = helpers::calculatePitch(desc.width, desc.bpp / 8);
+        desc.pitch = helpers::calculatePitch(desc.width, desc.bpp);
         desc.bitmap.resize(desc.pitch * desc.height);
 
         if ((Compression)header.compression == Compression::BI_RGB
