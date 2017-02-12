@@ -29,13 +29,13 @@ private:
     virtual bool LoadSubImageImpl(unsigned current, sBitmapDescription& desc) override;
 
 private:
-    bool load(unsigned current, sBitmapDescription& desc);
+    bool load(uint32_t current, sBitmapDescription& desc);
     bool loadOrdinaryFrame(sBitmapDescription& desc, cFile& file, const IcoDirentry* image);
     bool loadPngFrame(sBitmapDescription& desc, cFile& file, const IcoDirentry* image);
-    int calcIcoPitch(unsigned bppImage, unsigned width);
-    int getBit(const uint8_t* data, int bit, unsigned width);
-    int getNibble(const uint8_t* data, int nibble, unsigned width);
-    int getByte(const uint8_t* data, int byte, unsigned width);
+    int calcIcoPitch(uint32_t bppImage, uint32_t width);
+    uint32_t getBit(const uint8_t* data, uint32_t bit, uint32_t width);
+    uint32_t getNibble(const uint8_t* data, uint32_t nibble, uint32_t width);
+    uint32_t getByte(const uint8_t* data, uint32_t byte, uint32_t width);
 
 private:
     std::string m_filename;

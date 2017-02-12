@@ -530,26 +530,24 @@ int cFormatIco::calcIcoPitch(uint32_t bppImage, uint32_t width)
     }
 }
 
-int cFormatIco::getBit(const uint8_t* data, int bit, uint32_t width)
+uint32_t cFormatIco::getBit(const uint8_t* data, uint32_t bit, uint32_t width)
 {
-    // width per line in multiples of 32 bits
-    int width32 = (width % 32 == 0 ? width / 32 : width / 32 + 1);
-    int line = bit / width;
-    int offset = bit % width;
+    const uint32_t w = width % 32 == 0 ? (width / 32) : (width / 32 + 1);
+    const uint32_t line = bit / width;
+    const uint32_t offset = bit % width;
 
-    int result = (data[line * width32 * 4 + offset / 8] & (1 << (7 - (offset % 8))));
+    uint32_t result = data[line * w * 4 + offset / 8] & (1 << (7 - (offset % 8)));
 
     return (result ? 1 : 0);
 }
 
-int cFormatIco::getNibble(const uint8_t* data, int nibble, uint32_t width)
+uint32_t cFormatIco::getNibble(const uint8_t* data, uint32_t nibble, uint32_t width)
 {
-    // width per line in multiples of 32 bits
-    int width32 = (width % 8 == 0 ? width / 8 : width / 8 + 1);
-    int line = nibble / width;
-    int offset = nibble % width;
+    const uint32_t w = width % 8 == 0 ? (width / 8) : (width / 8 + 1);
+    const uint32_t line = nibble / width;
+    const uint32_t offset = nibble % width;
 
-    int result = (data[line * width32 * 4 + offset / 2] & (0x0F << (4 * (1 - offset % 2))));
+    uint32_t result = data[line * w * 4 + offset / 2] & (0x0F << (4 * (1 - offset % 2)));
 
     if (offset % 2 == 0)
     {
@@ -559,12 +557,11 @@ int cFormatIco::getNibble(const uint8_t* data, int nibble, uint32_t width)
     return result;
 }
 
-int cFormatIco::getByte(const uint8_t* data, int byte, uint32_t width)
+uint32_t cFormatIco::getByte(const uint8_t* data, uint32_t byte, uint32_t width)
 {
-    // width per line in multiples of 32 bits
-    int width32 = (width % 4 == 0 ? width / 4 : width / 4 + 1);
-    int line = byte / width;
-    int offset = byte % width;
+    const uint32_t w = width % 4 == 0 ? (width / 4) : (width / 4 + 1);
+    const uint32_t line = byte / width;
+    const uint32_t offset = byte % width;
 
-    return data[line * width32 * 4 + offset];
+    return data[line * w * 4 + offset];
 }
