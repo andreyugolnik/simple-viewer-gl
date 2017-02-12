@@ -41,7 +41,7 @@ namespace
 
 }
 
-cViewer::cViewer(sConfig* config)
+cViewer::cViewer(sConfig& config)
     : m_config(config)
     , m_isWindowed(true)
     , m_mouseLB(false)
@@ -71,7 +71,7 @@ cViewer::~cViewer()
 
 void cViewer::setInitialImagePath(const char* path)
 {
-    m_filesList.reset(new cFilesList(path, m_config->skipFilter, m_config->recursiveScan));
+    m_filesList.reset(new cFilesList(path, m_config.skipFilter, m_config.recursiveScan));
 }
 
 void cViewer::setWindow(GLFWwindow* window)
@@ -115,12 +115,12 @@ void cViewer::addPaths(const char** paths, int count)
 
 void cViewer::applyConfig()
 {
-    m_checkerBoard->setColor(m_config->bgColor);
+    m_checkerBoard->setColor(m_config.bgColor);
 }
 
 void cViewer::render()
 {
-    m_checkerBoard->render(!m_config->hideCheckboard);
+    m_checkerBoard->render(!m_config.hideCheckboard);
 
     //updateViewportSize();
 
@@ -135,28 +135,28 @@ void cViewer::render()
 
     if (m_loader->isLoaded())
     {
-        if (m_config->showImageBorder)
+        if (m_config.showImageBorder)
         {
             m_border->render(-half_w, -half_h, m_image->getWidth(), m_image->getHeight());
         }
-        if (m_config->showPixelInfo && m_angle == 0)
+        if (m_config.showPixelInfo && m_angle == 0)
         {
             m_selection->render({ -half_w, -half_h });
         }
     }
     cRenderer::resetGlobals();
 
-    if (m_config->showExif)
+    if (m_config.showExif)
     {
         m_exifPopup->render();
     }
 
-    if (m_config->hideInfobar == false)
+    if (m_config.hideInfobar == false)
     {
         m_infoBar->render();
     }
 
-    if (m_config->showPixelInfo && m_cursorInside && m_angle == 0)
+    if (m_config.showPixelInfo && m_cursorInside && m_angle == 0)
     {
         m_pixelPopup->render();
     }
@@ -179,7 +179,7 @@ void cViewer::update()
 
         if (m_loader->getMode() == cImageLoader::Mode::Image)
         {
-            if (m_config->keepScale == false)
+            if (m_config.keepScale == false)
             {
                 m_scale.setScalePercent(100);
                 m_angle = 0;
@@ -189,7 +189,7 @@ void cViewer::update()
             m_selection->setImageDimension(desc.width, desc.height);
             m_exifPopup->setExifList(desc.exifList);
             centerWindow();
-            enablePixelInfo(m_config->showPixelInfo);
+            enablePixelInfo(m_config.showPixelInfo);
         }
 
         updateInfobar();
@@ -197,7 +197,7 @@ void cViewer::update()
 
     if (isUploading())
     {
-        const bool isDone = m_image->upload(m_config->mipmapTextureSize);
+        const bool isDone = m_image->upload(m_config.mipmapTextureSize);
         m_progress->setProgress(0.5f + m_image->getProgress() * 0.5f);
 
         if (isDone)
@@ -274,7 +274,7 @@ void cViewer::fnMouse(const Vectorf& pos)
         }
     }
 
-    if (m_config->showPixelInfo)
+    if (m_config.showPixelInfo)
     {
         const int cursor = m_selection->getCursor();
         m_pixelPopup->setCursor(cursor);
@@ -297,7 +297,7 @@ void cViewer::fnCursorEnter(bool entered)
 
 void cViewer::fnMouseScroll(const Vectorf& pos)
 {
-    if (m_config->wheelZoom)
+    if (m_config.wheelZoom)
     {
         updateScale(pos.y > 0.0f);
     }
@@ -349,28 +349,28 @@ void cViewer::fnKeyboard(int key, int /*scancode*/, int action, int mods)
         break;
 
     case GLFW_KEY_I:
-        m_config->hideInfobar = !m_config->hideInfobar;
+        m_config.hideInfobar = !m_config.hideInfobar;
         //calculateScale();
         centerWindow();
         break;
 
     case GLFW_KEY_E:
-        m_config->showExif = !m_config->showExif;
+        m_config.showExif = !m_config.showExif;
         break;
 
     case GLFW_KEY_P:
-        enablePixelInfo(!m_config->showPixelInfo);
+        enablePixelInfo(!m_config.showPixelInfo);
         break;
 
     case GLFW_KEY_S:
         if (mods & GLFW_MOD_SHIFT)
         {
-            m_config->keepScale = !m_config->keepScale;
+            m_config.keepScale = !m_config.keepScale;
         }
         else
         {
-            m_config->fitImage = !m_config->fitImage;
-            if (m_config->fitImage == false)
+            m_config.fitImage = !m_config.fitImage;
+            if (m_config.fitImage == false)
             {
                 m_scale.setScalePercent(100);
             }
@@ -396,7 +396,7 @@ void cViewer::fnKeyboard(int key, int /*scancode*/, int action, int mods)
         break;
 
     case GLFW_KEY_B:
-        m_config->showImageBorder = !m_config->showImageBorder;
+        m_config.showImageBorder = !m_config.showImageBorder;
         break;
 
     case GLFW_KEY_EQUAL:
@@ -408,7 +408,7 @@ void cViewer::fnKeyboard(int key, int /*scancode*/, int action, int mods)
         break;
 
     case GLFW_KEY_C:
-        m_config->hideCheckboard = !m_config->hideCheckboard;
+        m_config.hideCheckboard = !m_config.hideCheckboard;
         break;
 
     case GLFW_KEY_ENTER:
@@ -464,7 +464,7 @@ void cViewer::fnKeyboard(int key, int /*scancode*/, int action, int mods)
         {
             m_scale.setScalePercent(1000);
             m_camera = { 0.0f, 0.0f };
-            m_config->fitImage = false;
+            m_config.fitImage = false;
             centerWindow();
             updateInfobar();
         }
@@ -472,7 +472,7 @@ void cViewer::fnKeyboard(int key, int /*scancode*/, int action, int mods)
         {
             m_scale.setScalePercent((key - GLFW_KEY_0) * 100);
             m_camera = { 0.0f, 0.0f };
-            m_config->fitImage = false;
+            m_config.fitImage = false;
             centerWindow();
             updateInfobar();
         }
@@ -516,7 +516,7 @@ void cViewer::shiftCamera(const Vectorf& delta)
 
 void cViewer::calculateScale()
 {
-    if (m_config->fitImage && m_loader->isLoaded())
+    if (m_config.fitImage && m_loader->isLoaded())
     {
         float w = static_cast<float>(m_image->getWidth());
         float h = static_cast<float>(m_image->getHeight());
@@ -568,7 +568,7 @@ void cViewer::calculateScale()
 // TODO update m_camera_x / m_camera_y according current mouse position
 void cViewer::updateScale(bool up)
 {
-    m_config->fitImage = false;
+    m_config.fitImage = false;
 
     int scale = m_scale.getScalePercent();
 
@@ -611,11 +611,11 @@ void cViewer::centerWindow()
 
     if (m_isWindowed)
     {
-        if (m_config->centerWindow)
+        if (m_config.centerWindow)
         {
             // calculate window size
-            int imgw = m_image->getWidth() + (m_config->showImageBorder ? m_border->getThickness() * 2 : 0);
-            int imgh = m_image->getHeight() + (m_config->showImageBorder ? m_border->getThickness() * 2 : 0);
+            int imgw = m_image->getWidth() + (m_config.showImageBorder ? m_border->getThickness() * 2 : 0);
+            int imgh = m_image->getHeight() + (m_config.showImageBorder ? m_border->getThickness() * 2 : 0);
             imgw = std::max<int>(imgw / m_ratio.x, DEF_WINDOW_W);
             imgh = std::max<int>(imgh / m_ratio.y, DEF_WINDOW_H);
 
@@ -841,6 +841,6 @@ void cViewer::enablePixelInfo(bool show)
         updateMousePosition();
         updatePixelInfo(m_lastMouse);
     }
-    m_config->showPixelInfo = show;
+    m_config.showPixelInfo = show;
     showCursor(!show);
 }

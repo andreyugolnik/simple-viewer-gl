@@ -253,7 +253,7 @@ int main(int argc, char* argv[])
         }
     }
 
-    cViewer viewer(&config);
+    cViewer viewer(config);
     m_viewer = &viewer;
 
     viewer.setInitialImagePath(path);

@@ -32,7 +32,7 @@ struct sConfig;
 class cViewer final : public iCallbacks
 {
 public:
-    explicit cViewer(sConfig* config);
+    explicit cViewer(sConfig& config);
     ~cViewer();
 
     void setInitialImagePath(const char* path);
@@ -103,19 +103,13 @@ private:
     void enablePixelInfo(bool show);
 
 private:
-    sConfig* m_config;
+    sConfig& m_config;
     Vectorf m_ratio;
     bool m_imagePrepared = false;
     cScale m_scale;
     bool m_isWindowed;
     bool m_cursorInside = false;
-    //bool m_centerWindow;
-    //bool m_allValid;
-    //bool m_wheelZoom;
     bool m_windowModeChangeRequested = false;
-    //bool m_fitImage;
-    //bool m_showBorder;
-    //bool m_recursiveDir;
     bool m_mouseLB, m_mouseMB, m_mouseRB;
     Vectorf m_lastMouse;
     Vectorf m_camera;

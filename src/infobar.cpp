@@ -30,7 +30,7 @@ namespace
 
 }
 
-cInfoBar::cInfoBar(const sConfig* config)
+cInfoBar::cInfoBar(const sConfig& config)
     : m_config(config)
 {
 }
@@ -61,7 +61,7 @@ void cInfoBar::createFont(int fontSize)
     m_ft.reset(new cFTString(fontSize));
     m_ft->setColor({ 255, 255, 127, 255 });
 
-    if (m_config->debug)
+    if (m_config.debug)
     {
         m_fps.reset(new cFTString(fontSize));
         m_fps->setColor({ 0, 0, 0, 255 });

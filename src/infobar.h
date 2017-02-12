@@ -20,7 +20,7 @@ struct sConfig;
 class cInfoBar final
 {
 public:
-    explicit cInfoBar(const sConfig* config);
+    explicit cInfoBar(const sConfig& config);
 
     void init();
 
@@ -54,7 +54,7 @@ private:
     void createFont(int fontSize);
 
 private:
-    const sConfig* m_config;
+    const sConfig& m_config;
 
     float m_scale = 0.0f;
     std::string m_bottominfo;
