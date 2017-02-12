@@ -123,12 +123,12 @@ bool cFormatIco::LoadImpl(const char* filename, sBitmapDescription& desc)
     return load(0, desc);
 }
 
-bool cFormatIco::LoadSubImageImpl(unsigned current, sBitmapDescription& desc)
+bool cFormatIco::LoadSubImageImpl(uint32_t current, sBitmapDescription& desc)
 {
     return load(current, desc);
 }
 
-bool cFormatIco::load(unsigned current, sBitmapDescription& desc)
+bool cFormatIco::load(uint32_t current, sBitmapDescription& desc)
 {
     cFile file;
     if (!file.open(m_filename.c_str()))
@@ -151,18 +151,18 @@ bool cFormatIco::load(unsigned current, sBitmapDescription& desc)
         return false;
     }
 
-    current = std::max<unsigned>(current, 0);
-    current = std::min<unsigned>(current, header.count - 1);
+    current = std::max<uint32_t>(current, 0);
+    current = std::min<uint32_t>(current, header.count - 1);
 
     const auto image = &images[current];
-    // printf("--- IcoDirentry ---\n");
-    // printf("width: %u.\n", (unsigned)image->width);
-    // printf("height: %u.\n", (unsigned)image->height);
-    // printf("colors: %u.\n", (unsigned)image->colors);
-    // printf("planes: %u.\n", (unsigned)image->planes);
-    // printf("bits: %u.\n", (unsigned)image->bits);
-    // printf("size: %u.\n", (unsigned)image->size);
-    // printf("offset: %u.\n", (unsigned)image->offset);
+    // ::printf("--- IcoDirentry ---\n");
+    // ::printf("(II) width: %u.\n", (uint32_t)image->width);
+    // ::printf("(II) height: %u.\n", (uint32_t)image->height);
+    // ::printf("(II) colors: %u.\n", (uint32_t)image->colors);
+    // ::printf("(II) planes: %u.\n", (uint32_t)image->planes);
+    // ::printf("(II) bits: %u.\n", (uint32_t)image->bits);
+    // ::printf("(II) size: %u.\n", (uint32_t)image->size);
+    // ::printf("(II) offset: %u.\n", (uint32_t)image->offset);
 
     bool result = false;
 
@@ -193,12 +193,13 @@ bool cFormatIco::loadPngFrame(sBitmapDescription& desc, cFile& file, const IcoDi
     file.seek(image->offset, SEEK_SET);
     if (image->size != file.read(&p[0], image->size))
     {
+        ::printf("(EE) Can't read ico/png frame.\n");
         return false;
     }
 
     if (image->size != 8 && png_sig_cmp(&p[0], 0, 8) != 0)
     {
-        printf("Frame is not recognized as a PNG format\n");
+        ::printf("(EE) Frame is not recognized as a PNG format.\n");
         return false;
     }
 
@@ -206,7 +207,7 @@ bool cFormatIco::loadPngFrame(sBitmapDescription& desc, cFile& file, const IcoDi
     png_structp png = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
     if (png == nullptr)
     {
-        printf("png_create_read_struct failed\n");
+        ::printf("(EE) png_create_read_struct failed.\n");
         return false;
     }
 
@@ -218,13 +219,13 @@ bool cFormatIco::loadPngFrame(sBitmapDescription& desc, cFile& file, const IcoDi
     png_infop info = png_create_info_struct(png);
     if (info == nullptr)
     {
-        printf("png_create_info_struct failed\n");
+        ::printf("(EE) png_create_info_struct failed.\n");
         return false;
     }
 
     if (setjmp(png_jmpbuf(png)) != 0)
     {
-        printf("Error during init_io\n");
+        ::printf("(EE) Error during init_io.\n");
         return false;
     }
 
@@ -275,13 +276,13 @@ bool cFormatIco::loadPngFrame(sBitmapDescription& desc, cFile& file, const IcoDi
     // read file
     if (setjmp(png_jmpbuf(png)) != 0)
     {
-        printf("Error during read_image\n");
+        ::printf("(EE) Error during read_image.\n");
         return false;
     }
 
     // create buffer and read data
     png_bytep* row_pointers = new png_bytep[desc.height];
-    for (unsigned y = 0; y < desc.height; y++)
+    for (uint32_t y = 0; y < desc.height; y++)
     {
         row_pointers[y] = new png_byte[desc.pitch];
     }
@@ -294,12 +295,12 @@ bool cFormatIco::loadPngFrame(sBitmapDescription& desc, cFile& file, const IcoDi
     if (color_type == PNG_COLOR_TYPE_RGB)
     {
         desc.format = GL_RGB;
-        for (unsigned y = 0; y < desc.height; y++)
+        for (uint32_t y = 0; y < desc.height; y++)
         {
-            unsigned dst = y * desc.pitch;
-            for (unsigned x = 0; x < desc.width && m_stop == false; x++)
+            const uint32_t dst = y * desc.pitch;
+            for (uint32_t x = 0; x < desc.width && m_stop == false; x++)
             {
-                unsigned dx = x * 3;
+                const uint32_t dx = x * 3;
                 desc.bitmap[dst + dx + 0] = *(row_pointers[y] + dx + 0);
                 desc.bitmap[dst + dx + 1] = *(row_pointers[y] + dx + 1);
                 desc.bitmap[dst + dx + 2] = *(row_pointers[y] + dx + 2);
@@ -313,12 +314,12 @@ bool cFormatIco::loadPngFrame(sBitmapDescription& desc, cFile& file, const IcoDi
     else if (color_type == PNG_COLOR_TYPE_RGB_ALPHA)
     {
         desc.format = GL_RGBA;
-        for (unsigned y = 0; y < desc.height; y++)
+        for (uint32_t y = 0; y < desc.height; y++)
         {
-            unsigned dst = y * desc.pitch;
-            for (unsigned x = 0; x < desc.width && m_stop == false; x++)
+            const uint32_t dst = y * desc.pitch;
+            for (uint32_t x = 0; x < desc.width && m_stop == false; x++)
             {
-                unsigned dx = x * 4;
+                const uint32_t dx = x * 4;
                 desc.bitmap[dst + dx + 0] = *(row_pointers[y] + dx + 0);
                 desc.bitmap[dst + dx + 1] = *(row_pointers[y] + dx + 1);
                 desc.bitmap[dst + dx + 2] = *(row_pointers[y] + dx + 2);
@@ -332,11 +333,11 @@ bool cFormatIco::loadPngFrame(sBitmapDescription& desc, cFile& file, const IcoDi
     }
     else
     {
-        for (unsigned y = 0; y < desc.height; y++)
+        for (uint32_t y = 0; y < desc.height; y++)
         {
             delete[] row_pointers[y];
         }
-        printf("Should't be happened\n");
+        ::printf("(EE) Should't be happened.\n");
     }
 
     delete[] row_pointers;
@@ -353,6 +354,7 @@ bool cFormatIco::loadOrdinaryFrame(sBitmapDescription& desc, cFile& file, const 
     std::vector<uint8_t> p(image->size);
     if (image->size != file.read(p.data(), p.size()))
     {
+        ::printf("(EE) Can't read icon data.\n");
         return false;
     }
 
@@ -367,40 +369,46 @@ bool cFormatIco::loadOrdinaryFrame(sBitmapDescription& desc, cFile& file, const 
     int pitch = calcIcoPitch(desc.bppImage, desc.width);
     if (pitch == -1)
     {
+        ::printf("(EE) Invalid icon pitch.\n");
         return false;
     }
 
     desc.bitmap.resize(desc.pitch * desc.height);
+    auto out = desc.bitmap.data();
 
-    //  std::cout << std::endl;
-    //  std::cout << "--- IcoBmpInfoHeader ---" << std::endl;
-    //  std::cout << "size: " << (int)imgHeader->size << "." << std::endl;
-    //  std::cout << "width: " << (int)imgHeader->width << "." << std::endl;
-    //  std::cout << "height: " << (int)imgHeader->height << "." << std::endl;
-    //  std::cout << "planes: " << (int)imgHeader->planes << "." << std::endl;
-    //  std::cout << "bits: " << (int)imgHeader->bits << "." << std::endl;
-    //  std::cout << "imagesize: " << (int)imgHeader->imagesize << "." << std::endl;
+    // ::printf("--- IcoBmpInfoHeader ---\n");
+    // ::printf("size: %u\n", imgHeader->size);
+    // ::printf("width: %u\n", imgHeader->width);
+    // ::printf("height: %u\n", imgHeader->height);
+    // ::printf("planes: %u\n", (uint32_t)imgHeader->planes);
+    // ::printf("bits: %u\n", (uint32_t)imgHeader->bits);
+    // ::printf("imagesize: %u\n", imgHeader->imagesize);
 
-    int colors = image->colors == 0 ? (1 << desc.bppImage) : image->colors;
-    auto palette = reinterpret_cast<const uint32_t*>(p.data() + imgHeader->size);
-    auto xorMask = reinterpret_cast<const uint8_t*>(p.data() + imgHeader->size + colors * 4);
-    auto andMask = reinterpret_cast<const uint8_t*>(p.data() + imgHeader->size + colors * 4 + desc.height * pitch);
+    // const uint32_t colors = image->colors == 0 ? (1 << desc.bppImage) : image->colors;
+    uint32_t colors = image->colors;
+    if (desc.bppImage < 16)
+    {
+        colors = colors == 0 ? (1 << desc.bppImage) : image->colors;
+    }
+    const auto palette = reinterpret_cast<const uint32_t*>(p.data() + imgHeader->size);
+    const auto xorMask = reinterpret_cast<const uint8_t*>(p.data() + imgHeader->size + colors * 4);
+    const auto andMask = reinterpret_cast<const uint8_t*>(p.data() + imgHeader->size + colors * 4 + desc.height * pitch);
 
     switch (desc.bppImage)
     {
     case 1:
-        for (unsigned y = 0; y < desc.height; y++)
+        for (uint32_t y = 0; y < desc.height; y++)
         {
-            for (unsigned x = 0; x < desc.width; x++)
+            uint32_t idx = (desc.height - y - 1) * desc.pitch;
+            for (uint32_t x = 0; x < desc.width; x++)
             {
-                uint32_t color = palette[getBit(xorMask, y * desc.width + x, desc.width)];
+                const uint32_t color = palette[getBit(xorMask, y * desc.width + x, desc.width)];
 
-                unsigned idx = (desc.height - y - 1) * desc.pitch + x * 4;
-
-                desc.bitmap[idx + 0] = ((uint8_t*)(&color))[2];
-                desc.bitmap[idx + 1] = ((uint8_t*)(&color))[1];
-                desc.bitmap[idx + 2] = ((uint8_t*)(&color))[0];
-                desc.bitmap[idx + 3] = getBit(andMask, y * desc.width + x, desc.width) ? 0 : 255;
+                out[idx + 0] = ((uint8_t*)(&color))[2];
+                out[idx + 1] = ((uint8_t*)(&color))[1];
+                out[idx + 2] = ((uint8_t*)(&color))[0];
+                out[idx + 3] = getBit(andMask, y * desc.width + x, desc.width) ? 0 : 255;
+                idx += 4;
 
                 updateProgress((float)desc.height * desc.width / (y * desc.width + x));
             }
@@ -408,18 +416,18 @@ bool cFormatIco::loadOrdinaryFrame(sBitmapDescription& desc, cFile& file, const 
         break;
 
     case 4:
-        for (unsigned y = 0; y < desc.height; y++)
+        for (uint32_t y = 0; y < desc.height; y++)
         {
-            for (unsigned x = 0; x < desc.width; x++)
+            uint32_t idx = (desc.height - y - 1) * desc.pitch;
+            for (uint32_t x = 0; x < desc.width; x++)
             {
-                uint32_t color = palette[getNibble(xorMask, y * desc.width + x, desc.width)];
+                const uint32_t color = palette[getNibble(xorMask, y * desc.width + x, desc.width)];
 
-                unsigned idx = (desc.height - y - 1) * desc.pitch + x * 4;
-
-                desc.bitmap[idx + 0] = ((uint8_t*)(&color))[2];
-                desc.bitmap[idx + 1] = ((uint8_t*)(&color))[1];
-                desc.bitmap[idx + 2] = ((uint8_t*)(&color))[0];
-                desc.bitmap[idx + 3] = getBit(andMask, y * desc.width + x, desc.width) ? 0 : 255;
+                out[idx + 0] = ((uint8_t*)(&color))[2];
+                out[idx + 1] = ((uint8_t*)(&color))[1];
+                out[idx + 2] = ((uint8_t*)(&color))[0];
+                out[idx + 3] = getBit(andMask, y * desc.width + x, desc.width) ? 0 : 255;
+                idx += 4;
 
                 updateProgress((float)desc.height * desc.width / (y * desc.width + x));
             }
@@ -427,18 +435,18 @@ bool cFormatIco::loadOrdinaryFrame(sBitmapDescription& desc, cFile& file, const 
         break;
 
     case 8:
-        for (unsigned y = 0; y < desc.height; y++)
+        for (uint32_t y = 0; y < desc.height; y++)
         {
-            for (unsigned x = 0; x < desc.width; x++)
+            uint32_t idx = (desc.height - y - 1) * desc.pitch;
+            for (uint32_t x = 0; x < desc.width; x++)
             {
-                uint32_t color = palette[getByte(xorMask, y * desc.width + x, desc.width)];
+                const uint32_t color = palette[getByte(xorMask, y * desc.width + x, desc.width)];
 
-                unsigned idx = (desc.height - y - 1) * desc.pitch + x * 4;
-
-                desc.bitmap[idx + 0] = ((uint8_t*)(&color))[2];
-                desc.bitmap[idx + 1] = ((uint8_t*)(&color))[1];
-                desc.bitmap[idx + 2] = ((uint8_t*)(&color))[0];
-                desc.bitmap[idx + 3] = getBit(andMask, y * desc.width + x, desc.width) ? 0 : 255;
+                out[idx + 0] = ((uint8_t*)(&color))[2];
+                out[idx + 1] = ((uint8_t*)(&color))[1];
+                out[idx + 2] = ((uint8_t*)(&color))[0];
+                out[idx + 3] = getBit(andMask, y * desc.width + x, desc.width) ? 0 : 255;
+                idx += 4;
 
                 updateProgress((float)desc.height * desc.width / (y * desc.width + x));
             }
@@ -447,28 +455,28 @@ bool cFormatIco::loadOrdinaryFrame(sBitmapDescription& desc, cFile& file, const 
 
     default:
     {
-        unsigned bpp = desc.bppImage / 8;
-        for (unsigned y = 0; y < desc.height; y++)
+        const uint32_t bpp = desc.bppImage / 8;
+        for (uint32_t y = 0; y < desc.height; y++)
         {
             const uint8_t* row = xorMask + pitch * y;
 
-            for (unsigned x = 0; x < desc.width; x++)
+            uint32_t idx = (desc.height - y - 1) * desc.pitch;
+            for (uint32_t x = 0; x < desc.width; x++)
             {
-                unsigned idx = (desc.height - y - 1) * desc.pitch + x * 4;
-
-                desc.bitmap[idx + 0] = row[2];
-                desc.bitmap[idx + 1] = row[1];
-                desc.bitmap[idx + 2] = row[0];
+                out[idx + 0] = row[2];
+                out[idx + 1] = row[1];
+                out[idx + 2] = row[0];
 
                 if (desc.bppImage < 32)
                 {
-                    desc.bitmap[idx + 3] = getBit(andMask, y * desc.width + x, desc.width) ? 0 : 255;
+                    out[idx + 3] = getBit(andMask, y * desc.width + x, desc.width) ? 0 : 255;
                 }
                 else
                 {
-                    desc.bitmap[idx + 3] = row[3];
+                    out[idx + 3] = row[3];
                 }
 
+                idx += 4;
                 row += bpp;
 
                 updateProgress((float)desc.height * desc.width / (y * desc.width + x));
@@ -481,7 +489,7 @@ bool cFormatIco::loadOrdinaryFrame(sBitmapDescription& desc, cFile& file, const 
     return true;
 }
 
-int cFormatIco::calcIcoPitch(unsigned bppImage, unsigned width)
+int cFormatIco::calcIcoPitch(uint32_t bppImage, uint32_t width)
 {
     switch (bppImage)
     {
@@ -517,12 +525,12 @@ int cFormatIco::calcIcoPitch(unsigned bppImage, unsigned width)
         return width * 4;
 
     default:
-        printf("(EE) Invalid bits count: %u.\n", bppImage);
+        ::printf("(EE) Invalid bits count: %u.\n", bppImage);
         return -1; //width * (bppImage / 8);
     }
 }
 
-int cFormatIco::getBit(const uint8_t* data, int bit, unsigned width)
+int cFormatIco::getBit(const uint8_t* data, int bit, uint32_t width)
 {
     // width per line in multiples of 32 bits
     int width32 = (width % 32 == 0 ? width / 32 : width / 32 + 1);
@@ -534,7 +542,7 @@ int cFormatIco::getBit(const uint8_t* data, int bit, unsigned width)
     return (result ? 1 : 0);
 }
 
-int cFormatIco::getNibble(const uint8_t* data, int nibble, unsigned width)
+int cFormatIco::getNibble(const uint8_t* data, int nibble, uint32_t width)
 {
     // width per line in multiples of 32 bits
     int width32 = (width % 8 == 0 ? width / 8 : width / 8 + 1);
@@ -551,7 +559,7 @@ int cFormatIco::getNibble(const uint8_t* data, int nibble, unsigned width)
     return result;
 }
 
-int cFormatIco::getByte(const uint8_t* data, int byte, unsigned width)
+int cFormatIco::getByte(const uint8_t* data, int byte, uint32_t width)
 {
     // width per line in multiples of 32 bits
     int width32 = (width % 4 == 0 ? width / 4 : width / 4 + 1);
