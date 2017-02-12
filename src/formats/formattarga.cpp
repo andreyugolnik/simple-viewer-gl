@@ -15,12 +15,22 @@
 namespace
 {
 
+    enum class ImageType : uint8_t
+    {
+        Colormap      = 1,
+        RGB           = 2,
+        Monochrome    = 3,
+        RLEColormap   = 9,
+        RLERGB        = 10,
+        RLEMonochrome = 11,
+    };
+
 #pragma pack(push, 1)
     struct sTARGAHeader
     {
         uint8_t idLength;
         uint8_t colorMapType;
-        uint8_t imageType;
+        ImageType imageType;
 
         uint16_t firstEntryIndex;
         uint16_t colorMapLength;
@@ -117,7 +127,7 @@ namespace
 
         const auto origin = getOrigin(header.imageDescriptor);
 
-        if (header.imageType == 1)
+        if (header.imageType == ImageType::Colormap)
         {
             // ::printf("(II) Uncompressed color-mapped image.\n");
 
@@ -137,7 +147,7 @@ namespace
 
             return true;
         }
-        else if (header.imageType == 9)
+        else if (header.imageType == ImageType::RLEColormap)
         {
             // ::printf("(II) Compressed color-mapped image.\n");
 
@@ -529,7 +539,12 @@ bool cFormatTarga::isSupported(cFile& file, Buffer& buffer) const
     const auto h = reinterpret_cast<const sTARGAHeader*>(buffer.data());
     return h->colorMapType <= 1
            && h->width > 0 && h->height > 0
-           && (h->imageType <= 3 || (h->imageType >= 9 && h->imageType <= 11) || h->imageType == 32 || h->imageType == 33)
+           && (h->imageType == ImageType::Colormap
+               || h->imageType == ImageType::RGB
+               || h->imageType == ImageType::Monochrome
+               || h->imageType == ImageType::RLEColormap
+               || h->imageType == ImageType::RLERGB
+               || h->imageType == ImageType::RLEMonochrome)
            && (h->pixelDepth == 8 || h->pixelDepth == 16 || h->pixelDepth == 24 || h->pixelDepth == 32);
 }
 
@@ -579,15 +594,15 @@ bool cFormatTarga::LoadImpl(const char* filename, sBitmapDescription& desc)
     // 11 - Compressed, black and white images.
     // 32 - Compressed color-mapped data, using Huffman, Delta, and runlength encoding.
     // 33 - Compressed color-mapped data, using Huffman, Delta, and runlength encoding. 4-pass quadtree-type process.
-    if (header.imageType == 1 || header.imageType == 9)
+    if (header.imageType == ImageType::Colormap || header.imageType == ImageType::RLEColormap)
     {
         result = colormapped(header, tga_data, desc);
     }
-    else if (header.imageType == 2)
+    else if (header.imageType == ImageType::RGB)
     {
         result = rgbUncompressed(header, tga_data, desc);
     }
-    else if (header.imageType == 10)
+    else if (header.imageType == ImageType::RLERGB)
     {
         result = rgbCompressed(header, tga_data, desc);
     }
@@ -598,11 +613,9 @@ bool cFormatTarga::LoadImpl(const char* filename, sBitmapDescription& desc)
         return false;
     }
 
-    m_formatName = (header.imageType == 9
-                    || header.imageType == 10
-                    || header.imageType == 11
-                    || header.imageType == 32
-                    || header.imageType == 33)
+    m_formatName = (header.imageType == ImageType::RLEColormap
+                    || header.imageType == ImageType::RLERGB
+                    || header.imageType == ImageType::RLEMonochrome)
                    ?  "targa/rle" : "targa";
 
     desc.format = desc.bpp == 32 ? GL_RGBA : GL_RGB;
