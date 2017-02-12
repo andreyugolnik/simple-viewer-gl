@@ -10,6 +10,7 @@
 #include "formattarga.h"
 #include "../common/bitmap_description.h"
 #include "../common/file.h"
+#include "../common/helpers.h"
 
 namespace
 {
@@ -50,37 +51,37 @@ namespace
         return (imageDescriptor & (1 << 5)) ? Origin::UpperLeft : Origin::LowerLeft;
     }
 
-    inline uint32_t getIndexUpperLeft(uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint32_t components)
+    inline uint32_t getIndexUpperLeft(uint32_t x, uint32_t y, const sBitmapDescription& desc)
     {
-        const uint32_t pitch = width * components;
-        return y * pitch + x * components;
+        const uint32_t components = desc.bpp / 8;
+        return y * desc.pitch + x * components;
     }
 
-    inline uint32_t getIndexLowerLeft(uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint32_t components)
+    inline uint32_t getIndexLowerLeft(uint32_t x, uint32_t y, const sBitmapDescription& desc)
     {
-        const uint32_t pitch = width * components;
-        return (height - y - 1) * pitch + x * components;
+        const uint32_t components = desc.bpp / 8;
+        return (desc.height - y - 1) * desc.pitch + x * components;
     }
 
 #if 0
-    inline uint32_t getIndexUpperRight(uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint32_t components)
+    inline uint32_t getIndexUpperRight(uint32_t x, uint32_t y, const sBitmapDescription& desc)
     {
-        const uint32_t pitch = width * components;
-        return y * pitch + (width - x - 1) * components;
+        const uint32_t components = desc.bpp / 8;
+        return y * desc.pitch + (desc.width - x - 1) * components;
     }
 
-    inline uint32_t getIndexLowerRight(uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint32_t components)
+    inline uint32_t getIndexLowerRight(uint32_t x, uint32_t y, const sBitmapDescription& desc)
     {
-        const uint32_t pitch = width * components;
-        return (height - y - 1) * pitch + (width - x - 1) * components;
+        const uint32_t components = desc.bpp / 8;
+        return (desc.height - y - 1) * desc.pitch + (desc.width - x - 1) * components;
     }
 #endif
 
-    inline uint32_t getIndex(uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint32_t components, Origin origin)
+    inline uint32_t getIndex(uint32_t x, uint32_t y, const sBitmapDescription& desc, Origin origin)
     {
         const uint32_t idx = origin == Origin::LowerLeft
-                             ? getIndexLowerLeft(x, y, width, height, components)
-                             : getIndexUpperLeft(x, y, width, height, components);
+                             ? getIndexLowerLeft(x, y, desc)
+                             : getIndexUpperLeft(x, y, desc);
         return idx;
     }
 
@@ -105,7 +106,8 @@ namespace
 
         desc.bppImage = 8;
         desc.bpp = 24;
-        desc.pitch = desc.width * 3;
+        // desc.pitch = desc.width * 3;
+        desc.pitch = helpers::calculatePitch(desc.width, 3);
         desc.bitmap.resize(desc.pitch * desc.height);
         auto out = desc.bitmap.data();
 
@@ -122,7 +124,7 @@ namespace
             uint32_t sp = 0;
             for (uint32_t y = 0; y < header.height; y++)
             {
-                uint32_t dp = getIndex(0, y, desc.width, desc.height, 3, origin);
+                uint32_t dp = getIndex(0, y, desc, origin);
                 for (uint32_t x = 0; x < header.width; x++)
                 {
                     out[dp + 0] = cmdData[tga[sp] * cmtWidth + 2];
@@ -167,7 +169,7 @@ namespace
                                 break;
                             }
                         }
-                        const uint32_t dp = getIndex(x, y, desc.width, desc.height, 3, origin);
+                        const uint32_t dp = getIndex(x, y, desc, origin);
                         out[dp + 0] = r;
                         out[dp + 1] = g;
                         out[dp + 2] = b;
@@ -187,7 +189,7 @@ namespace
                                 break;
                             }
                         }
-                        const uint32_t dp = getIndex(x, y, desc.width, desc.height, 3, origin);
+                        const uint32_t dp = getIndex(x, y, desc, origin);
                         out[dp + 0] = cmdData[tga[sp] * cmtWidth + 2];
                         out[dp + 1] = cmdData[tga[sp] * cmtWidth + 1];
                         out[dp + 2] = cmdData[tga[sp] * cmtWidth + 0];
@@ -218,13 +220,14 @@ namespace
         {
             desc.bppImage = 16;
             desc.bpp = 24;
-            desc.pitch = desc.width * 3;
+            // desc.pitch = desc.width * 3;
+            desc.pitch = helpers::calculatePitch(desc.width, 3);
             desc.bitmap.resize(desc.pitch * desc.height);
             auto out = desc.bitmap.data();
 
             for (uint32_t y = 0; y < header.height; y++)
             {
-                uint32_t dp = getIndex(0, y, desc.width, desc.height, 3, origin);
+                uint32_t dp = getIndex(0, y, desc, origin);
                 for (uint32_t x = 0; x < header.width; x++)
                 {
                     auto c = *(uint16_t*)&tga[sp];
@@ -240,13 +243,14 @@ namespace
         {
             desc.bppImage = 24;
             desc.bpp = 24;
-            desc.pitch = desc.width * 3;
+            // desc.pitch = desc.width * 3;
+            desc.pitch = helpers::calculatePitch(desc.width, 3);
             desc.bitmap.resize(desc.pitch * desc.height);
             auto out = desc.bitmap.data();
 
             for (uint32_t y = 0; y < header.height; y++)
             {
-                uint32_t dp = getIndex(0, y, desc.width, desc.height, 3, origin);
+                uint32_t dp = getIndex(0, y, desc, origin);
                 for (uint32_t x = 0; x < header.width; x++)
                 {
                     out[dp + 0] = tga[sp + 2];
@@ -261,13 +265,14 @@ namespace
         {
             desc.bpp = 32;
             desc.bppImage = 32;
-            desc.pitch = desc.width * 4;
+            // desc.pitch = desc.width * 4;
+            desc.pitch = helpers::calculatePitch(desc.width, 4);
             desc.bitmap.resize(desc.pitch * desc.height);
             auto out = desc.bitmap.data();
 
             for (uint32_t y = 0; y < header.height; y++)
             {
-                uint32_t dp = getIndex(0, y, desc.width, desc.height, 4, origin);
+                uint32_t dp = getIndex(0, y, desc, origin);
                 for (uint32_t x = 0; x < header.width; x++)
                 {
                     out[dp + 0] = tga[sp + 2];
@@ -305,7 +310,8 @@ namespace
         {
             desc.bppImage = 16;
             desc.bpp = 24;
-            desc.pitch = desc.width * 3;
+            // desc.pitch = desc.width * 3;
+            desc.pitch = helpers::calculatePitch(desc.width, 3);
             desc.bitmap.resize(desc.pitch * desc.height);
             auto out = desc.bitmap.data();
 
@@ -329,7 +335,7 @@ namespace
                             }
                         }
                         auto c = *(uint16_t*)&tga[sp];
-                        const uint32_t dp = getIndex(x, y, desc.width, desc.height, 3, origin);
+                        const uint32_t dp = getIndex(x, y, desc, origin);
                         out[dp + 0] = (uint8_t)(((c >>  0) & 31) * 255) / 31;
                         out[dp + 1] = (uint8_t)(((c >>  5) & 31) * 255) / 31;
                         out[dp + 2] = (uint8_t)(((c >> 10) & 31) * 255) / 31;
@@ -356,7 +362,7 @@ namespace
                                 break;
                             }
                         }
-                        const uint32_t dp = getIndex(x, y, desc.width, desc.height, 3, origin);
+                        const uint32_t dp = getIndex(x, y, desc, origin);
                         out[dp + 0] = r;
                         out[dp + 1] = g;
                         out[dp + 2] = b;
@@ -369,7 +375,8 @@ namespace
         {
             desc.bppImage = 24;
             desc.bpp = 24;
-            desc.pitch = desc.width * 3;
+            // desc.pitch = desc.width * 3;
+            desc.pitch = helpers::calculatePitch(desc.width, 3);
             desc.bitmap.resize(desc.pitch * desc.height);
             auto out = desc.bitmap.data();
 
@@ -392,7 +399,7 @@ namespace
                                 break;
                             }
                         }
-                        const uint32_t dp = getIndex(x, y, desc.width, desc.height, 3, origin);
+                        const uint32_t dp = getIndex(x, y, desc, origin);
                         out[dp + 0] = tga[sp + 2];
                         out[dp + 1] = tga[sp + 1];
                         out[dp + 2] = tga[sp + 0];
@@ -417,7 +424,7 @@ namespace
                                 break;
                             }
                         }
-                        const uint32_t dp = getIndex(x, y, desc.width, desc.height, 3, origin);
+                        const uint32_t dp = getIndex(x, y, desc, origin);
                         out[dp + 0] = r;
                         out[dp + 1] = g;
                         out[dp + 2] = b;
@@ -430,7 +437,8 @@ namespace
         {
             desc.bppImage = 32;
             desc.bpp = 32;
-            desc.pitch = desc.width * 4;
+            // desc.pitch = desc.width * 4;
+            desc.pitch = helpers::calculatePitch(desc.width, 4);
             desc.bitmap.resize(desc.pitch * desc.height);
             auto out = desc.bitmap.data();
 
@@ -453,7 +461,7 @@ namespace
                                 break;
                             }
                         }
-                        const uint32_t dp = getIndex(x, y, desc.width, desc.height, 4, origin);
+                        const uint32_t dp = getIndex(x, y, desc, origin);
                         out[dp + 0] = tga[sp + 2];
                         out[dp + 1] = tga[sp + 1];
                         out[dp + 2] = tga[sp + 0];
@@ -481,7 +489,7 @@ namespace
                                 break;
                             }
                         }
-                        const uint32_t dp = getIndex(x, y, desc.width, desc.height, 4, origin);
+                        const uint32_t dp = getIndex(x, y, desc, origin);
                         out[dp + 0] = r;
                         out[dp + 1] = g;
                         out[dp + 2] = b;

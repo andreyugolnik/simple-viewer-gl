@@ -10,6 +10,7 @@
 #include "helpers.h"
 
 #include <cmath>
+#include <ctime>
 
 namespace helpers
 {
@@ -59,6 +60,13 @@ namespace helpers
     {
         // texture pitch should be multiple by 4
         return (uint32_t)::ceilf(width * bytesPP / 4.0f) * 4;
+    }
+
+    uint64_t getTime()
+    {
+        timespec now;
+        clock_gettime(CLOCK_REALTIME, &now);
+        return now.tv_sec * 1000000000 + now.tv_nsec;
     }
 
 }

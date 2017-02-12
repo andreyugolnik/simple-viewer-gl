@@ -10,6 +10,7 @@
 #include "formatpng.h"
 #include "../common/bitmap_description.h"
 #include "../common/file.h"
+#include "../common/helpers.h"
 
 #include <cstring>
 #include <png.h>
@@ -145,8 +146,8 @@ bool cFormatPng::LoadImpl(const char* filename, sBitmapDescription& desc)
 
     desc.width = png_get_image_width(png, info);
     desc.height = png_get_image_height(png, info);
-    desc.pitch = png_get_rowbytes(png, info);
     desc.bpp = png_get_bit_depth(png, info) * png_get_channels(png, info);
+    desc.pitch = helpers::calculatePitch(desc.width, desc.bpp / 8);//png_get_rowbytes(png, info);
 
     // read file
     if (setjmp(png_jmpbuf(png)) != 0)

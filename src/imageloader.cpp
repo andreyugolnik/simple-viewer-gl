@@ -76,7 +76,12 @@ void cImageLoader::load(const char* path)
     {
         const eImageType type = getType(path);
         m_image = m_formats[(unsigned)type].get();
-        if (m_image->Load(path, m_desc))
+
+        // auto start = helpers::getTime();
+        const bool result = m_image->Load(path, m_desc);
+        // ::printf("(II) Loading time: %u μs.\n", (uint32_t)(helpers::getTime() - start) / 1000);
+
+        if (result == true)
         {
             return;
         }

@@ -371,7 +371,7 @@ bool cFormatJpeg::LoadImpl(const char* filename, sBitmapDescription& desc)
 
     desc.width = cinfo.output_width;
     desc.height = cinfo.output_height;
-    desc.pitch = cinfo.output_width * cinfo.output_components;
+    desc.pitch = helpers::calculatePitch(cinfo.output_width, cinfo.output_components);
     desc.bpp = cinfo.output_components * 8;
     desc.bppImage = cinfo.num_components * 8;
     desc.bitmap.resize(desc.pitch * desc.height);
@@ -383,7 +383,6 @@ bool cFormatJpeg::LoadImpl(const char* filename, sBitmapDescription& desc)
     /* Here we use the library's state variable cinfo.output_scanline as the
      * loop counter, so that we don't have to keep track ourselves.
      */
-    const auto rowStride = cinfo.output_width * cinfo.output_components;
     auto out = desc.bitmap.data();
 
     if (m_cms.hasTransform() == false)
@@ -395,14 +394,14 @@ bool cFormatJpeg::LoadImpl(const char* filename, sBitmapDescription& desc)
              * more than one scanline at a time if that's more convenient.
              */
             jpeg_read_scanlines(&cinfo, &out, 1);
-            out += rowStride;
+            out += desc.pitch;
 
             updateProgress((float)cinfo.output_scanline / cinfo.output_height);
         }
     }
     else
     {
-        std::vector<unsigned char> buffer(rowStride);
+        std::vector<unsigned char> buffer(desc.pitch);
         auto input = buffer.data();
         while (cinfo.output_scanline < cinfo.output_height && m_stop == false)
         {
@@ -412,7 +411,7 @@ bool cFormatJpeg::LoadImpl(const char* filename, sBitmapDescription& desc)
              */
             jpeg_read_scanlines(&cinfo, &input, 1);
             m_cms.doTransform(input, out, cinfo.output_width);
-            out += rowStride;
+            out += desc.pitch;
 
             updateProgress((float)cinfo.output_scanline / cinfo.output_height);
         }
