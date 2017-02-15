@@ -30,35 +30,56 @@ namespace
 
 void cSelection::init()
 {
-    std::vector<uint8_t> buffer(m_texSize * m_texSize);
-    auto p = buffer.data();
-
-    uint32_t idx = 0;
+    std::vector<uint8_t> buffer(m_cellSize * m_texSize);
     const uint8_t colors[2] = { 0x30, 0xe0 };
 
-    for (uint32_t y = 0; y < m_texSize; y++)
     {
-        if (y % m_cellSize == 0)
-        {
-            idx = (idx + 1) % 2;
-        }
+        auto p = buffer.data();
+        uint32_t idx = 0;
 
-        for (uint32_t x = 0; x < m_texSize; x++)
+        for (uint32_t y = 0; y < m_texSize; y++)
         {
-            if (x % m_cellSize == 0)
+            if (y % m_cellSize == 0)
             {
                 idx = (idx + 1) % 2;
             }
 
-            const auto color = colors[idx];
-            *p++ = color;
+            for (uint32_t x = 0; x < m_cellSize; x++)
+            {
+                const auto color = colors[idx];
+                *p++ = color;
+            }
         }
+
+        m_vert.reset(new cQuad(m_cellSize, m_texSize, buffer.data(), GL_LUMINANCE));
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        m_vert->useFilter(false);
     }
 
-    m_selection.reset(new cQuad(m_texSize, m_texSize, buffer.data(), GL_LUMINANCE));
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    m_selection->useFilter(false);
+    {
+        auto p = buffer.data();
+        uint32_t idx = 1;
+
+        for (uint32_t y = 0; y < m_cellSize; y++)
+        {
+            for (uint32_t x = 0; x < m_texSize; x++)
+            {
+                if (x % m_cellSize == 0)
+                {
+                    idx = (idx + 1) % 2;
+                }
+
+                const auto color = colors[idx];
+                *p++ = color;
+            }
+        }
+
+        m_hori.reset(new cQuad(m_texSize, m_cellSize, buffer.data(), GL_LUMINANCE));
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        m_hori->useFilter(false);
+    }
 }
 
 void cSelection::setImageDimension(int w, int h)
@@ -325,16 +346,16 @@ void cSelection::updateCorner(const Vectorf& pos, float scale)
 
 void cSelection::renderHorizontal(const Vectorf& pos, float w, float thickness)
 {
-    const float offset = glfwGetTime() * 10.0f;
-    m_selection->setTextureRect({ offset, 0.0f }, { w * cRenderer::getZoom(), thickness });
-    m_selection->renderEx(pos, { w, thickness });
+    const float offset = glfwGetTime() * 30.0f;
+    m_hori->setTextureRect({ offset, 0.0f }, { w * cRenderer::getZoom(), thickness });
+    m_hori->renderEx(pos, { w, thickness });
 }
 
 void cSelection::renderVertical(const Vectorf& pos, float h, float thickness)
 {
-    const float offset = glfwGetTime() * 10.0f;
-    m_selection->setTextureRect({ 0.0f, offset }, { thickness, h * cRenderer::getZoom() });
-    m_selection->renderEx(pos, { thickness, h });
+    const float offset = glfwGetTime() * 30.0f;
+    m_vert->setTextureRect({ 0.0f, offset }, { thickness, h * cRenderer::getZoom() });
+    m_vert->renderEx(pos, { thickness, h });
 }
 
 #if 0
@@ -360,5 +381,6 @@ void cSelection::setImagePos(Rectf& rc, const Vectorf& offset)
 
 void cSelection::setColor(bool selected)
 {
-    m_selection->setColor(selected == false ? cColor::White : cColor::Green);
+    m_hori->setColor(selected == false ? cColor::White : cColor::Green);
+    m_vert->setColor(selected == false ? cColor::White : cColor::Green);
 }

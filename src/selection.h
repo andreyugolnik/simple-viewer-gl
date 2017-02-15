@@ -65,7 +65,8 @@ private:
     };
     uint32_t m_corner = (uint32_t)Edge::None;
 
-    std::unique_ptr<cQuad> m_selection;
+    std::unique_ptr<cQuad> m_hori;
+    std::unique_ptr<cQuad> m_vert;
     Rectf m_rc;
     Rectf m_rcTest;
 };
