@@ -195,6 +195,8 @@ void cQuadImage::render()
     const float texWidth = m_texWidth;
     const float texHeight = m_texHeight;
 
+    bool isInside = cRenderer::getAngle() != 0;
+
     for (const auto& chunk : m_chunksOld)
     {
         const Vectorf pos
@@ -202,7 +204,7 @@ void cQuadImage::render()
             chunk.col * texWidth - halfWidth,
             chunk.row * texHeight - halfHeight
         };
-        if (isInsideViewport(chunk, pos))
+        if (isInside || isInsideViewport(chunk, pos))
         {
             chunk.quad->render(pos);
         }
@@ -215,7 +217,7 @@ void cQuadImage::render()
             chunk.col * texWidth - halfWidth,
             chunk.row * texHeight - halfHeight
         };
-        if (isInsideViewport(chunk, pos))
+        if (isInside || isInsideViewport(chunk, pos))
         {
             chunk.quad->render(pos);
         }
@@ -225,7 +227,6 @@ void cQuadImage::render()
     cImageBorder border;
     border.setColor({ 0, 0, 255, 255 });
     border.setThickness(0.5f);
-    const float zoom = cRenderer::getZoom();
 
     uint32_t rendered = 0;
     static uint32_t prevRendered = 0;
@@ -237,10 +238,11 @@ void cQuadImage::render()
             chunk.col * texWidth - halfWidth,
             chunk.row * texHeight - halfHeight
         };
-        if (isInsideViewport(chunk, pos))
+        if (isInside || isInsideViewport(chunk, pos))
         {
             rendered++;
-            border.render(pos, chunk.quad->getSize(), zoom);
+            const auto& size = chunk.quad->getSize();
+            border.render(pos.x, pos.y, size.x, size.y);
         }
     }
 
@@ -251,10 +253,11 @@ void cQuadImage::render()
             chunk.col * texWidth - halfWidth,
             chunk.row * texHeight - halfHeight
         };
-        if (isInsideViewport(chunk, pos))
+        if (isInside || isInsideViewport(chunk, pos))
         {
             rendered++;
-            border.render(pos, chunk.quad->getSize(), zoom);
+            const auto& size = chunk.quad->getSize();
+            border.render(pos.x, pos.y, size.x, size.y);
         }
     }
 

@@ -59,10 +59,11 @@ public:
     static const Vectori& getViewportSize();
 
     static void resetGlobals();
-    static void setGlobals(const Vectorf& offset, float angle, float zoom);
+    static void setGlobals(const Vectorf& offset, int angle, float zoom);
 
     static const Rectf& getRect();
     static float getZoom();
+    static int getAngle();
 
     static bool checkError(const char* msg);
 };

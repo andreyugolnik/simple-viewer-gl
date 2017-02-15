@@ -438,14 +438,13 @@ void cViewer::fnKeyboard(int key, int /*scancode*/, int action, int mods)
     case GLFW_KEY_R:
         if (mods & GLFW_MOD_SHIFT)
         {
-            m_angle += 90;
-            m_angle %= 360;
+            m_angle = (m_angle + 90) % 360;
         }
         else
         {
-            m_angle += 360 - 90;
-            m_angle %= 360;
+            m_angle = (m_angle + 360 - 90) % 360;
         }
+        showCursor(m_angle == 0 ? !m_config.showPixelInfo : true);
         calculateScale();
         break;
 
