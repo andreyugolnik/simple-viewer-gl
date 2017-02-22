@@ -13,7 +13,9 @@
 #include "common/file.h"
 #include "common/helpers.h"
 #include "formats/formatage.h"
+#if !defined(IMLIB2_SUPPORT)
 #include "formats/formatbmp.h"
+#endif
 #include "formats/formatcommon.h"
 #include "formats/formatdds.h"
 #include "formats/formatgif.h"
@@ -58,7 +60,9 @@ cImageLoader::cImageLoader(iCallbacks* callbacks)
     m_formats[(unsigned)eImageType::PVR].reset(new cFormatPvr(nullptr, callbacks));
     m_formats[(unsigned)eImageType::SCR].reset(new cFormatScr(nullptr, callbacks));
     m_formats[(unsigned)eImageType::TGA].reset(new cFormatTarga(nullptr, callbacks));
+#if !defined(IMLIB2_SUPPORT)
     m_formats[(unsigned)eImageType::BMP].reset(new cFormatBmp(nullptr, callbacks));
+#endif
     m_formats[(unsigned)eImageType::WEBP].reset(new cFormatWebP(nullptr, callbacks));
 
     m_formats[(unsigned)eImageType::NOTAVAILABLE].reset(new cNotAvailable());
@@ -219,7 +223,9 @@ eImageType cImageLoader::getType(const char* name)
             eImageType::DDS,
             eImageType::PNM,
             eImageType::PVR,
+#if !defined(IMLIB2_SUPPORT)
             eImageType::BMP,
+#endif
             eImageType::TGA,
             eImageType::WEBP,
             eImageType::SCR,

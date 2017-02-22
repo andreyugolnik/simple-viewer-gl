@@ -37,7 +37,9 @@ enum class eImageType
     PVR,
     SCR,
     TGA,
+#if !defined(IMLIB2_SUPPORT)
     BMP,
+#endif
     WEBP,
 
     NOTAVAILABLE,
