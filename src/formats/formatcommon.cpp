@@ -20,30 +20,30 @@
 namespace
 {
 
+    const char* Errors[] =
+    {
+        "none",
+        "file_does_not_exist",
+        "file_is_directory",
+        "permission_denied_to_read",
+        "no_loader_for_file_format",
+        "path_too_long",
+        "path_component_non_existant",
+        "path_component_not_directory",
+        "path_points_outside_address_space",
+        "too_many_symbolic_links",
+        "out_of_memory",
+        "out_of_file_descriptors",
+        "permission_denied_to_write",
+        "out_of_disk_space",
+        "unknown"
+    };
+
     const char* toErrorString(unsigned id)
     {
-        static const char* errors[] =
+        if (id < helpers::countof(Errors))
         {
-            "none",
-            "file_does_not_exist",
-            "file_is_directory",
-            "permission_denied_to_read",
-            "no_loader_for_file_format",
-            "path_too_long",
-            "path_component_non_existant",
-            "path_component_not_directory",
-            "path_points_outside_address_space",
-            "too_many_symbolic_links",
-            "out_of_memory",
-            "out_of_file_descriptors",
-            "permission_denied_to_write",
-            "out_of_disk_space",
-            "unknow"
-        };
-
-        if (id < helpers::countof(errors))
-        {
-            return errors[id];
+            return Errors[id];
         }
         return "not listed";
     }
