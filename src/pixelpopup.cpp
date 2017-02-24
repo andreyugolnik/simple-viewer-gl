@@ -47,21 +47,20 @@ void cPixelPopup::init()
     m_icons->setColor({ 155, 155, 155, AlphaColor });
 }
 
-void cPixelPopup::setRatio(float ratio)
+void cPixelPopup::setScale(float scale)
 {
-    ratio = 1.0f;
-    // if (m_ratio != ratio)
+    if (m_scale != scale)
     {
         const float RowHeight = 36.0f;
-        m_rowHeight = RowHeight * ratio;
+        m_rowHeight = RowHeight * scale;
 
         const float Border = 10.0f;
-        m_border = Border * ratio;
+        m_border = Border * scale;
 
         const int desiredFontSize = 30;
-        createFont(desiredFontSize * ratio);
+        createFont(desiredFontSize * scale);
 
-        m_ratio = ratio;
+        m_scale = scale;
     }
 }
 

@@ -18,7 +18,7 @@ class cExifPopup final
 {
 public:
     void init();
-    void setRatio(float ratio);
+    void setScale(float scale);
 
     void setExifList(const sBitmapDescription::ExifList& exifList);
     void render();
@@ -27,7 +27,7 @@ private:
     void createFont(int fontSize);
 
 private:
-    float m_ratio = 1.0f;
+    float m_scale = 0.0f;
     struct Exif
     {
         Vectorf tagOffset;

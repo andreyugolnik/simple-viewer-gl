@@ -49,7 +49,7 @@ class cPixelPopup final
 public:
     void init();
 
-    void setRatio(float ratio);
+    void setScale(float ratio);
 
     void setPixelInfo(const sPixelInfo& pi);
     void render();
@@ -60,7 +60,7 @@ private:
     bool isInsideImage(const Vectorf& pos) const;
 
 private:
-    float m_ratio = 0.0f;
+    float m_scale = 0.0f;
     Vectorf m_bgSize;
 
     float m_border = 4.0f;

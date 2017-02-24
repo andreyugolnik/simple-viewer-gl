@@ -26,14 +26,14 @@ void cExifPopup::init()
     m_bg->setColor({ 0, 0, 0, AlphaColor });
 }
 
-void cExifPopup::setRatio(float ratio)
+void cExifPopup::setScale(float scale)
 {
-    ratio = 1.0f;
-    // if (m_ratio != ratio)
+    if (m_scale != scale)
     {
-        m_ratio = ratio;
         const int DesiredFontSize = 26;
-        createFont(DesiredFontSize * ratio);
+        createFont(DesiredFontSize * scale);
+
+        m_scale = scale;
     }
 }
 

@@ -241,11 +241,12 @@ void cViewer::fnResize(const Vectori& size)
 
     cRenderer::setViewportSize(fbSize);
 
-    m_pixelPopup->setRatio(m_ratio.y);
-    m_exifPopup->setRatio(m_ratio.y);
-    updatePixelInfo(m_lastMouse);
+    const float scale = 1.0f;
+    m_pixelPopup->setScale(scale);
+    m_exifPopup->setScale(scale);
+    m_infoBar->setScale(scale);
 
-    m_infoBar->setRatio(m_ratio.y);
+    updatePixelInfo(m_lastMouse);
     updateInfobar();
 }
 

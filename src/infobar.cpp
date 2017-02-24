@@ -41,15 +41,14 @@ void cInfoBar::init()
     m_bg->setColor({ 0, 0, 25, 240 });
 }
 
-void cInfoBar::setRatio(float scale)
+void cInfoBar::setScale(float scale)
 {
-    scale = 1.0f;
-    // if (m_scale != scale)
+    if (m_scale != scale)
     {
-        m_scale = scale;
-
         const int DesiredFontSize = 30;
         createFont(DesiredFontSize * scale);
+
+        m_scale = scale;
     }
 
     const float DesiredHeight = 36;

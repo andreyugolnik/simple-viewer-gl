@@ -24,7 +24,7 @@ public:
 
     void init();
 
-    void setRatio(float scale);
+    void setScale(float scale);
     float getHeight() const
     {
         return m_height;
