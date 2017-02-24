@@ -63,6 +63,8 @@ $ make release
 ```
 > On success **sviewgl** binary produced in current directory. Just symlink it `ln -s /path/to/sviewgl /usr/bin/sviewgl` or copy it `cp /path/to/sviewgl /usr/bin/`.
 
+[Slackbuild by](https://github.com/saahriktu/saahriktu-slackbuilds/tree/master/simple-viewer-gl) [saahriktu](https://www.linux.org.ru/people/saahriktu/profile).
+
 ***
 ##Dependencies##
 
