@@ -51,7 +51,7 @@ cViewer::cViewer(sConfig& config)
 {
     m_image.reset(new cQuadImage());
     m_loader.reset(new cImageLoader(this));
-    m_checkerBoard.reset(new cCheckerboard());
+    m_checkerBoard.reset(new cCheckerboard(config));
     m_infoBar.reset(new cInfoBar(config));
     m_pixelPopup.reset(new cPixelPopup());
     m_exifPopup.reset(new cExifPopup());
@@ -60,8 +60,6 @@ cViewer::cViewer(sConfig& config)
     m_selection.reset(new cSelection());
 
     m_prevSize = { DEF_WINDOW_W, DEF_WINDOW_H };
-
-    applyConfig();
 }
 
 cViewer::~cViewer()
@@ -80,7 +78,7 @@ void cViewer::setWindow(GLFWwindow* window)
 
     cRenderer::setWindow(window, 2048);
 
-    m_checkerBoard->init(m_config);
+    m_checkerBoard->init();
     m_infoBar->init();
     m_pixelPopup->init();
     m_exifPopup->init();
@@ -111,11 +109,6 @@ void cViewer::addPaths(const char** paths, int count)
 
         loadImage(0);
     }
-}
-
-void cViewer::applyConfig()
-{
-    m_checkerBoard->setColor(m_config.bgColor);
 }
 
 void cViewer::render()

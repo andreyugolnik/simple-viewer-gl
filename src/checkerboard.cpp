@@ -14,9 +14,14 @@
 #include <cmath>
 #include <vector>
 
-void cCheckerboard::init(const sConfig& config)
+cCheckerboard::cCheckerboard(const sConfig& config)
+    : m_config(config)
 {
-    const uint32_t cellSize = helpers::nextPot(config.bgCellSize);
+}
+
+void cCheckerboard::init()
+{
+    const uint32_t cellSize = helpers::nextPot(m_config.bgCellSize);
     const uint32_t texSize = cellSize * 2;
 
     std::vector<uint8_t> buffer(texSize * texSize);
@@ -63,7 +68,7 @@ void cCheckerboard::render(bool checkboardEanbled)
     }
     else
     {
-        const auto& c = m_color;
+        const auto& c = m_config.bgColor;
         const float inv = 1.0f / 255.0f;
         glClearColor(c.r * inv, c.g * inv, c.b * inv, c.a * inv);
         glClear(GL_COLOR_BUFFER_BIT);

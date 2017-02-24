@@ -19,15 +19,13 @@ struct sConfig;
 class cCheckerboard final
 {
 public:
-    void init(const sConfig& config);
+    explicit cCheckerboard(const sConfig& config);
+    void init();
 
     void render(bool checkboardEanbled);
-    void setColor(const cColor& color)
-    {
-        m_color = color;
-    }
 
 private:
-    cColor m_color = { 0, 0, 255, 255 };
+    const sConfig& m_config;
+
     std::unique_ptr<cQuad> m_cb;
 };

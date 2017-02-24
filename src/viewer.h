@@ -84,7 +84,6 @@ public:
     void loadImage(int step);
 
 private:
-    void applyConfig();
     void loadSubImage(int subStep);
     void calculateScale();
     void updateScale(bool up);
