@@ -1,0 +1,15 @@
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
+
+#pragma once
+
+const char* SVGL_Title = "${APP_TITLE}";
+const int SVGL_VerMajor = ${APP_VERSION_MAJOR};
+const int SVGL_VerMinor = ${APP_VERSION_MINOR};
+const int SVGL_VerRelease = ${APP_VERSION_RELEASE};
