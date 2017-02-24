@@ -1,5 +1,3 @@
-# https://www.linux.org.ru/news/opensource/13243418?cid=13244508
-
 Prefix: %{_usr}
 Name: sviewgl
 Version: 2.88

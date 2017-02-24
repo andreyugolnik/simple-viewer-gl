@@ -1,0 +1,14 @@
+Source: sviewgl
+Section: LOR
+Priority: optional
+Maintainer: Andrey Ugolnik <andrey@ugolnik.info>
+Build-Depends: debhelper (>=9)
+Standards-Version: 3.9.6
+Homepage: http://ugolnik.info/
+Vcs-Git: https://bitbucket.org/andreyu/simple-viewer-gl.git
+Vcs-Browser: https://bitbucket.org/andreyu/simple-viewer-gl
+
+Package: sviewgl
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Simple Viewer GL - simple and tiny image viewer based on OpenGL
