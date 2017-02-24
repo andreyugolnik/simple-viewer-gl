@@ -81,6 +81,11 @@ void cFilesList::addFile(const char* path)
     {
         m_files.push_back(path);
     }
+    else
+    {
+        scanDirectory(path);
+        sortList();
+    }
 }
 
 void cFilesList::sortList()

@@ -23,7 +23,7 @@ namespace
 {
 
     const char* SimpleViewerTitle = "Simple Viewer GL";
-    const float SimpleViewerVersion = 2.88;
+    const float SimpleViewerVersion = 2.89;
 
     cViewer* m_viewer = nullptr;
 

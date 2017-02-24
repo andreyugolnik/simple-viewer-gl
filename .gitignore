@@ -6,6 +6,7 @@
 /cppcheck-output
 project.xcworkspace/
 sviewgl
+sviewgl.app/
 tags
 test/
 tmp/
