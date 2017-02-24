@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>English</string>
+    <key>CFBundleExecutable</key>
+    <string>sviewgl</string>
+    <key>CFBundleGetInfoString</key>
+    <string>© 2008-2017, Andrey A. Ugolnik</string>
+    <key>CFBundleIconFile</key>
+    <string>Icon.icns</string>
+    <key>CFBundleIdentifier</key>
+    <string>info.ugolnik.sviewgl</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundleLongVersionString</key>
+    <string>v2.89</string>
+    <key>CFBundleName</key>
+    <string>Simple Viewer GL</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleShortVersionString</key>
+    <string>2.89</string>
+    <key>CFBundleSignature</key>
+    <string>????</string>
+    <key>CSResourcesFileMapped</key>
+    <true/>
+    <key>NSHumanReadableCopyright</key>
+    <string>© 2008-2017, Andrey A. Ugolnik</string>
+    <key>NSHighResolutionCapable</key>
+    <true/>
+</dict>
+</plist>
