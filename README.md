@@ -52,7 +52,7 @@ Supported formats: `PNG`, `JPEG`, `PSD`, `GIF`, `TIFF`, `TARGA`, `ICO`, `BMP`, `
 * `<b>`             - hide / show border around image;
 
 ***
-##Download and build##
+##Download and build from sources##
 
 You can browse the source code repository on Bitbucket or get a copy using git with the following command:
 
@@ -65,6 +65,35 @@ $ make release
 
 [Slackbuild by](https://github.com/saahriktu/saahriktu-slackbuilds/tree/master/simple-viewer-gl) [saahriktu](https://www.linux.org.ru/people/saahriktu/profile).
 [Gentoo ebuild by](https://gogs.lumi.pw/mike/portage/src/master/media-gfx/simpleviewer-gl) [imul](https://www.linux.org.ru/people/imul/profile)
+
+***
+##Make DEB package##
+
+Update and install required dependencies:
+```bash
+$ apt-get update
+$ apt-get install g++ make build-essential debhelper cmake pkg-config libgl1-mesa-dev libxrandr-dev libxcursor-dev libfreetype6-dev libjpeg-dev libtiff-dev libgif-dev liblcms2-dev libimlib2-dev libwebp-dev libglfw3-dev libexif-dev
+```
+
+Clone and make DEB:
+```bash
+$ git clone https://bitbucket.org/andreyu/simple-viewer-gl.git
+$ cd simple-viewer-gl
+$ ln -sf dist/debian debian
+$ make deb
+```
+
+> You can purge installed packages with `apt-get purge PACKAGE_NAME && apt-get autoremove`
+
+***
+##Make RPM package##
+
+Clone and make RPM:
+```bash
+$ git clone https://bitbucket.org/andreyu/simple-viewer-gl.git
+$ cd simple-viewer-gl
+$ make dist
+```
 
 ***
 ##Dependencies##

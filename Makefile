@@ -13,9 +13,11 @@ all:    release
 
 help:
 	@echo "Usage:"
-	@echo "    make <release | debug>"
-	@echo "    make <cppcheck>"
-	@echo "    make <clean>"
+	@echo "    make <release | debug>    - make release or debug application"
+	@echo "    make <cppcheck>           - do static code verification"
+	@echo "    make <dist>               - make RPM package"
+	@echo "    make <deb>                - make DEB package"
+	@echo "    make <clean>              - cleanup directory"
 
 release:
 	$(shell if [ ! -d $(BUILD_DIR_RELEASE) ]; then mkdir $(BUILD_DIR_RELEASE); fi)
@@ -39,15 +41,16 @@ install:
 
 dist:   clean
 	install -d sviewgl-$(VERSION)
-	cp -R cmake src INSTALL README.md CMakeLists.txt Makefile sviewgl.spec sviewgl-$(VERSION)
+	cp -R cmake src INSTALL README.md CMakeLists.txt Makefile dist/fedora/sviewgl.spec sviewgl-$(VERSION)
 	tar -f sviewgl-$(VERSION).tar -c sviewgl-$(VERSION)
 	gzip -f sviewgl-$(VERSION).tar
 
 deb:    clean
+	ln -sf dist/debian debian
 	install -d sviewgl-$(VERSION)
 	cp -R cmake src INSTALL README.md CMakeLists.txt Makefile sviewgl-$(VERSION)
 	tar -f ../sviewgl_$(VERSION).orig.tar -c sviewgl-$(VERSION)
 	gzip -f ../sviewgl_$(VERSION).orig.tar
-	rm -rf sviewgl-$(VERSION) Copying.txt bitbucket-pipelines.yml config.example shippable.yml sviewgl.spec *.ebuild
+	rm -rf sviewgl-$(VERSION) Copying.txt bitbucket-pipelines.yml config.example shippable.yml
 	dpkg-buildpackage -F -tc
-	# apt install g++ make build-essential debhelper cmake pkg-config libgl1-mesa-dev libxrandr-dev libxcursor-dev libfreetype6-dev libjpeg-dev libtiff-dev libgif-dev liblcms2-dev libimlib2-dev libwebp-dev libglfw3-dev libexif-dev
+
