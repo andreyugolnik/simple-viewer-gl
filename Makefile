@@ -1,4 +1,4 @@
-VERSION=2.88
+VERSION=2.89
 BUILD_DIR_RELEASE=.build_release
 BUILD_DIR_DEBUG=.build_debug
 

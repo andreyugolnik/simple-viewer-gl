@@ -15,13 +15,13 @@
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleLongVersionString</key>
-    <string>v2.89</string>
+    <string>${MACOSX_BUNDLE_LONG_VERSION_STRING}</string>
     <key>CFBundleName</key>
     <string>Simple Viewer GL</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
-    <string>2.89</string>
+    <string>${MACOSX_BUNDLE_SHORT_VERSION_STRING}</string>
     <key>CFBundleSignature</key>
     <string>????</string>
     <key>CSResourcesFileMapped</key>

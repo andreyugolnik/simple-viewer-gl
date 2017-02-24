@@ -10,6 +10,7 @@
 #include "viewer.h"
 #include "common/config.h"
 #include "types/types.h"
+#include "version.h"
 
 #include <GLFW/glfw3.h>
 
@@ -22,14 +23,11 @@
 namespace
 {
 
-    const char* SimpleViewerTitle = "Simple Viewer GL";
-    const float SimpleViewerVersion = 2.89;
-
     cViewer* m_viewer = nullptr;
 
     void showVersion()
     {
-        printf("%s v%.2f\n\n", SimpleViewerTitle, SimpleViewerVersion);
+        printf("%s %d.%d%d\n\n", SVGL_Title, SVGL_VerMajor, SVGL_VerMinor, SVGL_VerRelease);
         printf("Copyright © 2008-2017 Andrey A. Ugolnik. All Rights Reserved.\n");
         printf("http://www.ugolnik.info\n");
         printf("andrey@ugolnik.info\n");
@@ -260,7 +258,7 @@ int main(int argc, char* argv[])
 
     if (glfwInit())
     {
-        GLFWwindow* window = glfwCreateWindow(640, 480, SimpleViewerTitle, nullptr, nullptr);
+        GLFWwindow* window = glfwCreateWindow(640, 480, SVGL_Title, nullptr, nullptr);
         if (window != nullptr)
         {
             setup(window);
@@ -280,7 +278,7 @@ int main(int argc, char* argv[])
                     {
                         updateSizePos = true;
                         const auto& size = viewer.getWindowSize();
-                        newWindow = glfwCreateWindow(size.x, size.y, SimpleViewerTitle, nullptr, window);
+                        newWindow = glfwCreateWindow(size.x, size.y, SVGL_Title, nullptr, window);
                     }
                     else
                     {
@@ -288,7 +286,7 @@ int main(int argc, char* argv[])
 
                         GLFWmonitor* monitor = glfwGetPrimaryMonitor();
                         const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-                        newWindow = glfwCreateWindow(mode->width, mode->height, SimpleViewerTitle, monitor, window);
+                        newWindow = glfwCreateWindow(mode->width, mode->height, SVGL_Title, monitor, window);
                     }
 
                     setup(newWindow);

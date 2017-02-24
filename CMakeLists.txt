@@ -71,13 +71,29 @@ endif()
 
 file( GLOB_RECURSE SVIEW_SOURCES "src/*.cpp" )
 
+set(APP_TITLE           "Simple Viewer GL")
+set(APP_VERSION_MAJOR   "2")
+set(APP_VERSION_MINOR   "8")
+set(APP_VERSION_RELEASE "9")
+
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/version.h.in"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/version.h"
+    )
+
 if(APPLE)
     set(SVIEW_ICON ${CMAKE_CURRENT_SOURCE_DIR}/res/macos/Icon.icns)
     set_source_files_properties(${SVIEW_ICON} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
 
     add_executable(sviewgl MACOSX_BUNDLE ${SVIEW_ICON} ${SVIEW_SOURCES})
 
-    set_target_properties(sviewgl PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/res/macos/Info.plist.in)
+    set(VERSION "${APP_VERSION_MAJOR}.${APP_VERSION_MINOR}${APP_VERSION_RELEASE}")
+    set_target_properties(sviewgl PROPERTIES
+        MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/res/macos/Info.plist.in
+        MACOSX_BUNDLE_LONG_VERSION_STRING ${VERSION}
+        MACOSX_BUNDLE_SHORT_VERSION_STRING ${VERSION}
+        MACOSX_BUNDLE_BUNDLE_VERSION ${VERSION}
+        )
 else()
     add_executable(sviewgl ${SVIEW_SOURCES})
 endif()
