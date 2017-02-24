@@ -8,36 +8,33 @@
 \**********************************************/
 
 #include "checkerboard.h"
+#include "common/config.h"
+#include "common/helpers.h"
 
 #include <cmath>
 #include <vector>
 
-namespace
+void cCheckerboard::init(const sConfig& config)
 {
+    const uint32_t cellSize = helpers::nextPot(config.bgCellSize);
+    const uint32_t texSize = cellSize * 2;
 
-    const uint32_t m_cellSize = 16;
-    const uint32_t m_texSize = m_cellSize * 2;
-
-}
-
-void cCheckerboard::init()
-{
-    std::vector<uint8_t> buffer(m_texSize * m_texSize);
+    std::vector<uint8_t> buffer(texSize * texSize);
     auto p = buffer.data();
 
     uint32_t idx = 0;
     const uint8_t colors[2] = { 0xc8, 0x7d };
 
-    for (uint32_t y = 0; y < m_texSize; y++)
+    for (uint32_t y = 0; y < texSize; y++)
     {
-        if (y % m_cellSize == 0)
+        if (y % cellSize == 0)
         {
             idx = (idx + 1) % 2;
         }
 
-        for (uint32_t x = 0; x < m_texSize; x++)
+        for (uint32_t x = 0; x < texSize; x++)
         {
-            if (x % m_cellSize == 0)
+            if (x % cellSize == 0)
             {
                 idx = (idx + 1) % 2;
             }
@@ -47,7 +44,7 @@ void cCheckerboard::init()
         }
     }
 
-    m_cb.reset(new cQuad(m_texSize, m_texSize, buffer.data(), GL_LUMINANCE));
+    m_cb.reset(new cQuad(texSize, texSize, buffer.data(), GL_LUMINANCE));
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     m_cb->useFilter(false);

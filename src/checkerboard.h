@@ -14,10 +14,12 @@
 
 #include <memory>
 
+struct sConfig;
+
 class cCheckerboard final
 {
 public:
-    void init();
+    void init(const sConfig& config);
 
     void render(bool checkboardEanbled);
     void setColor(const cColor& color)

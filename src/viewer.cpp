@@ -80,7 +80,7 @@ void cViewer::setWindow(GLFWwindow* window)
 
     cRenderer::setWindow(window, 2048);
 
-    m_checkerBoard->init();
+    m_checkerBoard->init(m_config);
     m_infoBar->init();
     m_pixelPopup->init();
     m_exifPopup->init();

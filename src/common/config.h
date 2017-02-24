@@ -30,6 +30,7 @@ struct sConfig
     uint32_t mipmapTextureSize = 4096;
 
     cColor bgColor{ 0, 0, 255, 255 };
+    uint32_t bgCellSize = 16;
 };
 
 class cConfig final

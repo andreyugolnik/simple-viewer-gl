@@ -90,4 +90,5 @@ void cConfig::read(sConfig& config) const
         (uint8_t)getInt(ini.getString(section, "background_b"), 255),
         (uint8_t)255
     };
+    config.bgCellSize = (uint32_t)getInt(ini.getString(section, "background_cell_size"), 16);
 }
