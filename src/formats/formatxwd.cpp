@@ -83,8 +83,8 @@ struct X11ColorMap
 
 
 
-cFormatXwd::cFormatXwd(const char* lib, iCallbacks* callbacks)
-    : cFormat(lib, callbacks)
+cFormatXwd::cFormatXwd(iCallbacks* callbacks)
+    : cFormat(callbacks)
 {
 }
 

@@ -176,8 +176,8 @@ namespace
 
 }
 
-cFormatPvr::cFormatPvr(const char* lib, iCallbacks* callbacks)
-    : cFormat(lib, callbacks)
+cFormatPvr::cFormatPvr(iCallbacks* callbacks)
+    : cFormat(callbacks)
 {
 }
 

@@ -267,8 +267,8 @@ namespace
 
 }
 
-cFormatJpeg::cFormatJpeg(const char* lib, iCallbacks* callbacks)
-    : cFormat(lib, callbacks)
+cFormatJpeg::cFormatJpeg(iCallbacks* callbacks)
+    : cFormat(callbacks)
 {
 }
 

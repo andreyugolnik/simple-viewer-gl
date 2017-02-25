@@ -14,7 +14,7 @@
 #include <cstring>
 
 cNotAvailable::cNotAvailable()
-    : cFormat(nullptr, nullptr)
+    : cFormat(nullptr)
 {
 }
 

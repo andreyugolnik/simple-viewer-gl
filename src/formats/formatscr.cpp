@@ -15,8 +15,8 @@
 
 #include <cstring>
 
-cFormatScr::cFormatScr(const char* lib, iCallbacks* callbacks)
-    : cFormat(lib, callbacks)
+cFormatScr::cFormatScr(iCallbacks* callbacks)
+    : cFormat(callbacks)
 {
 }
 

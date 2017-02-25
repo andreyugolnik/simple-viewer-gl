@@ -58,8 +58,8 @@ namespace
 
 }
 
-cFormatTiff::cFormatTiff(const char* lib, iCallbacks* callbacks)
-    : cFormat(lib, callbacks)
+cFormatTiff::cFormatTiff(iCallbacks* callbacks)
+    : cFormat(callbacks)
 {
 }
 

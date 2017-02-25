@@ -513,8 +513,8 @@ namespace
 
 }
 
-cFormatTarga::cFormatTarga(const char* lib, iCallbacks* callbacks)
-    : cFormat(lib, callbacks)
+cFormatTarga::cFormatTarga(iCallbacks* callbacks)
+    : cFormat(callbacks)
 {
 }
 

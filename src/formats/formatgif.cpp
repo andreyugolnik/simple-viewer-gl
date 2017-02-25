@@ -56,8 +56,8 @@ namespace
 
 }
 
-cFormatGif::cFormatGif(const char* lib, iCallbacks* callbacks)
-    : cFormat(lib, callbacks)
+cFormatGif::cFormatGif(iCallbacks* callbacks)
+    : cFormat(callbacks)
 {
 }
 

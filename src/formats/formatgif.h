@@ -16,7 +16,7 @@
 class cFormatGif final : public cFormat
 {
 public:
-    cFormatGif(const char* lib, iCallbacks* callbacks);
+    cFormatGif(iCallbacks* callbacks);
     ~cFormatGif();
 
     bool isSupported(cFile& file, Buffer& buffer) const override;

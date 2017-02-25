@@ -68,8 +68,8 @@ namespace
 
 }
 
-cFormatRaw::cFormatRaw(const char* lib, iCallbacks* callbacks)
-    : cFormat(lib, callbacks)
+cFormatRaw::cFormatRaw(iCallbacks* callbacks)
+    : cFormat(callbacks)
 {
 }
 

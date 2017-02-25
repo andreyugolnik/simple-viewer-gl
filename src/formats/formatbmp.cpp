@@ -150,7 +150,7 @@ namespace
         {
             return Version::V5;
         }
-        
+
         return Version::Unknown;
     }
 
@@ -409,8 +409,8 @@ namespace
 
 }
 
-cFormatBmp::cFormatBmp(const char* lib, iCallbacks* callbacks)
-    : cFormat(lib, callbacks)
+cFormatBmp::cFormatBmp(iCallbacks* callbacks)
+    : cFormat(callbacks)
 {
 }
 

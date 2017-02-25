@@ -299,8 +299,8 @@ namespace
 
 }
 
-cFormatDds::cFormatDds(const char* lib, iCallbacks* callbacks)
-    : cFormat(lib, callbacks)
+cFormatDds::cFormatDds(iCallbacks* callbacks)
+    : cFormat(callbacks)
 {
 }
 

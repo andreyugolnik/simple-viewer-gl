@@ -282,8 +282,8 @@ namespace
 
 }
 
-cFormatPnm::cFormatPnm(const char* lib, iCallbacks* callbacks)
-    : cFormat(lib, callbacks)
+cFormatPnm::cFormatPnm(iCallbacks* callbacks)
+    : cFormat(callbacks)
 {
 }
 

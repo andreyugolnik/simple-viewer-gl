@@ -15,8 +15,8 @@
 #include <cstring>
 #include <map>
 
-cFormatXpm::cFormatXpm(const char* lib, iCallbacks* callbacks)
-    : cFormat(lib, callbacks)
+cFormatXpm::cFormatXpm(iCallbacks* callbacks)
+    : cFormat(callbacks)
 {
 }
 

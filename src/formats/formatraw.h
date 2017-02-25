@@ -14,7 +14,7 @@
 class cFormatRaw final : public cFormat
 {
 public:
-    cFormatRaw(const char* lib, iCallbacks* callbacks);
+    cFormatRaw(iCallbacks* callbacks);
     ~cFormatRaw();
 
     virtual bool isSupported(cFile& file, Buffer& buffer) const override;

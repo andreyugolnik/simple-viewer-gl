@@ -38,11 +38,10 @@ public:
         m_stop = true;
     }
 
-    virtual void dumpFormat() const;
     virtual void dump(sBitmapDescription& desc) const;
 
 protected:
-    cFormat(const char* libName, iCallbacks* callbacks);
+    cFormat(iCallbacks* callbacks);
     bool readBuffer(cFile& file, Buffer& buffer, unsigned minSize) const;
 
 private:
@@ -60,14 +59,5 @@ protected:
     cCMS m_cms;
 
     const char* m_formatName = nullptr;
-    void* m_lib = nullptr;
     bool m_stop = false;
-
-    enum class eSupport
-    {
-        Unsupported,
-        ExternalLib,
-        Internal
-    };
-    eSupport m_support = eSupport::Unsupported;
 };

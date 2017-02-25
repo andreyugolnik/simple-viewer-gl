@@ -14,8 +14,8 @@
 #include <cstring>
 #include <webp/decode.h>
 
-cFormatWebP::cFormatWebP(const char* lib, iCallbacks* callbacks)
-    : cFormat(lib, callbacks)
+cFormatWebP::cFormatWebP(iCallbacks* callbacks)
+    : cFormat(callbacks)
 {
 }
 

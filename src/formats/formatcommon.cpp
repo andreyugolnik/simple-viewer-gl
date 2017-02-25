@@ -52,8 +52,8 @@ namespace
 
 }
 
-cFormatCommon::cFormatCommon(const char* lib, iCallbacks* callbacks)
-    : cFormat(lib, callbacks)
+cFormatCommon::cFormatCommon(iCallbacks* callbacks)
+    : cFormat(callbacks)
 {
 }
 

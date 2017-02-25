@@ -19,7 +19,7 @@ struct IcoDirentry;
 class cFormatIco final : public cFormat
 {
 public:
-    cFormatIco(const char* lib, iCallbacks* callbacks);
+    cFormatIco(iCallbacks* callbacks);
     ~cFormatIco();
 
     bool isSupported(cFile& file, Buffer& buffer) const override;

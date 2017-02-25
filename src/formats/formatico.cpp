@@ -95,8 +95,8 @@ namespace
 
 }
 
-cFormatIco::cFormatIco(const char* lib, iCallbacks* callbacks)
-    : cFormat(lib, callbacks)
+cFormatIco::cFormatIco(iCallbacks* callbacks)
+    : cFormat(callbacks)
 {
 }
 

@@ -54,8 +54,8 @@ namespace
 
 }
 
-cFormatPng::cFormatPng(const char* lib, iCallbacks* callbacks)
-    : cFormat(lib, callbacks)
+cFormatPng::cFormatPng(iCallbacks* callbacks)
+    : cFormat(callbacks)
 {
 }
 

@@ -47,8 +47,8 @@ namespace
 
 }
 
-cFormatAge::cFormatAge(const char* lib, iCallbacks* callbacks)
-    : cFormat(lib, callbacks)
+cFormatAge::cFormatAge(iCallbacks* callbacks)
+    : cFormat(callbacks)
 {
 }
 

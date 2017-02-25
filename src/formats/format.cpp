@@ -16,35 +16,13 @@
 #include <cstdio>
 #include <dlfcn.h>
 
-cFormat::cFormat(const char* libName, iCallbacks* callbacks)
+cFormat::cFormat(iCallbacks* callbacks)
     : m_callbacks(callbacks)
 {
-    if (libName != nullptr)
-    {
-        char path[100];
-#if defined(__linux__)
-        ::snprintf(path, sizeof(path), "%s.so", libName);
-#else
-        ::snprintf(path, sizeof(path), "%s.dylib", libName);
-#endif
-        m_lib = dlopen(path, RTLD_LAZY);
-        if (m_lib != nullptr)
-        {
-            m_support = eSupport::ExternalLib;
-        }
-    }
-    else
-    {
-        m_support = eSupport::Internal;
-    }
 }
 
 cFormat::~cFormat()
 {
-    if (m_lib != nullptr)
-    {
-        dlclose(m_lib);
-    }
 }
 
 bool cFormat::Load(const char* filename, sBitmapDescription& desc)
@@ -57,24 +35,6 @@ bool cFormat::LoadSubImage(unsigned subImage, sBitmapDescription& desc)
 {
     m_stop = false;
     return LoadSubImageImpl(subImage, desc);
-}
-
-void cFormat::dumpFormat() const
-{
-    switch (m_support)
-    {
-    case eSupport::Unsupported:
-        ::printf("(WW) %s format unsupported.\n", m_formatName);
-        break;
-
-    case eSupport::ExternalLib:
-        ::printf("(II) %s format supported by external lib.\n", m_formatName);
-        break;
-
-    case eSupport::Internal:
-        ::printf("(II) %s format has internal support.\n", m_formatName);
-        break;
-    }
 }
 
 void cFormat::dump(sBitmapDescription& desc) const

@@ -194,8 +194,8 @@ namespace
 
 }
 
-cFormatPsd::cFormatPsd(const char* lib, iCallbacks* callbacks)
-    : cFormat(lib, callbacks)
+cFormatPsd::cFormatPsd(iCallbacks* callbacks)
+    : cFormat(callbacks)
 {
 }
 

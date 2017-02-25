@@ -101,8 +101,8 @@ namespace
 
 }
 
-cFormatExr::cFormatExr(const char* lib, iCallbacks* callbacks)
-    : cFormat(lib, callbacks)
+cFormatExr::cFormatExr(iCallbacks* callbacks)
+    : cFormat(callbacks)
 {
 }
 

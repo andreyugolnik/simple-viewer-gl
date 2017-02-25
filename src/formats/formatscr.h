@@ -14,7 +14,7 @@
 class cFormatScr final : public cFormat
 {
 public:
-    cFormatScr(const char* lib, iCallbacks* callbacks);
+    cFormatScr(iCallbacks* callbacks);
     ~cFormatScr();
 
     bool isSupported(cFile& file, Buffer& buffer) const override;

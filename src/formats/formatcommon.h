@@ -16,7 +16,7 @@
 class cFormatCommon final : public cFormat
 {
 public:
-    cFormatCommon(const char* lib, iCallbacks* callbacks);
+    cFormatCommon(iCallbacks* callbacks);
     ~cFormatCommon();
 
     bool isSupported(cFile& file, Buffer& buffer) const override;
