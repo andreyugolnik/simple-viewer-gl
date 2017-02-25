@@ -243,9 +243,10 @@ bool cFormatExr::load(unsigned current, sBitmapDescription& desc)
     }
     catch (...)
     {
+        ::printf("(EE) EXR exc.\n");
     }
 
-    return true;
+    return false;
 }
 
 #endif
