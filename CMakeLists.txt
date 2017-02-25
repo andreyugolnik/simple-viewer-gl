@@ -35,11 +35,17 @@ find_package(Threads REQUIRED)
 find_package(PkgConfig)
 pkg_check_modules(EXIF libexif)
 
-find_package(Imlib2)
 find_package(X11)
 
+find_package(Imlib2)
 if(IMLIB2_FOUND)
     add_definitions(-DIMLIB2_SUPPORT=1)
+endif()
+
+find_package(ILMBase)
+find_package(OpenEXR)
+if(OPENEXR_FOUND AND ILMBASE_FOUND)
+    add_definitions(-DOPENEXR_SUPPORT=1)
 endif()
 
 check_library_exists(dl dlclose "" HAVE_DL_LIBRARY)
@@ -64,9 +70,16 @@ include_directories(
     )
 
 if(IMLIB2_FOUND)
-include_directories( ${INCLUDE_DIRECTORIES}
-    ${IMLIB2_INCLUDE_DIR}
-    )
+    include_directories( ${INCLUDE_DIRECTORIES}
+        ${IMLIB2_INCLUDE_DIR}
+        )
+endif()
+
+if(OPENEXR_FOUND AND ILMBASE_FOUND)
+    include_directories( ${INCLUDE_DIRECTORIES}
+        ${OPENEXR_INCLUDE_DIR}
+        ${ILMBASE_INCLUDE_DIR}
+        )
 endif()
 
 file( GLOB_RECURSE SVIEW_SOURCES "src/*.cpp" )
@@ -99,8 +112,8 @@ else()
 endif()
 
 #link_directories(
-    #${FREETYPE_LIBRARY_DIRS}
-    #)
+#${FREETYPE_LIBRARY_DIRS}
+#)
 
 target_link_libraries( sviewgl
     ${RT_LIBRARY}
@@ -121,8 +134,15 @@ target_link_libraries( sviewgl
     )
 
 if(IMLIB2_FOUND)
-target_link_libraries( sviewgl
-    ${IMLIB2_LIBRARY}
-    )
+    target_link_libraries( sviewgl
+        ${IMLIB2_LIBRARY}
+        )
+endif()
+
+if(OPENEXR_FOUND AND ILMBASE_FOUND)
+    target_link_libraries( sviewgl
+        ${ILMBASE_LIBRARIES}
+        ${OPENEXR_LIBRARIES}
+        )
 endif()
 

@@ -16,6 +16,9 @@
 #if !defined(IMLIB2_SUPPORT)
 #include "formats/formatbmp.h"
 #endif
+#if defined(OPENEXR_SUPPORT)
+#include "formats/formatexr.h"
+#endif
 #include "formats/formatcommon.h"
 #include "formats/formatdds.h"
 #include "formats/formatgif.h"
@@ -44,6 +47,9 @@ cImageLoader::cImageLoader(iCallbacks* callbacks)
 {
 #if defined(IMLIB2_SUPPORT)
     m_formats[(unsigned)eImageType::COMMON].reset(new cFormatCommon("libImlib2", callbacks));
+#endif
+#if defined(OPENEXR_SUPPORT)
+    m_formats[(unsigned)eImageType::EXR].reset(new cFormatExr("libIlmImf", callbacks));
 #endif
     m_formats[(unsigned)eImageType::JPG].reset(new cFormatJpeg("libjpeg", callbacks));
     m_formats[(unsigned)eImageType::PSD].reset(new cFormatPsd(nullptr, callbacks));
@@ -163,14 +169,17 @@ const char* cImageLoader::getImageType() const
 namespace
 {
 
-#define LOADER_NAME 0
-#if LOADER_NAME == 1
+// #define LOADER_NAME
+#if defined(LOADER_NAME)
     const char* typeToName(eImageType type)
     {
         const char* Names[] =
         {
 #if defined(IMLIB2_SUPPORT)
             "COMMON",
+#endif
+#if defined(OPENEXR_SUPPORT)
+            "EXR",
 #endif
             "JPG",
             "PSD",
@@ -187,7 +196,9 @@ namespace
             "PVR",
             "SCR",
             "TGA",
+#if !defined(IMLIB2_SUPPORT)
             "BMP",
+#endif
             "WEBP",
 
             "NOTAVAILABLE",
@@ -223,15 +234,18 @@ eImageType cImageLoader::getType(const char* name)
             eImageType::DDS,
             eImageType::PNM,
             eImageType::PVR,
-#if !defined(IMLIB2_SUPPORT)
-            eImageType::BMP,
-#endif
             eImageType::TGA,
             eImageType::WEBP,
             eImageType::SCR,
 
+#if defined(OPENEXR_SUPPORT)
+            eImageType::EXR,
+#endif
+
 #if defined(IMLIB2_SUPPORT)
             eImageType::COMMON, // use it as fallback loader
+#else
+            eImageType::BMP,
 #endif
         };
 
@@ -240,7 +254,7 @@ eImageType cImageLoader::getType(const char* name)
         {
             if (m_formats[(size_t)type]->isSupported(file, buffer))
             {
-#if LOADER_NAME == 1
+#if defined(LOADER_NAME)
                 ::printf("(II) Loader by type %s\n", typeToName(type));
 #endif
                 return type;

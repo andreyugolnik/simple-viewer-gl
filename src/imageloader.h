@@ -22,6 +22,9 @@ enum class eImageType
 #if defined(IMLIB2_SUPPORT)
     COMMON,
 #endif
+#if defined(OPENEXR_SUPPORT)
+    EXR,
+#endif
     JPG,
     PSD,
     PNG,
