@@ -125,7 +125,7 @@ void cInfoBar::setInfo(const sInfo& p)
 
     char title[1000] = { 0 };
     ::snprintf(title, sizeof(title)
-               , "%s%s%s | %s | %u x %u x %u bpp (%.1f%%) | mem: %.1f %s (%.1f %s)"
+               , "%s%s%s | %s | %u x %u x %u bpp (%.1f%%) | %.1f %s (%.1f %s)"
                , idx_img
                , name
                , sub_image
