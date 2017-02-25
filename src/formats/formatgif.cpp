@@ -130,7 +130,6 @@ bool cFormatGif::load(unsigned current, sBitmapDescription& desc)
         desc.bpp = 32;
         desc.bppImage = 8;//gif->Image.ColorMap->BitsPerPixel;
         desc.bitmap.resize(desc.pitch * desc.height);
-        ::memset(&desc.bitmap[0], 0, desc.bitmap.size());
         desc.format = GL_RGBA;
     }
 
@@ -145,6 +144,17 @@ bool cFormatGif::load(unsigned current, sBitmapDescription& desc)
             if (has_transparency)
             {
                 transparent = eb.Bytes[3];
+            }
+
+            const uint32_t disposalMode = (eb.Bytes[0] >> 2) & 0x07;
+            ::printf("Disposal: %u at frame %u\n", disposalMode, desc.current);
+            // DISPOSAL_UNSPECIFIED 0 // No disposal specified.
+            // DISPOSE_DO_NOT       1 // Leave image in place
+            // DISPOSE_BACKGROUND   2 // Set area too background color
+            // DISPOSE_PREVIOUS     3 // Restore to previous content
+            if (disposalMode == 2)
+            {
+                ::memset(desc.bitmap.data(), 0, desc.bitmap.size());
             }
 
             desc.delay = eb.Bytes[1] * 10 + eb.Bytes[2];
