@@ -36,8 +36,8 @@
 ; lookup for images in subfolder recursively on startup (default false)
 ;lookup_recursive = false
 
-; enable zoom by mouse wheel (default false)
-;wheel_zoom = false
+; enable zoom by mouse wheel (default true)
+;wheel_zoom = true
 
 ; minimum texture size to create mipmap levels (default 4096)
 ;mipmap_texture_size = 4096

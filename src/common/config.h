@@ -24,7 +24,7 @@ struct sConfig
     bool recursiveScan = false;
     bool centerWindow = false;
     bool skipFilter = false;
-    bool wheelZoom = false;
+    bool wheelZoom = true;
     bool keepScale = false;
 
     uint32_t mipmapTextureSize = 4096;
