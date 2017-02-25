@@ -28,6 +28,7 @@ struct sConfig
     bool keepScale = false;
 
     uint32_t mipmapTextureSize = 4096;
+    uint32_t fileMaxLength = 100;
 
     cColor bgColor{ 0, 0, 255, 255 };
     uint32_t bgCellSize = 16;

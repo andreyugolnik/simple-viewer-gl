@@ -28,9 +28,23 @@ namespace
         return def;
     }
 
-    int getInt(const char* value, int def)
+    int getUint(const char* value, uint32_t def)
     {
-        return value != nullptr ? atoi(value) : def;
+        return value != nullptr ? (uint32_t)::atoi(value) : def;
+    }
+
+    const char* section = "common";
+
+    void readValue(const ini::cIni& ini, const char* name, uint32_t& value)
+    {
+        const auto def = value;
+        value = getUint(ini.getString(section, name), def);
+    }
+
+    void readValue(const ini::cIni& ini, const char* name, bool& value)
+    {
+        const auto def = value;
+        value = getBool(ini.getString(section, name), def);
     }
 
 }
@@ -65,30 +79,29 @@ void cConfig::read(sConfig& config) const
     ini::cIni ini;
     ini.read(&file);
 
-    const char* section = "common";
+    config.debug = getBool(ini.getString(section, "debug"), config.debug);
 
-    config.debug = getBool(ini.getString(section, "debug"), false);
+    readValue(ini, "hide_infobar", config.hideInfobar);
+    readValue(ini, "show_pixelinfo", config.showPixelInfo);
+    readValue(ini, "show_exif", config.showExif);
+    readValue(ini, "hide_checkboard", config.hideCheckboard);
+    readValue(ini, "fit_image", config.fitImage);
+    readValue(ini, "show_image_border", config.showImageBorder);
+    readValue(ini, "lookup_recursive", config.recursiveScan);
+    readValue(ini, "center_window", config.centerWindow);
+    readValue(ini, "skip_filter", config.skipFilter);
+    readValue(ini, "wheel_zoom", config.wheelZoom);
+    readValue(ini, "keep_scale", config.keepScale);
 
-    config.hideInfobar = getBool(ini.getString(section, "hide_infobar"), false);
-    config.showPixelInfo = getBool(ini.getString(section, "show_pixelinfo"), false);
-    config.showExif = getBool(ini.getString(section, "show_exif"), false);
-    config.hideCheckboard = getBool(ini.getString(section, "hide_checkboard"), false);
-    config.fitImage = getBool(ini.getString(section, "fit_image"), false);
-    config.showImageBorder = getBool(ini.getString(section, "show_image_border"), false);
-    config.recursiveScan = getBool(ini.getString(section, "lookup_recursive"), false);
-    config.centerWindow = getBool(ini.getString(section, "center_window"), false);
-    config.skipFilter = getBool(ini.getString(section, "skip_filter"), false);
-    config.wheelZoom = getBool(ini.getString(section, "wheel_zoom"), false);
-    config.keepScale = getBool(ini.getString(section, "keep_scale"), false);
-
-    config.mipmapTextureSize = (uint32_t)getInt(ini.getString(section, "mipmap_texture_size"), 4096);
+    readValue(ini, "mipmap_texture_size", config.mipmapTextureSize);
+    readValue(ini, "file_max_length", config.fileMaxLength);
 
     config.bgColor =
     {
-        (uint8_t)getInt(ini.getString(section, "background_r"),   0),
-        (uint8_t)getInt(ini.getString(section, "background_g"),   0),
-        (uint8_t)getInt(ini.getString(section, "background_b"), 255),
+        (uint8_t)getUint(ini.getString(section, "background_r"),   0),
+        (uint8_t)getUint(ini.getString(section, "background_g"),   0),
+        (uint8_t)getUint(ini.getString(section, "background_b"), 255),
         (uint8_t)255
     };
-    config.bgCellSize = (uint32_t)getInt(ini.getString(section, "background_cell_size"), 16);
+    readValue(ini, "background_cell_size", config.bgCellSize);
 }
