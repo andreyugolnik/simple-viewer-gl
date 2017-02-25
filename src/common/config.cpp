@@ -11,6 +11,7 @@
 #include "../viewer.h"
 #include "Ini.h"
 
+#include <cstdio>
 #include <cstdlib>
 #include <strings.h>
 
@@ -21,9 +22,9 @@ namespace
     {
         if (value != nullptr)
         {
-            return strcasecmp(value, "1") == 0
-                || strcasecmp(value, "true") == 0
-                || strcasecmp(value, "enable") == 0;
+            return ::strcasecmp(value, "1") == 0
+                || ::strcasecmp(value, "true") == 0
+                || ::strcasecmp(value, "enable") == 0;
         }
         return def;
     }
@@ -36,6 +37,12 @@ namespace
     const char* section = "common";
 
     void readValue(const ini::cIni& ini, const char* name, uint32_t& value)
+    {
+        const auto def = value;
+        value = getUint(ini.getString(section, name), def);
+    }
+
+    void readValue(const ini::cIni& ini, const char* name, uint8_t& value)
     {
         const auto def = value;
         value = getUint(ini.getString(section, name), def);
@@ -54,17 +61,17 @@ void cConfig::read(sConfig& config) const
     char path[4096];
 
 #if defined(__APPLE__)
-    snprintf(path, sizeof(path), "%s/Library/sviewgl/config", getenv("HOME"));
+    ::snprintf(path, sizeof(path), "%s/Library/sviewgl/config", ::getenv("HOME"));
 #else
     // make config path according XDG spec
-    const char* xdg_path = getenv("XDG_CONFIG_HOME");
+    const char* xdg_path = ::getenv("XDG_CONFIG_HOME");
     if (xdg_path != nullptr)
     {
-        snprintf(path, sizeof(path), "%s/sviewgl/config", xdg_path);
+        ::snprintf(path, sizeof(path), "%s/sviewgl/config", xdg_path);
     }
     else
     {
-        snprintf(path, sizeof(path), "%s/.config/sviewgl/config", getenv("HOME"));
+        ::snprintf(path, sizeof(path), "%s/.config/sviewgl/config", ::getenv("HOME"));
     }
 #endif
 
@@ -79,7 +86,7 @@ void cConfig::read(sConfig& config) const
     ini::cIni ini;
     ini.read(&file);
 
-    config.debug = getBool(ini.getString(section, "debug"), config.debug);
+    readValue(ini, "debug", config.debug);
 
     readValue(ini, "hide_infobar", config.hideInfobar);
     readValue(ini, "show_pixelinfo", config.showPixelInfo);
@@ -96,12 +103,9 @@ void cConfig::read(sConfig& config) const
     readValue(ini, "mipmap_texture_size", config.mipmapTextureSize);
     readValue(ini, "file_max_length", config.fileMaxLength);
 
-    config.bgColor =
-    {
-        (uint8_t)getUint(ini.getString(section, "background_r"),   0),
-        (uint8_t)getUint(ini.getString(section, "background_g"),   0),
-        (uint8_t)getUint(ini.getString(section, "background_b"), 255),
-        (uint8_t)255
-    };
+    readValue(ini, "background_r", config.bgColor.r);
+    readValue(ini, "background_g", config.bgColor.g);
+    readValue(ini, "background_b", config.bgColor.b);
+
     readValue(ini, "background_cell_size", config.bgCellSize);
 }
