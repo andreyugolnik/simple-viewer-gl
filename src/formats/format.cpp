@@ -14,7 +14,6 @@
 
 #include <cassert>
 #include <cstdio>
-#include <dlfcn.h>
 
 cFormat::cFormat(iCallbacks* callbacks)
     : m_callbacks(callbacks)

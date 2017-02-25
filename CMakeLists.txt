@@ -50,10 +50,10 @@ if(OPENEXR_FOUND)
     endif()
 endif()
 
-check_library_exists(dl dlclose "" HAVE_DL_LIBRARY)
-if(HAVE_DL_LIBRARY)
-    set(DL_LIBRARY "dl")
-endif(HAVE_DL_LIBRARY)
+# check_library_exists(dl dlclose "" HAVE_DL_LIBRARY)
+# if(HAVE_DL_LIBRARY)
+    # set(DL_LIBRARY "dl")
+# endif(HAVE_DL_LIBRARY)
 
 check_library_exists(rt clock_gettime "" HAVE_RT_LIBRARY)
 if(HAVE_RT_LIBRARY)
@@ -119,7 +119,7 @@ endif()
 
 target_link_libraries( sviewgl
     ${RT_LIBRARY}
-    ${DL_LIBRARY}
+    # ${DL_LIBRARY}
     ${CMAKE_THREAD_LIBS_INIT}
     ${X11_LIBRARIES}
     ${GLFW_LIBRARIES}
