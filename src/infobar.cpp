@@ -9,26 +9,11 @@
 
 #include "infobar.h"
 #include "common/config.h"
+#include "common/unicode.h"
 #include "quad.h"
 
 #include <cstring>
 #include <cmath>
-
-namespace
-{
-
-    const char* getName(const char* path)
-    {
-        if (path != nullptr)
-        {
-            const char* n = ::strrchr(path, '/');
-            return n != nullptr ? n + 1 : path;
-        }
-
-        return "n/a";
-    }
-
-}
 
 cInfoBar::cInfoBar(const sConfig& config)
     : m_config(config)
@@ -104,7 +89,7 @@ void cInfoBar::render()
 
 void cInfoBar::setInfo(const sInfo& p)
 {
-    const char* name = getName(p.path);
+    const char* name = shortenFilename(p.path);
 
     char idx_img[20] = { 0 };
     if (p.files_count > 1)
@@ -150,4 +135,59 @@ const char* cInfoBar::getHumanSize(float& size)
     }
 
     return s[idx];
+}
+
+const char* cInfoBar::shortenFilename(const char* path)
+{
+    m_filename.clear();
+
+    if (path != nullptr)
+    {
+        const char* n = ::strrchr(path, '/');
+        if (n != nullptr)
+        {
+            path = n + 1;
+        }
+
+        m_filename = path;
+
+        // ::printf("'%s' -> ", path);
+
+        const uint8_t* s = (uint8_t*)path;
+        const uint32_t count = countCodePoints(s);
+
+        const uint32_t maxCount = m_config.fileMaxLength;
+        if (count > maxCount)
+        {
+            uint32_t state = 0;
+            uint32_t codepoint;
+
+            m_filename.clear();
+            for (uint32_t left = maxCount / 2; *s && left; s++)
+            {
+                m_filename += *s;
+                if (!decode(&state, &codepoint, *s))
+                {
+                    left--;
+                }
+            }
+
+            const char* delim = "~";
+
+            m_filename += delim;
+
+            for (uint32_t skip = count - (maxCount - ::strlen(delim)); *s && skip; s++)
+            {
+                if (!decode(&state, &codepoint, *s))
+                {
+                    skip--;
+                }
+            }
+
+            m_filename += (const char*)s;
+            // ::printf("'%s'\n", m_filename.c_str());
+        }
+    }
+
+    return m_filename.c_str();
 }

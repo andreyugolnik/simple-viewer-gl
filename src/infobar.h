@@ -52,11 +52,13 @@ public:
 private:
     const char* getHumanSize(float& size);
     void createFont(int fontSize);
+    const char* shortenFilename(const char* path);
 
 private:
     const sConfig& m_config;
 
     float m_scale = 0.0f;
+    std::string m_filename;
     std::string m_bottominfo;
     Vectorf m_bounds;
 
