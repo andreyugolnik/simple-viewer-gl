@@ -147,7 +147,7 @@ bool cFormatGif::load(unsigned current, sBitmapDescription& desc)
             }
 
             const uint32_t disposalMode = (eb.Bytes[0] >> 2) & 0x07;
-            ::printf("Disposal: %u at frame %u\n", disposalMode, desc.current);
+            // ::printf("Disposal: %u at frame %u\n", disposalMode, desc.current);
             // DISPOSAL_UNSPECIFIED 0 // No disposal specified.
             // DISPOSE_DO_NOT       1 // Leave image in place
             // DISPOSE_BACKGROUND   2 // Set area too background color
