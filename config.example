@@ -13,40 +13,43 @@
 
 [common]
 ; show or hide bottom infobar (default false)
-hide_infobar = false
+;hide_infobar = false
 
 ; show or hide pixel info (default false)
-show_pixelinfo = false
+;show_pixelinfo = false
 
 ; show or hide Exif info (default false)
-show_exif = false
+;show_exif = false
 
 ; enable or disable checkboard background (default false)
-hide_checkboard = false
+;hide_checkboard = false
 
 ; fit lage image in to window preserving aspect ration (default false)
-fit_image = false
+;fit_image = false
 
 ; start viewer in fullscreen mode on startup (default false)
-start_fullscreen = false
+;start_fullscreen = false
 
 ; show or hide border around of image (default false)
-show_image_border = false
+;show_image_border = false
 
 ; lookup for images in subfolder recursively on startup (default false)
-lookup_recursive = false
+;lookup_recursive = false
 
 ; enable zoom by mouse wheel (default false)
-wheel_zoom = false
+;wheel_zoom = false
 
 ; minimum texture size to create mipmap levels (default 4096)
-mipmap_texture_size = 4096
+;mipmap_texture_size = 4096
+
+; set maximum file name length in infobar (default 100)
+;file_max_length = 100
 
 ; color of background (if checkboard has been disabled)
-background_r = 0
-background_g = 0
-background_b = 255
+;background_r = 0
+;background_g = 0
+;background_b = 255
 
 ; background cell size (power of two, default 16)
-background_cell_size = 16
+;background_cell_size = 16
 
