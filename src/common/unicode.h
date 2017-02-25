@@ -42,3 +42,20 @@ inline uint32_t decode(uint32_t* state, uint32_t* codep, uint32_t byte)
 
     return *state;
 }
+
+inline uint32_t countCodePoints(const uint8_t* s)
+{
+    uint32_t count = 0;
+    uint32_t state = 0;
+    uint32_t codepoint;
+
+    for (; *s; s++)
+    {
+        if (!decode(&state, &codepoint, *s))
+        {
+            count++;
+        }
+    }
+
+    return state != UTF8_ACCEPT ? 0 : count;
+}
