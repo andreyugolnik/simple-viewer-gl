@@ -13,9 +13,7 @@
 #include "common/file.h"
 #include "common/helpers.h"
 #include "formats/formatage.h"
-#if !defined(IMLIB2_SUPPORT)
 #include "formats/formatbmp.h"
-#endif
 #include "formats/formatcommon.h"
 #include "formats/formatdds.h"
 #include "formats/formatexr.h"
@@ -44,8 +42,6 @@ cImageLoader::cImageLoader(iCallbacks* callbacks)
 {
 #if defined(IMLIB2_SUPPORT)
     m_formats[(unsigned)eImageType::COMMON].reset(new cFormatCommon(callbacks));
-#else
-    m_formats[(unsigned)eImageType::BMP].reset(new cFormatBmp(callbacks));
 #endif
 #if defined(OPENEXR_SUPPORT)
     m_formats[(unsigned)eImageType::EXR].reset(new cFormatExr(callbacks));
@@ -65,6 +61,7 @@ cImageLoader::cImageLoader(iCallbacks* callbacks)
     m_formats[(unsigned)eImageType::PVR].reset(new cFormatPvr(callbacks));
     m_formats[(unsigned)eImageType::SCR].reset(new cFormatScr(callbacks));
     m_formats[(unsigned)eImageType::TGA].reset(new cFormatTarga(callbacks));
+    m_formats[(unsigned)eImageType::BMP].reset(new cFormatBmp(callbacks));
     m_formats[(unsigned)eImageType::WEBP].reset(new cFormatWebP(callbacks));
 
     m_formats[(unsigned)eImageType::NOTAVAILABLE].reset(new cNotAvailable());
@@ -192,9 +189,7 @@ namespace
             "PVR",
             "SCR",
             "TGA",
-#if !defined(IMLIB2_SUPPORT)
             "BMP",
-#endif
             "WEBP",
 
             "NOTAVAILABLE",
@@ -216,9 +211,8 @@ eImageType cImageLoader::getType(const char* name)
     {
         const eImageType SortedTypes[] =
         {
-            eImageType::AGE, // may be any extension, not only .age
-            eImageType::RAW, // or .raw
-
+            eImageType::AGE,
+            eImageType::RAW,
             eImageType::JPG,
             eImageType::PSD,
             eImageType::PNG,
@@ -232,6 +226,7 @@ eImageType cImageLoader::getType(const char* name)
             eImageType::PVR,
             eImageType::TGA,
             eImageType::WEBP,
+            eImageType::BMP,
             eImageType::SCR,
 
 #if defined(OPENEXR_SUPPORT)
@@ -240,8 +235,6 @@ eImageType cImageLoader::getType(const char* name)
 
 #if defined(IMLIB2_SUPPORT)
             eImageType::COMMON, // use it as fallback loader
-#else
-            eImageType::BMP,
 #endif
         };
 

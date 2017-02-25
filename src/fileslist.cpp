@@ -170,11 +170,7 @@ bool cFilesList::isValidExt(const char* path)
     const char* ValidExts[] =
     {
         // external loaders
-#if defined(IMLIB2_SUPPORT)
-#endif
-#if defined(OPENEXR_SUPPORT)
-        ".exr",
-#endif
+        ".exr", // openexr
         ".jpeg", ".jpg", ".jpe", ".jfif", // libjpeg
         ".tiff", ".tif", // libtiff
         ".png", // libpng

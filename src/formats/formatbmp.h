@@ -9,8 +9,6 @@
 
 #pragma once
 
-#if !defined(IMLIB2_SUPPORT)
-
 #include "format.h"
 
 class cFormatBmp final : public cFormat
@@ -24,5 +22,3 @@ public:
 private:
     bool LoadImpl(const char* filename, sBitmapDescription& desc) override;
 };
-
-#endif

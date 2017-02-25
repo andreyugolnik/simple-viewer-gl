@@ -7,8 +7,6 @@
 *
 \**********************************************/
 
-#if !defined(IMLIB2_SUPPORT)
-
 #include "formatbmp.h"
 #include "../common/bitmap_description.h"
 #include "../common/file.h"
@@ -555,5 +553,3 @@ bool cFormatBmp::LoadImpl(const char* filename, sBitmapDescription& desc)
 
     return true;
 }
-
-#endif
