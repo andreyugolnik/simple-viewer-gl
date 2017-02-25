@@ -10,7 +10,8 @@ Supported formats: `PNG`, `JPEG`, `PSD`, `GIF`, `TIFF`, `TARGA`, `ICO`, `BMP`, `
 ***
 ##Screenshot##
 
-![Simple Viewer GL](https://bitbucket.org/repo/XgobE8/images/1203610096-simpleviewergl.png)
+![Simple Viewer GL on macOS with EXIF](https://bitbucket.org/andreyu/simple-viewer-gl/downloads/sviewgl-macos_2.png)
+![Simple Viewer GL on macOS with Pixel Info](https://bitbucket.org/andreyu/simple-viewer-gl/downloads/sviewgl-macos_3.png)
 
 ***
 ##Features##
