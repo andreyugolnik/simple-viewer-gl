@@ -80,6 +80,10 @@ if(OPENEXR_FOUND AND ILMBASE_FOUND)
         )
 endif()
 
+link_directories(
+    ${EXIF_LIBRARY_DIRS}
+    )
+
 file( GLOB_RECURSE SVIEW_SOURCES "src/*.cpp" )
 
 set(APP_TITLE           "Simple Viewer GL")
@@ -108,10 +112,6 @@ if(APPLE)
 else()
     add_executable(sviewgl ${SVIEW_SOURCES})
 endif()
-
-link_directories(
-    ${EXIF_LIBRARY_DIRS}
-    )
 
 target_link_libraries( sviewgl
     ${RT_LIBRARY}
