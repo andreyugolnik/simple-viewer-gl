@@ -130,6 +130,12 @@ target_link_libraries( sviewgl
     ${EXIF_LIBRARIES}
     )
 
+if(X11_Xinerama_LIB_FOUND)
+    target_link_libraries( sviewgl
+        ${X11_Xinerama_LIB}
+        )
+endif()
+
 if(IMLIB2_FOUND)
     target_link_libraries( sviewgl
         ${IMLIB2_LIBRARY}
