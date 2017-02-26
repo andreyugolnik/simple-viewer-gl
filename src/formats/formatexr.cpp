@@ -30,6 +30,13 @@ namespace
         uint8_t a;
     };
 
+    struct sRgb888
+    {
+        uint8_t r;
+        uint8_t g;
+        uint8_t b;
+    };
+
     inline uint8_t halfToUint8(const half& h)
     {
         return (uint8_t)helpers::clamp<uint32_t>(0, 255, h * 255.0f);
@@ -58,18 +65,26 @@ namespace
         return format < helpers::countof(Formats) ? Formats[format] : "unknown";
     }
 
-    bool loadPreview(Imf::RgbaInputFile in, sBitmapDescription& desc)
+    void readStringField(const Imf::Header& header, const char* field, const char* title, sBitmapDescription::ExifList& exifList)
+    {
+        auto value = header.findTypedAttribute<Imf::StringAttribute>(field);
+        if (value != nullptr)
+        {
+            exifList.push_back({ title, value->value() });
+        }
+    }
+
+#if 0
+    bool loadPreview(Imf::RgbaInputFile& in, sBitmapDescription& desc)
     {
         auto& header = in.header();
-        if (header.hasPreviewImage())
+        const bool hasPreview = header.hasPreviewImage();
+        if (hasPreview)
         {
             const auto& preview = header.previewImage();
 
             const uint32_t width = preview.width();
             const uint32_t height = preview.height();
-
-            desc.images = 1;
-            desc.current = 0;
 
             desc.width = width;
             desc.height = height;
@@ -85,24 +100,24 @@ namespace
 
             for (uint32_t y = 0; y < height; ++y)
             {
-                size_t idx = y * desc.width;
+                size_t idx = y * width;
                 for (uint32_t x = 0; x < width; ++x)
                 {
                     const auto& p = preview.pixel(x, y);
 
-                    bitmap[idx].r = p.r * 255;
-                    bitmap[idx].g = p.g * 255;
-                    bitmap[idx].b = p.b * 255;
-                    bitmap[idx].a = p.a * 255;
+                    bitmap[idx].r = halfToUint8(p.r);
+                    bitmap[idx].g = halfToUint8(p.g);
+                    bitmap[idx].b = halfToUint8(p.b);
+                    bitmap[idx].a = halfToUint8(p.a);
                     idx++;
                 }
             }
-
             return true;
         }
 
         return false;
     }
+#endif
 
 }
 
@@ -196,12 +211,13 @@ bool cFormatExr::load(unsigned current, sBitmapDescription& desc)
 
             desc.bppImage = chCount * 8;
 
-            const uint32_t bytes = 4;//std::min<uint32_t>(chCount, 4);
-            desc.pitch = desc.width * bytes;
+            const bool hasA = (channels & Imf::WRITE_A) != 0;
+            const uint32_t bytes = hasA ? 4 : 3;
+            desc.pitch = helpers::calculatePitch(desc.width, bytes * 8);
             desc.bitmap.resize(desc.pitch * desc.height);
 
             desc.bpp = bytes * 8;
-            desc.format = GL_RGBA;
+            desc.format = hasA ? GL_RGBA : GL_RGB;
 
             const auto compression = in.compression();
             m_formatName = getFormat(compression);
@@ -217,47 +233,74 @@ bool cFormatExr::load(unsigned current, sBitmapDescription& desc)
             catch (const IEX_NAMESPACE::InputExc&)
             {
                 result = false;
-                ::printf("(EE) scanLinesMissing\n");
+                ::printf("(EE) readPixel: scanLinesMissing\n");
             }
             catch (const IEX_NAMESPACE::IoExc&)
             {
                 result = false;
-                ::printf("(EE) scanLinesBroken\n");
+                ::printf("(EE) readPixel: scanLinesBroken\n");
+            }
+            catch (...)
+            {
+                ::printf("(EE) readPixel: error.\n");
             }
 
             if (result)
             {
-                auto bitmap = reinterpret_cast<sRgba8888*>(desc.bitmap.data());
-                for (uint32_t y = 0; y < height; y++)
+                if (hasA)
                 {
-                    size_t idx = y * width;
-                    for (uint32_t x = 0; x < width; x++)
+                    auto src = input.data();
+                    for (uint32_t y = 0; y < height; y++)
                     {
-                        const auto& i = input[idx];
-                        bitmap[idx].r = halfToUint8(i.r);
-                        bitmap[idx].g = halfToUint8(i.g);
-                        bitmap[idx].b = halfToUint8(i.b);
-                        bitmap[idx].a = halfToUint8(i.a);
-                        idx++;
-
+                        auto dst = reinterpret_cast<sRgba8888*>(desc.bitmap.data() + y * desc.pitch);
+                        for (uint32_t x = 0; x < width; x++)
+                        {
+                            const auto& i = *src++;
+                            dst[x].r = halfToUint8(i.r);
+                            dst[x].g = halfToUint8(i.g);
+                            dst[x].b = halfToUint8(i.b);
+                            dst[x].a = halfToUint8(i.a);
+                        }
                     }
                 }
+                else
+                {
+                    auto src = input.data();
+                    for (uint32_t y = 0; y < height; y++)
+                    {
+                        auto dst = reinterpret_cast<sRgb888*>(desc.bitmap.data() + y * desc.pitch);
+                        for (uint32_t x = 0; x < width; x++)
+                        {
+                            const auto& i = *src++;
+                            dst[x].r = halfToUint8(i.r);
+                            dst[x].g = halfToUint8(i.g);
+                            dst[x].b = halfToUint8(i.b);
+                        }
+                    }
+                }
+
+                auto& header = in.header();
+                auto& exifList = desc.exifList;
+                readStringField(header, "owner", "Owner:", exifList);
+                readStringField(header, "capDate", "Date:", exifList);
+                readStringField(header, "comments", "Comments:", exifList);
+                readStringField(header, "type", "Type:", exifList);
+
+#if 0
+                for (auto it = header.begin(), itEnd = header.end(); it != itEnd; ++it)
+                {
+                    auto& attr = it.attribute();
+                    exifList.push_back({ it.name(), attr.typeName() });
+                }
+#endif
             }
 
-            auto& header = in.header();
-            auto& exifList = desc.exifList;
-            for (auto it = header.begin(), itEnd = header.end(); it != itEnd; ++it)
-            {
-                auto& attr = it.attribute();
-                exifList.push_back({ it.name(), attr.typeName() });
-            }
+            return result;
         }
-
-        return result;
     }
     catch (...)
     {
-        ::printf("(EE) EXR exc.\n");
+        ::printf("(EE) OpenEXR open file error.\n");
     }
 
     return false;
