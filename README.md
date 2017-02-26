@@ -5,7 +5,7 @@
 
 The primary goal for writing **Simple Viewer GL** is to create an image viewer, which only has the most basic features required for fast image viewing. It has some vi-like key bindings and works nicely with tiling window managers (such as Ion3 and Notion).
 
-Supported formats: `PNG`, `JPEG`, `PSD`, `GIF`, `TIFF`, `TARGA`, `ICO`, `BMP`, `PNM`, `DDS`, `BMP`, `XWD`, `SCR (ZX-Spectrum screen)`, `XPM`, `WebP`.
+Supported formats: `PNG`, `JPEG`, `PSD`, `GIF`, `TIFF`, `TARGA`, `ICO`, `BMP`, `PNM`, `DDS`, `BMP`, `XWD`, `SCR (ZX-Spectrum screen)`, `XPM`, `WebP` `OpenEXR`.
 
 ***
 ##Screenshot##
@@ -99,21 +99,22 @@ $ make dist
 ***
 ##Dependencies##
 
- Name          | Debian package                 | Description / Notes
----------------|--------------------------------|---------------------
-`cmake`        | *cmake*                        | Cross-platform family of tools designed to build, test and package software.
-`glfw3`        | *libglfw3-dev*                 | Multi-platform library for creating windows with OpenGL contexts and receiving input and events.
-`imlib2`       | *libimlib2-dev*                | Common formats support.
-`jpeg`         | *libjpeg-dev*                  | JPEG format support.
-`png`          | *libpng12-dev*                 | PNG format support.
-`gif`          | *libgif-dev*                   | GIF format support.
-`tiff`         | *libtiff5-dev*                 | TIFF format support.
-`webp`         | *libwebp-dev*                  | WebP format support.
-`freetype2`    | *libfreetype6-dev*             | TTF/OTF font engine.
-`Little CMS 2` | *liblcms2-dev*                 | Color management engine supporting ICC profiles.
-`zlib`         | *zlib1g-dev*                   | Compression support.
-`exif`         | *libexif-dev*                  | Exif support.
-`X11`          | *libxrandr-dev libxcursor-dev* | X11 related libraries (Linux only)
+ Name          | Debian package                    | Description / Notes
+---------------|-----------------------------------|---------------------
+`CMake`        | *cmake*                           | Cross-platform family of tools designed to build, test and package software.
+`GLFW3`        | *libglfw3-dev*                    | Multi-platform library for creating windows with OpenGL contexts and receiving input and events.
+`JPEG`         | *libjpeg-dev*                     | JPEG format support.
+`PNG`          | *libpng12-dev*                    | PNG format support.
+`GIF`          | *libgif-dev*                      | GIF format support.
+`TIFF`         | *libtiff5-dev*                    | TIFF format support.
+`WebP`         | *libwebp-dev*                     | WebP format support.
+`ImLib2`       | *libimlib2-dev*                   | (Optional) Common formats support.
+`OpenEXR`      | *openexr-dev*, *ilmbase-dev*      | (Optional) OpenEXR is a high dynamic-range (HDR) image file format developed by Industrial Light & Magic for use in computer imaging applications.
+`FreeType2`    | *libfreetype6-dev*                | TTF/OTF font engine.
+`Little CMS 2` | *liblcms2-dev*                    | Color management engine supporting ICC profiles.
+`ZLib`         | *zlib1g-dev*                      | Compression support.
+`Exif`         | *libexif-dev*                     | Exif support.
+`X11`          | *libxrandr-dev*, *libxcursor-dev* | X11 related libraries (Linux only)
 
 ```
 Copyright © 2008-2017 Andrey A. Ugolnik. All Rights Reserved.
