@@ -42,9 +42,9 @@ if(IMLIB2_FOUND)
     add_definitions(-DIMLIB2_SUPPORT=1)
 endif()
 
-find_package(OpenEXR)
+pkg_check_modules(OPENEXR OpenEXR)
 if(OPENEXR_FOUND)
-    find_package(ILMBase)
+    pkg_check_modules(ILMBASE REQUIRED IlmBase)
     if(ILMBASE_FOUND)
         message(STATUS "OpenEXR support enabled")
         add_definitions(-DOPENEXR_SUPPORT=1)
@@ -57,7 +57,7 @@ if(HAVE_RT_LIBRARY)
 endif(HAVE_RT_LIBRARY)
 
 include_directories(
-    ${EXIF_INCLUDE_DIR}
+    ${EXIF_INCLUDE_DIRS}
     ${FREETYPE_INCLUDE_DIRS}
     ${GLFW_INCLUDE_DIRS}
     ${LCMS2_INCLUDE_DIR}
@@ -75,8 +75,8 @@ endif()
 
 if(OPENEXR_FOUND AND ILMBASE_FOUND)
     include_directories( ${INCLUDE_DIRECTORIES}
-        ${OPENEXR_INCLUDE_DIR}
-        ${ILMBASE_INCLUDE_DIR}
+        ${ILMBASE_INCLUDE_DIRS}
+        ${OPENEXR_INCLUDE_DIRS}
         )
 endif()
 
