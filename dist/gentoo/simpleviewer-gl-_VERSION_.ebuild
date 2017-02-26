@@ -25,11 +25,13 @@ DEPEND="
 	virtual/jpeg
 	media-libs/libpng
 	media-libs/tiff
+	media-libs/openexr
+	media-libs/ilmbase
 	virtual/opengl
 "
 RDEPEND="${DEPEND}"
 
 src_install() {
-        dobin "${BUILD_DIR}"/sviewgl
-        dodoc config.example
+	dobin "${BUILD_DIR}"/sviewgl
+	dodoc config.example
 }

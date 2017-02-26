@@ -73,7 +73,7 @@ $ make release
 Update and install required dependencies:
 ```bash
 $ sudo apt-get update
-$ sudo apt-get install g++ make build-essential debhelper cmake pkg-config libgl1-mesa-dev libxrandr-dev libxcursor-dev libfreetype6-dev libjpeg-dev libtiff-dev libgif-dev liblcms2-dev libimlib2-dev libwebp-dev libglfw3-dev libexif-dev
+$ sudo apt-get install g++ make build-essential debhelper cmake pkg-config libgl1-mesa-dev libxrandr-dev libxcursor-dev libfreetype6-dev libjpeg-dev libtiff-dev libgif-dev liblcms2-dev libimlib2-dev libwebp-dev libglfw3-dev libexif-dev libilmbase-dev libopenexr-dev
 ```
 
 Clone and make DEB:
@@ -90,7 +90,7 @@ $ make deb
 
 Update and install required dependencies:
 ```bash
-$ sudo dnf install gcc-c++ make cmake mesa-libGL-devel glfw-devel freetype-devel libpng-devel libjpeg-turbo-devel libtiff-devel giflib-devel lcms2-devel libwebp-devel libexif-devel imlib2-devel zlib-devel
+$ sudo dnf install gcc-c++ make cmake mesa-libGL-devel glfw-devel freetype-devel libpng-devel libjpeg-turbo-devel libtiff-devel giflib-devel lcms2-devel libwebp-devel libexif-devel imlib2-devel zlib-devel ilmbase-devel OpenEXR-devel
 ```
 
 Clone and make source for RPM:
@@ -107,22 +107,22 @@ $ make dist
 ***
 ##Dependencies##
 
- Name          | Debian package                    | Description / Notes
----------------|-----------------------------------|---------------------
-`CMake`        | *cmake*                           | Cross-platform family of tools designed to build, test and package software.
-`GLFW3`        | *libglfw3-dev*                    | Multi-platform library for creating windows with OpenGL contexts and receiving input and events.
-`JPEG`         | *libjpeg-dev*                     | JPEG format support.
-`PNG`          | *libpng12-dev*                    | PNG format support.
-`GIF`          | *libgif-dev*                      | GIF format support.
-`TIFF`         | *libtiff5-dev*                    | TIFF format support.
-`WebP`         | *libwebp-dev*                     | WebP format support.
-`ImLib2`       | *libimlib2-dev*                   | (Optional) Common formats support.
-`OpenEXR`      | *openexr-dev*, *ilmbase-dev*      | (Optional) OpenEXR is a high dynamic-range (HDR) image file format developed by Industrial Light & Magic for use in computer imaging applications.
-`FreeType2`    | *libfreetype6-dev*                | TTF/OTF font engine.
-`Little CMS 2` | *liblcms2-dev*                    | Color management engine supporting ICC profiles.
-`zlib`         | *zlib1g-dev*                      | Compression support.
-`exif`         | *libexif-dev*                     | Exif support.
-`X11`          | *libxrandr-dev*, *libxcursor-dev* | X11 related libraries (Linux only)
+ Name          | Debian package                     | Description / Notes
+---------------|------------------------------------|---------------------
+`CMake`        | *cmake*                            | Cross-platform family of tools designed to build, test and package software.
+`GLFW3`        | *libglfw3-dev*                     | Multi-platform library for creating windows with OpenGL contexts and receiving input and events.
+`JPEG`         | *libjpeg-dev*                      | JPEG format support.
+`PNG`          | *libpng12-dev*                     | PNG format support.
+`GIF`          | *libgif-dev*                       | GIF format support.
+`TIFF`         | *libtiff5-dev*                     | TIFF format support.
+`WebP`         | *libwebp-dev*                      | WebP format support.
+`ImLib2`       | *libimlib2-dev*                    | (Optional) Common formats support.
+`OpenEXR`      | *libilmbase-dev*, *libopenexr-dev* | (Optional) OpenEXR is a high dynamic-range (HDR) image file format developed by Industrial Light & Magic for use in computer imaging applications.
+`FreeType2`    | *libfreetype6-dev*                 | TTF/OTF font engine.
+`Little CMS 2` | *liblcms2-dev*                     | Color management engine supporting ICC profiles.
+`Zlib`         | *zlib1g-dev*                       | Compression support.
+`Exif`         | *libexif-dev*                      | Exif support.
+`X11`          | *libxrandr-dev*, *libxcursor-dev*  | X11 related libraries (Linux only)
 
 ```
 Copyright © 2008-2017 Andrey A. Ugolnik. All Rights Reserved.
