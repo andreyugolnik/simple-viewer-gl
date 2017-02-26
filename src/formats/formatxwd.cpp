@@ -198,7 +198,7 @@ bool cFormatXwd::LoadImpl(const char* filename, sBitmapDescription& desc)
     return false;
 }
 
-bool cFormatXwd::loadX10(const X10WindowDump& header, cFile& file, sBitmapDescription& desc)
+bool cFormatXwd::loadX10(const X10WindowDump& /*header*/, cFile& /*file*/, sBitmapDescription& /*desc*/)
 {
     m_formatName = "xwd10";
 

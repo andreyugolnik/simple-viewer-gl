@@ -224,19 +224,8 @@ bool cFormatExr::isSupported(cFile& file, Buffer& buffer) const
 
 bool cFormatExr::LoadImpl(const char* filename, sBitmapDescription& desc)
 {
-    m_filename = filename;
-    return load(0, desc);
-}
-
-bool cFormatExr::LoadSubImageImpl(unsigned current, sBitmapDescription& desc)
-{
-    return load(current, desc);
-}
-
-bool cFormatExr::load(unsigned current, sBitmapDescription& desc)
-{
     cFile file;
-    if (!file.open(m_filename.c_str()))
+    if (!file.open(filename))
     {
         return false;
     }
@@ -253,7 +242,7 @@ bool cFormatExr::load(unsigned current, sBitmapDescription& desc)
 
     try
     {
-        result = readScanlineRgba(m_filename.c_str(), pixels, desc, channels, compression);
+        result = readScanlineRgba(filename, pixels, desc, channels, compression);
     }
     catch (...)
     {
@@ -261,7 +250,7 @@ bool cFormatExr::load(unsigned current, sBitmapDescription& desc)
 
         try
         {
-            result = readTiledRgba(m_filename.c_str(), pixels, desc, channels, compression);
+            result = readTiledRgba(filename, pixels, desc, channels, compression);
         }
         catch (...)
         {
