@@ -19,6 +19,7 @@ endif()
 
 set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11" )
 
+find_package(PkgConfig)
 find_package(OpenGL REQUIRED)
 find_package(GLFW REQUIRED)
 find_package(Freetype REQUIRED)
@@ -29,13 +30,11 @@ find_package(GIF REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(WebP REQUIRED)
 find_package(LCMS2 REQUIRED)
+find_package(X11)
 set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 find_package(Threads REQUIRED)
 
-find_package(PkgConfig)
-pkg_check_modules(EXIF libexif)
-
-find_package(X11)
+pkg_check_modules(EXIF REQUIRED libexif)
 
 find_package(Imlib2)
 if(IMLIB2_FOUND)
@@ -50,25 +49,20 @@ if(OPENEXR_FOUND)
     endif()
 endif()
 
-# check_library_exists(dl dlclose "" HAVE_DL_LIBRARY)
-# if(HAVE_DL_LIBRARY)
-    # set(DL_LIBRARY "dl")
-# endif(HAVE_DL_LIBRARY)
-
 check_library_exists(rt clock_gettime "" HAVE_RT_LIBRARY)
 if(HAVE_RT_LIBRARY)
     set(RT_LIBRARY "rt")
 endif(HAVE_RT_LIBRARY)
 
 include_directories(
-    ${X11_INCLUDE_DIR}
-    ${OPENGL_INCLUDE_DIR}
-    ${GLFW_INCLUDE_DIRS}
-    ${ZLIB_INCLUDE_DIRS}
-    ${FREETYPE_INCLUDE_DIRS}
-    ${WEBP_INCLUDE_DIRS}
-    ${LCMS2_INCLUDE_DIR}
     ${EXIF_INCLUDE_DIR}
+    ${FREETYPE_INCLUDE_DIRS}
+    ${GLFW_INCLUDE_DIRS}
+    ${LCMS2_INCLUDE_DIR}
+    ${OPENGL_INCLUDE_DIR}
+    ${WEBP_INCLUDE_DIRS}
+    ${X11_INCLUDE_DIR}
+    ${ZLIB_INCLUDE_DIRS}
     )
 
 if(IMLIB2_FOUND)
@@ -113,13 +107,12 @@ else()
     add_executable(sviewgl ${SVIEW_SOURCES})
 endif()
 
-#link_directories(
-#${FREETYPE_LIBRARY_DIRS}
-#)
+link_directories(
+    ${EXIF_LIBRARY_DIRS}
+    )
 
 target_link_libraries( sviewgl
     ${RT_LIBRARY}
-    # ${DL_LIBRARY}
     ${CMAKE_THREAD_LIBS_INIT}
     ${X11_LIBRARIES}
     ${GLFW_LIBRARIES}
