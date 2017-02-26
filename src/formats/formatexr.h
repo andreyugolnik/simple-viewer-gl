@@ -13,8 +13,6 @@
 
 #include "format.h"
 
-#include <string>
-
 class cFormatExr final : public cFormat
 {
 public:
@@ -25,13 +23,6 @@ public:
 
 private:
     bool LoadImpl(const char* filename, sBitmapDescription& desc) override;
-    bool LoadSubImageImpl(unsigned current, sBitmapDescription& desc) override;
-
-private:
-    bool load(unsigned current, sBitmapDescription& desc);
-
-private:
-    std::string m_filename;
 };
 
 #endif

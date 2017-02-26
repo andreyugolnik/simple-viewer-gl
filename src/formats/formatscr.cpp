@@ -105,7 +105,7 @@ namespace
     enum class Type : unsigned
     {
         Scr, // done
-        Sc$, // done
+        ScS, // done
         ScB, // partial
         Atr, // done
         Mc4, // done
@@ -133,7 +133,7 @@ namespace
         const ScreenProperty sizesList[] =
         {
             {  6912, 256, 192, Type::Scr,      "zx-scr"  },
-            {  6929, 256, 192, Type::Sc$,      "zx-scr$" },
+            {  6929, 256, 192, Type::ScS,      "zx-scr$" },
             { 11136, 384, 304, Type::ScB,      "zx-bsc"  },
             {   768, 256, 192, Type::Atr,      "zx-atr"  },
             {  7680, 256, 192, Type::Mc4,      "zx-mc4"  },
@@ -308,7 +308,7 @@ bool cFormatScr::LoadImpl(const char* filename, sBitmapDescription& desc)
         loadScr(buffer.data(), desc);
         break;
 
-    case Type::Sc$:
+    case Type::ScS:
         desc.exifList.push_back({ "Comment", (const char*)buffer.data() });
         loadScr(buffer.data() + 17, desc);
         break;
