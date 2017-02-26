@@ -16,8 +16,8 @@
 
 #include <cstring>
 #include <OpenEXR/ImfRgbaFile.h>
-#include <OpenEXR/ImfArray.h>
 #include <OpenEXR/ImfPreviewImage.h>
+#include <OpenEXR/ImfStandardAttributes.h>
 
 namespace
 {
@@ -29,6 +29,11 @@ namespace
         uint8_t b;
         uint8_t a;
     };
+
+    inline uint8_t halfToUint8(const half& h)
+    {
+        return (uint8_t)helpers::clamp<uint32_t>(0, 255, h * 255.0f);
+    }
 
     const char* getFormat(uint32_t format)
     {
@@ -53,12 +58,12 @@ namespace
         return format < helpers::countof(Formats) ? Formats[format] : "unknown";
     }
 
-
     bool loadPreview(Imf::RgbaInputFile in, sBitmapDescription& desc)
     {
-        if (in.header().hasPreviewImage())
+        auto& header = in.header();
+        if (header.hasPreviewImage())
         {
-            const auto& preview = in.header().previewImage();
+            const auto& preview = header.previewImage();
 
             const uint32_t width = preview.width();
             const uint32_t height = preview.height();
@@ -151,8 +156,6 @@ bool cFormatExr::load(unsigned current, sBitmapDescription& desc)
 
         if (result)
         {
-            const auto compression = in.compression();
-
             desc.images = 1;
             desc.current = 0;
 
@@ -200,13 +203,16 @@ bool cFormatExr::load(unsigned current, sBitmapDescription& desc)
             desc.bpp = bytes * 8;
             desc.format = GL_RGBA;
 
+            const auto compression = in.compression();
             m_formatName = getFormat(compression);
 
-            Imf::Array2D<Imf::Rgba> input(desc.height, desc.width);
-            in.setFrameBuffer(&input[0][0], 1, desc.width);
+            std::vector<Imf::Rgba> input(width * height);
             try
             {
-                in.readPixels(0, height - 1);
+                const auto dx = dw.min.x;
+                const auto dy = dw.min.y;
+                in.setFrameBuffer(input.data() - dx - dy * width, 1, width);
+                in.readPixels(dw.min.y, dw.max.y);
             }
             catch (const IEX_NAMESPACE::InputExc&)
             {
@@ -222,20 +228,28 @@ bool cFormatExr::load(unsigned current, sBitmapDescription& desc)
             if (result)
             {
                 auto bitmap = reinterpret_cast<sRgba8888*>(desc.bitmap.data());
-                for (uint32_t y = 0; y < desc.height; ++y)
+                for (uint32_t y = 0; y < height; y++)
                 {
-                    size_t idx = y * desc.width;
-                    for (uint32_t x = 0; x < desc.width; ++x)
+                    size_t idx = y * width;
+                    for (uint32_t x = 0; x < width; x++)
                     {
-                        const auto& i = input[y][x];
-                        bitmap[idx].r = i.r * 255;
-                        bitmap[idx].g = i.g * 255;
-                        bitmap[idx].b = i.b * 255;
-                        bitmap[idx].a = i.a * 255;
+                        const auto& i = input[idx];
+                        bitmap[idx].r = halfToUint8(i.r);
+                        bitmap[idx].g = halfToUint8(i.g);
+                        bitmap[idx].b = halfToUint8(i.b);
+                        bitmap[idx].a = halfToUint8(i.a);
                         idx++;
 
                     }
                 }
+            }
+
+            auto& header = in.header();
+            auto& exifList = desc.exifList;
+            for (auto it = header.begin(), itEnd = header.end(); it != itEnd; ++it)
+            {
+                auto& attr = it.attribute();
+                exifList.push_back({ it.name(), attr.typeName() });
             }
         }
 

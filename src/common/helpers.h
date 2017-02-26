@@ -19,6 +19,12 @@ namespace helpers
     void swap_uint32s(uint8_t* p, uint32_t size);
     void swap_uint16s(uint8_t* p, uint32_t size);
 
+    template <typename T>
+    T clamp(const T& min, const T& max, const T& val)
+    {
+        return val < min ? min : (val > max ? max : val);
+    }
+
     template <class T, size_t N>
     constexpr size_t countof(const T(&)[N]) noexcept
     {
