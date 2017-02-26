@@ -227,8 +227,8 @@ bool cFormatPng::LoadImpl(const char* filename, sBitmapDescription& desc)
 
                 for (unsigned x = 0; x < desc.width; x++)
                 {
-                    const unsigned dst = x * 3;
-                    const unsigned src = x * 4;
+                    const unsigned dst = x * 4;
+                    const unsigned src = x * 3;
                     bmp[dst + 0] = input[src + 0];
                     bmp[dst + 1] = input[src + 1];
                     bmp[dst + 2] = input[src + 2];
