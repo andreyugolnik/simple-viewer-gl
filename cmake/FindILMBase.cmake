@@ -77,7 +77,8 @@ endif()
 
 get_filename_component(ILMBASE_LIBRARY_DIRS ${ILMBASE_Half_LIBRARY} DIRECTORY)
 
-file(READ "${ILMBASE_LIBRARY_DIRS}/pkgconfig/IlmBase.pc" _ilmbase_PC_CONTENTS)
+# file(READ "${ILMBASE_LIBRARY_DIRS}/pkgconfig/IlmBase.pc" _ilmbase_PC_CONTENTS)
+pkg_check_modules(ILMBASE REQUIRED IlmBase)
 string(REGEX REPLACE
     ".*Version: ([1-9]+\\.[0-9]+\\.[0-9]+).*" "\\1"
     ILMBASE_VERSION "${_ilmbase_PC_CONTENTS}")
