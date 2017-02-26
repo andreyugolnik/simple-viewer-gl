@@ -30,6 +30,6 @@ DEPEND="
 RDEPEND="${DEPEND}"
 
 src_install() {
-	dobin "${BUILD_DIR}"/sviewgl
-	dodoc config.example
+        dobin "${BUILD_DIR}"/sviewgl
+        dodoc config.example
 }

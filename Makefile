@@ -1,7 +1,10 @@
-VERSION=2.89
+APP_VERSION_MAJOR=2
+APP_VERSION_MINOR=8
+APP_VERSION_RELEASE=9
+VERSION=$(APP_VERSION_MAJOR).$(APP_VERSION_MINOR)$(APP_VERSION_RELEASE)
 BUILD_DIR_RELEASE=.build_release
 BUILD_DIR_DEBUG=.build_debug
-
+DESTDIR=/usr/local
 BUNDLE_NAME=sviewgl
 
 UNAME=$(shell uname -s)
@@ -14,8 +17,9 @@ all:    release
 help:
 	@echo "Usage:"
 	@echo "    make <release | debug>    - make release or debug application"
+	@echo "    make install              - install application"
 	@echo "    make <cppcheck>           - do static code verification"
-	@echo "    make <dist>               - make RPM package"
+	@echo "    make <dist>               - make tar.gz source package"
 	@echo "    make <deb>                - make DEB package"
 	@echo "    make <clean>              - cleanup directory"
 
@@ -33,24 +37,20 @@ cppcheck:
 	cppcheck -j 1 --enable=all -f -I src src/ 2> cppcheck-output
 
 clean:
-	rm -fr $(BUILD_DIR_RELEASE) $(BUILD_DIR_DEBUG) sviewgl cppcheck-output
+	rm -fr $(BUILD_DIR_RELEASE) $(BUILD_DIR_DEBUG) sviewgl cppcheck-output sviewgl-$(VERSION)* sviewgl_$(VERSION)*
 
 install:
 	install -m 755 -d $(DESTDIR)/usr/bin
-	install -m 755 sviewgl $(DESTDIR)/usr/bin
+	install -m 755 $(BUNDLE_NAME) $(DESTDIR)/usr/bin
 
 dist:   clean
-	install -d sviewgl-$(VERSION)
-	cp -R cmake src INSTALL README.md CMakeLists.txt Makefile dist/fedora/sviewgl.spec sviewgl-$(VERSION)
-	tar -f sviewgl-$(VERSION).tar -c sviewgl-$(VERSION)
-	gzip -f sviewgl-$(VERSION).tar
+	install -d $(BUNDLE_NAME)-$(VERSION)
+	cp -R cmake src res dist/debian INSTALL README.md CMakeLists.txt Makefile sviewgl.desktop sviewgl.png dist/fedora/* dist/gentoo/* $(BUNDLE_NAME)-$(VERSION)
+	mv $(BUNDLE_NAME)-$(VERSION)/simpleviewer-gl-_VERSION_.ebuild $(BUNDLE_NAME)-$(VERSION)/simpleviewer-gl-$(VERSION).ebuild
+	sed "s/_VERSION_/$(VERSION)/" -i $(BUNDLE_NAME)-$(VERSION)/$(BUNDLE_NAME).spec
+	sed "s/_VERSION_/$(VERSION)/" -i $(BUNDLE_NAME)-$(VERSION)/debian/changelog
+	tar -zf $(BUNDLE_NAME)-$(VERSION).tar.gz -c $(BUNDLE_NAME)-$(VERSION)
 
-deb:    clean
-	ln -sf dist/debian debian
-	install -d sviewgl-$(VERSION)
-	cp -R cmake src INSTALL README.md CMakeLists.txt Makefile sviewgl-$(VERSION)
-	tar -f ../sviewgl_$(VERSION).orig.tar -c sviewgl-$(VERSION)
-	gzip -f ../sviewgl_$(VERSION).orig.tar
-	rm -rf sviewgl-$(VERSION) Copying.txt bitbucket-pipelines.yml config.example shippable.yml
-	dpkg-buildpackage -F -tc
-
+deb:    clean dist
+	mv $(BUNDLE_NAME)-$(VERSION).tar.gz $(BUNDLE_NAME)_$(VERSION).orig.tar.gz
+	cd $(BUNDLE_NAME)-$(VERSION) ; dpkg-buildpackage -F -tc

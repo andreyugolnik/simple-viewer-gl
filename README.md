@@ -5,7 +5,7 @@
 
 The primary goal for writing **Simple Viewer GL** is to create an image viewer, which only has the most basic features required for fast image viewing. It has some vi-like key bindings and works nicely with tiling window managers (such as Ion3 and Notion).
 
-Supported formats: `PNG`, `JPEG`, `PSD`, `GIF`, `TIFF`, `TARGA`, `ICO`, `BMP`, `PNM`, `DDS`, `BMP`, `XWD`, `SCR (ZX-Spectrum screen)`, `XPM`, `WebP` `OpenEXR`.
+Supported formats: `PNG`, `JPEG`, `PSD`, `GIF`, `TIFF`, `TARGA`, `ICO`, `BMP`, `PNM`, `DDS`, `BMP`, `XWD`, `SCR (ZX-Spectrum screen)`, `XPM`, `WebP`, `OpenEXR`.
 
 ***
 ##Screenshot##
@@ -72,15 +72,14 @@ $ make release
 
 Update and install required dependencies:
 ```bash
-$ apt-get update
-$ apt-get install g++ make build-essential debhelper cmake pkg-config libgl1-mesa-dev libxrandr-dev libxcursor-dev libfreetype6-dev libjpeg-dev libtiff-dev libgif-dev liblcms2-dev libimlib2-dev libwebp-dev libglfw3-dev libexif-dev
+$ sudo apt-get update
+$ sudo apt-get install g++ make build-essential debhelper cmake pkg-config libgl1-mesa-dev libxrandr-dev libxcursor-dev libfreetype6-dev libjpeg-dev libtiff-dev libgif-dev liblcms2-dev libimlib2-dev libwebp-dev libglfw3-dev libexif-dev
 ```
 
 Clone and make DEB:
 ```bash
 $ git clone https://bitbucket.org/andreyu/simple-viewer-gl.git
 $ cd simple-viewer-gl
-$ ln -sf dist/debian debian
 $ make deb
 ```
 
@@ -89,12 +88,21 @@ $ make deb
 ***
 ##Make RPM package##
 
-Clone and make RPM:
+Update and install required dependencies:
+```bash
+$ sudo dnf install gcc-c++ make cmake mesa-libGL-devel glfw-devel freetype-devel libpng-devel libjpeg-turbo-devel libtiff-devel giflib-devel lcms2-devel libwebp-devel libexif-devel imlib2-devel zlib-devel
+```
+
+Clone and make source for RPM:
 ```bash
 $ git clone https://bitbucket.org/andreyu/simple-viewer-gl.git
 $ cd simple-viewer-gl
 $ make dist
 ```
+
+> You can copy sviewgl*.tar.gz into your rpmbuild/SOURCES and sviewgl.spec into rpmbuild/SPECS directory
+> and then make packages with `rpmbuild -ba sviewgl.spec`
+
 
 ***
 ##Dependencies##
@@ -112,8 +120,8 @@ $ make dist
 `OpenEXR`      | *openexr-dev*, *ilmbase-dev*      | (Optional) OpenEXR is a high dynamic-range (HDR) image file format developed by Industrial Light & Magic for use in computer imaging applications.
 `FreeType2`    | *libfreetype6-dev*                | TTF/OTF font engine.
 `Little CMS 2` | *liblcms2-dev*                    | Color management engine supporting ICC profiles.
-`ZLib`         | *zlib1g-dev*                      | Compression support.
-`Exif`         | *libexif-dev*                     | Exif support.
+`zlib`         | *zlib1g-dev*                      | Compression support.
+`exif`         | *libexif-dev*                     | Exif support.
 `X11`          | *libxrandr-dev*, *libxcursor-dev* | X11 related libraries (Linux only)
 
 ```

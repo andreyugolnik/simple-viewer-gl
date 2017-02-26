@@ -1,6 +1,6 @@
 Prefix: %{_usr}
 Name: sviewgl
-Version: 2.88
+Version: _VERSION_
 Release: 1%{?dist}
 Summary: Simple Viewer GL - simple and tiny image viewer based on OpenGL
 
@@ -9,7 +9,7 @@ License: GPLv2
 URL: https://bitbucket.org/andreyu/simple-viewer-gl
 Source0: %{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires: gcc, make, cmake
+BuildRequires: gcc-c++, make, cmake
 BuildRequires: mesa-libGL-devel, glfw-devel, freetype-devel, libpng-devel, libjpeg-turbo-devel, libtiff-devel, giflib-devel, lcms2-devel, libwebp-devel, libexif-devel, imlib2-devel, zlib-devel
 
 %description
@@ -23,8 +23,7 @@ Simple Viewer GL - simple and tiny image viewer based on OpenGL
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d ${RPM_BUILD_ROOT}/usr/bin -m 755
-install sviewgl ${RPM_BUILD_ROOT}/usr/bin -m 755
+%{__make} install DESTDIR=${RPM_BUILD_ROOT}
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}
