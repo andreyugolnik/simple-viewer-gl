@@ -115,6 +115,7 @@ namespace
         }
     }
 
+#if defined(DEBUG)
     void printExifTag(const ExifData* d, ExifIfd ifd, ExifTag tag)
     {
         ExifEntry* entry = exif_content_get_entry(d->ifd[ifd], tag);
@@ -264,6 +265,7 @@ namespace
             }
         }
     }
+#endif
 
 }
 
@@ -441,7 +443,9 @@ bool cFormatJpeg::LoadImpl(const char* filename, sBitmapDescription& desc)
     auto ed = exif_data_new_from_file(filename);
     if (ed != nullptr)
     {
-        // dumpAllExif(ed);
+#if defined(DEBUG)
+        dumpAllExif(ed);
+#endif
 
         auto& exifList = desc.exifList;
 
