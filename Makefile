@@ -21,6 +21,7 @@ help:
 	@echo "    make <cppcheck>           - do static code verification"
 	@echo "    make <dist>               - make tar.gz source package"
 	@echo "    make <deb>                - make DEB package"
+	@echo "    make <rpm>                - make RPM package"
 	@echo "    make <clean>              - cleanup directory"
 
 release:
@@ -37,7 +38,7 @@ cppcheck:
 	cppcheck -j 1 --enable=all -f -I src src/ 2> cppcheck-output
 
 clean:
-	rm -fr $(BUILD_DIR_RELEASE) $(BUILD_DIR_DEBUG) sviewgl cppcheck-output sviewgl-$(VERSION)* sviewgl_$(VERSION)*
+	rm -fr $(BUILD_DIR_RELEASE) $(BUILD_DIR_DEBUG) $(BUNDLE_NAME) cppcheck-output $(BUNDLE_NAME)-$(VERSION)* $(BUNDLE_NAME)_$(VERSION)* *.{log,tasks,sh,xz,list} strace_out cov-int
 
 install:
 	install -m 755 -d $(DESTDIR)/usr/bin
@@ -54,3 +55,6 @@ dist:   clean
 deb:    clean dist
 	mv $(BUNDLE_NAME)-$(VERSION).tar.gz $(BUNDLE_NAME)_$(VERSION).orig.tar.gz
 	cd $(BUNDLE_NAME)-$(VERSION) ; dpkg-buildpackage -F -tc
+
+rpm:    clean dist
+	rpmbuild -ta $(BUNDLE_NAME)-$(VERSION).tar.gz

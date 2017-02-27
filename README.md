@@ -97,12 +97,8 @@ Clone and make source for RPM:
 ```bash
 $ git clone https://bitbucket.org/andreyu/simple-viewer-gl.git
 $ cd simple-viewer-gl
-$ make dist
+$ sudo make rpm
 ```
-
-> You can copy sviewgl*.tar.gz into your rpmbuild/SOURCES and sviewgl.spec into rpmbuild/SPECS directory
-> and then make packages with `rpmbuild -ba sviewgl.spec`
-
 
 ***
 ##Dependencies##
