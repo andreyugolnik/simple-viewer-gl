@@ -280,32 +280,38 @@ cFormatJpeg::~cFormatJpeg()
 
 bool cFormatJpeg::isSupported(cFile& file, Buffer& buffer) const
 {
-    struct JFIFHeader
-    {
-        uint8_t soi[2];          /* 00h  Start of Image Marker     */
-        uint8_t app0[2];         /* 02h  Application Use Marker    */
-        uint8_t length[2];       /* 04h  Length of APP0 Field      */
-        uint8_t identifier[5];   /* 06h  "JFIF" (zero terminated) Id String */
-        uint8_t version[2];      /* 07h  JFIF Format Revision      */
-        uint8_t units;           /* 09h  Units used for Resolution */
-        uint8_t xdensity[2];     /* 0Ah  Horizontal Resolution     */
-        uint8_t ydensity[2];     /* 0Ch  Vertical Resolution       */
-        uint8_t xthumbnail;      /* 0Eh  Horizontal Pixel Count    */
-        uint8_t ythumbnail;
-    };
-
-    if (!readBuffer(file, buffer, sizeof(JFIFHeader)))
+    if (!readBuffer(file, buffer, 4))
     {
         return false;
     }
 
-    const auto h = reinterpret_cast<const JFIFHeader*>(buffer.data());
-    const uint8_t soi[2] = { 0xFF, 0xD8 };
-    // const uint8_t app0[2] = { 0xFF, 0xE0 };
-    return (!::memcmp(h->soi, soi, 2) //&& !::memcmp(h->app0, app0, 2)
-            && (!::strcmp((const char*)h->identifier, "JFIF")
-                || !::strcmp((const char*)h->identifier, "Exif")
-                || !::strcmp((const char*)h->identifier, "JFXX")));
+    const auto h = reinterpret_cast<const uint8_t*>(buffer.data());
+
+    const uint8_t a[4] = { 0xff, 0xd8, 0xff, 0xdb };
+    if (::memcmp(h, a, sizeof(a)) == 0)
+    {
+        return true;
+    }
+
+    const uint8_t b[4] = { 0xff, 0xd8, 0xff, 0xe0 };
+    if (::memcmp(h, b, sizeof(b)) == 0)
+    {
+        return true;
+    }
+
+    const uint8_t c[4] = { 0xff, 0xd8, 0xff, 0xe1 };
+    if (::memcmp(h, c, sizeof(c)) == 0)
+    {
+        return true;
+    }
+
+    const uint8_t d[4] = { 0xff, 0xd8, 0xff, 0xfe };
+    if (::memcmp(h, d, sizeof(d)) == 0)
+    {
+        return true;
+    }
+
+    return false;
 }
 
 bool cFormatJpeg::LoadImpl(const char* filename, sBitmapDescription& desc)
