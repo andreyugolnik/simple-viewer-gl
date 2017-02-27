@@ -4,8 +4,11 @@ APP_VERSION_RELEASE=9
 VERSION=$(APP_VERSION_MAJOR).$(APP_VERSION_MINOR)$(APP_VERSION_RELEASE)
 BUILD_DIR_RELEASE=.build_release
 BUILD_DIR_DEBUG=.build_debug
-DESTDIR=/usr/local
 BUNDLE_NAME=sviewgl
+ 
+ifeq ($(strip $(DESTDIR)),)
+	DESTDIR=/usr/local/bin
+endif
 
 UNAME=$(shell uname -s)
 ifeq ($(UNAME), Darwin)
@@ -41,8 +44,8 @@ clean:
 	rm -fr $(BUILD_DIR_RELEASE) $(BUILD_DIR_DEBUG) $(BUNDLE_NAME) cppcheck-output $(BUNDLE_NAME)-$(VERSION)* $(BUNDLE_NAME)_$(VERSION)* *.{log,tasks,sh,xz,list} strace_out cov-int
 
 install:
-	install -m 755 -d $(DESTDIR)/usr/bin
-	install -m 755 $(BUNDLE_NAME) $(DESTDIR)/usr/bin
+	install -m 755 -d $(DESTDIR)
+	install -m 755 $(BUNDLE_NAME) $(DESTDIR)
 
 dist:   clean
 	install -d $(BUNDLE_NAME)-$(VERSION)
