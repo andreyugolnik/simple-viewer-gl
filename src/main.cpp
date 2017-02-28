@@ -131,6 +131,11 @@ namespace
     }
 #endif
 
+    void callbackError(int e, const char* error)
+    {
+        ::printf("(EE) GLFW error (%d) '%s'\n", e, error);
+    }
+
     void setup(GLFWwindow* window)
     {
         glfwMakeContextCurrent(window);
@@ -149,6 +154,8 @@ namespace
         glfwSetCursorPosCallback(window, callbackMouse);
         glfwSetCursorEnterCallback(window, callbackCursorEnter);
         glfwSetScrollCallback(window, callbackMouseScroll);
+
+        glfwSetErrorCallback(callbackError);
 
 #if GLFW_VERSION_MAJOR >= 3 && GLFW_VERSION_MINOR >= 1
         glfwSetDropCallback(window, callbackDrop);
@@ -334,7 +341,7 @@ int main(int argc, char* argv[])
         }
         else
         {
-            ::printf("(EE) Can't create window.\n");
+            // ::printf("(EE) Can't create window.\n");
             result = -1;
         }
 
@@ -342,7 +349,7 @@ int main(int argc, char* argv[])
     }
     else
     {
-        ::printf("(EE) Can't initialize GLFW.\n");
+        // ::printf("(EE) Can't initialize GLFW.\n");
         result = -1;
     }
 
