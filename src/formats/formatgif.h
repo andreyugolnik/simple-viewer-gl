@@ -23,9 +23,9 @@ public:
 
 private:
     bool LoadImpl(const char* filename, sBitmapDescription& desc) override;
-    bool LoadSubImageImpl(unsigned current, sBitmapDescription& desc) override;
+    bool LoadSubImageImpl(uint32_t current, sBitmapDescription& desc) override;
 
-    bool load(unsigned current, sBitmapDescription& desc);
+    bool load(uint32_t current, sBitmapDescription& desc);
 
 private:
     std::string m_filename;
