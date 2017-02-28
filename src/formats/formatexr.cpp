@@ -14,7 +14,9 @@
 #include "../common/file.h"
 #include "../common/helpers.h"
 
+#include <cstdio>
 #include <cstring>
+
 #include <OpenEXR/ImfArray.h>
 #include <OpenEXR/ImfPreviewImage.h>
 #include <OpenEXR/ImfRgbaFile.h>
