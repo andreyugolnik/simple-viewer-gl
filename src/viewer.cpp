@@ -339,6 +339,7 @@ void cViewer::fnKeyboard(int key, int /*scancode*/, int action, int mods)
     switch (key)
     {
     case GLFW_KEY_ESCAPE:
+    case GLFW_KEY_Q:
         glfwSetWindowShouldClose(cRenderer::getWindow(), 1);
         break;
 

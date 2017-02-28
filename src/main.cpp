@@ -64,7 +64,7 @@ namespace
                , (uint32_t)(config.bgColor.b));
 
         printf("\nAvailable keys:\n");
-        printf("  <esc>         exit;\n");
+        printf("  <esc> or <q>  exit;\n");
         printf("  <space>       next image;\n");
         printf("  <backspace>   previous image;\n");
         printf("  <+> / <->     scale image;\n");
