@@ -256,6 +256,8 @@ int main(int argc, char* argv[])
 
     viewer.setInitialImagePath(path);
 
+    int result = 0;
+
     if (glfwInit())
     {
         GLFWwindow* window = glfwCreateWindow(640, 480, SVGL_Title, nullptr, nullptr);
@@ -330,9 +332,19 @@ int main(int argc, char* argv[])
                 end = glfwGetTime();
             }
         }
+        else
+        {
+            ::printf("(EE) Can't create window.\n");
+            result = -1;
+        }
 
         glfwTerminate();
     }
+    else
+    {
+        ::printf("(EE) Can't initialize GLFW.\n");
+        result = -1;
+    }
 
-    return 0;
+    return result;
 }
