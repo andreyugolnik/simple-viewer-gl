@@ -6,8 +6,10 @@ BUILD_DIR_RELEASE=.build_release
 BUILD_DIR_DEBUG=.build_debug
 BUNDLE_NAME=sviewgl
  
+USR=/usr
 ifeq ($(strip $(DESTDIR)),)
-	DESTDIR=/usr/local/bin
+	DESTDIR=/usr/local
+	USR=
 endif
 
 UNAME=$(shell uname -s)
@@ -44,8 +46,8 @@ clean:
 	rm -fr $(BUILD_DIR_RELEASE) $(BUILD_DIR_DEBUG) $(BUNDLE_NAME) cppcheck-output $(BUNDLE_NAME)-$(VERSION)* $(BUNDLE_NAME)_$(VERSION)* *.{log,tasks,sh,xz,list} strace_out cov-int
 
 install:
-	install -m 755 -d $(DESTDIR)
-	install -m 755 $(BUNDLE_NAME) $(DESTDIR)
+	install -m 755 -d $(DESTDIR)$(USR)/bin
+	install -m 755 $(BUNDLE_NAME) $(DESTDIR)$(USR)/bin
 
 dist:   clean
 	install -d $(BUNDLE_NAME)-$(VERSION)
