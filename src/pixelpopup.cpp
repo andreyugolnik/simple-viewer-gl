@@ -45,23 +45,20 @@ void cPixelPopup::init()
                                   , imgIcons.pixel_data, imgIcons.bytes_per_pixel == 3 ? GL_RGB : GL_RGBA));
     m_icons->setup(IconsWidth, IconsHeight, 4);
     m_icons->setColor({ 155, 155, 155, AlphaColor });
+
+    const int desiredFontSize = 30;
+    createFont(desiredFontSize);
 }
 
 void cPixelPopup::setScale(float scale)
 {
-    if (m_scale != scale)
-    {
-        const float RowHeight = 36.0f;
-        m_rowHeight = RowHeight * scale;
+    m_scale = scale;
 
-        const float Border = 10.0f;
-        m_border = Border * scale;
+    const float RowHeight = 36.0f;
+    m_rowHeight = RowHeight;
 
-        const int desiredFontSize = 30;
-        createFont(desiredFontSize * scale);
-
-        m_scale = scale;
-    }
+    const float Border = 10.0f;
+    m_border = Border;
 }
 
 void cPixelPopup::createFont(int fontSize)
@@ -109,6 +106,8 @@ void cPixelPopup::setPixelInfo(const sPixelInfo& pi)
         m_info.push_back({ Info::Icon::Rect, WhiteColor, buffer, {} });
     }
 
+    const float scale = m_scale;
+
     float width = 0;
     for (auto& s : m_info)
     {
@@ -120,6 +119,7 @@ void cPixelPopup::setPixelInfo(const sPixelInfo& pi)
             IconsWidth + TextOffset,
             (m_rowHeight - bounds.y) * 0.5f - 4.0f
         };
+        s.offset *= scale;
     }
 
     m_bgSize =
@@ -127,6 +127,7 @@ void cPixelPopup::setPixelInfo(const sPixelInfo& pi)
         IconsWidth + TextOffset + width + 2.0f * m_border,
         m_rowHeight * m_info.size() + 2.0f * m_border
     };
+    m_bgSize *= scale;
 }
 
 void cPixelPopup::render()
@@ -147,18 +148,23 @@ void cPixelPopup::render()
     m_bg->setSpriteSize(m_bgSize);
     m_bg->render(pos);
 
-    pos += Vectorf{ m_border, m_border };
-    const Vectorf iconOffset{ 0.0f, (m_rowHeight - IconsHeight) * 0.5f };
+    const float scale = m_scale;
+
+    pos += Vectorf{ m_border, m_border } * scale;
+    const Vectorf iconOffset{ 0.0f * scale, (m_rowHeight - IconsHeight) * 0.5f * scale };
+    const Vectorf iconSize = m_icons->getSize() * scale;
+    const float dy = m_rowHeight * scale;
+
     for (const auto& s : m_info)
     {
         // m_icons->setColor(s.Icon == Info::Icon::Color && isInside ? m_pixelInfo.color : GrayColor);
         m_icons->setFrame((uint32_t)s.icon);
-        m_icons->render(pos + iconOffset);
+        m_icons->renderEx(pos + iconOffset, iconSize);
 
         m_ft->setColor(s.color);
-        m_ft->draw(pos + s.offset, s.text.c_str());
+        m_ft->draw(pos + s.offset, s.text.c_str(), scale);
 
-        pos.y += m_rowHeight;
+        pos.y += dy;
     }
 }
 

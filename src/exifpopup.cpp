@@ -24,17 +24,14 @@ void cExifPopup::init()
 {
     m_bg.reset(new cQuad(0, 0));
     m_bg->setColor({ 0, 0, 0, AlphaColor });
+
+    const int DesiredFontSize = 30;
+    createFont(DesiredFontSize);
 }
 
 void cExifPopup::setScale(float scale)
 {
-    if (m_scale != scale)
-    {
-        const int DesiredFontSize = 26;
-        createFont(DesiredFontSize * scale);
-
-        m_scale = scale;
-    }
+    m_scale = scale;
 }
 
 void cExifPopup::createFont(int fontSize)
@@ -50,6 +47,7 @@ void cExifPopup::setExifList(const sBitmapDescription::ExifList& exifList)
     auto rows = exifList.size();
     if (rows != 0)
     {
+        const float scale = m_scale;
         float width = 0.0f;
         float row = 0.0f;
         const float space = m_ft->getBounds(" ").x;
@@ -58,17 +56,24 @@ void cExifPopup::setExifList(const sBitmapDescription::ExifList& exifList)
             auto tagBounds = m_ft->getBounds(e.tag.c_str());
             auto valueBounds = m_ft->getBounds(e.value.c_str());
 
-            m_exif.push_back({ { 0.0f, row }, e.tag, { tagBounds.x + space, row }, e.value });
+            m_exif.push_back(
+            {
+                Vectorf{ 0.0f, row } * scale,
+                e.tag,
+                Vectorf{ tagBounds.x + space, row } * scale,
+                e.value
+            });
 
             row += RowHeight;
             width = std::max<float>(width, tagBounds.x + valueBounds.x);
         }
 
-        m_bgSize = 
+        m_bgSize =
         {
             width + space + 2.0f * Border,
-            RowHeight * rows + 2.0f * Border
+            RowHeight* rows + 2.0f * Border
         };
+        m_bgSize *= scale;
     }
 }
 
@@ -78,18 +83,20 @@ void cExifPopup::render()
     {
         Vectorf pos{ 5.0f, 5.0f };
 
+        const float scale = m_scale;
+
         m_bg->setSpriteSize(m_bgSize);
         m_bg->render(pos);
 
         const cColor tagColor{ 255, 255, 150, AlphaColor };
         const cColor valueColor{ 255, 255, 255, AlphaColor };
-        pos += Vectorf{ Border, Border };
+        pos += Vectorf{ Border, Border } * scale;
         for (const auto& s : m_exif)
         {
             m_ft->setColor(tagColor);
-            m_ft->draw(pos + s.tagOffset, s.tag.c_str());
+            m_ft->draw(pos + s.tagOffset, s.tag.c_str(), scale);
             m_ft->setColor(valueColor);
-            m_ft->draw(pos + s.valueOffset, s.value.c_str());
+            m_ft->draw(pos + s.valueOffset, s.value.c_str(), scale);
         };
     }
 }

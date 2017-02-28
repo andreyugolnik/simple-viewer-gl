@@ -177,6 +177,7 @@ bool cFilesList::isValidExt(const char* path)
         ".png", // libpng
         ".gif", // giflib
         ".webp", // webp
+        ".lbm", ".id3", ".argb", // imlib2
 
         // internal loaders
         ".age",
@@ -189,7 +190,6 @@ bool cFilesList::isValidExt(const char* path)
         ".xwd",
         ".dds",
         ".tga", ".targa",
-        ".lbm", ".id3", ".argb",
         ".pnm", ".pbm", ".pgm", ".ppm",
         ".scr", ".atr", ".bsc", ".ifl", ".bmc4", ".mc", ".s", ".$c",
     };

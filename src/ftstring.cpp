@@ -48,7 +48,7 @@ void cFTString::setColor(const cColor& color)
     m_color = color;
 }
 
-void cFTString::draw(const Vectorf& pos, const char* utf8)
+void cFTString::draw(const Vectorf& pos, const char* utf8, float scale)
 {
     auto p = pos;
 
@@ -63,8 +63,8 @@ void cFTString::draw(const Vectorf& pos, const char* utf8)
         {
             if (codepoint == LinefeedCodepoint)
             {
-                p.x = pos.x;
-                p.y += m_height;
+                p.x = pos.x * scale;
+                p.y += m_height * scale;
             }
             else
             {
@@ -77,8 +77,8 @@ void cFTString::draw(const Vectorf& pos, const char* utf8)
                 const auto& symbol = it->second;
                 if (symbol.p != nullptr)
                 {
-                    symbol.p->render(p + symbol.offset, m_color);
-                    p.x += symbol.ax;
+                    symbol.p->render(p + symbol.offset * scale, m_color, scale);
+                    p.x += symbol.ax * scale;
                 }
             }
             begin = (const char*)s + 1;

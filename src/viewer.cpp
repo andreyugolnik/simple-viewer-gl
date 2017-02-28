@@ -234,7 +234,7 @@ void cViewer::fnResize(const Vectori& size)
 
     cRenderer::setViewportSize(fbSize);
 
-    const float scale = 1.0f;
+    const float scale = m_ratio.x * m_config.fontRatio;
     m_pixelPopup->setScale(scale);
     m_exifPopup->setScale(scale);
     m_infoBar->setScale(scale);

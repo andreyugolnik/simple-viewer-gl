@@ -30,7 +30,7 @@ public:
     void setColor(const cColor& color);
     Vectorf getBounds(const char* utf8) const;
 
-    void draw(const Vectorf& pos, const char* utf8);
+    void draw(const Vectorf& pos, const char* utf8, float scale = 1.0f);
 
 private:
     void generateNewSymbol(const char* utf8) const;

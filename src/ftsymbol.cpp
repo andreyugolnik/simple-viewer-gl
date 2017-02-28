@@ -33,19 +33,19 @@ cFTSymbol::~cFTSymbol()
 {
 }
 
-void cFTSymbol::render(const Vectorf& pos, const cColor& color)
+void cFTSymbol::render(const Vectorf& pos, const cColor& color, float scale)
 {
     m_quad.v[0].x = pos.x;
     m_quad.v[0].y = pos.y;
     m_quad.v[0].color = color;
-    m_quad.v[1].x = pos.x + m_w;
+    m_quad.v[1].x = pos.x + m_w * scale;
     m_quad.v[1].y = pos.y;
     m_quad.v[1].color = color;
-    m_quad.v[2].x = pos.x + m_w;
-    m_quad.v[2].y = pos.y + m_h;
+    m_quad.v[2].x = pos.x + m_w * scale;
+    m_quad.v[2].y = pos.y + m_h * scale;
     m_quad.v[2].color = color;
     m_quad.v[3].x = pos.x;
-    m_quad.v[3].y = pos.y + m_h;
+    m_quad.v[3].y = pos.y + m_h * scale;
     m_quad.v[3].color = color;
 
     cRenderer::render(m_quad);

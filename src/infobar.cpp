@@ -24,20 +24,17 @@ void cInfoBar::init()
 {
     m_bg.reset(new cQuad(0, 0));
     m_bg->setColor({ 0, 0, 25, 240 });
+
+    const int DesiredFontSize = 30;
+    createFont(DesiredFontSize);
 }
 
 void cInfoBar::setScale(float scale)
 {
-    if (m_scale != scale)
-    {
-        const int DesiredFontSize = 30;
-        createFont(DesiredFontSize * scale);
-
-        m_scale = scale;
-    }
+    m_scale = scale;
 
     const float DesiredHeight = 36;
-    m_height = DesiredHeight * scale;
+    m_height = DesiredHeight;
 }
 
 void cInfoBar::createFont(int fontSize)
@@ -58,12 +55,14 @@ void cInfoBar::render()
     int height;
     glfwGetFramebufferSize(cRenderer::getWindow(), &width, &height);
 
-    Vectorf pos { 0.0f, height - m_height };
-    m_bg->setSpriteSize({ (float)width, m_height });
+    const float scale = m_scale;
+
+    Vectorf pos { 0.0f, height - m_height * scale };
+    m_bg->setSpriteSize({ (float)width, m_height * scale });
     m_bg->render(pos);
 
-    pos += Vectorf{ 3, (m_height - m_bounds.y) * 0.5f - 2.0f };
-    m_ft->draw(pos, m_bottominfo.c_str());
+    pos += Vectorf{ 3, (m_height - m_bounds.y) * 0.5f - 2.0f } * scale;
+    m_ft->draw(pos, m_bottominfo.c_str(), scale);
 
     if (m_fps.get() != nullptr)
     {

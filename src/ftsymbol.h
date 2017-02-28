@@ -17,7 +17,7 @@ public:
     cFTSymbol(GLuint texId, float tw, float th, float tx, float ty, float w, float h);
     ~cFTSymbol();
 
-    void render(const Vectorf& pos, const cColor& color);
+    void render(const Vectorf& pos, const cColor& color, float scale);
 
 private:
     float m_w;

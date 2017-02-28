@@ -34,6 +34,11 @@ namespace
         return value != nullptr ? (uint32_t)::atoi(value) : def;
     }
 
+    float getFloat(const char* value, float def)
+    {
+        return value != nullptr ? ::atof(value) : def;
+    }
+
     const char* section = "common";
 
     void readValue(const ini::cIni& ini, const char* name, uint32_t& value)
@@ -46,6 +51,12 @@ namespace
     {
         const auto def = value;
         value = getUint(ini.getString(section, name), def);
+    }
+
+    void readValue(const ini::cIni& ini, const char* name, float& value)
+    {
+        const auto def = value;
+        value = getFloat(ini.getString(section, name), def);
     }
 
     void readValue(const ini::cIni& ini, const char* name, bool& value)
@@ -108,4 +119,6 @@ void cConfig::read(sConfig& config) const
     readValue(ini, "background_b", config.bgColor.b);
 
     readValue(ini, "background_cell_size", config.bgCellSize);
+
+    readValue(ini, "font_ratio", config.fontRatio);
 }
