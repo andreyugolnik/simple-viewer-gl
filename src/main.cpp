@@ -341,7 +341,7 @@ int main(int argc, char* argv[])
         }
         else
         {
-            // ::printf("(EE) Can't create window.\n");
+            ::printf("(EE) Can't create window.\n");
             result = -1;
         }
 
@@ -349,7 +349,7 @@ int main(int argc, char* argv[])
     }
     else
     {
-        // ::printf("(EE) Can't initialize GLFW.\n");
+        ::printf("(EE) Can't initialize GLFW.\n");
         result = -1;
     }
 
