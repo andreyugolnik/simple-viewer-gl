@@ -86,10 +86,12 @@ link_directories(
 
 file( GLOB_RECURSE SVIEW_SOURCES "src/*.cpp" )
 
-set(APP_TITLE           "Simple Viewer GL")
-set(APP_VERSION_MAJOR   "2")
-set(APP_VERSION_MINOR   "8")
-set(APP_VERSION_RELEASE "9")
+set(APP_TITLE           "Simple Viewer GL" CACHE STRING "Application name")
+set(APP_VERSION_MAJOR   "1" CACHE STRING "Application major version")
+set(APP_VERSION_MINOR   "0" CACHE STRING "Application minor version")
+set(APP_VERSION_RELEASE "0" CACHE STRING "Application release version")
+set(VERSION "${APP_VERSION_MAJOR}.${APP_VERSION_MINOR}${APP_VERSION_RELEASE}")
+message(STATUS "Version ${VERSION}")
 
 configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/src/version.h.in"
@@ -102,7 +104,6 @@ if(APPLE)
 
     add_executable(sviewgl MACOSX_BUNDLE ${SVIEW_ICON} ${SVIEW_SOURCES})
 
-    set(VERSION "${APP_VERSION_MAJOR}.${APP_VERSION_MINOR}${APP_VERSION_RELEASE}")
     set_target_properties(sviewgl PROPERTIES
         MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/res/macos/Info.plist.in
         MACOSX_BUNDLE_LONG_VERSION_STRING ${VERSION}
