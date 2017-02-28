@@ -12,8 +12,8 @@
 #include "../common/file.h"
 #include "../common/helpers.h"
 
+#include <cstdio>
 #include <string.h>
-#include <iostream>
 
 namespace
 {

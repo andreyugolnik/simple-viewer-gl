@@ -14,6 +14,7 @@
 #include "AGEheader.h"
 #include "rle.h"
 
+#include <cstdio>
 #include <cstring>
 
 namespace

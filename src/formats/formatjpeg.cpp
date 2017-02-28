@@ -13,9 +13,11 @@
 #include "../common/helpers.h"
 #include "../cms/cms.h"
 
+#include <cstdio>
 #include <cstring>
-#include <jpeglib.h>
 #include <setjmp.h>
+
+#include <jpeglib.h>
 #include <libexif/exif-data.h>
 
 namespace

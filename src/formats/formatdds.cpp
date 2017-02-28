@@ -12,6 +12,7 @@
 #include "../common/file.h"
 
 #include <cassert>
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 

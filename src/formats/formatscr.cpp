@@ -13,6 +13,7 @@
 #include "../common/helpers.h"
 #include "../types/types.h"
 
+#include <cstdio>
 #include <cstring>
 
 cFormatScr::cFormatScr(iCallbacks* callbacks)

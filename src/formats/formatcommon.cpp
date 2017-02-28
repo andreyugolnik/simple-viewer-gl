@@ -14,7 +14,9 @@
 #include "../common/file.h"
 #include "../common/helpers.h"
 
+#include <cstdio>
 #include <cstring>
+
 #include <Imlib2.h>
 
 namespace

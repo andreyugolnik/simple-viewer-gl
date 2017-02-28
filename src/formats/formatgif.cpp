@@ -11,7 +11,9 @@
 #include "../common/bitmap_description.h"
 #include "../common/file.h"
 
+#include <cstdio>
 #include <cstring>
+
 #include <gif_lib.h>
 
 namespace

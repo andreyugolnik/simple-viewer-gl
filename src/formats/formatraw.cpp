@@ -12,6 +12,7 @@
 #include "../common/file.h"
 #include "rle.h"
 
+#include <cstdio>
 #include <cstring>
 
 namespace

@@ -10,6 +10,7 @@
 #include "fileslist.h"
 
 #include <algorithm>
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <dirent.h>

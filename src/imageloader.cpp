@@ -35,6 +35,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cstdio>
 #include <string>
 
 cImageLoader::cImageLoader(iCallbacks* callbacks)

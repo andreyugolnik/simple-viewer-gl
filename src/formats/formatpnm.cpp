@@ -13,6 +13,7 @@
 #include "../common/helpers.h"
 
 #include <cmath>
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 

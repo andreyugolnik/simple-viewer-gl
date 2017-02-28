@@ -12,6 +12,8 @@
 #include "../common/file.h"
 #include "../common/helpers.h"
 
+#include <cstdio>
+
 namespace
 {
 
