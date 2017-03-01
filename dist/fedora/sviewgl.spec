@@ -23,7 +23,7 @@ Simple Viewer GL - simple and tiny image viewer based on OpenGL
 
 %install
 rm -rf $RPM_BUILD_ROOT
-%{__make} install DESTDIR=${RPM_BUILD_ROOT}
+%{__make} install DESTDIR=${RPM_BUILD_ROOT} PREFIX=/usr
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}

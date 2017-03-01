@@ -55,7 +55,7 @@ dist:   clean
 
 deb:    clean dist
 	mv $(BUNDLE_NAME)-$(VERSION).tar.gz $(BUNDLE_NAME)_$(VERSION).orig.tar.gz
-	cd $(BUNDLE_NAME)-$(VERSION) ; dpkg-buildpackage -F -tc
+	cd $(BUNDLE_NAME)-$(VERSION) ; PREFIX=/usr dpkg-buildpackage -F -tc
 
 rpm:    clean dist
 	rpmbuild -ta $(BUNDLE_NAME)-$(VERSION).tar.gz
