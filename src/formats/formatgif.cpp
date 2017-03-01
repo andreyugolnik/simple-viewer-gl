@@ -11,10 +11,11 @@
 #include "../common/bitmap_description.h"
 #include "../common/file.h"
 
+#include <gif_lib.h>
+
 #include <cstdio>
 #include <cstring>
-
-#include <gif_lib.h>
+#include <memory>
 
 namespace
 {
