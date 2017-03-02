@@ -88,7 +88,8 @@ void cInfoBar::render()
 
 void cInfoBar::setInfo(const sInfo& p)
 {
-    const char* name = shortenFilename(p.path);
+    const auto& shortName = shortenFilename(p.path);
+    const char* name = shortName.empty() == false ? shortName.c_str() : "n/a";
 
     char idx_img[20] = { 0 };
     if (p.files_count > 1)
@@ -136,7 +137,7 @@ const char* cInfoBar::getHumanSize(float& size)
     return s[idx];
 }
 
-const char* cInfoBar::shortenFilename(const char* path)
+const std::string& cInfoBar::shortenFilename(const char* path)
 {
     m_filename.clear();
 
@@ -188,5 +189,5 @@ const char* cInfoBar::shortenFilename(const char* path)
         }
     }
 
-    return m_filename.c_str();
+    return m_filename;
 }

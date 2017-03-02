@@ -52,7 +52,7 @@ public:
 private:
     const char* getHumanSize(float& size);
     void createFont(int fontSize);
-    const char* shortenFilename(const char* path);
+    const std::string& shortenFilename(const char* path);
 
 private:
     const sConfig& m_config;
