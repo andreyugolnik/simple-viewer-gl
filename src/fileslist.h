@@ -15,7 +15,7 @@
 class cFilesList final
 {
 public:
-    cFilesList(const char* initialFile, bool allValid, bool recursive = false);
+    cFilesList(bool allValid, bool recursive = false);
     ~cFilesList();
 
     void addFile(const char* path);
@@ -39,10 +39,10 @@ private:
     bool isValidExt(const char* path);
 
 private:
-    const char* m_initialFile;
     bool m_allValid;
     bool m_recursive;
     bool m_removeCurrent;
+    bool m_scanDirectory;
     unsigned m_position; // current position in list
     std::vector<std::string> m_files;
 };

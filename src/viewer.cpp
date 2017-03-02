@@ -58,6 +58,7 @@ cViewer::cViewer(sConfig& config)
     m_progress.reset(new cProgress());
     m_border.reset(new cImageBorder());
     m_selection.reset(new cSelection());
+    m_filesList.reset(new cFilesList(config.skipFilter, config.recursiveScan));
 
     m_prevSize = { DEF_WINDOW_W, DEF_WINDOW_H };
 }
@@ -65,11 +66,6 @@ cViewer::cViewer(sConfig& config)
 cViewer::~cViewer()
 {
     m_image->clear();
-}
-
-void cViewer::setInitialImagePath(const char* path)
-{
-    m_filesList.reset(new cFilesList(path, m_config.skipFilter, m_config.recursiveScan));
 }
 
 void cViewer::setWindow(GLFWwindow* window)
@@ -102,6 +98,7 @@ void cViewer::addPaths(const char** paths, int count)
         for (int i = 0; i < count; i++)
         {
             m_filesList->addFile(paths[i]);
+            // ::printf("path added: %s\n", paths[i]);
         }
 
         m_filesList->sortList();

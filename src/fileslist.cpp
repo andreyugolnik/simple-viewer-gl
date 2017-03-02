@@ -16,17 +16,13 @@
 #include <dirent.h>
 #include <unistd.h>
 
-cFilesList::cFilesList(const char* initialFile, bool allValid, bool recursive)
-    : m_initialFile(initialFile)
-    , m_allValid(allValid)
+cFilesList::cFilesList(bool allValid, bool recursive)
+    : m_allValid(allValid)
     , m_recursive(recursive)
     , m_removeCurrent(false)
+    , m_scanDirectory(false)
     , m_position(0)
 {
-    if (initialFile != nullptr)
-    {
-        addFile(initialFile);
-    }
 }
 
 cFilesList::~cFilesList()
@@ -63,28 +59,36 @@ namespace
 
 void cFilesList::parseDir()
 {
-    if (m_initialFile != nullptr)
+    if (m_scanDirectory && m_position < m_files.size())
     {
-        m_files.clear();
+        m_scanDirectory = false;
 
-        scanDirectory(GetBaseDir(m_initialFile));
+        const auto current = m_files[m_position];
+        const auto path = current.c_str();
+
+        scanDirectory(GetBaseDir(path));
 
         sortList();
-        locateFile(m_initialFile);
-
-        m_initialFile = nullptr;
+        locateFile(path);
     }
 }
 
 void cFilesList::addFile(const char* path)
 {
+    path = ::realpath(path, nullptr);
+
+    m_scanDirectory = m_files.size() == 0;
+
     if (isValidExt(path) == true)
     {
         m_files.push_back(path);
     }
-    else
+    else if (m_scanDirectory)
     {
+        m_scanDirectory = false;
+
         scanDirectory(path);
+
         sortList();
     }
 }
@@ -101,6 +105,12 @@ void cFilesList::sortList()
     });
 
     m_files.erase(std::unique(m_files.begin(), m_files.end()), m_files.end());
+
+    // ::printf("Sorted unique file %u:\n", (uint32_t)m_files.size());
+    // for (auto& f : m_files)
+    // {
+        // ::printf("'%s'\n", f.c_str());
+    // }
 }
 
 void cFilesList::locateFile(const char* path)
@@ -120,6 +130,8 @@ void cFilesList::locateFile(const char* path)
 
 void cFilesList::scanDirectory(const std::string& root)
 {
+    // ::printf("scan: '%s'\n", root.c_str());
+
     dirent** namelist;
     int n = ::scandir(root.c_str(), &namelist, Filter, alphasort);
     if (n >= 0)
@@ -214,9 +226,10 @@ const char* cFilesList::getName(int delta)
         if (m_removeCurrent == true)
         {
             m_removeCurrent = false;
-            if (0 == ::unlink(m_files[m_position].c_str()))
+            const auto path = m_files[m_position].c_str();
+            if (0 == ::unlink(path))
             {
-                ::printf("(II) File '%s' has been removed from disk.\n", m_files[m_position].c_str());
+                ::printf("(II) File '%s' has been removed from disk.\n", path);
             }
 
             // remove path from list

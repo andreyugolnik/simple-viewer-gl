@@ -35,7 +35,6 @@ public:
     explicit cViewer(sConfig& config);
     ~cViewer();
 
-    void setInitialImagePath(const char* path);
     void setWindow(GLFWwindow* window);
 
     void addPaths(const char** paths, int count);

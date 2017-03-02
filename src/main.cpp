@@ -188,7 +188,7 @@ int main(int argc, char* argv[])
     cConfig reader;
     reader.read(config);
 
-    const char* path = nullptr;
+    std::vector<const char*> pathsList;
 
     for (int i = 1; i < argc; i++)
     {
@@ -254,14 +254,18 @@ int main(int argc, char* argv[])
         }
         else
         {
-            path = argv[i];
+            const char* path = argv[i];
+            if (path[0] != '-')
+            {
+                pathsList.push_back(path);
+            }
         }
     }
 
     cViewer viewer(config);
     m_viewer = &viewer;
 
-    viewer.setInitialImagePath(path);
+    viewer.addPaths(pathsList.data(), pathsList.size());
 
     int result = 0;
 
