@@ -17,12 +17,12 @@ namespace helpers
 
     uint16_t read_uint16(uint8_t* p)
     {
-        return (p[0] << 8) | p[1];
+        return ((uint16_t)p[0] << 8) | p[1];
     }
 
     uint32_t read_uint32(uint8_t* p)
     {
-        return (p[0] << 24) | (p[1] << 16) | (p[2] << 8) | p[3];
+        return ((uint32_t)p[0] << 24) | ((uint32_t)p[1] << 16) | ((uint32_t)p[2] << 8) | (uint32_t)p[3];
     }
 
     void swap_uint32s(uint8_t* p, uint32_t size)
