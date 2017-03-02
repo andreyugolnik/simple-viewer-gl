@@ -75,7 +75,11 @@ void cFilesList::parseDir()
 
 void cFilesList::addFile(const char* path)
 {
-    path = ::realpath(path, nullptr);
+    const auto fullPath = ::realpath(path, nullptr);
+    if (fullPath != nullptr)
+    {
+        path = fullPath;
+    }
 
     m_scanDirectory = m_files.size() == 0;
 

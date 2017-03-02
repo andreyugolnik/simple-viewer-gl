@@ -191,13 +191,13 @@ bool cFormatIco::loadPngFrame(sBitmapDescription& desc, cFile& file, const IcoDi
     std::vector<uint8_t> p(image->size);
 
     file.seek(image->offset, SEEK_SET);
-    if (image->size != file.read(&p[0], image->size))
+    if (image->size != file.read(p.data(), image->size))
     {
         ::printf("(EE) Can't read ico/png frame.\n");
         return false;
     }
 
-    if (image->size != 8 && png_sig_cmp(&p[0], 0, 8) != 0)
+    if (image->size != 8 && png_sig_cmp(p.data(), 0, 8) != 0)
     {
         ::printf("(EE) Frame is not recognized as a PNG format.\n");
         return false;
@@ -211,7 +211,7 @@ bool cFormatIco::loadPngFrame(sBitmapDescription& desc, cFile& file, const IcoDi
         return false;
     }
 
-    m_pngRaw.data = &p[0];
+    m_pngRaw.data = p.data();
     m_pngRaw.size = image->size;
     m_pngRaw.pos = 8;
     png_set_read_fn(png, &m_pngRaw, readPngData);

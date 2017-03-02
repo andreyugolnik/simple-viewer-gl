@@ -59,7 +59,11 @@ bool cFormatWebP::LoadImpl(const char* filename, sBitmapDescription& desc)
 
     Buffer buffer;
     buffer.resize(file.getSize());
-    file.read(buffer.data(), file.getSize());
+    if (file.read(buffer.data(), file.getSize()) != file.getSize())
+    {
+        ::printf("(EE) Error loading WebP.\n");
+        return false;
+    }
 
     WebPBitstreamFeatures features;
     auto error = WebPGetFeatures(buffer.data(), buffer.size(), &features);

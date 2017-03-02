@@ -12,6 +12,7 @@
 #include "../common/file.h"
 #include "../common/helpers.h"
 
+#include <algorithm>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -381,6 +382,8 @@ bool cFormatPnm::LoadImpl(const char* filename, sBitmapDescription& desc)
             }
         }
     }
+
+    maxValue = std::max<uint32_t>(maxValue, 1);
 
     switch (format)
     {

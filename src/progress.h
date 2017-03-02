@@ -47,6 +47,6 @@ private:
     };
     sDot m_dot[4];
 
-    unsigned m_index;
-    float m_time;
+    unsigned m_index = 0;
+    float m_time = 0.0f;
 };
