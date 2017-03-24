@@ -16,8 +16,7 @@
 #include <cstdio>
 #include <cstring>
 
-cFormatScr::cFormatScr(iCallbacks* callbacks)
-    : cFormat(callbacks)
+cFormatScr::cFormatScr(iCallbacks* callbacks) : cFormat(callbacks)
 {
 }
 
@@ -27,21 +26,19 @@ cFormatScr::~cFormatScr()
 
 namespace
 {
-
     struct sPixelRGB
     {
         struct sColor
         {
-            unsigned char r;
-            unsigned char g;
-            unsigned char b;
+            uint8_t r;
+            uint8_t g;
+            uint8_t b;
         };
 
-        void set(bool isSet, unsigned char attribute)
+        void set(bool isSet, uint8_t attribute)
         {
             // palette PULSAR (0xcd)
-            static sColor Colors[] =
-            {
+            static sColor Colors[] = {
                 // normal
                 { 0x00, 0x00, 0x00 },
                 { 0x00, 0x00, 0xcd },
@@ -63,87 +60,149 @@ namespace
                 { 0xff, 0xff, 0xff },
             };
 
-            const unsigned bright = (attribute & 0x40) >> 3;
+            const uint32_t bright = (attribute & 0x40) >> 3;
             if (!isSet)
             {
                 attribute >>= 3;
             }
-            color = Colors[bright + (attribute & 0x7)];
+            color = Colors[bright + (attribute & 0x07)];
         }
 
         sColor color;
     };
 
-    void putEightPixels(sPixelRGB* out, const unsigned char pixels, const unsigned char attribute)
+    void putSixteenPixels(sPixelRGB* out, uint8_t color)
     {
-        for (unsigned i = 0; i < 8; i++)
+        const uint8_t left = color & 0x07;
+        for (uint32_t i = 0; i < 8; i++)
         {
-            const unsigned bit = 0x80 >> i;
+            out->set(true, left);
+            out++;
+        }
+
+        const uint8_t right = (color >> 3) & 0x07;
+        for (uint32_t i = 0; i < 8; i++)
+        {
+            out->set(true, right);
+            out++;
+        }
+    }
+
+    void makeBorder(const uint8_t* zxBorder, sBitmapDescription& desc)
+    {
+        // top
+        for (uint32_t y = 0; y < 64; y++)
+        {
+            auto out = (sPixelRGB*)(desc.bitmap.data() + y * desc.pitch);
+            for (uint32_t x = 0; x < 24; x++)
+            {
+                const uint8_t color = *zxBorder++;
+                putSixteenPixels(out, color);
+                out += 16;
+            }
+        }
+
+        // left / right
+        for (uint32_t y = 0; y < 192; y++)
+        {
+            auto out = (sPixelRGB*)(desc.bitmap.data() + (y + 64) * desc.pitch);
+            for (uint32_t x = 0; x < 4; x++)
+            {
+                const uint8_t color = *zxBorder++;
+                putSixteenPixels(out, color);
+                out += 16;
+            }
+
+            out += 256;
+            for (uint32_t x = 0; x < 4; x++)
+            {
+                const uint8_t color = *zxBorder++;
+                putSixteenPixels(out, color);
+                out += 16;
+            }
+        }
+
+        // bottom
+        for (uint32_t y = 0; y < 48; y++)
+        {
+            auto out = (sPixelRGB*)(desc.bitmap.data() + (y + 64 + 192) * desc.pitch);
+            for (uint32_t x = 0; x < 24; x++)
+            {
+                const uint8_t color = *zxBorder++;
+                putSixteenPixels(out, color);
+                out += 16;
+            }
+        }
+    }
+
+    void putEightPixels(sPixelRGB* out, const uint8_t pixels, const uint8_t attribute)
+    {
+        for (uint32_t i = 0; i < 8; i++)
+        {
+            const uint32_t bit = 0x80 >> i;
             const bool isSet = pixels & bit;
             out->set(isSet, attribute);
             out++;
         }
     }
 
-    void fillThird(unsigned layer, const unsigned char* buffer, sBitmapDescription& desc, unsigned X, sPixelRGB* out)
+    void fillThird(uint32_t layer, const uint8_t* buffer, sBitmapDescription& desc, uint32_t X,
+                   sPixelRGB* out)
     {
-        const unsigned char* zxPixels = buffer + 2048 * layer;
-        const unsigned char* zxColors = buffer + 6144 + 2048 / X * layer;
+        const uint8_t* zxPixels = buffer + 2048 * layer;
+        const uint8_t* zxColors = buffer + 6144 + 2048 / X * layer;
 
-        for (unsigned y = 0; y < 64; y++)
+        for (uint32_t y = 0; y < 64; y++)
         {
-            const unsigned line = (y * 8) % 64 + (y * 8) / 64;
+            const uint32_t line = (y * 8) % 64 + (y * 8) / 64;
             auto startLine = &out[line * desc.width];
-            for (unsigned x = 0; x < 256 / 8; x++)
+            for (uint32_t x = 0; x < 256 / 8; x++)
             {
-                const unsigned char pixels = *zxPixels++;
-                const unsigned char attribute = zxColors[(line / X) * 32 + x];
+                const uint8_t pixels = *zxPixels++;
+                const uint8_t attribute = zxColors[(line / X) * 32 + x];
                 putEightPixels(&startLine[x * 8], pixels, attribute);
             }
         }
     }
 
-    enum class Type : unsigned
+    struct ScrDescription
     {
-        Scr, // done
-        ScS, // done
-        ScB, // partial
-        Atr, // done
-        Mc4, // done
-        Mc2, // done
-        Mc1, // done
-        // BMc1,
-        // BMc2,
-        BMc4,
-        // Chr,
+        uint32_t size;
+        uint32_t w;
+        uint32_t h;
 
-        Unknown
-    };
+        enum class Type : uint32_t
+        {
+            Scr, // done
+            ScS, // done
+            ScB, // partial
+            Atr, // done
+            Mc4, // done
+            Mc2, // done
+            Mc1, // done
+            BMc4,
+            // Chr,
 
-    struct ScreenProperty
-    {
-        unsigned size;
-        unsigned w;
-        unsigned h;
+            Unknown
+        };
+
         Type type;
+
         const char* formatName;
     };
 
-    ScreenProperty getType(unsigned size)
+    ScrDescription getType(uint32_t size)
     {
-        const ScreenProperty sizesList[] =
-        {
-            {  6912, 256, 192, Type::Scr,      "zx-scr"  },
-            {  6929, 256, 192, Type::ScS,      "zx-scr$" },
-            { 11136, 384, 304, Type::ScB,      "zx-bsc"  },
-            {   768, 256, 192, Type::Atr,      "zx-atr"  },
-            {  7680, 256, 192, Type::Mc4,      "zx-mc4"  },
-            {  9216, 256, 192, Type::Mc2,      "zx-mc2"  },
-            { 12288, 256, 192, Type::Mc1,      "zx-mc1"  },
-            // { 99999, 384, 304, Type::BMc1,     "zx-bmc1" },
-            // { 99999, 384, 304, Type::BMc2,     "zx-bmc2" },
-            { 11904, 384, 304, Type::BMc4,     "zx-bmc4" },
-            // { 41479, 256, 192, Type::Chr,      "zx-chr$" },
+        const ScrDescription sizesList[] = {
+            { 6912, 256, 192, ScrDescription::Type::Scr, "zx-scr" },
+            { 6929, 256, 192, ScrDescription::Type::ScS, "zx-scr$" },
+            { 11136, 384, 304, ScrDescription::Type::ScB, "zx-bsc" },
+            { 768, 256, 192, ScrDescription::Type::Atr, "zx-atr" },
+            { 7680, 256, 192, ScrDescription::Type::Mc4, "zx-mc4" },
+            { 9216, 256, 192, ScrDescription::Type::Mc2, "zx-mc2" },
+            { 12288, 256, 192, ScrDescription::Type::Mc1, "zx-mc1" },
+            { 11904, 384, 304, ScrDescription::Type::BMc4, "zx-bmc4" },
+            // { 41479, 256, 192, ScrDescription::Type::Chr, "zx-chr$" },
         };
 
         for (size_t i = 0; i < helpers::countof(sizesList); i++)
@@ -155,109 +214,115 @@ namespace
             }
         }
 
-        return { 0, 0, 0, Type::Unknown,  "" };
+        return { 0, 0, 0, ScrDescription::Type::Unknown, "" };
     }
 
-}
-
-void cFormatScr::loadScr(const unsigned char* buffer, sBitmapDescription& desc) const
-{
-    for (unsigned i = 0; i < 3; i++)
+    void loadScr(const uint8_t* buffer, sBitmapDescription& desc)
     {
-        auto out = (sPixelRGB*)(desc.bitmap.data() + desc.pitch * 64 * i);
-        fillThird(i, buffer, desc, 8, out);
-    }
-}
-
-void cFormatScr::loadScB(const unsigned char* buffer, sBitmapDescription& desc) const
-{
-    for (unsigned i = 0; i < 3; i++)
-    {
-        const unsigned top = 64 * desc.pitch; //56 * desc.pitch;
-        const unsigned left = 64 * 3;
-        auto out = (sPixelRGB*)(desc.bitmap.data() + top + left + desc.pitch * 64 * i);
-        fillThird(i, buffer, desc, 8, out);
-    }
-}
-
-void cFormatScr::loadAtr(const unsigned char* buffer, sBitmapDescription& desc) const
-{
-    const unsigned char px[2] = { 0x55, 0xaa };// { 0b01010101, 0b10101010 };
-
-    const unsigned char* zxColors = buffer;
-    auto out = (sPixelRGB*)desc.bitmap.data();
-
-    for (unsigned y = 0; y < 192; y++)
-    {
-        auto startLine = &out[y * 256];
-        for (unsigned x = 0; x < 256 / 8; x++)
+        for (uint32_t i = 0; i < 3; i++)
         {
-            const unsigned char pixels = px[y % 2];
-            const unsigned char attribute = zxColors[(y / 8) * 32 + x];
-            putEightPixels(&startLine[x * 8], pixels, attribute);
+            auto out = (sPixelRGB*)(desc.bitmap.data() + desc.pitch * 64 * i);
+            fillThird(i, buffer, desc, 8, out);
         }
     }
-}
 
-void cFormatScr::loadMcX(const unsigned char* buffer, sBitmapDescription& desc, unsigned X) const
-{
-    if (X == 1)
+    void loadScB(const uint8_t* buffer, sBitmapDescription& desc)
     {
-        const unsigned char* zxPixels = buffer;
-        const unsigned char* zxColors = buffer + 6144;
+        const uint32_t top = 64;
+        const uint32_t left = 64;
+        for (uint32_t i = 0; i < 3; i++)
+        {
+            auto out = (sPixelRGB*)(desc.bitmap.data() + (top + i * 64) * desc.pitch) + left;
+            fillThird(i, buffer, desc, 8, out);
+        }
+
+        const uint8_t* zxBorder = buffer + 6144 + 768;
+        makeBorder(zxBorder, desc);
+    }
+
+    void loadAtr(const uint8_t* buffer, sBitmapDescription& desc)
+    {
+        const uint8_t px[2] = { 0x55, 0xaa }; // { 0b01010101, 0b10101010 };
+
+        const uint8_t* zxColors = buffer;
         auto out = (sPixelRGB*)desc.bitmap.data();
 
-        for (unsigned y = 0; y < 192; y++)
+        for (uint32_t y = 0; y < 192; y++)
         {
             auto startLine = &out[y * 256];
-            for (unsigned x = 0; x < 256 / 8; x++)
+            for (uint32_t x = 0; x < 256 / 8; x++)
             {
-                const unsigned char pixels = *zxPixels++;
-                const unsigned char attribute = zxColors[(y / X) * 32 + x];
+                const uint8_t pixels = px[y % 2];
+                const uint8_t attribute = zxColors[(y / 8) * 32 + x];
                 putEightPixels(&startLine[x * 8], pixels, attribute);
             }
         }
     }
-    else
+
+    void loadMcX(const uint8_t* buffer, sBitmapDescription& desc, const ScrDescription& prop)
     {
-        for (unsigned i = 0; i < 3; i++)
+        if (prop.type == ScrDescription::Type::Mc1)
         {
-            auto out = (sPixelRGB*)(desc.bitmap.data() + desc.pitch * 64 * i);
-            fillThird(i, buffer, desc, X, out);
-        }
-    }
-}
+            const uint32_t X = 1;
 
-void cFormatScr::loadBMcX(const unsigned char* buffer, sBitmapDescription& desc, unsigned X) const
-{
-    for (unsigned i = 0; i < 3; i++)
-    {
-        const unsigned top = 64 * desc.pitch; //56 * desc.pitch;
-        const unsigned left = 64 * 3;
-        auto out = (sPixelRGB*)(desc.bitmap.data() + top + left + desc.pitch * 64 * i);
+            const uint8_t* zxPixels = buffer;
+            const uint8_t* zxColors = buffer + 6144;
+            auto out = (sPixelRGB*)desc.bitmap.data();
 
-        if (0)
-        {
-            fillThird(i, buffer, desc, X, out);
-        }
-        else
-        {
-            const unsigned char* zxPixels = buffer + 2048 * i;
-            const unsigned char* zxColors = buffer + 6144 + 2048 / X * i;
-
-            for (unsigned y = 0; y < 64; y++)
+            for (uint32_t y = 0; y < 192; y++)
             {
-                const unsigned line = (y * 8) % 64 + (y * 8) / 64;
-                auto startLine = &out[line * 384];
-                for (unsigned x = 0; x < 256 / 8; x++)
+                auto startLine = &out[y * 256];
+                for (uint32_t x = 0; x < 256 / 8; x++)
                 {
-                    const unsigned char pixels = *zxPixels++;
-                    // const unsigned char attribute = zxColors[((i * 64 + y) / X) * 32 + x];
-                    // const unsigned char attribute = zxColors[(y % 8) * 32 + x];
-                    const unsigned char attribute = zxColors[(line / 4) * 32 + x];
+                    const uint8_t pixels = *zxPixels++;
+                    const uint8_t attribute = zxColors[(y / X) * 32 + x];
                     putEightPixels(&startLine[x * 8], pixels, attribute);
                 }
             }
+        }
+        else
+        {
+            const uint32_t X = prop.type == ScrDescription::Type::Mc4 ? 4 : 2;
+
+            for (uint32_t i = 0; i < 3; i++)
+            {
+                auto out = (sPixelRGB*)(desc.bitmap.data() + desc.pitch * 64 * i);
+                fillThird(i, buffer, desc, X, out);
+            }
+        }
+    }
+
+    void loadBMc4(const uint8_t* buffer, sBitmapDescription& desc, const ScrDescription& prop)
+    {
+        if (prop.type == ScrDescription::Type::BMc4)
+        {
+            const uint32_t top = 64;
+            const uint32_t left = 64;
+
+            for (uint32_t i = 0; i < 3; i++)
+            {
+                auto out = (sPixelRGB*)(desc.bitmap.data() + ((top + 64 * i) * desc.pitch)) + left;
+                auto zxPixels = buffer + 2048 * i;
+
+                auto zxColors0 = buffer + 6144 + (768 / 3) * i;
+                auto zxColors1 = buffer + 6144 + 768 + (768 / 3) * i;
+
+                for (uint32_t y = 0; y < 64; y++)
+                {
+                    const uint32_t line = (y * 8) % 64 + (y * 8) / 64;
+                    auto startLine = &out[line * desc.width];
+                    auto zxColors = ((line % 8) < 4 ? zxColors0 : zxColors1) + (line / 8) * 32;
+                    for (uint32_t x = 0; x < 256 / 8; x++)
+                    {
+                        const uint8_t pixels = *zxPixels++;
+                        const uint8_t attribute = *zxColors++;
+                        putEightPixels(&startLine[x * 8], pixels, attribute);
+                    }
+                }
+            }
+
+            const uint8_t* zxBorder = buffer + 6144 + 768 * 2;
+            makeBorder(zxBorder, desc);
         }
     }
 }
@@ -265,7 +330,7 @@ void cFormatScr::loadBMcX(const unsigned char* buffer, sBitmapDescription& desc,
 bool cFormatScr::isSupported(cFile& file, Buffer& /*buffer*/) const
 {
     const auto screen = getType(file.getSize());
-    return screen.type != Type::Unknown;
+    return screen.type != ScrDescription::Type::Unknown;
 }
 
 bool cFormatScr::LoadImpl(const char* filename, sBitmapDescription& desc)
@@ -276,69 +341,69 @@ bool cFormatScr::LoadImpl(const char* filename, sBitmapDescription& desc)
         return false;
     }
 
-    const unsigned size = file.getSize();
+    const uint32_t size = file.getSize();
     const auto screen = getType(size);
-    if (screen.type == Type::Unknown)
+    if (screen.type == ScrDescription::Type::Unknown)
     {
         ::printf("(EE) Not a ZX-Spectrum screen.\n");
         return false;
     }
 
-    std::vector<unsigned char> buffer(size);
+    std::vector<uint8_t> buffer(size);
     if (file.read(buffer.data(), size) != size)
     {
         ::printf("(EE) Can't read ZX-Spectrum screen data.\n");
         return false;
     }
 
-    desc.size     = size;
+    desc.size = size;
     desc.bppImage = 1;
-    desc.bpp      = 24;
-    desc.format   = GL_RGB;
+    desc.bpp = 24;
+    desc.format = GL_RGB;
 
-    desc.width    = screen.w;
-    desc.height   = screen.h;
-    desc.pitch    = desc.width * 3;
+    desc.width = screen.w;
+    desc.height = screen.h;
+    desc.pitch = desc.width * 3;
     desc.bitmap.resize(desc.pitch * desc.height);
 
     m_formatName = screen.formatName;
 
     switch (screen.type)
     {
-    case Type::Scr:
+    case ScrDescription::Type::Scr:
         loadScr(buffer.data(), desc);
         break;
 
-    case Type::ScS:
+    case ScrDescription::Type::ScS:
         desc.exifList.push_back({ "Comment", (const char*)buffer.data() });
         loadScr(buffer.data() + 17, desc);
         break;
 
-    case Type::ScB:
+    case ScrDescription::Type::ScB:
         loadScB(buffer.data(), desc);
         break;
 
-    case Type::Atr:
+    case ScrDescription::Type::Atr:
         loadAtr(buffer.data(), desc);
         break;
 
-    case Type::Mc4:
-        loadMcX(buffer.data(), desc, 4);
+    case ScrDescription::Type::Mc4:
+        loadMcX(buffer.data(), desc, screen);
         break;
 
-    case Type::Mc2:
-        loadMcX(buffer.data(), desc, 2);
+    case ScrDescription::Type::Mc2:
+        loadMcX(buffer.data(), desc, screen);
         break;
 
-    case Type::Mc1:
-        loadMcX(buffer.data(), desc, 1);
+    case ScrDescription::Type::Mc1:
+        loadMcX(buffer.data(), desc, screen);
         break;
 
-    case Type::BMc4:
-        loadBMcX(buffer.data(), desc, 4);
+    case ScrDescription::Type::BMc4:
+        loadBMc4(buffer.data(), desc, screen);
         break;
 
-    case Type::Unknown: // prevent compiler warning
+    case ScrDescription::Type::Unknown: // prevent compiler warning
         break;
     }
 
