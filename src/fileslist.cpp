@@ -207,7 +207,7 @@ bool cFilesList::isValidExt(const char* path)
         ".dds",
         ".tga", ".targa",
         ".pnm", ".pbm", ".pgm", ".ppm",
-        ".scr", ".atr", ".bsc", ".ifl", ".bmc4", ".mc", ".s", ".$c",
+        ".scr", ".atr", ".bsc", ".ifl", ".bmc4", ".mc", ".s", ".$c", ".mg1", ".mg2", ".mg4", ".mg8", ".img", ".mgs",
     };
 
     for (const char* e : ValidExts)
