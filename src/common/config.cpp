@@ -72,7 +72,7 @@ void cConfig::read(sConfig& config) const
     char path[4096];
 
 #if defined(__APPLE__)
-    ::snprintf(path, sizeof(path), "%s/Library/sviewgl/config", ::getenv("HOME"));
+    ::snprintf(path, sizeof(path), "%s/Library/Application Support/sviewgl/config", ::getenv("HOME"));
 #else
     // make config path according XDG spec
     const char* xdg_path = ::getenv("XDG_CONFIG_HOME");

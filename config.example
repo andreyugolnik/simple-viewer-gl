@@ -5,7 +5,7 @@
 ; If $XDG_CONFIG_HOME is not set $HOME/.config/sviewgl/config will be used
 ;
 ; Mac OS X:
-; Copy it to ~/Library/sviewgl/config
+; Copy it to ~/Library/Application Support/sviewgl/config
 ;
 
 ; true values are: true, enable, 1
