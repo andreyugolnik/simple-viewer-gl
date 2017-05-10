@@ -23,12 +23,17 @@ public:
     void locateFile(const char* path);
 
     const char* getName(int delta = 0);
-    void removeFromDisk();
-    unsigned getCount() const
+
+    void toggleDeletionMark();
+    bool isMarkedForDeletion() const;
+    void removeMarkedFromDisk();
+
+    size_t getCount() const
     {
-        return (unsigned)m_files.size();
+        return m_files.size();
     }
-    unsigned getIndex() const
+
+    size_t getIndex() const
     {
         return m_position;
     }
@@ -41,8 +46,13 @@ private:
 private:
     bool m_allValid;
     bool m_recursive;
-    bool m_removeCurrent;
     bool m_scanDirectory;
-    unsigned m_position; // current position in list
-    std::vector<std::string> m_files;
+    size_t m_position; // current position in list
+
+    struct sFile
+    {
+        bool deletionMark;
+        std::string path;
+    };
+    std::vector<sFile> m_files;
 };

@@ -17,11 +17,12 @@
 #include <memory>
 
 class cCheckerboard;
+class cDeletionMark;
+class cExifPopup;
 class cFilesList;
 class cImageBorder;
 class cImageLoader;
 class cInfoBar;
-class cExifPopup;
 class cPixelPopup;
 class cProgress;
 class cQuadImage;
@@ -127,6 +128,7 @@ private:
     std::unique_ptr<cPixelPopup> m_pixelPopup;
     std::unique_ptr<cExifPopup> m_exifPopup;
     std::unique_ptr<cCheckerboard> m_checkerBoard;
+    std::unique_ptr<cDeletionMark> m_deletionMark;
     std::unique_ptr<cImageBorder> m_border;
     std::unique_ptr<cSelection> m_selection;
 };

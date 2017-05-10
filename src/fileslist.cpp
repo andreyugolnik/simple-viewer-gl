@@ -19,7 +19,6 @@
 cFilesList::cFilesList(bool allValid, bool recursive)
     : m_allValid(allValid)
     , m_recursive(recursive)
-    , m_removeCurrent(false)
     , m_scanDirectory(false)
     , m_position(0)
 {
@@ -31,7 +30,6 @@ cFilesList::~cFilesList()
 
 namespace
 {
-
     std::string GetBaseDir(const char* path)
     {
         std::string dir = path;
@@ -54,7 +52,6 @@ namespace
         auto p = dir->d_name;
         return (p[0] == '.' && (p[1] == '\0' || (p[1] == '.' && p[2] == '\0'))) ? 0 : 1;
     }
-
 }
 
 void cFilesList::parseDir()
@@ -63,8 +60,8 @@ void cFilesList::parseDir()
     {
         m_scanDirectory = false;
 
-        const auto current = m_files[m_position];
-        const auto path = current.c_str();
+        const auto& current = m_files[m_position];
+        const auto path = current.path.c_str();
 
         scanDirectory(GetBaseDir(path));
 
@@ -85,7 +82,7 @@ void cFilesList::addFile(const char* path)
 
     if (isValidExt(path) == true)
     {
-        m_files.push_back(path);
+        m_files.push_back({ false, path });
     }
     else if (m_scanDirectory)
     {
@@ -99,21 +96,23 @@ void cFilesList::addFile(const char* path)
 
 void cFilesList::sortList()
 {
-    std::sort(m_files.begin(), m_files.end(), [](const std::string & a, const std::string & b) -> bool
-    {
-        std::string aa(a);
-        std::string bb(b);
+    std::sort(m_files.begin(), m_files.end(), [](const sFile& a, const sFile& b) -> bool {
+        std::string aa(a.path);
+        std::string bb(b.path);
         std::transform(aa.begin(), aa.end(), aa.begin(), ::tolower);
         std::transform(bb.begin(), bb.end(), bb.begin(), ::tolower);
         return aa < bb;
     });
 
-    m_files.erase(std::unique(m_files.begin(), m_files.end()), m_files.end());
+    auto last = std::unique(m_files.begin(), m_files.end(), [](const sFile& a, const sFile& b) {
+        return a.path == b.path;
+    });
+    m_files.erase(last, m_files.end());
 
     // ::printf("Sorted unique file %u:\n", (uint32_t)m_files.size());
-    // for (auto& f : m_files)
+    // for (const auto& f : m_files)
     // {
-        // ::printf("'%s'\n", f.c_str());
+        // ::printf("'%s'\n", f.path.c_str());
     // }
 }
 
@@ -123,10 +122,11 @@ void cFilesList::locateFile(const char* path)
     const auto len = name.length();
     for (size_t i = 0, count = m_files.size(); i < count; i++)
     {
-        const auto slen = m_files[i].length();
-        if (slen >= len && m_files[i].substr(slen - len, len) == name)
+        const auto& file = m_files[i];
+        const auto slen = file.path.length();
+        if (slen >= len && file.path.substr(slen - len, len) == name)
         {
-            m_position = (unsigned)i;
+            m_position = i;
             break;
         }
     }
@@ -158,7 +158,7 @@ void cFilesList::scanDirectory(const std::string& root)
             }
             else if (isValidExt(path.c_str()) == true)
             {
-                m_files.push_back(path);
+                m_files.push_back({ false, path });
             }
 
             ::free(namelist[n]);
@@ -184,30 +184,29 @@ bool cFilesList::isValidExt(const char* path)
     std::string ext = point;
     std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
 
-    const char* ValidExts[] =
-    {
+    const char* ValidExts[] = {
         // external loaders
-        ".exr", // openexr
+        ".exr",                           // openexr
         ".jpeg", ".jpg", ".jpe", ".jfif", // libjpeg
-        ".tiff", ".tif", // libtiff
-        ".png", // libpng
-        ".gif", // giflib
-        ".webp", // webp
-        ".lbm", ".id3", ".argb", // imlib2
+        ".tiff", ".tif",                  // libtiff
+        ".png",                           // libpng
+        ".gif",                           // giflib
+        ".webp",                          // webp
+        ".lbm", ".id3", ".argb",          // imlib2
 
         // internal loaders
-        ".age",
-        ".raw",
-        ".pvr", ".pvrtc",
-        ".bmp",
-        ".xpm",
-        ".psd",
-        ".ico",
-        ".xwd",
-        ".dds",
-        ".tga", ".targa",
-        ".pnm", ".pbm", ".pgm", ".ppm",
-        ".scr", ".atr", ".bsc", ".ifl", ".bmc4", ".mc", ".s", ".$c", ".mg1", ".mg2", ".mg4", ".mg8", ".img", ".mgs",
+        ".age",                                                                                                      // internal age
+        ".raw",                                                                                                      // internal raw
+        ".pvr", ".pvrtc",                                                                                            // internal pvr/pvrtc
+        ".bmp",                                                                                                      // BMP
+        ".xpm",                                                                                                      // X Pixmap
+        ".psd",                                                                                                      // Adobe PSD
+        ".ico",                                                                                                      // ICO
+        ".xwd",                                                                                                      // X Window Dump
+        ".dds",                                                                                                      // Microsoft DDS
+        ".tga", ".targa", ".tpic",                                                                                   // Truevision Advanced Raster Graphics Adapter
+        ".pnm", ".pbm", ".pgm", ".ppm",                                                                              // Netpbm
+        ".scr", ".atr", ".bsc", ".ifl", ".bmc4", ".mc", ".s", ".$c", ".mg1", ".mg2", ".mg4", ".mg8", ".img", ".mgs", // ZX-Spectrum
     };
 
     for (const char* e : ValidExts)
@@ -226,36 +225,62 @@ const char* cFilesList::getName(int delta)
     if (delta != 0)
     {
         parseDir();
-
-        if (m_removeCurrent == true)
-        {
-            m_removeCurrent = false;
-            const auto path = m_files[m_position].c_str();
-            if (0 == ::unlink(path))
-            {
-                ::printf("(II) File '%s' has been removed from disk.\n", path);
-            }
-
-            // remove path from list
-            m_files.erase(m_files.begin() + m_position);
-            if (delta > 0)
-            {
-                delta = 0;
-            }
-        }
     }
 
-    const size_t count = m_files.size();
+    const auto count = m_files.size();
     if (count > 0)
     {
         m_position = (m_position + count + delta) % count;
-        return m_files[m_position].c_str();
+        return m_files[m_position].path.c_str();
     }
 
     return nullptr;
 }
 
-void cFilesList::removeFromDisk()
+void cFilesList::toggleDeletionMark()
 {
-    m_removeCurrent = true;
+    if (m_position < m_files.size())
+    {
+        auto& file = m_files[m_position];
+        file.deletionMark = !file.deletionMark;
+    }
+}
+
+bool cFilesList::isMarkedForDeletion() const
+{
+    if (m_position < m_files.size())
+    {
+        auto& file = m_files[m_position];
+        return file.deletionMark;
+    }
+    return false;
+}
+
+void cFilesList::removeMarkedFromDisk()
+{
+    for (size_t i = 0, size = m_files.size(); i < size;)
+    {
+        const auto& file = m_files[i];
+        if (file.deletionMark)
+        {
+            const auto path = file.path.c_str();
+            if (::unlink(path) == 0)
+            {
+                ::printf("(II) File '%s' has been removed from disk.\n", path);
+            }
+
+            if (i < m_position)
+            {
+                m_position--;
+            }
+
+            m_files.erase(m_files.begin() + i);
+
+            size--;
+        }
+        else
+        {
+            i++;
+        }
+    }
 }

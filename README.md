@@ -40,7 +40,8 @@ Supported formats: `PNG`, `JPEG`, `PSD`, `GIF`, `TIFF`, `TARGA`, `ICO`, `BMP`, `
 * `<+> / <->`       - scale image;
 * `<1>...<0>`       - set scale from 100% to 1000%;
 * `<enter>`         - switch fullscreen / windowed mode;
-* `<ctrl>+<del>`    - delete image from disk;
+* `<del>`           - toggle deletion mark;
+* `<ctrl>+<del>`    - delete marked images from disk;
 * `<r>`             - rotate clockwise;
 * `<shift>+<r>`     - rotate counterclockwise;
 * `<pgup> / <bgdn>` - previous /next subimage;

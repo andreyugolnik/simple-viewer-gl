@@ -10,6 +10,7 @@
 #include "viewer.h"
 #include "checkerboard.h"
 #include "common/config.h"
+#include "deletionmark.h"
 #include "exifpopup.h"
 #include "fileslist.h"
 #include "imageborder.h"
@@ -27,7 +28,6 @@
 
 namespace
 {
-
     const int DEF_WINDOW_W = 300;
     const int DEF_WINDOW_H = 200;
 
@@ -38,7 +38,6 @@ namespace
         scale *= step;
         return oldScale != scale;
     }
-
 }
 
 cViewer::cViewer(sConfig& config)
@@ -52,6 +51,7 @@ cViewer::cViewer(sConfig& config)
     m_image.reset(new cQuadImage());
     m_loader.reset(new cImageLoader(this));
     m_checkerBoard.reset(new cCheckerboard(config));
+    m_deletionMark.reset(new cDeletionMark());
     m_infoBar.reset(new cInfoBar(config));
     m_pixelPopup.reset(new cPixelPopup());
     m_exifPopup.reset(new cExifPopup());
@@ -75,6 +75,7 @@ void cViewer::setWindow(GLFWwindow* window)
     cRenderer::setWindow(window, 2048);
 
     m_checkerBoard->init();
+    m_deletionMark->init();
     m_infoBar->init();
     m_pixelPopup->init();
     m_exifPopup->init();
@@ -146,6 +147,11 @@ void cViewer::render()
         m_infoBar->render();
     }
 
+    if (m_filesList->isMarkedForDeletion())
+    {
+        m_deletionMark->render();
+    }
+
     if (m_config.showPixelInfo && m_cursorInside && m_angle == 0)
     {
         m_pixelPopup->render();
@@ -163,9 +169,7 @@ void cViewer::update()
         m_imagePrepared = false;
 
         auto& desc = m_loader->getDescription();
-        m_image->setBuffer(desc.width, desc.height, desc.pitch
-                           , desc.format, desc.bpp
-                           , desc.bitmap.data());
+        m_image->setBuffer(desc.width, desc.height, desc.pitch, desc.format, desc.bpp, desc.bitmap.data());
 
         if (m_loader->getMode() == cImageLoader::Mode::Image)
         {
@@ -383,7 +387,17 @@ void cViewer::fnKeyboard(int key, int /*scancode*/, int action, int mods)
     case GLFW_KEY_DELETE:
         if (mods & GLFW_MOD_CONTROL)
         {
-            m_filesList->removeFromDisk();
+            const bool marked = m_filesList->isMarkedForDeletion();
+            m_filesList->removeMarkedFromDisk();
+
+            if (marked)
+            {
+                loadImage(0);
+            }
+        }
+        else
+        {
+            m_filesList->toggleDeletionMark();
         }
         break;
 
@@ -497,8 +511,7 @@ void cViewer::shiftCamera(const Vectorf& delta)
 
     const float inv = 1.0f / m_scale.getScale();
     const auto& viewport = cRenderer::getViewportSize();
-    const auto half = Vectorf(viewport.x * inv + m_image->getWidth()
-                               , viewport.y * inv + m_image->getHeight()) * 0.5f;
+    const auto half = Vectorf(viewport.x * inv + m_image->getWidth(), viewport.y * inv + m_image->getHeight()) * 0.5f;
     m_camera.x = std::max<float>(m_camera.x, -half.x);
     m_camera.x = std::min<float>(m_camera.x, half.x);
     m_camera.y = std::max<float>(m_camera.y, -half.y);
@@ -661,22 +674,22 @@ void cViewer::updateInfobar()
     calculateScale();
 
     cInfoBar::sInfo s;
-    s.path        = m_filesList->getName();
-    s.scale       = m_scale.getScale();
-    s.index       = m_filesList->getIndex();
+    s.path = m_filesList->getName();
+    s.scale = m_scale.getScale();
+    s.index = m_filesList->getIndex();
     s.files_count = m_filesList->getCount();
 
     if (m_loader->isLoaded())
     {
         auto& desc = m_loader->getDescription();
-        s.width       = desc.width;
-        s.height      = desc.height;
-        s.bpp         = desc.bppImage;
-        s.images      = desc.images;
-        s.current     = desc.current;
-        s.file_size   = desc.size;
-        s.mem_size    = desc.bitmap.size();
-        s.type        = m_loader->getImageType();
+        s.width = desc.width;
+        s.height = desc.height;
+        s.bpp = desc.bppImage;
+        s.images = desc.images;
+        s.current = desc.current;
+        s.file_size = desc.size;
+        s.mem_size = desc.bitmap.size();
+        s.type = m_loader->getImageType();
     }
     else
     {
@@ -689,9 +702,7 @@ Vectorf cViewer::screenToImage(const Vectorf& pos) const
 {
     const float inv = 1.0f / m_scale.getScale();
     const auto& viewport = cRenderer::getViewportSize();
-    return pos + m_camera -
-        Vectorf(viewport.x * inv - m_image->getWidth()
-                , viewport.y * inv - m_image->getHeight()) * 0.5f;
+    return pos + m_camera - Vectorf(viewport.x * inv - m_image->getWidth(), viewport.y * inv - m_image->getHeight()) * 0.5f;
 }
 
 void cViewer::updatePixelInfo(const Vectorf& pos)
@@ -719,8 +730,7 @@ void cViewer::updatePixelInfo(const Vectorf& pos)
             if (desc.bpp == 24 || desc.bpp == 32)
             {
                 const bool bgrx = desc.format == GL_BGRA || desc.format == GL_BGR;
-                pixelInfo.color =
-                {
+                pixelInfo.color = {
                     color[bgrx ? 2 : 0],
                     color[1],
                     color[bgrx ? 0 : 2],
@@ -734,33 +744,30 @@ void cViewer::updatePixelInfo(const Vectorf& pos)
                 {
                     const float norm5 = 255.0f / 0x1f;
                     const float norm6 = 255.0f / 0x3f;
-                    pixelInfo.color =
-                    {
+                    pixelInfo.color = {
                         (uint8_t)(((c >> 11) & 0x1f) * norm5),
-                        (uint8_t)(((c >>  5) & 0x3f) * norm6),
-                        (uint8_t)(((c >>  0) & 0x1f) * norm5),
+                        (uint8_t)(((c >> 5) & 0x3f) * norm6),
+                        (uint8_t)(((c >> 0) & 0x1f) * norm5),
                         255
                     };
                 }
                 else if (desc.format == GL_UNSIGNED_SHORT_4_4_4_4)
                 {
                     const float norm4 = 255.0f / 0x0f;
-                    pixelInfo.color =
-                    {
+                    pixelInfo.color = {
                         (uint8_t)(((c >> 12) & 0x0f) * norm4),
-                        (uint8_t)(((c >>  8) & 0x0f) * norm4),
-                        (uint8_t)(((c >>  4) & 0x0f) * norm4),
-                        (uint8_t)(((c >>  0) & 0x0f) * norm4),
+                        (uint8_t)(((c >> 8) & 0x0f) * norm4),
+                        (uint8_t)(((c >> 4) & 0x0f) * norm4),
+                        (uint8_t)(((c >> 0) & 0x0f) * norm4),
                     };
                 }
                 else if (desc.format == GL_UNSIGNED_SHORT_5_5_5_1)
                 {
                     const float norm5 = 255.0f / 0x1f;
-                    pixelInfo.color =
-                    {
+                    pixelInfo.color = {
                         (uint8_t)(((c >> 11) & 0x1f) * norm5),
-                        (uint8_t)(((c >>  5) & 0x3f) * norm5),
-                        (uint8_t)(((c >>  0) & 0x1f) * norm5),
+                        (uint8_t)(((c >> 5) & 0x3f) * norm5),
+                        (uint8_t)(((c >> 0) & 0x1f) * norm5),
                         (uint8_t)(((c >> 15) & 0x01) * 255)
                     };
                 }
