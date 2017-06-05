@@ -9,25 +9,18 @@
 
 #pragma once
 
-#include "ftstring.h"
+#include "popup.h"
 #include "common/bitmap_description.h"
 
-#include <memory>
-
-class cExifPopup final
+class cExifPopup final : public cPopup
 {
 public:
-    void init();
-    void setScale(float scale);
+    void init() override;
+    void render() override;
 
     void setExifList(const sBitmapDescription::ExifList& exifList);
-    void render();
 
 private:
-    void createFont(int fontSize);
-
-private:
-    float m_scale = 0.0f;
     struct Exif
     {
         Vectorf tagOffset;
@@ -37,6 +30,4 @@ private:
     };
     std::vector<Exif> m_exif;
     Vectorf m_bgSize;
-    std::unique_ptr<cQuad> m_bg;
-    std::unique_ptr<cFTString> m_ft;
 };

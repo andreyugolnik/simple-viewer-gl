@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include "ftstring.h"
+#include "popup.h"
 
 #include <string>
 #include <memory>
@@ -17,14 +17,14 @@
 class cQuad;
 struct sConfig;
 
-class cInfoBar final
+class cInfoBar final : public cPopup
 {
 public:
     explicit cInfoBar(const sConfig& config);
 
-    void init();
+    void init() override;
+    void render() override;
 
-    void setScale(float scale);
     float getHeight() const
     {
         return m_height;
@@ -47,23 +47,21 @@ public:
     };
 
     void setInfo(const sInfo& p);
-    void render();
+
+protected:
+    virtual void createFont(int fontSize, const cColor& color = cColor::White) override;
 
 private:
     const char* getHumanSize(float& size);
-    void createFont(int fontSize);
     const std::string& shortenFilename(const char* path);
 
 private:
     const sConfig& m_config;
 
-    float m_scale = 0.0f;
     std::string m_filename;
     std::string m_bottominfo;
     Vectorf m_bounds;
 
     float m_height = 0.0f;
-    std::unique_ptr<cQuad> m_bg;
-    std::unique_ptr<cFTString> m_ft;
     std::unique_ptr<cFTString> m_fps;
 };
