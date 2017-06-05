@@ -189,7 +189,7 @@ namespace
         };
 
         return compression < helpers::countof(Names) ? Names[compression] : "n/a";
-    };
+    }
 
     void debugHeader(const BITMAPCOREHEADER& header)
     {
