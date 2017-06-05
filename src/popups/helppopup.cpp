@@ -122,7 +122,7 @@ void cHelpPopup::render()
             m_ft->setColor(descriptionColor);
             m_ft->draw(pos + offset, s.description, scale);
 
-            pos.y += RowHeight;
+            pos.y += RowHeight * scale;
         };
     }
 }
