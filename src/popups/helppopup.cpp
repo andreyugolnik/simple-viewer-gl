@@ -14,8 +14,8 @@
 namespace
 {
     const int AlphaColor = 200;
-    const cColor tagColor{ 255, 255, 150, AlphaColor };
-    const cColor valueColor{ 255, 255, 255, AlphaColor };
+    const cColor keyColor{ 255, 255, 150, AlphaColor };
+    const cColor descriptionColor{ 255, 255, 255, AlphaColor };
 
     const float Border = 10.0f;
     const float RowHeight = 30.0f;
@@ -101,7 +101,11 @@ void cHelpPopup::render()
             calculate();
         }
 
-        Vectorf pos{ 5.0f, 5.0f };
+        int width;
+        int height;
+        glfwGetFramebufferSize(cRenderer::getWindow(), &width, &height);
+
+        Vectorf pos{ width - (m_bgSize.x + 5.0f), 5.0f };
 
         m_bg->setSpriteSize(m_bgSize);
         m_bg->render(pos);
@@ -112,9 +116,10 @@ void cHelpPopup::render()
         pos += Vectorf{ Border, Border } * scale;
         for (const auto& s : KeyBindingsList)
         {
-            m_ft->setColor(tagColor);
+            m_ft->setColor(keyColor);
             m_ft->draw(pos, s.key, scale);
-            m_ft->setColor(valueColor);
+
+            m_ft->setColor(descriptionColor);
             m_ft->draw(pos + offset, s.description, scale);
 
             pos.y += RowHeight;
