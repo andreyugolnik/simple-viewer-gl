@@ -15,6 +15,10 @@
 #include "types/rect.h"
 #include "types/vector.h"
 
+#include <vector>
+#include <string>
+#include <memory>
+
 struct sPixelInfo
 {
     sPixelInfo()
@@ -45,9 +49,9 @@ struct sPixelInfo
 class cPixelPopup final : public cPopup
 {
 public:
-    void init() override;
     void render() override;
 
+    void init();
     void setPixelInfo(const sPixelInfo& pi);
     void setCursor(int cursor);
 
@@ -55,8 +59,6 @@ private:
     bool isInsideImage(const Vectorf& pos) const;
 
 private:
-    Vectorf m_bgSize;
-
     float m_border = 4.0f;
     float m_rowHeight = 0.0f;
 
@@ -79,5 +81,4 @@ private:
     std::vector<Info> m_info;
 
     std::unique_ptr<cQuadSeries> m_pointer;
-    std::unique_ptr<cQuadSeries> m_icons;
 };

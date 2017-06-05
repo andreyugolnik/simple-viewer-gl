@@ -14,9 +14,7 @@
 class cHelpPopup final : public cPopup
 {
 public:
-    void init() override;
     void render() override;
-    void setScale(float scale) override;
 
     void show(bool show)
     {
@@ -29,11 +27,5 @@ public:
     }
 
 private:
-    void calculate();
-
-private:
     bool m_isVisible = false;
-    bool m_dirty = true;
-    float m_descriptionOffset = 0.0f;
-    Vectorf m_bgSize;
 };

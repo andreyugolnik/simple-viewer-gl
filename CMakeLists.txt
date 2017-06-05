@@ -23,7 +23,6 @@ set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11" )
 find_package(PkgConfig)
 find_package(OpenGL REQUIRED)
 find_package(GLFW REQUIRED)
-find_package(Freetype REQUIRED)
 find_package(PNG REQUIRED)
 find_package(JPEG REQUIRED)
 find_package(TIFF REQUIRED)
@@ -60,7 +59,6 @@ endif(HAVE_RT_LIBRARY)
 include_directories(
     "src"
     ${EXIF_INCLUDE_DIRS}
-    ${FREETYPE_INCLUDE_DIRS}
     ${GLFW_INCLUDE_DIRS}
     ${LCMS2_INCLUDE_DIR}
     ${OPENGL_INCLUDE_DIR}
@@ -128,7 +126,6 @@ target_link_libraries( sviewgl
     ${TIFF_LIBRARY}
     ${GIF_LIBRARY}
     ${WEBP_LIBRARIES}
-    ${FREETYPE_LIBRARY}
     ${LCMS2_LIBRARIES}
     ${EXIF_LIBRARIES}
     )

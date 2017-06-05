@@ -83,10 +83,10 @@ void cViewer::setWindow(GLFWwindow* window)
 
     m_checkerBoard->init();
     m_deletionMark->init();
-    m_infoBar->init();
+    // m_infoBar->init();
     m_pixelPopup->init();
-    m_exifPopup->init();
-    m_helpPopup->init();
+    // m_exifPopup->init();
+    // m_helpPopup->init();
     m_progress->init();
     m_selection->init();
 
@@ -255,12 +255,12 @@ void cViewer::onResize(const Vectori& size)
 
     cRenderer::setViewportSize(fbSize);
 
-    const float scale = m_ratio.x * m_config.fontRatio;
+    // const float scale = m_ratio.x * m_config.fontRatio;
     // m_imgui.setScale(scale);
-    m_pixelPopup->setScale(scale);
-    m_exifPopup->setScale(scale);
-    m_helpPopup->setScale(scale);
-    m_infoBar->setScale(scale);
+    // m_pixelPopup->setScale(scale);
+    // m_exifPopup->setScale(scale);
+    // m_helpPopup->setScale(scale);
+    // m_infoBar->setScale(scale);
 
     updatePixelInfo(m_lastMouse);
     updateInfobar();

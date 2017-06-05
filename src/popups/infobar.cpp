@@ -10,7 +10,8 @@
 #include "infobar.h"
 #include "common/config.h"
 #include "common/unicode.h"
-#include "quad.h"
+#include "imgui/imgui.h"
+#include "renderer.h"
 
 #include <cmath>
 #include <cstring>
@@ -20,63 +21,39 @@ cInfoBar::cInfoBar(const sConfig& config)
 {
 }
 
-void cInfoBar::init()
-{
-    createBackground({ 0, 0, 25, 240 });
-
-    const int DesiredFontSize = 30;
-    createFont(DesiredFontSize, { 255, 255, 127, 255 });
-
-    const float DesiredHeight = 36;
-    m_height = DesiredHeight;
-}
-
-void cInfoBar::createFont(int fontSize, const cColor& color)
-{
-    cPopup::createFont(fontSize, color);
-
-    if (m_config.debug)
-    {
-        m_fps.reset(new cFTString(fontSize));
-        m_fps->setColor({ 0, 0, 0, 255 });
-    }
-}
-
 void cInfoBar::render()
 {
     int width;
     int height;
     glfwGetFramebufferSize(cRenderer::getWindow(), &width, &height);
 
-    const float scale = m_scale;
+    // Vectorf pos{ 0.0f, height - m_height * scale };
+    // m_bg->setSpriteSize({ (float)width, m_height * scale });
+    // m_bg->render(pos);
 
-    Vectorf pos{ 0.0f, height - m_height * scale };
-    m_bg->setSpriteSize({ (float)width, m_height * scale });
-    m_bg->render(pos);
+    // pos += Vectorf{ 3, (m_height - m_bounds.y) * 0.5f - 2.0f } * scale;
+    // m_ft->draw(pos, m_bottominfo.c_str(), scale);
 
-    pos += Vectorf{ 3, (m_height - m_bounds.y) * 0.5f - 2.0f } * scale;
-    m_ft->draw(pos, m_bottominfo.c_str(), scale);
+    // if (m_fps.get() != nullptr)
+    // {
+        // static unsigned frame = 0;
+        // static float fps = 0.0f;
 
-    if (m_fps.get() != nullptr)
-    {
-        static unsigned frame = 0;
-        static float fps = 0.0f;
+        // frame++;
+        // static auto last = glfwGetTime();
+        // const auto now = glfwGetTime();
+        // const auto delta = now - last;
+        // if (delta > 0.5f)
+        // {
+            // fps = frame / delta;
+            // last = now;
+            // frame = 0;
+        // }
 
-        frame++;
-        static auto last = glfwGetTime();
-        const auto now = glfwGetTime();
-        const auto delta = now - last;
-        if (delta > 0.5f)
-        {
-            fps = frame / delta;
-            last = now;
-            frame = 0;
-        }
-
-        char buffer[20];
-        ::snprintf(buffer, sizeof(buffer), "%.1f", fps);
-        m_fps->draw({ 20.0f, 20.0f }, buffer);
-    }
+        // char buffer[20];
+        // ::snprintf(buffer, sizeof(buffer), "%.1f", fps);
+        // m_fps->draw({ 20.0f, 20.0f }, buffer);
+    // }
 }
 
 void cInfoBar::setInfo(const sInfo& p)
@@ -105,7 +82,6 @@ void cInfoBar::setInfo(const sInfo& p)
     ::snprintf(title, sizeof(title), "%s%s%s | %s | %u x %u x %u bpp (%.1f%%) | %.1f %s (%.1f %s)", idx_img, name, sub_image, p.type, p.width, p.height, p.bpp, p.scale * 100.0f, file_size, file_s.c_str(), mem_size, mem_s.c_str());
 
     m_bottominfo = title;
-    m_bounds = m_ft->getBounds(title);
 
     glfwSetWindowTitle(cRenderer::getWindow(), name);
 }
