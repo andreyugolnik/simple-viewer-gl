@@ -11,12 +11,13 @@
 #include "checkerboard.h"
 #include "common/config.h"
 #include "deletionmark.h"
-#include "exifpopup.h"
 #include "fileslist.h"
 #include "imageborder.h"
 #include "imageloader.h"
-#include "infobar.h"
-#include "pixelpopup.h"
+#include "popups/exifpopup.h"
+#include "popups/helppopup.h"
+#include "popups/infobar.h"
+#include "popups/pixelpopup.h"
 #include "progress.h"
 #include "quadimage.h"
 #include "selection.h"
@@ -55,6 +56,7 @@ cViewer::cViewer(sConfig& config)
     m_infoBar.reset(new cInfoBar(config));
     m_pixelPopup.reset(new cPixelPopup());
     m_exifPopup.reset(new cExifPopup());
+    m_helpPopup.reset(new cHelpPopup());
     m_progress.reset(new cProgress());
     m_border.reset(new cImageBorder());
     m_selection.reset(new cSelection());
@@ -79,6 +81,7 @@ void cViewer::setWindow(GLFWwindow* window)
     m_infoBar->init();
     m_pixelPopup->init();
     m_exifPopup->init();
+    m_helpPopup->init();
     m_progress->init();
     m_selection->init();
 
@@ -156,6 +159,8 @@ void cViewer::render()
     {
         m_pixelPopup->render();
     }
+
+    m_helpPopup->render();
 
     m_progress->render();
 
@@ -238,6 +243,7 @@ void cViewer::fnResize(const Vectori& size)
     const float scale = m_ratio.x * m_config.fontRatio;
     m_pixelPopup->setScale(scale);
     m_exifPopup->setScale(scale);
+    m_helpPopup->setScale(scale);
     m_infoBar->setScale(scale);
 
     updatePixelInfo(m_lastMouse);
@@ -339,6 +345,13 @@ void cViewer::fnKeyboard(int key, int /*scancode*/, int action, int mods)
 
     switch (key)
     {
+    case GLFW_KEY_SLASH:
+        if (mods & GLFW_MOD_SHIFT)
+        {
+            m_helpPopup->show(!m_helpPopup->isVisible());
+        }
+        break;
+
     case GLFW_KEY_ESCAPE:
     case GLFW_KEY_Q:
         glfwSetWindowShouldClose(cRenderer::getWindow(), 1);

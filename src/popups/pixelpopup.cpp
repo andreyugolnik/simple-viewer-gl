@@ -8,15 +8,14 @@
 \**********************************************/
 
 #include "pixelpopup.h"
-#include "img-pointer-cross.c"
 #include "img-icons.c"
+#include "img-pointer-cross.c"
 #include "types/math.h"
 
 #include <cstring>
 
 namespace
 {
-
     const float InfoOffset = 10.0f;
 
     const float IconsWidth = 26.0f;
@@ -33,37 +32,24 @@ void cPixelPopup::init()
 {
     m_pixelInfo.reset();
 
-    m_bg.reset(new cQuad(0, 0));
-    m_bg->setColor({ 0, 0, 0, AlphaColor });
+    createBackground();
 
-    m_pointer.reset(new cQuadSeries(imgPointerCross.width, imgPointerCross.height
-                                    , imgPointerCross.pixel_data, imgPointerCross.bytes_per_pixel == 3 ? GL_RGB : GL_RGBA));
+    m_pointer.reset(new cQuadSeries(imgPointerCross.width, imgPointerCross.height, imgPointerCross.pixel_data, imgPointerCross.bytes_per_pixel == 3 ? GL_RGB : GL_RGBA));
     m_pointer->setup(21, 21, 10);
     setCursor(0);
 
-    m_icons.reset(new cQuadSeries(imgIcons.width, imgIcons.height
-                                  , imgIcons.pixel_data, imgIcons.bytes_per_pixel == 3 ? GL_RGB : GL_RGBA));
+    m_icons.reset(new cQuadSeries(imgIcons.width, imgIcons.height, imgIcons.pixel_data, imgIcons.bytes_per_pixel == 3 ? GL_RGB : GL_RGBA));
     m_icons->setup(IconsWidth, IconsHeight, 4);
     m_icons->setColor({ 155, 155, 155, AlphaColor });
 
     const int desiredFontSize = 30;
     createFont(desiredFontSize);
-}
-
-void cPixelPopup::setScale(float scale)
-{
-    m_scale = scale;
 
     const float RowHeight = 36.0f;
     m_rowHeight = RowHeight;
 
     const float Border = 10.0f;
     m_border = Border;
-}
-
-void cPixelPopup::createFont(int fontSize)
-{
-    m_ft.reset(new cFTString(fontSize));
 }
 
 void cPixelPopup::setPixelInfo(const sPixelInfo& pi)
@@ -81,8 +67,7 @@ void cPixelPopup::setPixelInfo(const sPixelInfo& pi)
     if (isInside)
     {
         const auto& c = pi.color;
-        ::snprintf(buffer, sizeof(buffer), "rgba %.2X %.2X %.2X %.2X"
-                   , c.r, c.g, c.b, c.a);
+        ::snprintf(buffer, sizeof(buffer), "rgba %.2X %.2X %.2X %.2X", c.r, c.g, c.b, c.a);
         m_info.push_back({ Info::Icon::Color, WhiteColor, buffer, {} });
     }
     else
@@ -114,16 +99,14 @@ void cPixelPopup::setPixelInfo(const sPixelInfo& pi)
         auto bounds = m_ft->getBounds(s.text.c_str());
         width = std::max<float>(width, bounds.x);
 
-        s.offset =
-        {
+        s.offset = {
             IconsWidth + TextOffset,
             (m_rowHeight - bounds.y) * 0.5f - 4.0f
         };
         s.offset *= scale;
     }
 
-    m_bgSize =
-    {
+    m_bgSize = {
         IconsWidth + TextOffset + width + 2.0f * m_border,
         m_rowHeight * m_info.size() + 2.0f * m_border
     };
@@ -139,8 +122,7 @@ void cPixelPopup::render()
     const auto& viewport = cRenderer::getViewportSize();
     const auto& size = m_bg->getSize();
 
-    Vectorf pos
-    {
+    Vectorf pos{
         clamp<float>(0.0f, viewport.x - size.x, ::roundf(mx + InfoOffset)),
         clamp<float>(0.0f, viewport.y - size.y, ::roundf(my + InfoOffset))
     };

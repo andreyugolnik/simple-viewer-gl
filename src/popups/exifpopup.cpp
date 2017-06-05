@@ -13,31 +13,17 @@
 
 namespace
 {
-
     const int AlphaColor = 200;
     const float Border = 10.0f;
     const float RowHeight = 30.0f;
-
 }
 
 void cExifPopup::init()
 {
-    m_bg.reset(new cQuad(0, 0));
-    m_bg->setColor({ 0, 0, 0, AlphaColor });
+    createBackground();
 
     const int DesiredFontSize = 30;
-    createFont(DesiredFontSize);
-}
-
-void cExifPopup::setScale(float scale)
-{
-    m_scale = scale;
-}
-
-void cExifPopup::createFont(int fontSize)
-{
-    m_ft.reset(new cFTString(fontSize));
-    m_ft->setColor({ 255, 255, 255, AlphaColor });
+    createFont(DesiredFontSize, { 255, 255, 255, AlphaColor });
 }
 
 void cExifPopup::setExifList(const sBitmapDescription::ExifList& exifList)
@@ -57,21 +43,18 @@ void cExifPopup::setExifList(const sBitmapDescription::ExifList& exifList)
             auto valueBounds = m_ft->getBounds(e.value.c_str());
 
             m_exif.push_back(
-            {
-                Vectorf{ 0.0f, row } * scale,
-                e.tag,
-                Vectorf{ tagBounds.x + space, row } * scale,
-                e.value
-            });
+                { Vectorf{ 0.0f, row } * scale,
+                  e.tag,
+                  Vectorf{ tagBounds.x + space, row } * scale,
+                  e.value });
 
             row += RowHeight;
             width = std::max<float>(width, tagBounds.x + valueBounds.x);
         }
 
-        m_bgSize =
-        {
+        m_bgSize = {
             width + space + 2.0f * Border,
-            RowHeight* rows + 2.0f * Border
+            RowHeight * rows + 2.0f * Border
         };
         m_bgSize *= scale;
     }

@@ -9,13 +9,11 @@
 
 #pragma once
 
-#include "ftstring.h"
+#include "popup.h"
 #include "quadseries.h"
 #include "types/color.h"
 #include "types/rect.h"
 #include "types/vector.h"
-
-#include <memory>
 
 struct sPixelInfo
 {
@@ -44,23 +42,19 @@ struct sPixelInfo
     Rectf rc;
 };
 
-class cPixelPopup final
+class cPixelPopup final : public cPopup
 {
 public:
-    void init();
-
-    void setScale(float ratio);
+    void init() override;
+    void render() override;
 
     void setPixelInfo(const sPixelInfo& pi);
-    void render();
     void setCursor(int cursor);
 
 private:
-    void createFont(int fontSize);
     bool isInsideImage(const Vectorf& pos) const;
 
 private:
-    float m_scale = 0.0f;
     Vectorf m_bgSize;
 
     float m_border = 4.0f;
@@ -84,8 +78,6 @@ private:
     };
     std::vector<Info> m_info;
 
-    std::unique_ptr<cQuad> m_bg;
     std::unique_ptr<cQuadSeries> m_pointer;
     std::unique_ptr<cQuadSeries> m_icons;
-    std::unique_ptr<cFTString> m_ft;
 };

@@ -12,8 +12,8 @@
 #include "common/unicode.h"
 #include "quad.h"
 
-#include <cstring>
 #include <cmath>
+#include <cstring>
 
 cInfoBar::cInfoBar(const sConfig& config)
     : m_config(config)
@@ -22,25 +22,18 @@ cInfoBar::cInfoBar(const sConfig& config)
 
 void cInfoBar::init()
 {
-    m_bg.reset(new cQuad(0, 0));
-    m_bg->setColor({ 0, 0, 25, 240 });
+    createBackground({ 0, 0, 25, 240 });
 
     const int DesiredFontSize = 30;
-    createFont(DesiredFontSize);
-}
-
-void cInfoBar::setScale(float scale)
-{
-    m_scale = scale;
+    createFont(DesiredFontSize, { 255, 255, 127, 255 });
 
     const float DesiredHeight = 36;
     m_height = DesiredHeight;
 }
 
-void cInfoBar::createFont(int fontSize)
+void cInfoBar::createFont(int fontSize, const cColor& color)
 {
-    m_ft.reset(new cFTString(fontSize));
-    m_ft->setColor({ 255, 255, 127, 255 });
+    cPopup::createFont(fontSize, color);
 
     if (m_config.debug)
     {
@@ -57,7 +50,7 @@ void cInfoBar::render()
 
     const float scale = m_scale;
 
-    Vectorf pos { 0.0f, height - m_height * scale };
+    Vectorf pos{ 0.0f, height - m_height * scale };
     m_bg->setSpriteSize({ (float)width, m_height * scale });
     m_bg->render(pos);
 
@@ -109,15 +102,7 @@ void cInfoBar::setInfo(const sInfo& p)
     std::string mem_s = getHumanSize(mem_size);
 
     char title[1000] = { 0 };
-    ::snprintf(title, sizeof(title)
-               , "%s%s%s | %s | %u x %u x %u bpp (%.1f%%) | %.1f %s (%.1f %s)"
-               , idx_img
-               , name
-               , sub_image
-               , p.type
-               , p.width, p.height, p.bpp, p.scale * 100.0f
-               , file_size, file_s.c_str()
-               , mem_size, mem_s.c_str());
+    ::snprintf(title, sizeof(title), "%s%s%s | %s | %u x %u x %u bpp (%.1f%%) | %.1f %s (%.1f %s)", idx_img, name, sub_image, p.type, p.width, p.height, p.bpp, p.scale * 100.0f, file_size, file_s.c_str(), mem_size, mem_s.c_str());
 
     m_bottominfo = title;
     m_bounds = m_ft->getBounds(title);

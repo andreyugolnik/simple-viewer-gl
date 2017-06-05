@@ -58,6 +58,7 @@ if(HAVE_RT_LIBRARY)
 endif(HAVE_RT_LIBRARY)
 
 include_directories(
+    "src"
     ${EXIF_INCLUDE_DIRS}
     ${FREETYPE_INCLUDE_DIRS}
     ${GLFW_INCLUDE_DIRS}

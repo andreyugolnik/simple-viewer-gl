@@ -52,6 +52,7 @@ Supported formats: `PNG`, `JPEG`, `PSD`, `GIF`, `TIFF`, `TARGA`, `ICO`, `BMP`, `
 * `<e>`             - hide / show exif;
 * `<p>`             - hide / show pixel info;
 * `<b>`             - hide / show border around image;
+* `<?>`             - hide / show keybindings popup;
 
 ***
 ##Download and build from sources##
@@ -74,7 +75,10 @@ $ make release
 Update and install required dependencies:
 ```bash
 $ sudo apt-get update
-$ sudo apt-get install g++ make build-essential debhelper cmake pkg-config libgl1-mesa-dev libxrandr-dev libxcursor-dev libfreetype6-dev libjpeg-dev libtiff-dev libgif-dev liblcms2-dev libimlib2-dev libwebp-dev libglfw3-dev libexif-dev libilmbase-dev libopenexr-dev
+$ sudo apt-get install g++ make build-essential debhelper cmake pkg-config libgl1-mesa-dev
+$ sudo apt-get install libxrandr-dev libxcursor-dev libfreetype6-dev libjpeg-dev
+$ sudo apt-get install libtiff-dev libgif-dev liblcms2-dev libimlib2-dev libwebp-dev
+$ sudo apt-get install libglfw3-dev libexif-dev libilmbase-dev libopenexr-dev
 ```
 
 Clone and make DEB:
@@ -91,7 +95,9 @@ $ make deb
 
 Update and install required dependencies:
 ```bash
-$ sudo dnf install gcc-c++ make cmake mesa-libGL-devel glfw-devel freetype-devel libpng-devel libjpeg-turbo-devel libtiff-devel giflib-devel lcms2-devel libwebp-devel libexif-devel imlib2-devel zlib-devel ilmbase-devel OpenEXR-devel
+$ sudo dnf install gcc-c++ make cmake mesa-libGL-devel glfw-devel freetype-devel
+$ sudo dnf install libpng-devel libjpeg-turbo-devel libtiff-devel giflib-devel lcms2-devel
+$ sudo dnf install libwebp-devel libexif-devel imlib2-devel zlib-devel ilmbase-devel OpenEXR-devel
 ```
 
 Clone and make source for RPM:
