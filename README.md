@@ -52,6 +52,7 @@ Supported formats: `PNG`, `JPEG`, `PSD`, `GIF`, `TIFF`, `TARGA`, `ICO`, `BMP`, `
 * `<e>`             - hide / show exif;
 * `<p>`             - hide / show pixel info;
 * `<b>`             - hide / show border around image;
+* `<?>`             - hide / show keybindings popup;
 
 ***
 ##Download and build from sources##
