@@ -11,34 +11,13 @@
 #include "img-icons.c"
 #include "img-pointer-cross.c"
 #include "types/math.h"
-#include "imgui/imgui.h"
 
 #include <cstring>
 
 namespace
 {
-    const float InfoOffset = 10.0f;
-
-    const float IconsWidth = 26.0f;
-    const float IconsHeight = 26.0f;
-
-    const float TextOffset = 16.0f;
-
-    const int AlphaColor = 200;
-    const cColor GrayColor{ 155, 155, 155, AlphaColor };
-    const cColor WhiteColor{ 255, 255, 255, AlphaColor };
-
-    const char* GetIcon(uint32_t icon)
-    {
-        const char* Icons[] = {
-            "P",
-            "C",
-            "S",
-            "R",
-        };
-
-        return Icons[icon];
-    }
+    const ImVec4 GrayColor{ 0.6f, 0.6f, 0.6f, 1.0f };
+    const ImVec4 WhiteColor{ 1.0f, 1.0f, 1.0f, 1.0f };
 }
 
 void cPixelPopup::init()
@@ -49,11 +28,8 @@ void cPixelPopup::init()
     m_pointer->setup(21, 21, 10);
     setCursor(0);
 
-    const float RowHeight = 36.0f;
-    m_rowHeight = RowHeight;
-
-    const float Border = 10.0f;
-    m_border = Border;
+    m_icons.reset(new cQuadSeries(imgIcons.width, imgIcons.height, imgIcons.pixel_data, imgIcons.bytes_per_pixel == 3 ? GL_RGB : GL_RGBA));
+    m_icons->setup(16, 16, 4);
 }
 
 void cPixelPopup::setPixelInfo(const sPixelInfo& pi)
@@ -94,27 +70,6 @@ void cPixelPopup::setPixelInfo(const sPixelInfo& pi)
         ::snprintf(buffer, sizeof(buffer), "%d, %d -> %d, %d", x, y, x + w - 1, y + h - 1);
         m_info.push_back({ Info::Icon::Rect, WhiteColor, buffer, {} });
     }
-
-    // const float scale = m_scale;
-
-    // float width = 0;
-    // for (auto& s : m_info)
-    // {
-        // auto bounds = m_ft->getBounds(s.text.c_str());
-        // width = std::max<float>(width, bounds.x);
-
-        // s.offset = {
-            // IconsWidth + TextOffset,
-            // (m_rowHeight - bounds.y) * 0.5f - 4.0f
-        // };
-        // s.offset *= scale;
-    // }
-
-    // m_bgSize = {
-        // IconsWidth + TextOffset + width + 2.0f * m_border,
-        // m_rowHeight * m_info.size() + 2.0f * m_border
-    // };
-    // m_bgSize *= scale;
 }
 
 void cPixelPopup::render()
@@ -123,44 +78,17 @@ void cPixelPopup::render()
     const float my = ::roundf(m_pixelInfo.mouse.y);
     m_pointer->render({ mx - 10.0f, my - 10.0f });
 
+    const auto& size = m_icons->getSize();
+    ImGui::BeginTooltip();
+    for (const auto& s : m_info)
     {
-        ImGui::BeginTooltip();
-        for (const auto& s : m_info)
-        {
-            ImGui::Text("%s %s", GetIcon((uint32_t)s.icon), s.text.c_str());
-        }
-        ImGui::EndTooltip();
+        m_icons->setFrame((uint32_t)s.icon);
+        auto& quad = m_icons->getQuad();
+        ImGui::Image((void*)(uintptr_t)quad.tex, { size.x, size.y }, { quad.v[0].tx, quad.v[0].ty }, { quad.v[2].tx, quad.v[2].ty });
+        ImGui::SameLine();
+        ImGui::TextColored(s.color, "%s", s.text.c_str());
     }
-
-    // const auto& viewport = cRenderer::getViewportSize();
-    // const auto& size = m_bg->getSize();
-
-    // Vectorf pos{
-        // clamp<float>(0.0f, viewport.x - size.x, ::roundf(mx + InfoOffset)),
-        // clamp<float>(0.0f, viewport.y - size.y, ::roundf(my + InfoOffset))
-    // };
-
-    // m_bg->setSpriteSize(m_bgSize);
-    // m_bg->render(pos);
-
-    // const float scale = m_scale;
-
-    // pos += Vectorf{ m_border, m_border } * scale;
-    // const Vectorf iconOffset{ 0.0f * scale, (m_rowHeight - IconsHeight) * 0.5f * scale };
-    // const Vectorf iconSize = m_icons->getSize() * scale;
-    // const float dy = m_rowHeight * scale;
-
-    // for (const auto& s : m_info)
-    // {
-        // // m_icons->setColor(s.Icon == Info::Icon::Color && isInside ? m_pixelInfo.color : GrayColor);
-        // m_icons->setFrame((uint32_t)s.icon);
-        // m_icons->renderEx(pos + iconOffset, iconSize);
-
-        // m_ft->setColor(s.color);
-        // m_ft->draw(pos + s.offset, s.text.c_str(), scale);
-
-        // pos.y += dy;
-    // }
+    ImGui::EndTooltip();
 }
 
 bool cPixelPopup::isInsideImage(const Vectorf& pos) const

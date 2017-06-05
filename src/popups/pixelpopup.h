@@ -10,14 +10,16 @@
 #pragma once
 
 #include "popup.h"
+
+#include "imgui/imgui.h"
 #include "quadseries.h"
 #include "types/color.h"
 #include "types/rect.h"
 #include "types/vector.h"
 
-#include <vector>
-#include <string>
 #include <memory>
+#include <string>
+#include <vector>
 
 struct sPixelInfo
 {
@@ -59,9 +61,6 @@ private:
     bool isInsideImage(const Vectorf& pos) const;
 
 private:
-    float m_border = 4.0f;
-    float m_rowHeight = 0.0f;
-
     sPixelInfo m_pixelInfo;
 
     struct Info
@@ -74,11 +73,12 @@ private:
             Rect,
         };
         Icon icon;
-        cColor color;
+        ImVec4 color;
         std::string text;
         Vectorf offset;
     };
     std::vector<Info> m_info;
 
     std::unique_ptr<cQuadSeries> m_pointer;
+    std::unique_ptr<cQuadSeries> m_icons;
 };

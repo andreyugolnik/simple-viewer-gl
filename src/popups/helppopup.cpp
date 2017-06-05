@@ -14,9 +14,8 @@
 
 namespace
 {
-    const int AlphaColor = 200;
-    const ImVec4 keyColor{ 255, 255, 150, AlphaColor };
-    const ImVec4 descriptionColor{ 255, 255, 255, AlphaColor };
+    const ImVec4 keyColor{ 1.0f, 1.0f, 0.5, 1.0f };
+    const ImVec4 descriptionColor{ 1.0f, 1.0f, 1.0f, 1.0f };
 
     struct KeyBinding
     {
@@ -50,15 +49,26 @@ void cHelpPopup::render()
 {
     if (m_isVisible)
     {
-        // int width;
-        // int height;
-        // glfwGetFramebufferSize(cRenderer::getWindow(), &width, &height);
-
-        // Vectorf pos{ width - (m_bgSize.x + 5.0f), 5.0f };
-
-        for (const auto& s : KeyBindingsList)
+        const int flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoFocusOnAppearing;
+        ImGui::SetNextWindowPosCenter(ImGuiSetCond_FirstUseEver);
+        if (ImGui::Begin("Help", nullptr, flags))
         {
-            ImGui::TextColored(keyColor, "%s - %s", s.key, s.description);
-        };
+            ImGui::Columns(2);
+
+            ImGui::TextColored(keyColor, "Key");
+            ImGui::NextColumn();
+            ImGui::TextColored(descriptionColor, "Description");
+            ImGui::Separator();
+            ImGui::NextColumn();
+
+            for (const auto& s : KeyBindingsList)
+            {
+                ImGui::TextColored(keyColor, "%s", s.key);
+                ImGui::NextColumn();
+                ImGui::TextColored(descriptionColor, "%s", s.description);
+                ImGui::NextColumn();
+            }
+        }
+        ImGui::End();
     }
 }

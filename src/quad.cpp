@@ -31,6 +31,11 @@ cQuad::~cQuad()
     cRenderer::deleteTexture(m_quad.tex);
 }
 
+const sQuad& cQuad::getQuad() const
+{
+    return m_quad;
+}
+
 void cQuad::setData(const uint8_t* data)
 {
     m_filter = true;

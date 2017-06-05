@@ -172,11 +172,7 @@ void cViewer::onRender()
 
     m_progress->render();
 
-            static float f = 0.0f;
-            ImGui::Text("Hello мир! Как дела?");
-            ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
-
-            m_imgui.endFrame();
+    m_imgui.endFrame();
     cRenderer::endFrame();
 
     glfwSwapBuffers(cRenderer::getWindow());

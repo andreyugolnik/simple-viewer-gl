@@ -92,6 +92,11 @@ void cFilesList::addFile(const char* path)
 
         sortList();
     }
+
+    if (fullPath != nullptr)
+    {
+        ::free(fullPath);
+    }
 }
 
 void cFilesList::sortList()

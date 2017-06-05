@@ -62,9 +62,10 @@ bool cGui::createDeviceObjects()
 {
     auto& io = ImGui::GetIO();
 
+    const ImWchar range[] = { 0x0020, 0xFFFF, 0 };
     io.Fonts->AddFontFromMemoryCompressedTTF(DroidSans_compressed_data, DroidSans_compressed_size, 16
                                              , nullptr
-                                             , io.Fonts->GetGlyphRangesCyrillic());
+                                             , range);
 
     unsigned char* pixels;
     int width, height;
@@ -131,6 +132,11 @@ void cGui::init(GLFWwindow* window)
     };
 
     io.ClipboardUserData = m_window;
+
+    auto& s = ImGui::GetStyle();
+    s.WindowTitleAlign = { 0.5f, 0.5f };
+    s.WindowRounding = 5.0f;
+    s.WindowPadding = { 3.0f, 3.0f };
 }
 
 void cGui::shutdown()

@@ -16,6 +16,11 @@
 #include <cmath>
 #include <cstring>
 
+namespace
+{
+    const ImVec4 Color = { 1.0f, 1.0f, 0.0f, 1.0f };
+}
+
 cInfoBar::cInfoBar(const sConfig& config)
     : m_config(config)
 {
@@ -25,35 +30,53 @@ void cInfoBar::render()
 {
     int width;
     int height;
-    glfwGetFramebufferSize(cRenderer::getWindow(), &width, &height);
+    glfwGetWindowSize(cRenderer::getWindow(), &width, &height);
 
-    // Vectorf pos{ 0.0f, height - m_height * scale };
-    // m_bg->setSpriteSize({ (float)width, m_height * scale });
-    // m_bg->render(pos);
+    auto& s = ImGui::GetStyle();
+    auto font = ImGui::GetFont();
+    const float h = s.WindowPadding.y * 2.0f + font->FontSize;
 
-    // pos += Vectorf{ 3, (m_height - m_bounds.y) * 0.5f - 2.0f } * scale;
-    // m_ft->draw(pos, m_bottominfo.c_str(), scale);
+    ImGui::SetNextWindowPos({ 0.0f, height - h }, ImGuiSetCond_Always);
+    ImGui::SetNextWindowSize({ (float)width, h }, ImGuiSetCond_Always);
+    const int flags = ImGuiWindowFlags_NoTitleBar |
+        ImGuiWindowFlags_NoResize |
+        ImGuiWindowFlags_NoMove |
+        ImGuiWindowFlags_NoScrollbar |
+        ImGuiWindowFlags_NoSavedSettings;
 
-    // if (m_fps.get() != nullptr)
-    // {
-        // static unsigned frame = 0;
-        // static float fps = 0.0f;
+    const auto oldRounding = s.WindowRounding;
+    s.WindowRounding = 0.0f;
+    if (ImGui::Begin("infobar", nullptr, flags))
+    {
+        ImGui::TextColored(Color, "%s", m_bottominfo.c_str());
+    }
+    ImGui::End();
 
-        // frame++;
-        // static auto last = glfwGetTime();
-        // const auto now = glfwGetTime();
-        // const auto delta = now - last;
-        // if (delta > 0.5f)
-        // {
-            // fps = frame / delta;
-            // last = now;
-            // frame = 0;
-        // }
+    // if (m_config.debug)
+    {
+        static unsigned frame = 0;
+        static float fps = 0.0f;
 
-        // char buffer[20];
-        // ::snprintf(buffer, sizeof(buffer), "%.1f", fps);
-        // m_fps->draw({ 20.0f, 20.0f }, buffer);
-    // }
+        frame++;
+        static auto last = glfwGetTime();
+        const auto now = glfwGetTime();
+        const auto delta = now - last;
+        if (delta > 0.5f)
+        {
+            fps = frame / delta;
+            last = now;
+            frame = 0;
+        }
+
+        ImGui::SetNextWindowPos({ 0.0f, 0.0f }, ImGuiSetCond_Always);
+        if (ImGui::Begin("debug", nullptr, flags | ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            ImGui::TextColored(Color, "%.1f", fps);
+        }
+        ImGui::End();
+    }
+
+    s.WindowRounding = oldRounding;
 }
 
 void cInfoBar::setInfo(const sInfo& p)
