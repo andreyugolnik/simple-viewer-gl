@@ -52,7 +52,7 @@ void cInfoBar::render()
     }
     ImGui::End();
 
-    // if (m_config.debug)
+    if (m_config.debug)
     {
         static unsigned frame = 0;
         static float fps = 0.0f;
@@ -71,7 +71,7 @@ void cInfoBar::render()
         ImGui::SetNextWindowPos({ 0.0f, 0.0f }, ImGuiSetCond_Always);
         if (ImGui::Begin("debug", nullptr, flags | ImGuiWindowFlags_AlwaysAutoResize))
         {
-            ImGui::TextColored(Color, "%.1f", fps);
+            ImGui::TextColored(Color, "fps: %.1f", fps);
         }
         ImGui::End();
     }
