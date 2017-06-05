@@ -37,7 +37,9 @@ struct sQuad
 class cRenderer
 {
 public:
-    static void setWindow(GLFWwindow* window, uint32_t maxTextureSize);
+    static void init(GLFWwindow* window, uint32_t maxTextureSize);
+    static void shutdown();
+
     static GLFWwindow* getWindow();
 
     static void enableMipmap(bool enable);
@@ -51,6 +53,9 @@ public:
     static uint32_t calculateTextureSize(uint32_t size);
     static void setColor(sLine* line, const cColor& color);
     static void setColor(sQuad* quad, const cColor& color);
+
+    static void beginFrame();
+    static void endFrame();
 
     static void render(const sLine& quad);
     static void render(const sQuad& quad);

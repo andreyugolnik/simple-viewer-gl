@@ -11,10 +11,11 @@
 
 #include "common/callbacks.h"
 #include "common/scale.h"
+#include "gui.h"
 #include "types/vector.h"
 
-#include <vector>
 #include <memory>
+#include <vector>
 
 class cCheckerboard;
 class cDeletionMark;
@@ -41,8 +42,6 @@ public:
 
     void addPaths(const char** paths, int count);
 
-    void render();
-    void update();
     bool isUploading() const;
 
     bool isWindowModeRequested() const
@@ -73,14 +72,18 @@ public:
     virtual void doProgress(float progress) override;
     virtual void endLoading() override;
 
-    void fnResize(const Vectori& size);
+    void onRender();
+    void onUpdate();
+    void onResize(const Vectori& size);
+    void onPosition(const Vectori& pos);
+    void onMouse(const Vectorf& pos);
+    void onCursorEnter(bool entered);
+    void onMouseScroll(const Vectorf& pos);
+    void onMouseButtons(int button, int action, int mods);
+    void onKey(int key, int scancode, int action, int mods);
+    void onChar(uint32_t c);
+
     void centerWindow();
-    void fnPosition(const Vectori& pos);
-    void fnMouse(const Vectorf& pos);
-    void fnCursorEnter(bool entered);
-    void fnMouseScroll(const Vectorf& pos);
-    void fnMouseButtons(int button, int action, int mods);
-    void fnKeyboard(int key, int scancode, int action, int mods);
     void showCursor(bool show);
     void loadImage(int step);
 
@@ -120,6 +123,8 @@ private:
     bool m_subImageForced = false;
     bool m_animation = false;
     float m_animationTime = 0.0f;
+
+    cGui m_imgui;
 
     std::unique_ptr<cQuadImage> m_image;
     std::unique_ptr<cFilesList> m_filesList;

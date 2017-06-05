@@ -17,7 +17,6 @@
 
 namespace
 {
-
     GLFWwindow* Window = nullptr;
     Rectf ViewRect;
     float ViewZoom = 1.0f;
@@ -29,15 +28,14 @@ namespace
     bool Npot = false;
     uint32_t TextureSizeLimit = 1024;
     bool IsMipmapEnabled = false;
-
 }
 
-void cRenderer::setWindow(GLFWwindow* window, uint32_t maxTextureSize)
+void cRenderer::init(GLFWwindow* window, uint32_t maxTextureSize)
 {
     Window = window;
     CurrentTextureId = 0;
 
-    int maxSize = 512;
+    int maxSize = maxTextureSize;
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxSize);
     // ::printf("(II) Max texture size: %d.\n", maxSize);
 
@@ -46,7 +44,21 @@ void cRenderer::setWindow(GLFWwindow* window, uint32_t maxTextureSize)
 
     Npot = glfwExtensionSupported("GL_ARB_texture_non_power_of_two");
     // ::printf("(II) Non Power of Two extension %s\n", Npot ? "available." : "not available.");
+}
 
+void cRenderer::shutdown()
+{
+    Window = nullptr;
+    ViewZoom = 1.0f;
+    ViewAngle = 0.0f;
+    CurrentTextureId = 0;
+    Npot = false;
+    TextureSizeLimit = 1024;
+    IsMipmapEnabled = false;
+}
+
+void cRenderer::beginFrame()
+{
     glEnable(GL_BLEND);
     glEnable(GL_TEXTURE_2D);
     glDisable(GL_DEPTH_TEST);
@@ -64,6 +76,10 @@ void cRenderer::setWindow(GLFWwindow* window, uint32_t maxTextureSize)
     glVertexPointer(2, GL_FLOAT, sizeof(sVertex), &Vb->x);
     glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(sVertex), &Vb->color);
     glTexCoordPointer(2, GL_FLOAT, sizeof(sVertex), &Vb->tx);
+}
+
+void cRenderer::endFrame()
+{
 }
 
 GLFWwindow* cRenderer::getWindow()
@@ -108,30 +124,30 @@ void cRenderer::setData(GLuint tex, const uint8_t* data, uint32_t w, uint32_t h,
         if (format == GL_RGB || format == GL_BGR)
         {
             internalFormat = GL_RGB;
-            type           = GL_UNSIGNED_BYTE;
+            type = GL_UNSIGNED_BYTE;
         }
         else if (format == GL_RGBA || format == GL_BGRA)
         {
             internalFormat = GL_RGBA;
-            type           = GL_UNSIGNED_BYTE;
+            type = GL_UNSIGNED_BYTE;
         }
         else if (format == GL_UNSIGNED_SHORT_4_4_4_4)
         {
             internalFormat = GL_RGBA;
-            format         = GL_RGBA;
-            type           = GL_UNSIGNED_SHORT_4_4_4_4;
+            format = GL_RGBA;
+            type = GL_UNSIGNED_SHORT_4_4_4_4;
         }
         else if (format == GL_UNSIGNED_SHORT_5_6_5)
         {
             internalFormat = GL_RGB;
-            format         = GL_RGB;
-            type           = GL_UNSIGNED_SHORT_5_6_5;
+            format = GL_RGB;
+            type = GL_UNSIGNED_SHORT_5_6_5;
         }
         else if (format == GL_UNSIGNED_SHORT_5_5_5_1)
         {
             internalFormat = GL_RGBA;
-            format         = GL_RGBA;
-            type           = GL_UNSIGNED_SHORT_5_5_5_1;
+            format = GL_RGBA;
+            type = GL_UNSIGNED_SHORT_5_5_5_1;
         }
         else if (format == GL_LUMINANCE || format == GL_LUMINANCE_ALPHA || format == GL_ALPHA)
         {

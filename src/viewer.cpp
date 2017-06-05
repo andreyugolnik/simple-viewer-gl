@@ -21,6 +21,7 @@
 #include "progress.h"
 #include "quadimage.h"
 #include "selection.h"
+#include "imgui/imgui.h"
 
 #include <cassert>
 #include <cmath>
@@ -68,13 +69,17 @@ cViewer::cViewer(sConfig& config)
 cViewer::~cViewer()
 {
     m_image->clear();
+
+    m_imgui.shutdown();
+    cRenderer::shutdown();
 }
 
 void cViewer::setWindow(GLFWwindow* window)
 {
     m_windowModeChangeRequested = false;
 
-    cRenderer::setWindow(window, 2048);
+    cRenderer::init(window, 2048);
+    m_imgui.init(window);
 
     m_checkerBoard->init();
     m_deletionMark->init();
@@ -92,7 +97,7 @@ void cViewer::setWindow(GLFWwindow* window)
     glfwGetFramebufferSize(window, &fbSize.x, &fbSize.y);
     m_ratio = { (float)fbSize.x / winSize.x, (float)fbSize.y / winSize.y };
 
-    fnResize(winSize);
+    onResize(winSize);
 }
 
 void cViewer::addPaths(const char** paths, int count)
@@ -112,8 +117,11 @@ void cViewer::addPaths(const char** paths, int count)
     }
 }
 
-void cViewer::render()
+void cViewer::onRender()
 {
+    cRenderer::beginFrame();
+    m_imgui.beginFrame();
+
     m_checkerBoard->render(!m_config.hideCheckboard);
 
     //updateViewportSize();
@@ -164,10 +172,17 @@ void cViewer::render()
 
     m_progress->render();
 
+            static float f = 0.0f;
+            ImGui::Text("Hello мир! Как дела?");
+            ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
+
+            m_imgui.endFrame();
+    cRenderer::endFrame();
+
     glfwSwapBuffers(cRenderer::getWindow());
 }
 
-void cViewer::update()
+void cViewer::onUpdate()
 {
     if (m_imagePrepared == true)
     {
@@ -224,7 +239,7 @@ bool cViewer::isUploading() const
     return m_image->isUploading();
 }
 
-void cViewer::fnResize(const Vectori& size)
+void cViewer::onResize(const Vectori& size)
 {
     GLFWwindow* window = cRenderer::getWindow();
 
@@ -241,6 +256,7 @@ void cViewer::fnResize(const Vectori& size)
     cRenderer::setViewportSize(fbSize);
 
     const float scale = m_ratio.x * m_config.fontRatio;
+    // m_imgui.setScale(scale);
     m_pixelPopup->setScale(scale);
     m_exifPopup->setScale(scale);
     m_helpPopup->setScale(scale);
@@ -250,7 +266,7 @@ void cViewer::fnResize(const Vectori& size)
     updateInfobar();
 }
 
-void cViewer::fnPosition(const Vectori& pos)
+void cViewer::onPosition(const Vectori& pos)
 {
     m_prevPos = pos;
 }
@@ -260,8 +276,10 @@ Vectorf cViewer::calculateMousePosition(const Vectorf& pos) const
     return pos * m_ratio / m_scale.getScale();
 }
 
-void cViewer::fnMouse(const Vectorf& pos)
+void cViewer::onMouse(const Vectorf& pos)
 {
+    m_imgui.onMousePosition(pos);
+
     const auto posFixed = calculateMousePosition(pos);
 
     if (m_mouseMB || m_mouseRB)
@@ -291,22 +309,24 @@ void cViewer::fnMouse(const Vectorf& pos)
     }
 }
 
-void cViewer::fnCursorEnter(bool entered)
+void cViewer::onCursorEnter(bool entered)
 {
     m_cursorInside = entered;
 }
 
-void cViewer::fnMouseScroll(const Vectorf& pos)
+void cViewer::onMouseScroll(const Vectorf& pos)
 {
+    m_imgui.onScroll(pos);
+
     if (m_config.wheelZoom)
     {
         updateScale(pos.y > 0.0f);
     }
 }
 
-void cViewer::fnMouseButtons(int button, int action, int mods)
+void cViewer::onMouseButtons(int button, int action, int /*mods*/)
 {
-    (void)mods;
+    m_imgui.onMouseButton(button, action);
 
     updateMousePosition();
 
@@ -336,8 +356,10 @@ void cViewer::fnMouseButtons(int button, int action, int mods)
     }
 }
 
-void cViewer::fnKeyboard(int key, int /*scancode*/, int action, int mods)
+void cViewer::onKey(int key, int scancode, int action, int mods)
 {
+    m_imgui.onKey(key, scancode, action);
+
     if (action != GLFW_PRESS && action != GLFW_REPEAT)
     {
         return;
@@ -496,6 +518,11 @@ void cViewer::fnKeyboard(int key, int /*scancode*/, int action, int mods)
         }
         break;
     }
+}
+
+void cViewer::onChar(uint32_t c)
+{
+    m_imgui.onChar(c);
 }
 
 void cViewer::keyUp()

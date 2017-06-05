@@ -86,42 +86,47 @@ namespace
 
     void callbackResize(GLFWwindow* /*window*/, int width, int height)
     {
-        m_viewer->fnResize({ width, height });
+        m_viewer->onResize({ width, height });
     }
 
     void callbackPosition(GLFWwindow* /*window*/, int x, int y)
     {
-        m_viewer->fnPosition({ x, y });
+        m_viewer->onPosition({ x, y });
     }
 
     void callbackRedraw(GLFWwindow* /*window*/)
     {
-        m_viewer->render();
+        m_viewer->onRender();
     }
 
-    void callbackKeyboard(GLFWwindow* /*window*/, int key, int scancode, int action, int mods)
+    void callbackKey(GLFWwindow* /*window*/, int key, int scancode, int action, int mods)
     {
-        m_viewer->fnKeyboard(key, scancode, action, mods);
+        m_viewer->onKey(key, scancode, action, mods);
+    }
+
+    void callbackChar(GLFWwindow* /*window*/, unsigned int c)
+    {
+        m_viewer->onChar(c);
     }
 
     void callbackMouseButtons(GLFWwindow* /*window*/, int button, int action, int mods)
     {
-        m_viewer->fnMouseButtons(button, action, mods);
+        m_viewer->onMouseButtons(button, action, mods);
     }
 
-    void callbackMouse(GLFWwindow* /*window*/, double x, double y)
+    void callbackMousePosition(GLFWwindow* /*window*/, double x, double y)
     {
-        m_viewer->fnMouse({ (float)x, (float)y });
+        m_viewer->onMouse({ (float)x, (float)y });
     }
 
     void callbackCursorEnter(GLFWwindow* /*window*/, int entered)
     {
-        m_viewer->fnCursorEnter(entered != 0);
+        m_viewer->onCursorEnter(entered != 0);
     }
 
     void callbackMouseScroll(GLFWwindow* /*window*/, double x, double y)
     {
-        m_viewer->fnMouseScroll({ (float)x, (float)y });
+        m_viewer->onMouseScroll({ (float)x, (float)y });
     }
 
 #if GLFW_VERSION_MAJOR >= 3 && GLFW_VERSION_MINOR >= 1
@@ -147,11 +152,12 @@ namespace
 
         glfwSetWindowRefreshCallback(window, callbackRedraw);
 
-        glfwSetKeyCallback(window, callbackKeyboard);
+        glfwSetKeyCallback(window, callbackKey);
+        glfwSetCharCallback(window, callbackChar);
 
         glfwSetInputMode(window, GLFW_STICKY_MOUSE_BUTTONS, 1);
         glfwSetMouseButtonCallback(window, callbackMouseButtons);
-        glfwSetCursorPosCallback(window, callbackMouse);
+        glfwSetCursorPosCallback(window, callbackMousePosition);
         glfwSetCursorEnterCallback(window, callbackCursorEnter);
         glfwSetScrollCallback(window, callbackMouseScroll);
 
@@ -323,8 +329,8 @@ int main(int argc, char* argv[])
                 const float start = glfwGetTime();
                 static float end = start;
 
-                viewer.render();
-                viewer.update();
+                viewer.onRender();
+                viewer.onUpdate();
 
                 glfwPollEvents();
 
