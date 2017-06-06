@@ -74,18 +74,51 @@ void cPixelPopup::setPixelInfo(const sPixelInfo& pi)
 
 void cPixelPopup::render()
 {
-    const float mx = ::roundf(m_pixelInfo.mouse.x);
-    const float my = ::roundf(m_pixelInfo.mouse.y);
-    m_pointer->render({ mx - 10.0f, my - 10.0f });
+    renderCursor();
+    renderInfo();
+}
 
-    const int flags = ImGuiWindowFlags_NoTitleBar |
-        ImGuiWindowFlags_AlwaysAutoResize |
-        ImGuiWindowFlags_NoMove |
-        ImGuiWindowFlags_NoScrollbar |
-        ImGuiWindowFlags_NoSavedSettings;
+bool cPixelPopup::isInsideImage(const Vectorf& pos) const
+{
+    return !(pos.x < 0 || pos.y < 0 || pos.x >= m_pixelInfo.imgWidth || pos.y >= m_pixelInfo.imgHeight);
+}
 
-    const char* windowName = "pixelinfo";
-    if (ImGui::Begin(windowName, nullptr, flags))
+void cPixelPopup::setCursor(int cursor)
+{
+    m_pointer->setFrame(cursor);
+}
+
+void cPixelPopup::renderCursor()
+{
+    auto& pointerSize = m_pointer->getSize();
+    const float x = ::roundf(m_pixelInfo.mouse.x - pointerSize.x * 0.5f);
+    const float y = ::roundf(m_pixelInfo.mouse.y - pointerSize.y * 0.5f);
+    m_pointer->render({ x, y });
+}
+
+void cPixelPopup::renderInfo()
+{
+    double x, y;
+    glfwGetCursorPos(cRenderer::getWindow(), &x, &y);
+
+    int width, height;
+    glfwGetWindowSize(cRenderer::getWindow(), &width, &height);
+
+    const float offset = 10.0f;
+    const ImVec2 pos{
+        std::min<float>(x + offset, width - m_size.x),
+        std::min<float>(y + offset, height - m_size.y)
+    };
+
+    ImGui::SetNextWindowPos(pos, ImGuiSetCond_Always);
+
+    const int flags = ImGuiWindowFlags_NoTitleBar
+        | ImGuiWindowFlags_AlwaysAutoResize
+        | ImGuiWindowFlags_NoMove
+        | ImGuiWindowFlags_NoScrollbar
+        | ImGuiWindowFlags_NoSavedSettings;
+
+    if (ImGui::Begin("pixelinfo", nullptr, flags))
     {
         const auto& size = m_icons->getSize();
         for (const auto& s : m_info)
@@ -98,30 +131,7 @@ void cPixelPopup::render()
         }
     }
 
-    double x, y;
-    glfwGetCursorPos(cRenderer::getWindow(), &x, &y);
-
-    int width, height;
-    glfwGetWindowSize(cRenderer::getWindow(), &width, &height);
-
-    auto size = ImGui::GetWindowSize();
-    float offset = 10.0f;
-    ImVec2 pos = { 
-        std::min<float>(x + offset, width - size.x),
-        std::min<float>(y + offset, height - size.y)
-    };
+    m_size = ImGui::GetWindowSize();
 
     ImGui::End();
-
-    ImGui::SetWindowPos(windowName, pos, ImGuiSetCond_Always);
-}
-
-bool cPixelPopup::isInsideImage(const Vectorf& pos) const
-{
-    return !(pos.x < 0 || pos.y < 0 || pos.x >= m_pixelInfo.imgWidth || pos.y >= m_pixelInfo.imgHeight);
-}
-
-void cPixelPopup::setCursor(int cursor)
-{
-    m_pointer->setFrame(cursor);
 }

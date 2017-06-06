@@ -59,6 +59,8 @@ public:
 
 private:
     bool isInsideImage(const Vectorf& pos) const;
+    void renderCursor();
+    void renderInfo();
 
 private:
     sPixelInfo m_pixelInfo;
@@ -81,4 +83,6 @@ private:
 
     std::unique_ptr<cQuadSeries> m_pointer;
     std::unique_ptr<cQuadSeries> m_icons;
+
+    ImVec2 m_size;
 };
