@@ -25,8 +25,12 @@ void cExifPopup::render()
 {
     if (m_exif.size())
     {
-        const int flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoFocusOnAppearing;
-        ImGui::SetNextWindowPosCenter(ImGuiSetCond_FirstUseEver);
+        const int flags = ImGuiWindowFlags_NoCollapse
+            | ImGuiWindowFlags_AlwaysAutoResize
+            | ImGuiWindowFlags_NoSavedSettings
+            | ImGuiWindowFlags_NoFocusOnAppearing;
+
+        ImGui::SetNextWindowPos({ 5.0f, 5.0f }, ImGuiSetCond_Once);
         if (ImGui::Begin("EXIF", nullptr, flags))
         {
             ImGui::Columns(2);
@@ -34,8 +38,8 @@ void cExifPopup::render()
             ImGui::TextColored(tagColor, "Tag");
             ImGui::NextColumn();
             ImGui::TextColored(valueColor, "Value");
-            ImGui::Separator();
             ImGui::NextColumn();
+            ImGui::Separator();
 
             for (const auto& s : m_exif)
             {
@@ -43,7 +47,7 @@ void cExifPopup::render()
                 ImGui::NextColumn();
                 ImGui::TextColored(valueColor, "%s", s.value.c_str());
                 ImGui::NextColumn();
-            };
+            }
         }
         ImGui::End();
     }

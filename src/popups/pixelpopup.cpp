@@ -120,12 +120,13 @@ void cPixelPopup::renderInfo()
 
     if (ImGui::Begin("pixelinfo", nullptr, flags))
     {
-        const auto& size = m_icons->getSize();
+        const auto& iconSize = m_icons->getSize();
+        const ImVec2 size{ iconSize.x, iconSize.y };
         for (const auto& s : m_info)
         {
             m_icons->setFrame((uint32_t)s.icon);
             auto& quad = m_icons->getQuad();
-            ImGui::Image((void*)(uintptr_t)quad.tex, { size.x, size.y }, { quad.v[0].tx, quad.v[0].ty }, { quad.v[2].tx, quad.v[2].ty });
+            ImGui::Image((void*)(uintptr_t)quad.tex, size, { quad.v[0].tx, quad.v[0].ty }, { quad.v[2].tx, quad.v[2].ty }, GrayColor);
             ImGui::SameLine();
             ImGui::TextColored(s.color, "%s", s.text.c_str());
         }

@@ -49,8 +49,11 @@ void cHelpPopup::render()
 {
     if (m_isVisible)
     {
-        const int flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing;
-        ImGui::SetNextWindowPosCenter(ImGuiSetCond_Always);
+        const int flags = ImGuiWindowFlags_NoCollapse
+            | ImGuiWindowFlags_AlwaysAutoResize
+            | ImGuiWindowFlags_NoSavedSettings;
+
+        ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
         if (ImGui::Begin("Help", nullptr, flags))
         {
             // ImGui::Columns(2);
