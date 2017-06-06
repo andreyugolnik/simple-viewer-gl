@@ -49,24 +49,26 @@ void cHelpPopup::render()
 {
     if (m_isVisible)
     {
-        const int flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoFocusOnAppearing;
-        ImGui::SetNextWindowPosCenter(ImGuiSetCond_FirstUseEver);
+        const int flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing;
+        ImGui::SetNextWindowPosCenter(ImGuiSetCond_Always);
         if (ImGui::Begin("Help", nullptr, flags))
         {
-            ImGui::Columns(2);
+            // ImGui::Columns(2);
 
-            ImGui::TextColored(keyColor, "Key");
-            ImGui::NextColumn();
-            ImGui::TextColored(descriptionColor, "Description");
-            ImGui::Separator();
-            ImGui::NextColumn();
+            // ImGui::TextColored(keyColor, "Key");
+            // ImGui::NextColumn();
+            // ImGui::TextColored(descriptionColor, "Description");
+            // ImGui::Separator();
+            // ImGui::NextColumn();
 
             for (const auto& s : KeyBindingsList)
             {
                 ImGui::TextColored(keyColor, "%s", s.key);
-                ImGui::NextColumn();
+                // ImGui::NextColumn();
+                ImGui::SameLine(120.0f);
+                ImGui::Bullet();
                 ImGui::TextColored(descriptionColor, "%s", s.description);
-                ImGui::NextColumn();
+                // ImGui::NextColumn();
             }
         }
         ImGui::End();
