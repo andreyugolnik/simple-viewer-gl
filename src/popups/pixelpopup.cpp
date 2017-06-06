@@ -78,17 +78,42 @@ void cPixelPopup::render()
     const float my = ::roundf(m_pixelInfo.mouse.y);
     m_pointer->render({ mx - 10.0f, my - 10.0f });
 
-    const auto& size = m_icons->getSize();
-    ImGui::BeginTooltip();
-    for (const auto& s : m_info)
+    const int flags = ImGuiWindowFlags_NoTitleBar |
+        ImGuiWindowFlags_AlwaysAutoResize |
+        ImGuiWindowFlags_NoMove |
+        ImGuiWindowFlags_NoScrollbar |
+        ImGuiWindowFlags_NoSavedSettings;
+
+    const char* windowName = "pixelinfo";
+    if (ImGui::Begin(windowName, nullptr, flags))
     {
-        m_icons->setFrame((uint32_t)s.icon);
-        auto& quad = m_icons->getQuad();
-        ImGui::Image((void*)(uintptr_t)quad.tex, { size.x, size.y }, { quad.v[0].tx, quad.v[0].ty }, { quad.v[2].tx, quad.v[2].ty });
-        ImGui::SameLine();
-        ImGui::TextColored(s.color, "%s", s.text.c_str());
+        const auto& size = m_icons->getSize();
+        for (const auto& s : m_info)
+        {
+            m_icons->setFrame((uint32_t)s.icon);
+            auto& quad = m_icons->getQuad();
+            ImGui::Image((void*)(uintptr_t)quad.tex, { size.x, size.y }, { quad.v[0].tx, quad.v[0].ty }, { quad.v[2].tx, quad.v[2].ty });
+            ImGui::SameLine();
+            ImGui::TextColored(s.color, "%s", s.text.c_str());
+        }
     }
-    ImGui::EndTooltip();
+
+    double x, y;
+    glfwGetCursorPos(cRenderer::getWindow(), &x, &y);
+
+    int width, height;
+    glfwGetWindowSize(cRenderer::getWindow(), &width, &height);
+
+    auto size = ImGui::GetWindowSize();
+    float offset = 10.0f;
+    ImVec2 pos = { 
+        std::min<float>(x + offset, width - size.x),
+        std::min<float>(y + offset, height - size.y)
+    };
+
+    ImGui::End();
+
+    ImGui::SetWindowPos(windowName, pos, ImGuiSetCond_Always);
 }
 
 bool cPixelPopup::isInsideImage(const Vectorf& pos) const
