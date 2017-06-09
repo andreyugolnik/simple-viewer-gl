@@ -120,6 +120,8 @@ void cGui::init(GLFWwindow* window)
     io.KeyMap[ImGuiKey_Z] = GLFW_KEY_Z;
 
     io.RenderDrawListsFn = nullptr;
+    io.IniFilename = nullptr;
+    io.LogFilename = nullptr;
 
     io.SetClipboardTextFn = [](void* user_data, const char* text)
     {
