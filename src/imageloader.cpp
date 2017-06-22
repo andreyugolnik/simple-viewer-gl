@@ -200,7 +200,7 @@ namespace
         const auto size = helpers::countof(Names);
         assert(size == (size_t)eImageType::COUNT);
         return idx < size ? Names[idx] : "";
-    };
+    }
 #endif
 
 }
