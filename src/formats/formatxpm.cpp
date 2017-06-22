@@ -925,7 +925,7 @@ namespace
         }
 
         return 0;
-    };
+    }
 
     typedef std::map<std::string, unsigned> ColorMap;
 
