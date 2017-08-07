@@ -357,7 +357,7 @@ bool cFormatJpeg::LoadImpl(const char* filename, sBitmapDescription& desc)
 
     // Step 3: read file parameters with jpeg_read_header()
     setupMarkers(&cinfo);
-    jpeg_read_header(&cinfo, true);
+    jpeg_read_header(&cinfo, TRUE);
 
     unsigned iccProfileSize = 0;
     auto iccProfile = locateICCProfile(cinfo, iccProfileSize);
