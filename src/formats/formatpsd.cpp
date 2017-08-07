@@ -181,6 +181,13 @@ namespace
             }
         }
     }
+    
+    unsigned char* allocBitmap(sBitmapDescription& desc)
+    {
+        desc.pitch = helpers::calculatePitch(desc.width, desc.bpp);
+        desc.bitmap.resize(desc.pitch * desc.height);
+        return desc.bitmap.data();
+    }
 
     bool isValidFormat(const PSD_HEADER& header)
     {
@@ -315,8 +322,6 @@ bool cFormatPsd::LoadImpl(const char* filename, sBitmapDescription& desc)
         }
     }
 
-    // only first 3 or 4 channels used
-    desc.bpp = 8 * std::min<uint32_t>(channels, 4);
     desc.bppImage = depth * channels;
 
     // we need buffer that can contain one channel data of one
@@ -371,13 +376,11 @@ bool cFormatPsd::LoadImpl(const char* filename, sBitmapDescription& desc)
         }
     }
 
-    // convert or copy channel buffers to RGB / RGBA
-    desc.pitch = helpers::calculatePitch(desc.width, desc.bpp);
-    desc.bitmap.resize(desc.pitch * desc.height);
-    const auto bitmap = desc.bitmap.data();
-
     if (colorMode == ColorMode::RGB)
     {
+        desc.bpp = 8 * std::min<uint32_t>(channels, 4);
+        auto bitmap = allocBitmap(desc);
+
         if (channels == 3)
         {
             desc.format = GL_RGB;
@@ -415,6 +418,9 @@ bool cFormatPsd::LoadImpl(const char* filename, sBitmapDescription& desc)
     }
     else if (colorMode == ColorMode::CMYK)
     {
+        desc.bpp = 8 * (channels == 4 ? 3 : 4);
+        auto bitmap = allocBitmap(desc);
+
         if (channels == 4)
         {
             desc.format = GL_RGB;
@@ -468,8 +474,7 @@ bool cFormatPsd::LoadImpl(const char* filename, sBitmapDescription& desc)
         if (channels == 2)
         {
             desc.bpp = 32;
-            desc.pitch = helpers::calculatePitch(desc.width, desc.bpp);
-            desc.bitmap.resize(desc.pitch * desc.height);
+            auto bitmap = allocBitmap(desc);
 
             desc.format = GL_RGBA;
             switch (depth)
@@ -500,9 +505,7 @@ bool cFormatPsd::LoadImpl(const char* filename, sBitmapDescription& desc)
         else if (channels == 1)
         {
             desc.bpp = 24;
-            desc.pitch = helpers::calculatePitch(desc.width, desc.bpp);
-            desc.bitmap.resize(desc.pitch * desc.height);
-            auto bitmap = desc.bitmap.data();
+            auto bitmap = allocBitmap(desc);
 
             desc.format = GL_RGB;
             for (uint32_t y = 0; y < desc.height; y++)
@@ -520,7 +523,7 @@ bool cFormatPsd::LoadImpl(const char* filename, sBitmapDescription& desc)
         }
     }
 
-    for (uint32_t ch = 0, size = chBufs.size(); ch < size; ch++)
+    for (size_t ch = 0, size = chBufs.size(); ch < size; ch++)
     {
         delete[] chBufs[ch];
     }
