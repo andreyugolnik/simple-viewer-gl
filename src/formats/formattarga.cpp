@@ -241,9 +241,9 @@ namespace
                 for (uint32_t x = 0; x < header.width; x++)
                 {
                     auto c = *(uint16_t*)&tga[sp];
-                    out[dp + 0] = (((c >>  0) & 31) * 255) / 31;
+                    out[dp + 0] = (((c >> 10) & 31) * 255) / 31;
                     out[dp + 1] = (((c >>  5) & 31) * 255) / 31;
-                    out[dp + 2] = (((c >> 10) & 31) * 255) / 31;
+                    out[dp + 2] = (((c >>  0) & 31) * 255) / 31;
                     dp += 3;
                     sp += 2;
                 }
@@ -566,18 +566,18 @@ bool cFormatTarga::LoadImpl(const char* filename, sBitmapDescription& desc)
     desc.width = header.width;
     desc.height = header.height;
 
-    // ::printf("(II) idLength:          %u\n", (uint32_t)header.idLength);
-    // ::printf("(II) colorMapType:      %u\n", (uint32_t)header.colorMapType);
-    // ::printf("(II) imageType:         %u\n", (uint32_t)header.imageType);
-    // ::printf("(II) firstEntryIndex:   %u\n", (uint32_t)header.firstEntryIndex);
-    // ::printf("(II) colorMapLength:    %u\n", (uint32_t)header.colorMapLength);
-    // ::printf("(II) colorMapEntrySize: %u\n", (uint32_t)header.colorMapEntrySize);
-    // ::printf("(II) xOrigin:           %u\n", (uint32_t)header.xOrigin);
-    // ::printf("(II) yOrigin:           %u\n", (uint32_t)header.yOrigin);
-    // ::printf("(II) width:             %u\n", (uint32_t)header.width);
-    // ::printf("(II) height:            %u\n", (uint32_t)header.height);
-    // ::printf("(II) pixelDepth:        %u\n", (uint32_t)header.pixelDepth);
-    // ::printf("(II) imageDescriptor:   %u\n", (uint32_t)header.imageDescriptor);
+    ::printf("(II) idLength:          %u\n", (uint32_t)header.idLength);
+    ::printf("(II) colorMapType:      %u\n", (uint32_t)header.colorMapType);
+    ::printf("(II) imageType:         %u\n", (uint32_t)header.imageType);
+    ::printf("(II) firstEntryIndex:   %u\n", (uint32_t)header.firstEntryIndex);
+    ::printf("(II) colorMapLength:    %u\n", (uint32_t)header.colorMapLength);
+    ::printf("(II) colorMapEntrySize: %u\n", (uint32_t)header.colorMapEntrySize);
+    ::printf("(II) xOrigin:           %u\n", (uint32_t)header.xOrigin);
+    ::printf("(II) yOrigin:           %u\n", (uint32_t)header.yOrigin);
+    ::printf("(II) width:             %u\n", (uint32_t)header.width);
+    ::printf("(II) height:            %u\n", (uint32_t)header.height);
+    ::printf("(II) pixelDepth:        %u\n", (uint32_t)header.pixelDepth);
+    ::printf("(II) imageDescriptor:   %u\n", (uint32_t)header.imageDescriptor);
 
     bool result = false;
 
