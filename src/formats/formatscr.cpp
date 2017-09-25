@@ -184,6 +184,78 @@ namespace
         }
     }
 
+    sColor getColorIntesity(uint8_t attr)
+    {
+        // uint8_t i = attr & 8 ? 1 : 0;
+
+        uint8_t b = attr & 1 ? 1 : 0;
+        uint8_t r = attr & 2 ? 1 : 0;
+        uint8_t g = attr & 4 ? 1 : 0;
+
+        return { r, g, b };
+    }
+
+    sColor mergeColors(uint8_t attr0, uint8_t attr1)
+    {
+        const auto c0 = getColorIntesity(attr0);
+        const auto c1 = getColorIntesity(attr1);
+
+        const bool b0 = (attr0 & 0x40) != 0;
+        const bool b1 = (attr1 & 0x40) != 0;
+
+        const bool z0 = (attr0 & 0x07) == 0;
+        const bool z1 = (attr1 & 0x07) == 0;
+
+        const bool n0 = !z0 && !b0;
+        const bool n1 = !z1 && !b1;
+
+        uint8_t idx = 0;
+        if (z0 && z1)
+        {
+            idx = 0;
+        }
+        else if (n0 && n1)
+        {
+            idx = 1;
+        }
+        else if (b0 && b1)
+        {
+            idx = 2;
+        }
+        else if (z0 && n1)
+        {
+            idx = 3;
+        }
+        else if (n0 && b1)
+        {
+            idx = 4;
+        }
+        else if (z0 && b1)
+        {
+            idx = 5;
+        }
+
+        // pulsar
+        const uint8_t intensity[] = { 0x00, 0x76, 0xcd, 0xe9, 0xff, 0x9f };
+        // 0x00 - ZZ - zero + zero
+        // 0x76 - NN - normal + normal
+        // 0xcd - BB - bright + bright
+        // 0xe9 - ZN - zero + normal
+        // 0xff - NB - normal + bright
+        // 0x9f - ZB - zero + bright
+
+        const uint32_t i = intensity[idx];
+
+        const float v0 = 0.5f;
+        const float v1 = 1.0f - v0;
+        return
+        {
+            (uint8_t)(v0 * i * c0.r + v1 * i * c1.r),
+            (uint8_t)(v0 * i * c0.g + v1 * i * c1.g),
+            (uint8_t)(v0 * i * c0.b + v1 * i * c1.b),
+        };
+    }
+
     sColor mergeColors(const sColor& c0, const sColor& c1)
     {
         const float a = 0.5f;
@@ -459,7 +531,7 @@ namespace
     {
         const uint32_t blockHeight = buffer[4];
 
-        const auto border = mergeColors(Palette[buffer[5] & 0x07], Palette[buffer[6] & 0x07]);
+        const auto border = mergeColors(buffer[5], buffer[6]);
         makeBorder(desc, border);
 
         buffer += 256; // skip header
@@ -478,7 +550,7 @@ namespace
     {
         const uint32_t blockHeight = buffer[4];
 
-        const auto border = mergeColors(Palette[buffer[5] & 0x07], Palette[buffer[6] & 0x07]);
+        const auto border = mergeColors(buffer[5], buffer[6]);
         makeBorder(desc, border);
 
         buffer += 7; // skip header
