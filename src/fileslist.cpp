@@ -84,13 +84,11 @@ void cFilesList::addFile(const char* path)
     {
         m_files.push_back({ false, path });
     }
-    else if (m_scanDirectory)
+    else
     {
         m_scanDirectory = false;
 
         scanDirectory(path);
-
-        sortList();
     }
 
     if (fullPath != nullptr)
