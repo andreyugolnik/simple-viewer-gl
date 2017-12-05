@@ -85,9 +85,9 @@ public:
 
     void centerWindow();
     void showCursor(bool show);
-    void loadImage(int step);
 
 private:
+    void loadImage(int step);
     void loadSubImage(int subStep);
     void calculateScale();
     void updateScale(bool up);

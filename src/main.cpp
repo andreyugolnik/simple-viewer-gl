@@ -282,7 +282,6 @@ int main(int argc, char* argv[])
         {
             setup(window);
             viewer.setWindow(window);
-            viewer.loadImage(0);
 
             bool updateSizePos = false;
 
