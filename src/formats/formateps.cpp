@@ -58,24 +58,32 @@ cFormatEps::~cFormatEps()
 
 bool cFormatEps::isSupported(cFile& file, Buffer& buffer) const
 {
-    if (!readBuffer(file, buffer, 1024))
+    for (uint32_t bufferSize = 256; bufferSize < 40 * 1024; bufferSize <<= 1)
     {
-        return false;
-    }
+        if (!readBuffer(file, buffer, std::min<uint32_t>(file.getSize(), bufferSize)))
+        {
+            return false;
+        }
 
-    auto data = (const char*)buffer.data();
-    auto size = (uint32_t)buffer.size();
+        auto data = (const char*)buffer.data();
+        auto size = (uint32_t)buffer.size();
 
-    const auto eps = helpers::memfind(data, size, "!PS-Adobe");
-    if (eps != nullptr)
-    {
-        return true;
-    }
+        const auto eps = helpers::memfind(data, size, "!PS-Adobe");
+        if (eps != nullptr)
+        {
+            return true;
+        }
 
-    const auto ai = helpers::memfind(data, size, "Adobe XMP Core");
-    if (ai != nullptr)
-    {
-        return true;
+        const auto ai = helpers::memfind(data, size, "Adobe XMP Core");
+        if (ai != nullptr)
+        {
+            return true;
+        }
+
+        if (file.getSize() == size)
+        {
+            return false;
+        }
     }
 
     return false;
