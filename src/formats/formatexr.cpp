@@ -10,9 +10,9 @@
 #if defined(OPENEXR_SUPPORT)
 
 #include "formatexr.h"
-#include "../common/bitmap_description.h"
-#include "../common/file.h"
-#include "../common/helpers.h"
+#include "common/bitmap_description.h"
+#include "common/file.h"
+#include "common/helpers.h"
 
 #include <cstdio>
 #include <cstring>
@@ -25,7 +25,6 @@
 
 namespace
 {
-
     struct sRgba8888
     {
         uint8_t r;
@@ -48,22 +47,21 @@ namespace
 
     const char* getFormat(uint32_t format)
     {
-        const char* Formats[] =
-        {
-            "exr",         // no compression
-            "exr/rle",     // run length encoding
-            "exr/zips",    // zlib compression, one scan line at a time
-            "exr/zip",     // zlib compression, in blocks of 16 scan lines
-            "exr/piz",     // piz-based wavelet compression
-            "exr/pxr24",   // lossy 24-bit float compression
-            "exr/b44",     // lossy 4-by-4 pixel block compression, fixed compression rate
-            "exr/b44a",    // lossy 4-by-4 pixel block compression, flat fields are compressed more
-            "exr/dwaa",    // lossy DCT based compression, in blocks of 32 scanlines. More efficient for partial buffer access.
+        const char* Formats[] = {
+            "exr", // no compression
+            "exr/rle", // run length encoding
+            "exr/zips", // zlib compression, one scan line at a time
+            "exr/zip", // zlib compression, in blocks of 16 scan lines
+            "exr/piz", // piz-based wavelet compression
+            "exr/pxr24", // lossy 24-bit float compression
+            "exr/b44", // lossy 4-by-4 pixel block compression, fixed compression rate
+            "exr/b44a", // lossy 4-by-4 pixel block compression, flat fields are compressed more
+            "exr/dwaa", // lossy DCT based compression, in blocks of 32 scanlines. More efficient for partial buffer access.
 
-            "exr/dwab",    // lossy DCT based compression, in blocks
-                           // of 256 scanlines. More efficient space
-                           // wise and faster to decode full frames
-                           // than DWAA_COMPRESSION.
+            "exr/dwab", // lossy DCT based compression, in blocks
+            // of 256 scanlines. More efficient space
+            // wise and faster to decode full frames
+            // than DWAA_COMPRESSION.
         };
 
         return format < helpers::countof(Formats) ? Formats[format] : "unknown";
@@ -96,9 +94,7 @@ namespace
 #endif
     }
 
-    bool readTiledRgba(const char* filename, Imf::Array2D<Imf::Rgba>& pixels
-                       , sBitmapDescription& desc, Imf::RgbaChannels& channels
-                       , uint32_t& compression)
+    bool readTiledRgba(const char* filename, Imf::Array2D<Imf::Rgba>& pixels, sBitmapDescription& desc, Imf::RgbaChannels& channels, uint32_t& compression)
     {
         Imf::TiledRgbaInputFile in(filename);
         bool result = in.isComplete();
@@ -126,9 +122,7 @@ namespace
         return result;
     }
 
-    bool readScanlineRgba(const char* filename, Imf::Array2D<Imf::Rgba>& pixels
-                          , sBitmapDescription& desc, Imf::RgbaChannels& channels
-                          , uint32_t& compression)
+    bool readScanlineRgba(const char* filename, Imf::Array2D<Imf::Rgba>& pixels, sBitmapDescription& desc, Imf::RgbaChannels& channels, uint32_t& compression)
     {
         Imf::RgbaInputFile in(filename);
         bool result = in.isComplete();
@@ -201,7 +195,6 @@ namespace
         return false;
     }
 #endif
-
 }
 
 cFormatExr::cFormatExr(iCallbacks* callbacks)

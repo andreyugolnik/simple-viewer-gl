@@ -8,10 +8,10 @@
 \**********************************************/
 
 #include "formatage.h"
-#include "../common/ZlibDecoder.h"
-#include "../common/bitmap_description.h"
-#include "../common/file.h"
 #include "AGEheader.h"
+#include "common/ZlibDecoder.h"
+#include "common/bitmap_description.h"
+#include "common/file.h"
 #include "rle.h"
 
 #include <cstdio>
@@ -19,7 +19,6 @@
 
 namespace
 {
-
     bool isValidFormat(const AGE::Header& header, unsigned file_size)
     {
         if (header.data_size + sizeof(AGE::Header) == file_size)
@@ -29,23 +28,22 @@ namespace
         return false;
     }
 
-//bool cFormatAge::isRawFormat(const char* name)
-//{
-//cFile file;
-//if(!file.open(name))
-//{
-//return false;
-//}
+    //bool cFormatAge::isRawFormat(const char* name)
+    //{
+    //cFile file;
+    //if(!file.open(name))
+    //{
+    //return false;
+    //}
 
-//Header header;
-//if(sizeof(header) != file.read(&header, sizeof(header)))
-//{
-//return false;
-//}
+    //Header header;
+    //if(sizeof(header) != file.read(&header, sizeof(header)))
+    //{
+    //return false;
+    //}
 
-//return isValidFormat(header, file.getSize());
-//}
-
+    //return isValidFormat(header, file.getSize());
+    //}
 }
 
 cFormatAge::cFormatAge(iCallbacks* callbacks)

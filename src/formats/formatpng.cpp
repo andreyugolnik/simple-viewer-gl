@@ -8,24 +8,22 @@
 \**********************************************/
 
 #include "formatpng.h"
-#include "../common/bitmap_description.h"
-#include "../common/file.h"
-#include "../common/helpers.h"
+#include "common/bitmap_description.h"
+#include "common/file.h"
+#include "common/helpers.h"
 
 #include <cstring>
 #include <png.h>
 
 namespace
 {
-
     void* locateICCProfile(const png_structp png, const png_infop info, unsigned& iccProfileSize)
     {
         png_charp name;
         int comp_type;
-#if ((PNG_LIBPNG_VER_MAJOR << 8) | PNG_LIBPNG_VER_MINOR << 0) < \
-        ((1 << 8) | (5 << 0))
+#if ((PNG_LIBPNG_VER_MAJOR << 8) | PNG_LIBPNG_VER_MINOR << 0) < ((1 << 8) | (5 << 0))
         png_charp icc;
-#else  // >= libpng 1.5.0
+#else // >= libpng 1.5.0
         png_bytep icc;
 #endif
         png_uint_32 size;
@@ -51,7 +49,6 @@ namespace
     {
         return fileSize >= 8 && png_sig_cmp(header.id, 0, 8) == 0;
     }
-
 }
 
 cFormatPng::cFormatPng(iCallbacks* callbacks)
@@ -147,7 +144,7 @@ bool cFormatPng::LoadImpl(const char* filename, sBitmapDescription& desc)
     desc.width = png_get_image_width(png, info);
     desc.height = png_get_image_height(png, info);
     desc.bpp = png_get_bit_depth(png, info) * png_get_channels(png, info);
-    desc.pitch = helpers::calculatePitch(desc.width, desc.bpp);//png_get_rowbytes(png, info);
+    desc.pitch = helpers::calculatePitch(desc.width, desc.bpp); //png_get_rowbytes(png, info);
     if (desc.pitch < png_get_rowbytes(png, info))
     {
         ::printf("(EE) Invalid pitch: %u instead %u.\n", desc.pitch, (uint32_t)png_get_rowbytes(png, info));
@@ -164,7 +161,7 @@ bool cFormatPng::LoadImpl(const char* filename, sBitmapDescription& desc)
     // auto row_pointers = new png_bytep[desc.height];
     // for (unsigned y = 0; y < desc.height; y++)
     // {
-        // row_pointers[y] = new png_byte[desc.pitch];
+    // row_pointers[y] = new png_byte[desc.pitch];
     // }
     // png_read_image(png, row_pointers);
 

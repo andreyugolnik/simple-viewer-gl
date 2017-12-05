@@ -8,9 +8,9 @@
 \**********************************************/
 
 #include "formatpnm.h"
-#include "../common/bitmap_description.h"
-#include "../common/file.h"
-#include "../common/helpers.h"
+#include "common/bitmap_description.h"
+#include "common/file.h"
+#include "common/helpers.h"
 
 #include <algorithm>
 #include <cmath>
@@ -20,7 +20,6 @@
 
 namespace
 {
-
     bool isEndLine(char ch)
     {
         const char delims[] = "\n\0";
@@ -281,7 +280,6 @@ namespace
 
         return true;
     }
-
 }
 
 cFormatPnm::cFormatPnm(iCallbacks* callbacks)

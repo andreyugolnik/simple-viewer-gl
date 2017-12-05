@@ -8,9 +8,8 @@
 \**********************************************/
 
 #include "helppopup.h"
-#include "types/vector.h"
-
 #include "imgui/imgui.h"
+#include "types/vector.h"
 
 namespace
 {

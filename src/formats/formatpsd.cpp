@@ -8,49 +8,47 @@
 \**********************************************/
 
 #include "formatpsd.h"
-#include "../common/bitmap_description.h"
-#include "../common/file.h"
-#include "../common/helpers.h"
+#include "common/bitmap_description.h"
+#include "common/file.h"
+#include "common/helpers.h"
 
 #include <cstdio>
 #include <string.h>
 
 namespace
 {
-
     // http://www.adobe.com/devnet-apps/photoshop/fileformatashtml/
     enum class ColorMode : uint16_t
     {
-        MONO         = 0,
-        GRAYSCALE    = 1,
-        INDEXED      = 2,
-        RGB          = 3,
-        CMYK         = 4,
+        MONO = 0,
+        GRAYSCALE = 1,
+        INDEXED = 2,
+        RGB = 3,
+        CMYK = 4,
         // UNUSED    = 5,
         // UNUSED    = 6,
         MULTICHANNEL = 7,
-        DUOTONE      = 8,
-        LAB          = 9
+        DUOTONE = 8,
+        LAB = 9
     };
 
 #pragma pack(push, 1)
     struct PSD_HEADER
     {
-        uint8_t signature[4];   // file ID, always "8BPS"
-        uint16_t version;       // version number, always 1
+        uint8_t signature[4]; // file ID, always "8BPS"
+        uint16_t version; // version number, always 1
         uint8_t resetved[6];
-        uint16_t channels;      // number of color channels (1-56)
-        uint32_t rows;          // height of image in pixels (1-30000)
-        uint32_t columns;       // width of image in pixels (1-30000)
-        uint16_t depth;         // number of bits per channel (1, 8, 16, 32)
-        ColorMode colorMode;    // color mode as defined below
+        uint16_t channels; // number of color channels (1-56)
+        uint32_t rows; // height of image in pixels (1-30000)
+        uint32_t columns; // width of image in pixels (1-30000)
+        uint16_t depth; // number of bits per channel (1, 8, 16, 32)
+        ColorMode colorMode; // color mode as defined below
     };
 #pragma pack(pop)
 
     const char* modeToString(ColorMode colorMode)
     {
-        static const char* modes[] =
-        {
+        static const char* modes[] = {
             "MONO",
             "GRAYSCALE",
             "INDEXED",
@@ -74,15 +72,15 @@ namespace
 
     enum class CompressionMethod : uint16_t
     {
-        RAW = 0,         // Raw image data
-        RLE = 1,         // RLE compressed the image data starts with the byte counts
+        RAW = 0, // Raw image data
+        RLE = 1, // RLE compressed the image data starts with the byte counts
         // for all the scan lines (rows * channels), with each count
         // stored as a two-byte value. The RLE compressed data follows,
         // with each scan line compressed separately. The RLE compression
         // is the same compression algorithm used by the Macintosh ROM
         // routine PackBits, and the TIFF standard.
-        ZIP = 2,         // ZIP without prediction
-        ZIP_PREDICT = 3  // ZIP with prediction
+        ZIP = 2, // ZIP without prediction
+        ZIP_PREDICT = 3 // ZIP with prediction
     };
 
     bool skipNextBlock(cFile& file)
@@ -139,7 +137,7 @@ namespace
         }
     }
 
-    template<typename C>
+    template <typename C>
     void fromRgba(sBitmapDescription& desc, const C* r, const C* g, const C* b, const C* a)
     {
         const uint32_t shift = (uint32_t)sizeof(C) >> 1;
@@ -159,7 +157,7 @@ namespace
         }
     }
 
-    template<>
+    template <>
     void fromRgba(sBitmapDescription& desc, const uint32_t* r, const uint32_t* g, const uint32_t* b, const uint32_t* a)
     {
         for (uint32_t y = 0; y < desc.height; y++)
@@ -181,7 +179,7 @@ namespace
             }
         }
     }
-    
+
     unsigned char* allocBitmap(sBitmapDescription& desc)
     {
         desc.pitch = helpers::calculatePitch(desc.width, desc.bpp);
@@ -198,7 +196,6 @@ namespace
             && header.signature[2] == 'P'
             && header.signature[3] == 'S';
     }
-
 }
 
 cFormatPsd::cFormatPsd(iCallbacks* callbacks)

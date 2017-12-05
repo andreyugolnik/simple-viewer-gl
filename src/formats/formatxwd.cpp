@@ -8,81 +8,79 @@
 \**********************************************/
 
 #include "formatxwd.h"
-#include "../common/bitmap_description.h"
-#include "../common/file.h"
-#include "../common/helpers.h"
+#include "common/bitmap_description.h"
+#include "common/file.h"
+#include "common/helpers.h"
 
 #include <cstdio>
 #include <cstring>
 
 struct sXwdCommon
 {
-    uint32_t HeaderSize;        // Header size in bytes
-    uint32_t FileVersion;       // X10 XWD file version (always 06h)
-                                // X11 XWD file version (always 07h)
+    uint32_t HeaderSize; // Header size in bytes
+    uint32_t FileVersion; // X10 XWD file version (always 06h)
+        // X11 XWD file version (always 07h)
 };
 
 struct X10WindowDump : sXwdCommon
 {
-    uint32_t DisplayType;       // Display type
-    uint32_t DisplayPlanes;     // Number of display planes
-    uint32_t PixmapFormat;      // Pixmap format
-    uint32_t PixmapWidth;       // Pixmap width
-    uint32_t PixmapHeight;      // Pixmap height
-    uint16_t WindowWidth;       // Window width
-    uint16_t WindowHeight;      // Window height
-    uint16_t WindowX;           // Window upper left X coordinate
-    uint16_t WindowY;           // Window upper left Y coordinate
+    uint32_t DisplayType; // Display type
+    uint32_t DisplayPlanes; // Number of display planes
+    uint32_t PixmapFormat; // Pixmap format
+    uint32_t PixmapWidth; // Pixmap width
+    uint32_t PixmapHeight; // Pixmap height
+    uint16_t WindowWidth; // Window width
+    uint16_t WindowHeight; // Window height
+    uint16_t WindowX; // Window upper left X coordinate
+    uint16_t WindowY; // Window upper left Y coordinate
     uint16_t WindowBorderWidth; // Window border width
-    uint16_t WindowNumColors;   // Number of color entries in window
+    uint16_t WindowNumColors; // Number of color entries in window
 };
 
 struct X11WindowDump : sXwdCommon
 {
-    uint32_t PixmapFormat;      // Pixmap format
-    uint32_t PixmapDepth;       // Pixmap depth in pixels
-    uint32_t PixmapWidth;       // Pixmap width in pixels
-    uint32_t PixmapHeight;      // Pixmap height in pixels
-    uint32_t XOffset;           // Bitmap X offset
-    uint32_t ByteOrder;         // Byte order of image data
-    uint32_t BitmapUnit;        // Bitmap base data size
-    uint32_t BitmapBitOrder;    // Bit-order of image data
-    uint32_t BitmapPad;         // Bitmap scan-line pad
-    uint32_t BitsPerPixel;      // Bits per pixel
-    uint32_t BytesPerLine;      // Bytes per scan-line
-    uint32_t VisualClass;       // Class of the image
-    uint32_t RedMask;           // Red mask
-    uint32_t GreenMask;         // Green mask
-    uint32_t BlueMask;          // Blue mask
-    uint32_t BitsPerRgb;        // Size of each color mask in bits
-    uint32_t NumberOfColors;    // Number of colors in image
-    uint32_t ColorMapEntries;   // Number of entries in color map
-    uint32_t WindowWidth;       // Window width
-    uint32_t WindowHeight;      // Window height
-    uint32_t WindowX;           // Window upper left X coordinate
-    uint32_t WindowY;           // Window upper left Y coordinate
+    uint32_t PixmapFormat; // Pixmap format
+    uint32_t PixmapDepth; // Pixmap depth in pixels
+    uint32_t PixmapWidth; // Pixmap width in pixels
+    uint32_t PixmapHeight; // Pixmap height in pixels
+    uint32_t XOffset; // Bitmap X offset
+    uint32_t ByteOrder; // Byte order of image data
+    uint32_t BitmapUnit; // Bitmap base data size
+    uint32_t BitmapBitOrder; // Bit-order of image data
+    uint32_t BitmapPad; // Bitmap scan-line pad
+    uint32_t BitsPerPixel; // Bits per pixel
+    uint32_t BytesPerLine; // Bytes per scan-line
+    uint32_t VisualClass; // Class of the image
+    uint32_t RedMask; // Red mask
+    uint32_t GreenMask; // Green mask
+    uint32_t BlueMask; // Blue mask
+    uint32_t BitsPerRgb; // Size of each color mask in bits
+    uint32_t NumberOfColors; // Number of colors in image
+    uint32_t ColorMapEntries; // Number of entries in color map
+    uint32_t WindowWidth; // Window width
+    uint32_t WindowHeight; // Window height
+    uint32_t WindowX; // Window upper left X coordinate
+    uint32_t WindowY; // Window upper left Y coordinate
     uint32_t WindowBorderWidth; // Window border width
 };
 
 struct X10ColorMap
 {
     uint16_t EntryNumber; // Number of the color-map entry
-    uint16_t Red;         // Red-channel value
-    uint16_t Green;       // Green-channel value
-    uint16_t Blue;        // Blue-channel value
+    uint16_t Red; // Red-channel value
+    uint16_t Green; // Green-channel value
+    uint16_t Blue; // Blue-channel value
 };
 
 struct X11ColorMap
 {
     uint32_t EntryNumber; // Number of the color map entry
-    uint16_t Red;         // Red-channel value
-    uint16_t Green;       // Green-channel value
-    uint16_t Blue;        // Blue-channel value
-    uint8_t Flags;        // Flag for this entry
-    uint8_t Padding;      // WORD-align padding
+    uint16_t Red; // Red-channel value
+    uint16_t Green; // Green-channel value
+    uint16_t Blue; // Blue-channel value
+    uint8_t Flags; // Flag for this entry
+    uint8_t Padding; // WORD-align padding
 };
-
-
 
 cFormatXwd::cFormatXwd(iCallbacks* callbacks)
     : cFormat(callbacks)
@@ -104,9 +102,9 @@ bool cFormatXwd::isSupported(cFile& file, Buffer& buffer) const
     ::memcpy(&h, buffer.data(), sizeof(h));
     helpers::swap_uint32s((uint8_t*)&h, sizeof(h));
     return (
-            (h.HeaderSize == sizeof(X10WindowDump) && h.FileVersion == 0x06)
-            || (h.HeaderSize == sizeof(X11WindowDump) && h.FileVersion == 0x07)
-           ) && h.HeaderSize < file.getSize();
+               (h.HeaderSize == sizeof(X10WindowDump) && h.FileVersion == 0x06)
+               || (h.HeaderSize == sizeof(X11WindowDump) && h.FileVersion == 0x07))
+        && h.HeaderSize < file.getSize();
 }
 
 bool cFormatXwd::LoadImpl(const char* filename, sBitmapDescription& desc)
@@ -216,13 +214,13 @@ bool cFormatXwd::loadX11(const X11WindowDump& header, cFile& file, sBitmapDescri
         return false;
     }
 
-    desc.size     = file.getSize();
-    desc.width    = header.PixmapWidth;
-    desc.height   = header.PixmapHeight;
-    desc.bpp      = header.BitsPerPixel;
+    desc.size = file.getSize();
+    desc.width = header.PixmapWidth;
+    desc.height = header.PixmapHeight;
+    desc.bpp = header.BitsPerPixel;
     desc.bppImage = header.BitsPerPixel;
-    desc.pitch    = header.BytesPerLine;
-    desc.format   = GL_RGB;
+    desc.pitch = header.BytesPerLine;
+    desc.format = GL_RGB;
     desc.bitmap.resize(desc.pitch * desc.height);
 
     if (desc.bitmap.size() != file.read(desc.bitmap.data(), desc.bitmap.size()))

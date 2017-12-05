@@ -8,8 +8,8 @@
 \**********************************************/
 
 #include "formatwebp.h"
-#include "../common/bitmap_description.h"
-#include "../common/file.h"
+#include "common/bitmap_description.h"
+#include "common/file.h"
 
 #include <cstdio>
 #include <cstring>
@@ -79,10 +79,10 @@ bool cFormatWebP::LoadImpl(const char* filename, sBitmapDescription& desc)
     desc.current = 0;
     desc.width = features.width;
     desc.height = features.height;
-  
+
     // ::printf("alpha: %d, animations: %d, format: %d\n"
-          // , features.has_alpha, features.has_animation
-          // , features.format);
+    // , features.has_alpha, features.has_animation
+    // , features.format);
 
     if (features.has_alpha)
     {

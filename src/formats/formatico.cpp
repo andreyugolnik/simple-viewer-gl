@@ -8,47 +8,47 @@
 \**********************************************/
 
 #include "formatico.h"
-#include "../common/bitmap_description.h"
-#include "../common/file.h"
-#include "../common/helpers.h"
+#include "common/bitmap_description.h"
+#include "common/file.h"
+#include "common/helpers.h"
 
-#include <cstring>
 #include <cmath>
+#include <cstring>
 #include <png.h>
 
 #pragma pack(push, 1)
 struct IcoHeader
 {
-    uint16_t reserved;  // Reserved. Should always be 0.
-    uint16_t type;      // Specifies image type: 1 for icon (.ICO) image, 2 for cursor (.CUR) image. Other values are invalid.
-    uint16_t count;     // Specifies number of images in the file.
+    uint16_t reserved; // Reserved. Should always be 0.
+    uint16_t type; // Specifies image type: 1 for icon (.ICO) image, 2 for cursor (.CUR) image. Other values are invalid.
+    uint16_t count; // Specifies number of images in the file.
 };
 
 // List of icons.
 // Size = IcoHeader.ount * 16
 struct IcoDirentry
 {
-    uint8_t width;  // Specifies image width in pixels. Can be 0, 255 or a number between 0 to 255. Should be 0 if image width is 256 pixels.
+    uint8_t width; // Specifies image width in pixels. Can be 0, 255 or a number between 0 to 255. Should be 0 if image width is 256 pixels.
     uint8_t height; // Specifies image height in pixels. Can be 0, 255 or a number between 0 to 255. Should be 0 if image height is 256 pixels.
     uint8_t colors; // Specifies number of colors in the color palette. Should be 0 if the image is truecolor.
-    uint8_t reserved;   // Reserved. Should be 0.[Notes 1]
-    uint16_t planes;    // In .ICO format: Specifies color planes. Should be 0 or 1.
+    uint8_t reserved; // Reserved. Should be 0.[Notes 1]
+    uint16_t planes; // In .ICO format: Specifies color planes. Should be 0 or 1.
     // In .CUR format: Specifies the horizontal coordinates of the hotspot in number of pixels from the left.
-    uint16_t bits;  // In .ICO format: Specifies bits per pixel. (1, 4, 8)
+    uint16_t bits; // In .ICO format: Specifies bits per pixel. (1, 4, 8)
     // In .CUR format: Specifies the vertical coordinates of the hotspot in number of pixels from the top.
-    uint32_t size;  // Specifies the size of the bitmap data in bytes. Size of (InfoHeader + ANDbitmap + XORbitmap)
-    uint32_t offset;    // Specifies the offset of bitmap data address in the file
+    uint32_t size; // Specifies the size of the bitmap data in bytes. Size of (InfoHeader + ANDbitmap + XORbitmap)
+    uint32_t offset; // Specifies the offset of bitmap data address in the file
 };
 
 // Variant of BMP InfoHeader.
 // Size = 40 bytes.
 struct IcoBmpInfoHeader
 {
-    uint32_t size;      // Size of InfoHeader structure = 40
-    uint32_t width;     // Icon Width
-    uint32_t height;    // Icon Height (added height of XOR-Bitmap and AND-Bitmap)
-    uint16_t planes;    // number of planes = 1
-    uint16_t bits;      // bits per pixel = 1, 2, 4, 8, 16, 24, 32
+    uint32_t size; // Size of InfoHeader structure = 40
+    uint32_t width; // Icon Width
+    uint32_t height; // Icon Height (added height of XOR-Bitmap and AND-Bitmap)
+    uint16_t planes; // number of planes = 1
+    uint16_t bits; // bits per pixel = 1, 2, 4, 8, 16, 24, 32
     uint32_t reserved0; // Type of Compression = 0
     uint32_t imagesize; // Size of Image in Bytes = 0 (uncompressed)
     uint32_t reserved1; // XpixelsPerM
@@ -61,9 +61,9 @@ struct IcoBmpInfoHeader
 // Size = NumberOfColors * 4 bytes.
 struct IcoColors
 {
-    uint8_t red;      // red component
-    uint8_t green;    // green component
-    uint8_t blue;     // blue component
+    uint8_t red; // red component
+    uint8_t green; // green component
+    uint8_t blue; // blue component
     uint8_t reserved; // = 0
 };
 
@@ -74,13 +74,12 @@ struct IcoColors
 struct PngRaw
 {
     uint8_t* data;
-    size_t size;    // size of raw data
+    size_t size; // size of raw data
     size_t pos; // current pos
 };
 
 namespace
 {
-
     // load frame in png format
     PngRaw m_pngRaw;
     void readPngData(png_structp /*png*/, png_bytep out, png_size_t count)
@@ -92,7 +91,6 @@ namespace
         }
         m_pngRaw.pos += count;
     }
-
 }
 
 cFormatIco::cFormatIco(iCallbacks* callbacks)
@@ -244,7 +242,7 @@ bool cFormatIco::loadPngFrame(sBitmapDescription& desc, cFile& file, const IcoDi
         png_set_palette_to_rgb(png);
     }
 
-#if defined(PNG_1_0_X) || defined (PNG_1_2_X)
+#if defined(PNG_1_0_X) || defined(PNG_1_2_X)
     if (info->color_type == PNG_COLOR_TYPE_GRAY && info->bit_depth < 8)
     {
         // depreceted in libPNG-1.4.2
@@ -271,7 +269,7 @@ bool cFormatIco::loadPngFrame(sBitmapDescription& desc, cFile& file, const IcoDi
     desc.width = png_get_image_width(png, info);
     desc.height = png_get_image_height(png, info);
     desc.bpp = png_get_bit_depth(png, info) * png_get_channels(png, info);
-    desc.pitch = helpers::calculatePitch(desc.width, desc.bpp);//png_get_rowbytes(png, info);
+    desc.pitch = helpers::calculatePitch(desc.width, desc.bpp); //png_get_rowbytes(png, info);
 
     // read file
     if (setjmp(png_jmpbuf(png)) != 0)

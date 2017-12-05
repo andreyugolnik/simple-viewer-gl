@@ -8,8 +8,8 @@
 \**********************************************/
 
 #include "formatdds.h"
-#include "../common/bitmap_description.h"
-#include "../common/file.h"
+#include "common/bitmap_description.h"
+#include "common/file.h"
 
 #include <cassert>
 #include <cstdio>

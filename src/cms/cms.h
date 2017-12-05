@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include "../types/types.h"
+#include "types/types.h"
 
 class cCMS final
 {

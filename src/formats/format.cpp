@@ -8,9 +8,9 @@
 \**********************************************/
 
 #include "format.h"
-#include "../common/bitmap_description.h"
-#include "../common/callbacks.h"
-#include "../common/file.h"
+#include "common/bitmap_description.h"
+#include "common/callbacks.h"
+#include "common/file.h"
 
 #include <cassert>
 #include <cstdio>

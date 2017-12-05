@@ -8,17 +8,16 @@
 \**********************************************/
 
 #include "formattiff.h"
-#include "../common/bitmap_description.h"
-#include "../common/file.h"
-#include "../cms/cms.h"
+#include "cms/cms.h"
+#include "common/bitmap_description.h"
+#include "common/file.h"
 
 #include <cstring>
-#include <tiffio.h>
 #include <stdarg.h>
+#include <tiffio.h>
 
 namespace
 {
-
     void locateICCProfile(TIFF* tif, cCMS& cms)
     {
         unsigned iccProfileSize = 0;
@@ -55,7 +54,6 @@ namespace
     {
         // ::printf("(WW) \n");
     }
-
 }
 
 cFormatTiff::cFormatTiff(iCallbacks* callbacks)

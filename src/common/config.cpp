@@ -8,8 +8,8 @@
 \**********************************************/
 
 #include "config.h"
-#include "../viewer.h"
 #include "Ini.h"
+#include "viewer.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -17,7 +17,6 @@
 
 namespace
 {
-
     bool getBool(const char* value, bool def)
     {
         if (value != nullptr)
@@ -64,7 +63,6 @@ namespace
         const auto def = value;
         value = getBool(ini.getString(section, name), def);
     }
-
 }
 
 void cConfig::read(sConfig& config) const

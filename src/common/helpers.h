@@ -9,11 +9,13 @@
 
 #pragma once
 
-#include "../types/types.h"
+#include "types/types.h"
+#include "common/buffer.h"
+
+#include <string>
 
 namespace helpers
 {
-
     uint16_t read_uint16(uint8_t* p);
     uint32_t read_uint32(uint8_t* p);
     void swap_uint32s(uint8_t* p, uint32_t size);
@@ -26,7 +28,7 @@ namespace helpers
     }
 
     template <class T, size_t N>
-    constexpr size_t countof(const T(&)[N]) noexcept
+    constexpr size_t countof(const T (&)[N]) noexcept
     {
         return N;
     }
@@ -36,4 +38,9 @@ namespace helpers
 
     uint64_t getTime();
 
+    void replaceAll(std::string& subject, const std::string& search, const std::string& replace);
+
+    char* memfind(const char* buf, size_t size, const char* tofind);
+
+    bool base64decode(const char* input, size_t in_len, Buffer& out);
 }

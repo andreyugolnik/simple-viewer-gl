@@ -27,6 +27,7 @@ enum class eImageType
 #endif
     JPG,
     PSD,
+    EPS,
     PNG,
     GIF,
     ICO,

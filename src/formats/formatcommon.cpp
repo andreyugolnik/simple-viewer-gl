@@ -10,9 +10,9 @@
 #if defined(IMLIB2_SUPPORT)
 
 #include "formatcommon.h"
-#include "../common/bitmap_description.h"
-#include "../common/file.h"
-#include "../common/helpers.h"
+#include "common/bitmap_description.h"
+#include "common/file.h"
+#include "common/helpers.h"
 
 #include <cstdio>
 #include <cstring>

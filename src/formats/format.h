@@ -9,8 +9,8 @@
 
 #pragma once
 
-#include "../common/buffer.h"
-#include "../cms/cms.h"
+#include "common/buffer.h"
+#include "cms/cms.h"
 
 class iCallbacks;
 class cFile;

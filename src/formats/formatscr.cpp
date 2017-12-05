@@ -8,10 +8,10 @@
 \**********************************************/
 
 #include "formatscr.h"
-#include "../common/bitmap_description.h"
-#include "../common/file.h"
-#include "../common/helpers.h"
-#include "../types/types.h"
+#include "common/bitmap_description.h"
+#include "common/file.h"
+#include "common/helpers.h"
+#include "types/types.h"
 
 #include <cstdio>
 #include <cstring>
@@ -35,8 +35,7 @@ namespace
     };
 
     // palette PULSAR (0xcd)
-    static const sColor Palette[] =
-    {
+    static const sColor Palette[] = {
         // normal
         { 0x00, 0x00, 0x00 },
         { 0x00, 0x00, 0xcd },
@@ -70,7 +69,7 @@ namespace
             color = Palette[bright + (attribute & 0x07)];
         }
 
-        void operator= (const sColor& other)
+        void operator=(const sColor& other)
         {
             color = other;
         }
@@ -119,8 +118,7 @@ namespace
             uint32_t size;
             ZXProperty prop;
         };
-        static const ZXPropertyInternal sizesList[] =
-        {
+        static const ZXPropertyInternal sizesList[] = {
             { 6912, { 256, 192, 256, 192, 0, 0, ZXProperty::Type::Scr, "zx-scr" } },
             { 6929, { 256, 192, 256, 192, 0, 0, ZXProperty::Type::ScS, "zx-scr$" } },
             { 11136, { 384, 304, 256, 192, 64, 64, ZXProperty::Type::Bsc, "zx-bsc" } },
@@ -146,8 +144,7 @@ namespace
         {
             static char formatName[20];
             const uint32_t blockHeight = buffer[4];
-            if (buffer[2] == 'H' &&
-                (fileSize == 19456 || fileSize == 18688 || fileSize == 15616 || fileSize == 14080))
+            if (buffer[2] == 'H' && (fileSize == 19456 || fileSize == 18688 || fileSize == 15616 || fileSize == 14080))
             {
                 // 19456 - mg1
                 // 18688 - mg2
@@ -248,8 +245,7 @@ namespace
 
         const float v0 = 0.5f;
         const float v1 = 1.0f - v0;
-        return
-        {
+        return {
             (uint8_t)(v0 * i * c0.r + v1 * i * c1.r),
             (uint8_t)(v0 * i * c0.g + v1 * i * c1.g),
             (uint8_t)(v0 * i * c0.b + v1 * i * c1.b),
@@ -260,8 +256,7 @@ namespace
     {
         const float a = 0.5f;
         const float b = 1.0f - a;
-        return sColor
-        {
+        return sColor{
             (uint8_t)(c0.r * a + c1.r * b),
             (uint8_t)(c0.g * a + c1.g * b),
             (uint8_t)(c0.b * a + c1.b * b),
@@ -569,7 +564,7 @@ namespace
                 const uint8_t pixels = *zxPixels++;
                 const uint8_t ink = colors[x * 2 + 0];
                 const uint8_t paper = colors[x * 2 + 1];
-                const uint8_t attribute = ink | (paper << 3);//zxColors[(y / blockHeight) * 32 + x];
+                const uint8_t attribute = ink | (paper << 3); //zxColors[(y / blockHeight) * 32 + x];
                 putEightPixels(&startLine[x * 8], pixels, attribute);
             }
         }

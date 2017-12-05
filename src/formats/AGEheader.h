@@ -10,40 +10,38 @@
 
 namespace AGE
 {
+    enum class Format : unsigned
+    {
+        ALPHA,
+        RGB,
+        RGBA,
 
-enum class Format : unsigned
-{
-    ALPHA,
-    RGB,
-    RGBA,
+        Count
+    };
 
-    Count
-};
+    enum class Compression : unsigned
+    {
+        NONE,
+        RLE,
+        RLE4,
+        ZLIB,
 
-enum class Compression : unsigned
-{
-    NONE,
-    RLE,
-    RLE4,
-    ZLIB,
+        Count
+    };
 
-    Count
-};
+    struct Header
+    {
+        unsigned id;
+        Format format;
+        Compression compression;
+        unsigned w;
+        unsigned h;
+        unsigned data_size;
+    };
 
-struct Header
-{
-    unsigned id;
-    Format format;
-    Compression compression;
-    unsigned w;
-    unsigned h;
-    unsigned data_size;
-};
+    void filEmpty(Header& header);
+    bool isRawHeader(const Header& header);
 
-void filEmpty(Header& header);
-bool isRawHeader(const Header& header);
-
-const char* FormatToStr(Format format);
-const char* CompressionToStr(Compression compression);
-
+    const char* FormatToStr(Format format);
+    const char* CompressionToStr(Compression compression);
 }

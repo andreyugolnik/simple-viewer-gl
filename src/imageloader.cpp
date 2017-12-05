@@ -16,6 +16,7 @@
 #include "formats/formatbmp.h"
 #include "formats/formatcommon.h"
 #include "formats/formatdds.h"
+#include "formats/formateps.h"
 #include "formats/formatexr.h"
 #include "formats/formatgif.h"
 #include "formats/formatico.h"
@@ -49,6 +50,7 @@ cImageLoader::cImageLoader(iCallbacks* callbacks)
 #endif
     m_formats[(unsigned)eImageType::JPG].reset(new cFormatJpeg(callbacks));
     m_formats[(unsigned)eImageType::PSD].reset(new cFormatPsd(callbacks));
+    m_formats[(unsigned)eImageType::EPS].reset(new cFormatEps(callbacks));
     m_formats[(unsigned)eImageType::PNG].reset(new cFormatPng(callbacks));
     m_formats[(unsigned)eImageType::GIF].reset(new cFormatGif(callbacks));
     m_formats[(unsigned)eImageType::ICO].reset(new cFormatIco(callbacks));
@@ -177,6 +179,7 @@ namespace
 #endif
             "JPG",
             "PSD",
+            "EPS",
             "PNG",
             "GIF",
             "ICO",
@@ -229,6 +232,7 @@ eImageType cImageLoader::getType(const char* name)
             eImageType::WEBP,
             eImageType::BMP,
             eImageType::SCR,
+            eImageType::EPS,
 
 #if defined(OPENEXR_SUPPORT)
             eImageType::EXR,

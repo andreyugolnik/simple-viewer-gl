@@ -8,8 +8,8 @@
 \**********************************************/
 
 #include "formatraw.h"
-#include "../common/bitmap_description.h"
-#include "../common/file.h"
+#include "common/bitmap_description.h"
+#include "common/file.h"
 #include "rle.h"
 
 #include <cstdio>
@@ -17,7 +17,6 @@
 
 namespace
 {
-
     const char Id[] = { 'R', 'A', 'W', 'I' };
 
     enum eFormat
@@ -66,7 +65,6 @@ namespace
 
     //return isValidFormat(header, file.getSize());
     //}
-
 }
 
 cFormatRaw::cFormatRaw(iCallbacks* callbacks)

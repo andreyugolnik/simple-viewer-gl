@@ -1,0 +1,128 @@
+/**********************************************\
+*
+*  Simple Viewer GL edition
+*  by Andrey A. Ugolnik
+*  http://www.ugolnik.info
+*  andrey@ugolnik.info
+*
+\**********************************************/
+
+#include "formateps.h"
+#include "common/bitmap_description.h"
+#include "common/file.h"
+#include "common/helpers.h"
+#include "formats/formatjpeg.h"
+
+#include <cstdio>
+#include <cstring>
+
+namespace
+{
+    bool getContent(const char* data, size_t size, const char* name, std::string& out)
+    {
+        auto begin = helpers::memfind(data, size, name);
+        if (begin != nullptr)
+        {
+            begin += ::strlen(name) + 1;
+            auto end = helpers::memfind(begin, size, name);
+            if (end != nullptr)
+            {
+                out.assign(begin, end - begin - 2);
+                helpers::replaceAll(out, "&#xA;", "");
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    void addExifTag(const char* data, size_t size, const char* name, sBitmapDescription::ExifList& exifList)
+    {
+        std::string out;
+        if (getContent(data, size, name, out))
+        {
+            exifList.push_back({ name, out });
+        }
+    }
+}
+
+cFormatEps::cFormatEps(iCallbacks* callbacks)
+    : cJpegDecoder(callbacks)
+{
+}
+
+cFormatEps::~cFormatEps()
+{
+}
+
+bool cFormatEps::isSupported(cFile& file, Buffer& buffer) const
+{
+    if (!readBuffer(file, buffer, 100))
+    {
+        return false;
+    }
+
+    const auto psadobe = helpers::memfind((const char*)buffer.data(), buffer.size(), "!PS-Adobe");
+    if (psadobe != nullptr)
+    {
+        return true;
+
+        // int adobe = 0;
+        // int eps = 0;
+        // //"!PS-Adobe-3.1 EPSF-3.0"
+        // if (::sscanf(psadobe, "!PS-Adobe-%d EPSF-%d", &adobe, &eps) == 2)
+        // {
+        // return true;
+        // }
+    }
+
+    return false;
+}
+
+bool cFormatEps::LoadImpl(const char* filename, sBitmapDescription& desc)
+{
+    cFile file;
+    if (!file.open(filename))
+    {
+        return false;
+    }
+
+    const uint32_t size = file.getSize();
+
+    Buffer buffer;
+    buffer.resize(size);
+    auto data = buffer.data();
+
+    if (file.read(data, size) != file.getSize())
+    {
+        ::printf("(EE) Error loading EPS.\n");
+        return false;
+    }
+
+    std::string base64;
+    if (getContent((const char*)data, size, "xmpGImg:image", base64))
+    {
+        Buffer decoded;
+        if (helpers::base64decode(base64.data(), base64.size(), decoded))
+        {
+            bool result = decodeJpeg(decoded.data(), decoded.size(), desc);
+            if (result)
+            {
+                desc.size = file.getSize();
+
+                m_formatName = "eps";
+
+                auto& exifList = desc.exifList;
+                addExifTag((const char*)data, size, "xmp:CreatorTool", exifList);
+                addExifTag((const char*)data, size, "xmp:CreateDate", exifList);
+                addExifTag((const char*)data, size, "xmp:ModifyDate", exifList);
+                addExifTag((const char*)data, size, "xmp:MetadataDate", exifList);
+
+                return true;
+            }
+        }
+    }
+
+    return false;
+}

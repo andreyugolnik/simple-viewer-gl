@@ -11,11 +11,11 @@
 
 #include "jpegdecoder.h"
 
-class cFormatJpeg final : public cJpegDecoder
+class cFormatEps final : public cJpegDecoder
 {
 public:
-    cFormatJpeg(iCallbacks* callbacks);
-    ~cFormatJpeg();
+    cFormatEps(iCallbacks* callbacks);
+    ~cFormatEps();
 
     bool isSupported(cFile& file, Buffer& buffer) const override;
 

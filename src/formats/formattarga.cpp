@@ -8,22 +8,21 @@
 \**********************************************/
 
 #include "formattarga.h"
-#include "../common/bitmap_description.h"
-#include "../common/file.h"
-#include "../common/helpers.h"
+#include "common/bitmap_description.h"
+#include "common/file.h"
+#include "common/helpers.h"
 
 #include <cstdio>
 
 namespace
 {
-
     enum class ImageType : uint8_t
     {
-        Colormap      = 1,
-        RGB           = 2,
-        Monochrome    = 3,
-        RLEColormap   = 9,
-        RLERGB        = 10,
+        Colormap = 1,
+        RGB = 2,
+        Monochrome = 3,
+        RLEColormap = 9,
+        RLERGB = 10,
         RLEMonochrome = 11,
     };
 
@@ -92,8 +91,8 @@ namespace
     inline uint32_t getIndex(uint32_t x, uint32_t y, const sBitmapDescription& desc, Origin origin)
     {
         const uint32_t idx = origin == Origin::LowerLeft
-                             ? getIndexLowerLeft(x, y, desc)
-                             : getIndexUpperLeft(x, y, desc);
+            ? getIndexLowerLeft(x, y, desc)
+            : getIndexUpperLeft(x, y, desc);
         return idx;
     }
 
@@ -242,8 +241,8 @@ namespace
                 {
                     auto c = *(uint16_t*)&tga[sp];
                     out[dp + 0] = (((c >> 10) & 31) * 255) / 31;
-                    out[dp + 1] = (((c >>  5) & 31) * 255) / 31;
-                    out[dp + 2] = (((c >>  0) & 31) * 255) / 31;
+                    out[dp + 1] = (((c >> 5) & 31) * 255) / 31;
+                    out[dp + 2] = (((c >> 0) & 31) * 255) / 31;
                     dp += 3;
                     sp += 2;
                 }
@@ -343,8 +342,8 @@ namespace
                         }
                         auto c = *(uint16_t*)&tga[sp];
                         const uint32_t dp = getIndex(x, y, desc, origin);
-                        out[dp + 0] = (uint8_t)(((c >>  0) & 31) * 255) / 31;
-                        out[dp + 1] = (uint8_t)(((c >>  5) & 31) * 255) / 31;
+                        out[dp + 0] = (uint8_t)(((c >> 0) & 31) * 255) / 31;
+                        out[dp + 1] = (uint8_t)(((c >> 5) & 31) * 255) / 31;
                         out[dp + 2] = (uint8_t)(((c >> 10) & 31) * 255) / 31;
                         sp += 2;
                         x++;
@@ -353,8 +352,8 @@ namespace
                 else
                 {
                     const auto c = *(uint16_t*)&tga[sp];
-                    const auto r = (uint8_t)(((c >>  0) & 31) * 255) / 31;
-                    const auto g = (uint8_t)(((c >>  5) & 31) * 255) / 31;
+                    const auto r = (uint8_t)(((c >> 0) & 31) * 255) / 31;
+                    const auto g = (uint8_t)(((c >> 5) & 31) * 255) / 31;
                     const auto b = (uint8_t)(((c >> 10) & 31) * 255) / 31;
                     sp += 2;
 
@@ -512,7 +511,6 @@ namespace
 
         return true;
     }
-
 }
 
 cFormatTarga::cFormatTarga(iCallbacks* callbacks)
@@ -533,14 +531,14 @@ bool cFormatTarga::isSupported(cFile& file, Buffer& buffer) const
 
     const auto h = reinterpret_cast<const sTARGAHeader*>(buffer.data());
     return h->colorMapType <= 1
-           && h->width > 0 && h->height > 0
-           && (h->imageType == ImageType::Colormap
-               || h->imageType == ImageType::RGB
-               || h->imageType == ImageType::Monochrome
-               || h->imageType == ImageType::RLEColormap
-               || h->imageType == ImageType::RLERGB
-               || h->imageType == ImageType::RLEMonochrome)
-           && (h->pixelDepth == 8 || h->pixelDepth == 16 || h->pixelDepth == 24 || h->pixelDepth == 32);
+        && h->width > 0 && h->height > 0
+        && (h->imageType == ImageType::Colormap
+            || h->imageType == ImageType::RGB
+            || h->imageType == ImageType::Monochrome
+            || h->imageType == ImageType::RLEColormap
+            || h->imageType == ImageType::RLERGB
+            || h->imageType == ImageType::RLEMonochrome)
+        && (h->pixelDepth == 8 || h->pixelDepth == 16 || h->pixelDepth == 24 || h->pixelDepth == 32);
 }
 
 bool cFormatTarga::LoadImpl(const char* filename, sBitmapDescription& desc)
@@ -613,7 +611,8 @@ bool cFormatTarga::LoadImpl(const char* filename, sBitmapDescription& desc)
     m_formatName = (header.imageType == ImageType::RLEColormap
                     || header.imageType == ImageType::RLERGB
                     || header.imageType == ImageType::RLEMonochrome)
-                   ?  "targa/rle" : "targa";
+        ? "targa/rle"
+        : "targa";
 
     desc.format = desc.bpp == 32 ? GL_RGBA : GL_RGB;
 

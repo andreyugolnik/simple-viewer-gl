@@ -8,8 +8,8 @@
 \**********************************************/
 
 #include "formatpvr.h"
-#include "../common/bitmap_description.h"
-#include "../common/file_zlib.h"
+#include "common/bitmap_description.h"
+#include "common/file_zlib.h"
 
 #include <cstdio>
 #include <cstring>
