@@ -15,6 +15,7 @@
 
 #include <jpeglib.h>
 #include <setjmp.h>
+#include <string.h>
 
 namespace
 {
