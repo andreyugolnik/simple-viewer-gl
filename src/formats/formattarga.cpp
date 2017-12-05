@@ -566,6 +566,7 @@ bool cFormatTarga::LoadImpl(const char* filename, sBitmapDescription& desc)
     desc.width = header.width;
     desc.height = header.height;
 
+#if defined(_DEBUG)
     ::printf("(II) idLength:          %u\n", (uint32_t)header.idLength);
     ::printf("(II) colorMapType:      %u\n", (uint32_t)header.colorMapType);
     ::printf("(II) imageType:         %u\n", (uint32_t)header.imageType);
@@ -578,6 +579,7 @@ bool cFormatTarga::LoadImpl(const char* filename, sBitmapDescription& desc)
     ::printf("(II) height:            %u\n", (uint32_t)header.height);
     ::printf("(II) pixelDepth:        %u\n", (uint32_t)header.pixelDepth);
     ::printf("(II) imageDescriptor:   %u\n", (uint32_t)header.imageDescriptor);
+#endif
 
     bool result = false;
 

@@ -193,6 +193,7 @@ namespace
 
     void debugHeader(const BITMAPCOREHEADER& header)
     {
+#if defined(_DEBUG)
         auto ver = getVersion(header.size);
         if (ver == Version::Core)
         {
@@ -203,10 +204,13 @@ namespace
             ::printf("     planes        : %u\n", (uint32_t)header.planes);
             ::printf("     bitCount      : %u\n", (uint32_t)header.bitCount);
         }
+#endif
+        (void)header;
     }
 
     void debugHeader(const BITMAPCOMMON& header)
     {
+#if defined(_DEBUG)
         ::printf("-- BITMAPCOMMON\n");
         ::printf("     header size   : %u\n", header.size);
         ::printf("     image width   : %u\n", header.width);
@@ -258,6 +262,8 @@ namespace
                 ::printf("     profileSize   : %u\n", h.profileSize);
             }
         }
+#endif
+        (void)header;
     }
 
     bool isValidFormat(const BmpHeader& header, uint32_t size)
