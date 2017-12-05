@@ -5,7 +5,7 @@
 
 The primary goal for writing **Simple Viewer GL** is to create an image viewer, which only has the most basic features required for fast image viewing. It has some vi-like key bindings and works nicely with tiling window managers (such as Ion3 and Notion).
 
-Supported formats: `PNG`, `JPEG`, `PSD`, `GIF`, `TIFF`, `TARGA`, `ICO`, `BMP`, `PNM`, `DDS`, `BMP`, `XWD`, `SCR (ZX-Spectrum screen)`, `XPM`, `WebP`, `OpenEXR`.
+Supported formats: `PNG`, `JPEG`, `PSD`, `AI`, `EPS`, `GIF`, `TIFF`, `TARGA`, `ICO`, `BMP`, `PNM`, `DDS`, `BMP`, `XWD`, `SCR (ZX-Spectrum screen)`, `XPM`, `WebP`, `OpenEXR`.
 
 ***
 ##Screenshot##

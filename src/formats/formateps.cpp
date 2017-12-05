@@ -58,23 +58,24 @@ cFormatEps::~cFormatEps()
 
 bool cFormatEps::isSupported(cFile& file, Buffer& buffer) const
 {
-    if (!readBuffer(file, buffer, 100))
+    if (!readBuffer(file, buffer, 1024))
     {
         return false;
     }
 
-    const auto psadobe = helpers::memfind((const char*)buffer.data(), buffer.size(), "!PS-Adobe");
-    if (psadobe != nullptr)
+    auto data = (const char*)buffer.data();
+    auto size = (uint32_t)buffer.size();
+
+    const auto eps = helpers::memfind(data, size, "!PS-Adobe");
+    if (eps != nullptr)
     {
         return true;
+    }
 
-        // int adobe = 0;
-        // int eps = 0;
-        // //"!PS-Adobe-3.1 EPSF-3.0"
-        // if (::sscanf(psadobe, "!PS-Adobe-%d EPSF-%d", &adobe, &eps) == 2)
-        // {
-        // return true;
-        // }
+    const auto ai = helpers::memfind(data, size, "Adobe XMP Core");
+    if (ai != nullptr)
+    {
+        return true;
     }
 
     return false;
@@ -96,7 +97,7 @@ bool cFormatEps::LoadImpl(const char* filename, sBitmapDescription& desc)
 
     if (file.read(data, size) != file.getSize())
     {
-        ::printf("(EE) Error loading EPS.\n");
+        ::printf("(EE) Error loading EPS/AI.\n");
         return false;
     }
 

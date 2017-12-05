@@ -204,6 +204,7 @@ bool cFilesList::isValidExt(const char* path)
         ".bmp",                                                                                                      // BMP
         ".xpm",                                                                                                      // X Pixmap
         ".psd",                                                                                                      // Adobe PSD
+        ".ai",                                                                                                       // Adobe Illustrator
         ".eps",                                                                                                      // Encapsulated PostScript
         ".ico",                                                                                                      // ICO
         ".xwd",                                                                                                      // X Window Dump
