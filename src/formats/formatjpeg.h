@@ -21,4 +21,6 @@ public:
 
 private:
     bool LoadImpl(const char* filename, sBitmapDescription& desc) override;
+
+    bool decodeJpeg(const uint8_t* in, uint32_t size, sBitmapDescription& desc);
 };

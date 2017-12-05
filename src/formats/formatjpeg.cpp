@@ -8,10 +8,10 @@
 \**********************************************/
 
 #include "formatjpeg.h"
+#include "../cms/cms.h"
 #include "../common/bitmap_description.h"
 #include "../common/file.h"
 #include "../common/helpers.h"
-#include "../cms/cms.h"
 
 #include <cstdio>
 #include <cstring>
@@ -22,11 +22,10 @@
 
 namespace
 {
-
     struct sErrorMgr
     {
-        struct jpeg_error_mgr pub;  /* "public" fields */
-        jmp_buf setjmp_buffer;  /* for return to caller */
+        struct jpeg_error_mgr pub; /* "public" fields */
+        jmp_buf setjmp_buffer; /* for return to caller */
     };
 
     void ErrorExit(j_common_ptr cinfo)
@@ -42,24 +41,25 @@ namespace
         longjmp(errMgr->setjmp_buffer, 1);
     }
 
-    // const char* getFormat(unsigned idx)
-    // {
-    // const char* Formats[] =
-    // {
-    // "jpeg",           // JCS_UNKNOWN:
-    // "jpeg/grayscale", // JCS_GRAYSCALE:
-    // "jpeg/rgb",       // JCS_RGB:
-    // "jpeg/ycbcr",     // JCS_YCbCr:
-    // "jpeg/cmyk",      // JCS_CMYK:
-    // "jpeg/ycck",      // JCS_YCCK:
-    // };
-    // const auto size = helpers::countof(Formats);
-    // return Formats[idx < size ? idx : 0];
-    // }
+#if 0
+    const char* GetFormat(uint32_t idx)
+    {
+        const char* Formats[] = {
+            "jpeg", // JCS_UNKNOWN:
+            "jpeg/grayscale", // JCS_GRAYSCALE:
+            "jpeg/rgb", // JCS_RGB:
+            "jpeg/ycbcr", // JCS_YCbCr:
+            "jpeg/cmyk", // JCS_CMYK:
+            "jpeg/ycck", // JCS_YCCK:
+        };
+        const auto size = helpers::countof(Formats);
+        return Formats[idx < size ? idx : 0];
+    }
+#endif
 
-    const unsigned int maxMarkerLength = 0xffff;
-    const unsigned char JPEG_EXIF = JPEG_APP0 + 1;  // Exif/XMP
-    const unsigned char JPEG_ICCP = JPEG_APP0 + 2;  // ICC profile
+    const uint32_t maxMarkerLength = 0xffff;
+    const uint8_t JPEG_EXIF = JPEG_APP0 + 1; // Exif/XMP
+    const uint8_t JPEG_ICCP = JPEG_APP0 + 2; // ICC profile
 
     void setupMarkers(jpeg_decompress_struct* cinfo)
     {
@@ -67,10 +67,10 @@ namespace
         jpeg_save_markers(cinfo, JPEG_ICCP, maxMarkerLength);
     }
 
-    void* locateICCProfile(const jpeg_decompress_struct& cinfo, unsigned& iccProfileSize)
+    void* locateICCProfile(const jpeg_decompress_struct& cinfo, uint32_t& iccProfileSize)
     {
         static const char kICCPSignature[] = "ICC_PROFILE";
-        static const size_t kICCPSkipLength = 14;  // signature + seq & count
+        static const size_t kICCPSkipLength = 14; // signature + seq & count
 
         for (auto m = cinfo.marker_list; m != nullptr; m = m->next)
         {
@@ -131,16 +131,14 @@ namespace
             trimSpaces(buf);
             if (*buf != 0)
             {
-                ::printf("ifd %d , tag 0x%.4x : '%s': '%s'\n", ifd, tag
-                         , exif_tag_get_name_in_ifd(tag, ifd), buf);
+                ::printf("ifd %d , tag 0x%.4x : '%s': '%s'\n", ifd, tag, exif_tag_get_name_in_ifd(tag, ifd), buf);
             }
         }
     }
 
     void dumpAllExif(const ExifData* ed)
     {
-        const ExifTag Tags[] =
-        {
+        const ExifTag Tags[] = {
             EXIF_TAG_INTEROPERABILITY_INDEX,
             EXIF_TAG_INTEROPERABILITY_VERSION,
             EXIF_TAG_NEW_SUBFILE_TYPE,
@@ -268,7 +266,6 @@ namespace
         }
     }
 #endif
-
 }
 
 cFormatJpeg::cFormatJpeg(iCallbacks* callbacks)
@@ -289,28 +286,25 @@ bool cFormatJpeg::isSupported(cFile& file, Buffer& buffer) const
 
     const auto h = reinterpret_cast<const uint8_t*>(buffer.data());
 
-    const uint8_t a[4] = { 0xff, 0xd8, 0xff, 0xdb };
-    if (::memcmp(h, a, sizeof(a)) == 0)
+    struct Head
     {
-        return true;
-    }
+        uint8_t four[4];
+    };
 
-    const uint8_t b[4] = { 0xff, 0xd8, 0xff, 0xe0 };
-    if (::memcmp(h, b, sizeof(b)) == 0)
-    {
-        return true;
-    }
+    const Head Heads[] = {
+        { { 0xff, 0xd8, 0xff, 0xdb } },
+        { { 0xff, 0xd8, 0xff, 0xe0 } },
+        { { 0xff, 0xd8, 0xff, 0xed } },
+        { { 0xff, 0xd8, 0xff, 0xe1 } },
+        { { 0xff, 0xd8, 0xff, 0xfe } },
+    };
 
-    const uint8_t c[4] = { 0xff, 0xd8, 0xff, 0xe1 };
-    if (::memcmp(h, c, sizeof(c)) == 0)
+    for (auto& header : Heads)
     {
-        return true;
-    }
-
-    const uint8_t d[4] = { 0xff, 0xd8, 0xff, 0xfe };
-    if (::memcmp(h, d, sizeof(d)) == 0)
-    {
-        return true;
+        if (::memcmp(h, header.four, sizeof(header)) == 0)
+        {
+            return true;
+        }
     }
 
     return false;
@@ -324,8 +318,57 @@ bool cFormatJpeg::LoadImpl(const char* filename, sBitmapDescription& desc)
         return false;
     }
 
-    desc.size = file.getSize();
+    uint32_t size = file.getSize();
+    std::vector<uint8_t> in(size);
+    file.read(in.data(), size);
 
+    bool result = decodeJpeg(in.data(), size, desc);
+    if (result)
+    {
+        auto ed = exif_data_new_from_file(filename);
+        if (ed != nullptr)
+        {
+#if defined(DEBUG)
+            dumpAllExif(ed);
+#endif
+
+            auto& exifList = desc.exifList;
+
+            addExifTag(ed, EXIF_IFD_0, EXIF_TAG_MAKE, exifList);
+            addExifTag(ed, EXIF_IFD_0, EXIF_TAG_MODEL, exifList);
+            addExifTag(ed, EXIF_IFD_0, EXIF_TAG_SOFTWARE, exifList);
+            addExifTag(ed, EXIF_IFD_0, EXIF_TAG_ORIENTATION, exifList);
+            addExifTag(ed, EXIF_IFD_0, EXIF_TAG_X_RESOLUTION, exifList);
+            addExifTag(ed, EXIF_IFD_0, EXIF_TAG_Y_RESOLUTION, exifList);
+
+            addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_MAX_APERTURE_VALUE, exifList);
+            addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_DATE_TIME, exifList);
+            addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_FNUMBER, exifList);
+            addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_FOCAL_LENGTH, exifList);
+            addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_EXPOSURE_TIME, exifList);
+            addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_EXPOSURE_MODE, exifList);
+            addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_EXPOSURE_PROGRAM, exifList);
+            addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_ISO_SPEED_RATINGS, exifList);
+            addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_PIXEL_X_DIMENSION, exifList);
+            addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_PIXEL_Y_DIMENSION, exifList);
+            addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_WHITE_BALANCE, exifList);
+            addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_COLOR_SPACE, exifList);
+            addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_DIGITAL_ZOOM_RATIO, exifList);
+            addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_FLASH, exifList);
+            addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_SCENE_CAPTURE_TYPE, exifList);
+            addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_CONTRAST, exifList);
+            addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_SATURATION, exifList);
+            addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_SHARPNESS, exifList);
+
+            exif_data_unref(ed);
+        }
+    }
+
+    return result;
+}
+
+bool cFormatJpeg::decodeJpeg(const uint8_t* in, uint32_t size, sBitmapDescription& desc)
+{
     // Step 1: allocate and initialize JPEG decompression object
 
     // This struct contains the JPEG decompression parameters and pointers to
@@ -353,13 +396,13 @@ bool cFormatJpeg::LoadImpl(const char* filename, sBitmapDescription& desc)
     jpeg_create_decompress(&cinfo);
 
     // Step 2: specify data source (eg, a file)
-    jpeg_stdio_src(&cinfo, (FILE*)file.getHandle());
+    jpeg_mem_src(&cinfo, in, size);
 
     // Step 3: read file parameters with jpeg_read_header()
     setupMarkers(&cinfo);
     jpeg_read_header(&cinfo, TRUE);
 
-    unsigned iccProfileSize = 0;
+    uint32_t iccProfileSize = 0;
     auto iccProfile = locateICCProfile(cinfo, iccProfileSize);
     m_cms.createTransform(iccProfile, iccProfileSize, cCMS::Pixel::Rgb);
 
@@ -370,21 +413,23 @@ bool cFormatJpeg::LoadImpl(const char* filename, sBitmapDescription& desc)
     // ::printf("-- exif located, size %u\n%s\n", exifSize, exif);
     // }
 
-    // m_formatName = getFormat(cinfo.jpeg_color_space);
-    m_formatName = m_cms.hasTransform() ? "jpeg/icc" : "jpeg";
-
     /* Step 4: set parameters for decompression */
-    cinfo.out_color_space = JCS_RGB;    // convert to RGB
+    const bool isCMYK = cinfo.jpeg_color_space == JCS_CMYK || cinfo.jpeg_color_space == JCS_YCCK;
+    if (isCMYK == false)
+    {
+        cinfo.out_color_space = JCS_RGB; // convert to RGB
+    }
+
+    // m_formatName = GetFormat(cinfo.jpeg_color_space);
+    m_formatName = m_cms.hasTransform() ? "jpeg/icc" : "jpeg";
 
     /* Step 5: Start decompressor */
     jpeg_start_decompress(&cinfo);
 
+    desc.size = size;
+
     desc.width = cinfo.output_width;
     desc.height = cinfo.output_height;
-    desc.bpp = cinfo.output_components * 8;
-    desc.bppImage = cinfo.num_components * 8;
-    desc.pitch = helpers::calculatePitch(desc.width, desc.bpp);
-    desc.bitmap.resize(desc.pitch * desc.height);
     desc.format = GL_RGB;
 
     /* Step 6: while (scan lines remain to be read) */
@@ -393,10 +438,57 @@ bool cFormatJpeg::LoadImpl(const char* filename, sBitmapDescription& desc)
     /* Here we use the library's state variable cinfo.output_scanline as the
      * loop counter, so that we don't have to keep track ourselves.
      */
-    auto out = desc.bitmap.data();
 
-    if (m_cms.hasTransform() == false)
+    const float progress = m_cms.hasTransform() ? 0.5f : 1.0f;
+
+    if (isCMYK)
     {
+        printf("-- CMYK\n");
+        printf("-- out components: %d\n", cinfo.output_components);
+        printf("-- num components: %d\n", cinfo.num_components);
+
+        desc.bpp = 24;
+        desc.bppImage = 32;
+        desc.pitch = helpers::calculatePitch(desc.width, desc.bpp);
+        desc.bitmap.resize(desc.pitch * desc.height);
+
+        auto out = desc.bitmap.data();
+
+        std::vector<uint8_t> buffer(helpers::calculatePitch(desc.width, desc.bppImage));
+        auto input = buffer.data();
+        while (cinfo.output_scanline < cinfo.output_height && m_stop == false)
+        {
+            jpeg_read_scanlines(&cinfo, &input, 1);
+
+            for (uint32_t x = 0; x < desc.width; x++)
+            {
+                const uint32_t src = x * 4;
+                const double C = 1.0 - input[src + 0] / 255.0; // C
+                const double M = 1.0 - input[src + 1] / 255.0; // M
+                const double Y = 1.0 - input[src + 2] / 255.0; // Y
+                const double K = 1.0 - input[src + 3] / 255.0; // K
+                const double Kinv = 1.0 - K;
+
+                const uint32_t dst = x * 3;
+                out[dst + 0] = (uint8_t)((1.0 - (C * Kinv + K)) * 255.0);
+                out[dst + 1] = (uint8_t)((1.0 - (M * Kinv + K)) * 255.0);
+                out[dst + 2] = (uint8_t)((1.0 - (Y * Kinv + K)) * 255.0);
+            }
+
+            out += desc.pitch;
+
+            updateProgress(progress * cinfo.output_scanline / cinfo.output_height);
+        }
+    }
+    else
+    {
+        desc.bpp = cinfo.output_components * 8;
+        desc.bppImage = cinfo.num_components * 8;
+        desc.pitch = helpers::calculatePitch(desc.width, desc.bpp);
+        desc.bitmap.resize(desc.pitch * desc.height);
+
+        auto out = desc.bitmap.data();
+
         while (cinfo.output_scanline < cinfo.output_height && m_stop == false)
         {
             /* jpeg_read_scanlines expects an array of pointers to scanlines.
@@ -406,27 +498,8 @@ bool cFormatJpeg::LoadImpl(const char* filename, sBitmapDescription& desc)
             jpeg_read_scanlines(&cinfo, &out, 1);
             out += desc.pitch;
 
-            updateProgress((float)cinfo.output_scanline / cinfo.output_height);
+            updateProgress(progress * cinfo.output_scanline / cinfo.output_height);
         }
-    }
-    else
-    {
-        std::vector<unsigned char> buffer(desc.pitch);
-        auto input = buffer.data();
-        while (cinfo.output_scanline < cinfo.output_height && m_stop == false)
-        {
-            /* jpeg_read_scanlines expects an array of pointers to scanlines.
-             * Here the array is only one element long, but you could ask for
-             * more than one scanline at a time if that's more convenient.
-             */
-            jpeg_read_scanlines(&cinfo, &input, 1);
-            m_cms.doTransform(input, out, cinfo.output_width);
-            out += desc.pitch;
-
-            updateProgress((float)cinfo.output_scanline / cinfo.output_height);
-        }
-
-        m_cms.destroyTransform();
     }
 
     /* Step 7: Finish decompression */
@@ -448,42 +521,18 @@ bool cFormatJpeg::LoadImpl(const char* filename, sBitmapDescription& desc)
      * warnings occurred (test whether jerr.pub.num_warnings is nonzero).
      */
 
-    auto ed = exif_data_new_from_file(filename);
-    if (ed != nullptr)
+    if (m_cms.hasTransform())
     {
-#if defined(DEBUG)
-        dumpAllExif(ed);
-#endif
+        auto bitmap = desc.bitmap.data();
 
-        auto& exifList = desc.exifList;
+        for (uint32_t i = 0; i < desc.height; i++)
+        {
+            m_cms.doTransform(bitmap, bitmap, desc.width);
+            bitmap += desc.pitch;
+            updateProgress(0.5f + progress * i / desc.height);
+        }
 
-        addExifTag(ed, EXIF_IFD_0, EXIF_TAG_MAKE, exifList);
-        addExifTag(ed, EXIF_IFD_0, EXIF_TAG_MODEL, exifList);
-        addExifTag(ed, EXIF_IFD_0, EXIF_TAG_SOFTWARE, exifList);
-        addExifTag(ed, EXIF_IFD_0, EXIF_TAG_ORIENTATION, exifList);
-        addExifTag(ed, EXIF_IFD_0, EXIF_TAG_X_RESOLUTION, exifList);
-        addExifTag(ed, EXIF_IFD_0, EXIF_TAG_Y_RESOLUTION, exifList);
-
-        addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_MAX_APERTURE_VALUE, exifList);
-        addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_DATE_TIME, exifList);
-        addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_FNUMBER, exifList);
-        addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_FOCAL_LENGTH, exifList);
-        addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_EXPOSURE_TIME, exifList);
-        addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_EXPOSURE_MODE, exifList);
-        addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_EXPOSURE_PROGRAM, exifList);
-        addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_ISO_SPEED_RATINGS, exifList);
-        addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_PIXEL_X_DIMENSION, exifList);
-        addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_PIXEL_Y_DIMENSION, exifList);
-        addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_WHITE_BALANCE, exifList);
-        addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_COLOR_SPACE, exifList);
-        addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_DIGITAL_ZOOM_RATIO, exifList);
-        addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_FLASH, exifList);
-        addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_SCENE_CAPTURE_TYPE, exifList);
-        addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_CONTRAST, exifList);
-        addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_SATURATION, exifList);
-        addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_SHARPNESS, exifList);
-
-        exif_data_unref(ed);
+        m_cms.destroyTransform();
     }
 
     return true;
