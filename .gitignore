@@ -1,3 +1,4 @@
+*.icns
 .DS_Store
 .build_debug
 .build_release
