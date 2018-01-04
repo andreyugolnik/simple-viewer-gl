@@ -93,7 +93,7 @@ bool cJpegDecoder::decodeJpeg(const uint8_t* in, uint32_t size, sBitmapDescripti
     jpeg_create_decompress(&cinfo);
 
     // Step 2: specify data source (eg, a file)
-    jpeg_mem_src(&cinfo, in, size);
+    jpeg_mem_src(&cinfo, (uint8_t*)in, size);
 
     // Step 3: read file parameters with jpeg_read_header()
     setupMarkers(&cinfo);
