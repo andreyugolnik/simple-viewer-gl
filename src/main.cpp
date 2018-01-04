@@ -54,7 +54,7 @@ namespace
         printf("  -p             show pixel info (pixel color and coordinates, default: %s);\n", getValue(config.showPixelInfo));
         printf("  -e             show exif info (default: %s);\n", getValue(config.showExif));
         printf("  -b             show border around image (default: %s);\n", getValue(config.showImageBorder));
-        printf("  -f             start in fullscreen mode;\n");
+        printf("  -f             start in fullscreen mode (default: %s);\n", getValue(config.fullScreen));
         printf("  -r             recursive directory scan (default: %s);\n", getValue(config.recursiveScan));
         printf("  -wz            enable wheel zoom (default: %s);\n", getValue(config.wheelZoom));
         printf("  -mipmap VALUE  min texture size for mipmap creation (default: %u px);\n", config.mipmapTextureSize);
@@ -168,6 +168,19 @@ namespace
 #endif
     }
 
+    GLFWwindow* createWindowedWindow(int width, int height, GLFWwindow* parent)
+    {
+        auto newWindow = glfwCreateWindow(width, height, SVGL_Title, nullptr, parent);
+        return newWindow;
+    }
+
+    GLFWwindow* createFullscreenWindow(GLFWwindow* parent)
+    {
+        auto monitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+        auto newWindow = glfwCreateWindow(mode->width, mode->height, SVGL_Title, monitor, parent);
+        return newWindow;
+    }
 }
 
 int main(int argc, char* argv[])
@@ -213,6 +226,10 @@ int main(int argc, char* argv[])
         else if (strncmp(argv[i], "-e", 2) == 0)
         {
             config.showExif = true;
+        }
+        else if (strncmp(argv[i], "-f", 2) == 0)
+        {
+            config.fullScreen = true;
         }
         else if (strncmp(argv[i], "-cw", 3) == 0)
         {
@@ -277,7 +294,18 @@ int main(int argc, char* argv[])
 
     if (glfwInit())
     {
-        GLFWwindow* window = glfwCreateWindow(640, 480, SVGL_Title, nullptr, nullptr);
+        GLFWwindow* window = nullptr;
+        if (config.fullScreen)
+        {
+            window = createFullscreenWindow(nullptr);
+            viewer.setWindowed(false);
+        }
+        else
+        {
+            window = createWindowedWindow(640, 480, nullptr);
+            viewer.setWindowed(true);
+        }
+
         if (window != nullptr)
         {
             setup(window);
@@ -295,16 +323,15 @@ int main(int argc, char* argv[])
                     if (windowed == false)
                     {
                         updateSizePos = true;
+
                         const auto& size = viewer.getWindowSize();
-                        newWindow = glfwCreateWindow(size.x, size.y, SVGL_Title, nullptr, window);
+                        newWindow = createWindowedWindow(size.x, size.y, window);
                     }
                     else
                     {
                         viewer.setWindowed(false);
 
-                        GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-                        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-                        newWindow = glfwCreateWindow(mode->width, mode->height, SVGL_Title, monitor, window);
+                        newWindow = createFullscreenWindow(window);
                     }
 
                     setup(newWindow);
