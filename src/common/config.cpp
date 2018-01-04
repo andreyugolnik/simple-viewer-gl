@@ -105,6 +105,7 @@ void cConfig::read(sConfig& config) const
     readValue(ini, "show_image_border", config.showImageBorder);
     readValue(ini, "lookup_recursive", config.recursiveScan);
     readValue(ini, "center_window", config.centerWindow);
+    readValue(ini, "full_screen", config.fullScreen);
     readValue(ini, "skip_filter", config.skipFilter);
     readValue(ini, "wheel_zoom", config.wheelZoom);
     readValue(ini, "keep_scale", config.keepScale);

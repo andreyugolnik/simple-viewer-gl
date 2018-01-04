@@ -23,6 +23,7 @@ struct sConfig
     bool showImageBorder = false;
     bool recursiveScan = false;
     bool centerWindow = false;
+    bool fullScreen = false;
     bool skipFilter = false;
     bool wheelZoom = true;
     bool keepScale = false;
