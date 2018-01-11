@@ -7,10 +7,10 @@
 *
 \**********************************************/
 
-#include "viewer.h"
 #include "common/config.h"
 #include "types/types.h"
 #include "version.h"
+#include "viewer.h"
 
 #include <GLFW/glfw3.h>
 
@@ -18,11 +18,11 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <string>
 #include <unistd.h>
 
 namespace
 {
-
     cViewer* m_viewer = nullptr;
 
     void showVersion()
@@ -62,6 +62,9 @@ namespace
                , (uint32_t)(config.bgColor.r)
                , (uint32_t)(config.bgColor.g)
                , (uint32_t)(config.bgColor.b));
+        printf("  --             read null terminated files list from stdin.\n");
+        printf("                 Usage:\n");
+        printf("                   find /path -name *.psd -print0 | sviewgl --\n");
 
         printf("\nAvailable keys:\n");
         printf("  <esc> or <q>  exit;\n");
@@ -181,7 +184,7 @@ namespace
         auto newWindow = glfwCreateWindow(mode->width, mode->height, SVGL_Title, monitor, parent);
         return newWindow;
     }
-}
+} // namespace
 
 int main(int argc, char* argv[])
 {
@@ -208,6 +211,7 @@ int main(int argc, char* argv[])
     reader.read(config);
 
     std::vector<const char*> pathsList;
+    std::vector<std::string> stdinPaths;
 
     for (int i = 1; i < argc; i++)
     {
@@ -275,6 +279,27 @@ int main(int argc, char* argv[])
                 config.mipmapTextureSize = (uint32_t)::atoi(argv[++i]);
             }
         }
+        else if (strcmp(argv[i], "--") == 0)
+        {
+            std::string path;
+            while (1)
+            {
+                auto c = ::getc(stdin);
+                if (c == EOF)
+                {
+                    break;
+                }
+                else if (c == 0)
+                {
+                    stdinPaths.push_back(path);
+                    path.clear();
+                }
+                else
+                {
+                    path += c;
+                }
+            }
+        }
         else
         {
             const char* path = argv[i];
@@ -288,6 +313,10 @@ int main(int argc, char* argv[])
     cViewer viewer(config);
     m_viewer = &viewer;
 
+    for (auto& p : stdinPaths)
+    {
+        pathsList.push_back(p.c_str());
+    }
     viewer.addPaths(pathsList.data(), pathsList.size());
 
     int result = 0;
