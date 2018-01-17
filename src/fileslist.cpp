@@ -61,7 +61,8 @@ void cFilesList::parseDir()
         m_scanDirectory = false;
 
         const auto& current = m_files[m_position];
-        const auto path = current.path.c_str();
+        const auto localCopy = current.path;
+        auto path = localCopy.c_str();
 
         scanDirectory(GetBaseDir(path));
 
@@ -121,6 +122,12 @@ void cFilesList::sortList()
 
 void cFilesList::locateFile(const char* path)
 {
+    const auto fullPath = ::realpath(path, nullptr);
+    if (fullPath != nullptr)
+    {
+        path = fullPath;
+    }
+
     const std::string name = path;
     const auto len = name.length();
     for (size_t i = 0, count = m_files.size(); i < count; i++)
