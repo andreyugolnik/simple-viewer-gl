@@ -7,7 +7,7 @@
     <key>CFBundleExecutable</key>
     <string>sviewgl</string>
     <key>CFBundleGetInfoString</key>
-    <string>© 2008-2017, Andrey A. Ugolnik</string>
+    <string>© 2008-2018, Andrey A. Ugolnik</string>
     <key>CFBundleIconFile</key>
     <string>Icon.icns</string>
     <key>CFBundleIdentifier</key>
@@ -27,7 +27,7 @@
     <key>CSResourcesFileMapped</key>
     <true/>
     <key>NSHumanReadableCopyright</key>
-    <string>© 2008-2017, Andrey A. Ugolnik</string>
+    <string>© 2008-2018, Andrey A. Ugolnik</string>
     <key>NSHighResolutionCapable</key>
     <true/>
 
@@ -36,45 +36,51 @@
         <dict>
             <key>CFBundleTypeRole</key>
             <string>Viewer</string>
+            <key>CFBundleTypeIconFile</key>
+            <string>sviewgl.icns</string>
+            <key>CFBundleTypeName</key>
+            <string>Image Files</string>
             <key>CFBundleTypeExtensions</key>
             <array>
+                <string>$c</string>
+                <string>age</string>
+                <string>ai</string>
+                <string>argb</string>
+                <string>atr</string>
+                <string>bmc4</string>
+                <string>bmp</string>
+                <string>bsc</string>
+                <string>dds</string>
+                <string>eps</string>
                 <string>exr</string>
+                <string>gif</string>
+                <string>ico</string>
+                <string>id3</string>
+                <string>ifl</string>
+                <string>jfif</string>
+                <string>jpe</string>
                 <string>jpeg</string>
                 <string>jpg</string>
-                <string>jpe</string>
-                <string>jfif</string>
-                <string>tiff</string>
-                <string>tif</string>
-                <string>png</string>
-                <string>gif</string>
-                <string>webp</string>
                 <string>lbm</string>
-                <string>id3</string>
-                <string>argb</string>
-                <string>age</string>
-                <string>raw</string>
-                <string>pvr</string>
-                <string>pvrtc</string>
-                <string>bmp</string>
-                <string>xpm</string>
-                <string>psd</string>
-                <string>ico</string>
-                <string>xwd</string>
-                <string>dds</string>
-                <string>tga</string>
-                <string>targa</string>
-                <string>pnm</string>
+                <string>mc</string>
                 <string>pbm</string>
                 <string>pgm</string>
+                <string>png</string>
+                <string>pnm</string>
                 <string>ppm</string>
-                <string>scr</string>
-                <string>atr</string>
-                <string>bsc</string>
-                <string>ifl</string>
-                <string>bmc4</string>
-                <string>mc</string>
+                <string>psd</string>
+                <string>pvr</string>
+                <string>pvrtc</string>
+                <string>raw</string>
                 <string>s</string>
-                <string>$c</string>
+                <string>scr</string>
+                <string>targa</string>
+                <string>tga</string>
+                <string>tif</string>
+                <string>tiff</string>
+                <string>webp</string>
+                <string>xpm</string>
+                <string>xwd</string>
             </array>
             <key>LSIsAppleDefaultForType</key>
             <true/>
