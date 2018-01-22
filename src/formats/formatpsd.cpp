@@ -472,6 +472,7 @@ bool cFormatPsd::LoadImpl(const char* filename, sBitmapDescription& desc)
         {
             desc.bpp = 32;
             auto bitmap = allocBitmap(desc);
+            (void)bitmap;
 
             desc.format = GL_RGBA;
             switch (depth)
