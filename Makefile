@@ -5,12 +5,14 @@ VERSION=$(VER_MAJOR).$(VER_MINOR)$(VER_RELEASE)
 BUILD_DIR_RELEASE=.build_release
 BUILD_DIR_DEBUG=.build_debug
 BUNDLE_NAME=sviewgl
+OUT_NAME=sviewgl
 
 PREFIX?=/usr/local
 
 UNAME=$(shell uname -s)
 ifeq ($(UNAME), Darwin)
 	BUNDLE_NAME=sviewgl.app
+	OUT_NAME="Simple Viewer GL.app"
 endif
 
 all:    release
@@ -33,12 +35,12 @@ resources:
 release: resources
 	$(shell if [ ! -d $(BUILD_DIR_RELEASE) ]; then mkdir $(BUILD_DIR_RELEASE); fi)
 	cd $(BUILD_DIR_RELEASE) ; cmake -DCMAKE_BUILD_TYPE=Release -DAPP_VERSION_MAJOR:STRING=$(VER_MAJOR) -DAPP_VERSION_MINOR:STRING=$(VER_MINOR) -DAPP_VERSION_RELEASE:STRING=$(VER_RELEASE) .. ; make ; cd ..
-	cp -r $(BUILD_DIR_RELEASE)/$(BUNDLE_NAME) .
+	cp -r $(BUILD_DIR_RELEASE)/$(BUNDLE_NAME) $(OUT_NAME)
 
 debug: resources
 	$(shell if [ ! -d $(BUILD_DIR_DEBUG) ]; then mkdir $(BUILD_DIR_DEBUG); fi)
 	cd $(BUILD_DIR_DEBUG) ; cmake -DCMAKE_BUILD_TYPE=Debug -DAPP_VERSION_MAJOR:STRING=$(VER_MAJOR) -DAPP_VERSION_MINOR:STRING=$(VER_MINOR) -DAPP_VERSION_RELEASE:STRING=$(VER_RELEASE) .. ; make ; cd ..
-	cp -r $(BUILD_DIR_DEBUG)/$(BUNDLE_NAME) .
+	cp -r $(BUILD_DIR_DEBUG)/$(BUNDLE_NAME) $(OUT_NAME)
 
 cppcheck:
 	cppcheck -j 1 --enable=all -f -I src src/ 2> cppcheck-output

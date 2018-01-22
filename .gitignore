@@ -8,7 +8,7 @@ cppcheck-output
 project.xcworkspace/
 src/version.h
 sviewgl
-sviewgl.app/
+*.app/
 tags
 test/
 tmp/
