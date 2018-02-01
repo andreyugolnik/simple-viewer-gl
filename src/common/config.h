@@ -21,6 +21,7 @@ struct sConfig
     bool hideCheckboard = false;
     bool fitImage = false;
     bool showImageBorder = false;
+    bool showImageGrid = false;
     bool recursiveScan = false;
     bool centerWindow = false;
     bool fullScreen = false;

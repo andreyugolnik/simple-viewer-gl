@@ -17,7 +17,14 @@
 
 namespace
 {
-    bool getBool(const char* value, bool def)
+    template<typename T>
+    T getValue(const char* /*value*/, T def)
+    {
+        return def;
+    }
+
+    template<>
+    bool getValue<bool>(const char* value, bool def)
     {
         if (value != nullptr)
         {
@@ -28,40 +35,31 @@ namespace
         return def;
     }
 
-    int getUint(const char* value, uint32_t def)
+    template<>
+    uint32_t getValue<uint32_t>(const char* value, uint32_t def)
     {
         return value != nullptr ? (uint32_t)::atoi(value) : def;
     }
 
-    float getFloat(const char* value, float def)
+    template<>
+    uint8_t getValue<uint8_t>(const char* value, uint8_t def)
+    {
+        return value != nullptr ? (uint8_t)::atoi(value) : def;
+    }
+
+    template<>
+    float getValue<float>(const char* value, float def)
     {
         return value != nullptr ? ::atof(value) : def;
     }
 
-    const char* section = "common";
+    const char* SectionName = "common";
 
-    void readValue(const ini::cIni& ini, const char* name, uint32_t& value)
+    template<typename T>
+    void readValue(const ini::cIni& ini, const char* name, T& value)
     {
         const auto def = value;
-        value = getUint(ini.getString(section, name), def);
-    }
-
-    void readValue(const ini::cIni& ini, const char* name, uint8_t& value)
-    {
-        const auto def = value;
-        value = getUint(ini.getString(section, name), def);
-    }
-
-    void readValue(const ini::cIni& ini, const char* name, float& value)
-    {
-        const auto def = value;
-        value = getFloat(ini.getString(section, name), def);
-    }
-
-    void readValue(const ini::cIni& ini, const char* name, bool& value)
-    {
-        const auto def = value;
-        value = getBool(ini.getString(section, name), def);
+        value = getValue(ini.getString(SectionName, name), def);
     }
 }
 
@@ -103,6 +101,7 @@ void cConfig::read(sConfig& config) const
     readValue(ini, "hide_checkboard", config.hideCheckboard);
     readValue(ini, "fit_image", config.fitImage);
     readValue(ini, "show_image_border", config.showImageBorder);
+    readValue(ini, "show_image_grid", config.showImageGrid);
     readValue(ini, "lookup_recursive", config.recursiveScan);
     readValue(ini, "center_window", config.centerWindow);
     readValue(ini, "full_screen", config.fullScreen);
