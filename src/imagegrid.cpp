@@ -24,7 +24,7 @@ cImageGrid::~cImageGrid()
 
 void cImageGrid::setColor(const cColor& color)
 {
-    m_line.v[0].color = m_line.v[1].color = m_line.v[2].color = m_line.v[3].color = color;
+    m_line.v[0].color = m_line.v[1].color = color;
 }
 
 void cImageGrid::render(float x, float y, float w, float h)
