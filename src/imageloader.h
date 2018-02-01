@@ -77,6 +77,9 @@ public:
     }
 
 private:
+    cFormat* createLoader(eImageType type);
+    cFormat* getLoader(eImageType type) const;
+
     void stop();
     void clear();
     eImageType getType(const char* name);

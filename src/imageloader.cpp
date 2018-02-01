@@ -42,32 +42,10 @@
 cImageLoader::cImageLoader(iCallbacks* callbacks)
     : m_callbacks(callbacks)
 {
-#if defined(IMLIB2_SUPPORT)
-    m_formats[(unsigned)eImageType::COMMON].reset(new cFormatCommon(callbacks));
-#endif
-#if defined(OPENEXR_SUPPORT)
-    m_formats[(unsigned)eImageType::EXR].reset(new cFormatExr(callbacks));
-#endif
-    m_formats[(unsigned)eImageType::JPG].reset(new cFormatJpeg(callbacks));
-    m_formats[(unsigned)eImageType::PSD].reset(new cFormatPsd(callbacks));
-    m_formats[(unsigned)eImageType::EPS].reset(new cFormatEps(callbacks));
-    m_formats[(unsigned)eImageType::PNG].reset(new cFormatPng(callbacks));
-    m_formats[(unsigned)eImageType::GIF].reset(new cFormatGif(callbacks));
-    m_formats[(unsigned)eImageType::ICO].reset(new cFormatIco(callbacks));
-    m_formats[(unsigned)eImageType::TIF].reset(new cFormatTiff(callbacks));
-    m_formats[(unsigned)eImageType::XWD].reset(new cFormatXwd(callbacks));
-    m_formats[(unsigned)eImageType::XPM].reset(new cFormatXpm(callbacks));
-    m_formats[(unsigned)eImageType::DDS].reset(new cFormatDds(callbacks));
-    m_formats[(unsigned)eImageType::RAW].reset(new cFormatRaw(callbacks));
-    m_formats[(unsigned)eImageType::AGE].reset(new cFormatAge(callbacks));
-    m_formats[(unsigned)eImageType::PNM].reset(new cFormatPnm(callbacks));
-    m_formats[(unsigned)eImageType::PVR].reset(new cFormatPvr(callbacks));
-    m_formats[(unsigned)eImageType::SCR].reset(new cFormatScr(callbacks));
-    m_formats[(unsigned)eImageType::TGA].reset(new cFormatTarga(callbacks));
-    m_formats[(unsigned)eImageType::BMP].reset(new cFormatBmp(callbacks));
-    m_formats[(unsigned)eImageType::WEBP].reset(new cFormatWebP(callbacks));
-
-    m_formats[(unsigned)eImageType::NOTAVAILABLE].reset(new cNotAvailable());
+    for (uint32_t i = 0; i < (uint32_t)eImageType::COUNT; i++)
+    {
+        createLoader((eImageType)i);
+    }
 }
 
 cImageLoader::~cImageLoader()
@@ -81,7 +59,7 @@ void cImageLoader::load(const char* path)
     if (path != nullptr)
     {
         const eImageType type = getType(path);
-        m_image = m_formats[(unsigned)type].get();
+        m_image = getLoader(type);
 
         // auto start = helpers::getTime();
         const bool result = m_image->Load(path, m_desc);
@@ -93,7 +71,7 @@ void cImageLoader::load(const char* path)
         }
     }
 
-    m_image = m_formats[(unsigned)eImageType::NOTAVAILABLE].get();
+    m_image = getLoader(eImageType::NOTAVAILABLE);
     m_image->Load(path, m_desc);
 }
 
@@ -132,8 +110,8 @@ void cImageLoader::loadSubImage(unsigned subImage)
 
 bool cImageLoader::isLoaded() const
 {
-    return m_image != m_formats[(unsigned)eImageType::NOTAVAILABLE].get()
-           && !m_desc.bitmap.empty();
+    auto notAvailable = getLoader(eImageType::NOTAVAILABLE);
+    return m_image != notAvailable && m_desc.bitmap.empty() == false;
 }
 
 void cImageLoader::stop()
@@ -208,6 +186,117 @@ namespace
 
 }
 
+cFormat* cImageLoader::createLoader(eImageType type)
+{
+    auto& format = m_formats[(unsigned)type];
+    assert(m_formats[(unsigned)type].get() == nullptr);
+
+    cFormat* loader = nullptr;
+
+    switch (type)
+    {
+#if defined(IMLIB2_SUPPORT)
+    case eImageType::COMMON:
+        loader = new cFormatCommon(m_callbacks);
+        break;
+#endif
+
+#if defined(OPENEXR_SUPPORT)
+    case eImageType::EXR:
+        loader = new cFormatExr(m_callbacks);
+        break;
+#endif
+
+    case eImageType::JPG:
+        loader = new cFormatJpeg(m_callbacks);
+        break;
+
+    case eImageType::PSD:
+        loader = new cFormatPsd(m_callbacks);
+        break;
+
+    case eImageType::EPS:
+        loader = new cFormatEps(m_callbacks);
+        break;
+
+    case eImageType::PNG:
+        loader = new cFormatPng(m_callbacks);
+        break;
+
+    case eImageType::GIF:
+        loader = new cFormatGif(m_callbacks);
+        break;
+
+    case eImageType::ICO:
+        loader = new cFormatIco(m_callbacks);
+        break;
+
+    case eImageType::TIF:
+        loader = new cFormatTiff(m_callbacks);
+        break;
+
+    case eImageType::XWD:
+        loader = new cFormatXwd(m_callbacks);
+        break;
+
+    case eImageType::XPM:
+        loader = new cFormatXpm(m_callbacks);
+        break;
+
+    case eImageType::DDS:
+        loader = new cFormatDds(m_callbacks);
+        break;
+
+    case eImageType::RAW:
+        loader = new cFormatRaw(m_callbacks);
+        break;
+
+    case eImageType::AGE:
+        loader = new cFormatAge(m_callbacks);
+        break;
+
+    case eImageType::PNM:
+        loader = new cFormatPnm(m_callbacks);
+        break;
+
+    case eImageType::PVR:
+        loader = new cFormatPvr(m_callbacks);
+        break;
+
+    case eImageType::SCR:
+        loader = new cFormatScr(m_callbacks);
+        break;
+
+    case eImageType::TGA:
+        loader = new cFormatTarga(m_callbacks);
+        break;
+
+    case eImageType::BMP:
+        loader = new cFormatBmp(m_callbacks);
+        break;
+
+    case eImageType::WEBP:
+        loader = new cFormatWebP(m_callbacks);
+        break;
+
+    case eImageType::NOTAVAILABLE:
+        loader = new cNotAvailable();
+        break;
+
+    case eImageType::COUNT: // do nothing
+        break;
+    }
+
+    format.reset(loader);
+
+    return loader;
+}
+
+cFormat* cImageLoader::getLoader(eImageType type) const
+{
+    return m_formats[(unsigned)type].get();
+}
+
 eImageType cImageLoader::getType(const char* name)
 {
     cFile file;
@@ -246,7 +335,8 @@ eImageType cImageLoader::getType(const char* name)
         Buffer buffer;
         for (auto type : SortedTypes)
         {
-            if (m_formats[(size_t)type]->isSupported(file, buffer))
+            auto loader = getLoader(type);
+            if (loader->isSupported(file, buffer))
             {
 #if defined(LOADER_NAME)
                 ::printf("(II) Loader by type %s\n", typeToName(type));
