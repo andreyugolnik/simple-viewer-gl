@@ -28,7 +28,7 @@ namespace
     void showVersion()
     {
         printf("%s %d.%d%d\n\n", SVGL_Title, SVGL_VerMajor, SVGL_VerMinor, SVGL_VerRelease);
-        printf("Copyright © 2008-2017 Andrey A. Ugolnik. All Rights Reserved.\n");
+        printf("Copyright © 2008-2018 Andrey A. Ugolnik. All Rights Reserved.\n");
         printf("http://www.ugolnik.info\n");
         printf("andrey@ugolnik.info\n");
     }
@@ -54,6 +54,7 @@ namespace
         printf("  -p             show pixel info (pixel color and coordinates, default: %s);\n", getValue(config.showPixelInfo));
         printf("  -e             show exif info (default: %s);\n", getValue(config.showExif));
         printf("  -b             show border around image (default: %s);\n", getValue(config.showImageBorder));
+        printf("  -g             show image grid (default: %s);\n", getValue(config.showImageGrid));
         printf("  -f             start in fullscreen mode (default: %s);\n", getValue(config.fullScreen));
         printf("  -r             recursive directory scan (default: %s);\n", getValue(config.recursiveScan));
         printf("  -wz            enable wheel zoom (default: %s);\n", getValue(config.wheelZoom));
@@ -84,6 +85,7 @@ namespace
         printf("  <e>           hide / show exif popup;\n");
         printf("  <p>           hide / show pixel info;\n");
         printf("  <b>           hide / show border around image;\n");
+        printf("  <g>           hide / show image grid;\n");
         printf("\n");
     }
 
@@ -250,6 +252,10 @@ int main(int argc, char* argv[])
         else if (strncmp(argv[i], "-b", 2) == 0)
         {
             config.showImageBorder = true;
+        }
+        else if (strncmp(argv[i], "-g", 2) == 0)
+        {
+            config.showImageGrid = true;
         }
         else if (strncmp(argv[i], "-r", 2) == 0)
         {

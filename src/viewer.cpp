@@ -13,6 +13,7 @@
 #include "deletionmark.h"
 #include "fileslist.h"
 #include "imageborder.h"
+#include "imagegrid.h"
 #include "imageloader.h"
 #include "popups/exifpopup.h"
 #include "popups/helppopup.h"
@@ -60,6 +61,7 @@ cViewer::cViewer(sConfig& config)
     m_helpPopup.reset(new cHelpPopup());
     m_progress.reset(new cProgress());
     m_border.reset(new cImageBorder());
+    m_grid.reset(new cImageGrid());
     m_selection.reset(new cSelection());
     m_filesList.reset(new cFilesList(config.skipFilter, config.recursiveScan));
 
@@ -140,6 +142,10 @@ void cViewer::onRender()
         if (m_config.showImageBorder)
         {
             m_border->render(-half_w, -half_h, m_image->getWidth(), m_image->getHeight());
+        }
+        if (m_config.showImageGrid)
+        {
+            m_grid->render(-half_w, -half_h, m_image->getWidth(), m_image->getHeight());
         }
         if (m_config.showPixelInfo && m_angle == 0)
         {
@@ -434,6 +440,10 @@ void cViewer::onKey(int key, int scancode, int action, int mods)
 
     case GLFW_KEY_B:
         m_config.showImageBorder = !m_config.showImageBorder;
+        break;
+
+    case GLFW_KEY_G:
+        m_config.showImageGrid = !m_config.showImageGrid;
         break;
 
     case GLFW_KEY_EQUAL:
