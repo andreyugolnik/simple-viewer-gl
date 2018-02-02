@@ -47,12 +47,12 @@ public:
 
 private:
     const char* getHumanSize(float& size);
-    const std::string& shortenFilename(const char* path);
+    const std::string getFilename(const char* path) const;
+    const std::string shortenFilename(const std::string& path) const;
 
 private:
     const sConfig& m_config;
 
-    std::string m_filename;
     std::string m_bottominfo;
 
     float m_height = 0.0f;

@@ -81,8 +81,8 @@ void cInfoBar::render()
 
 void cInfoBar::setInfo(const sInfo& p)
 {
-    const auto& shortName = shortenFilename(p.path);
-    const char* name = shortName.empty() == false ? shortName.c_str() : "n/a";
+    const auto fileName = getFilename(p.path);
+    glfwSetWindowTitle(cRenderer::getWindow(), fileName.c_str());
 
     char idx_img[20] = { 0 };
     if (p.files_count > 1)
@@ -102,11 +102,10 @@ void cInfoBar::setInfo(const sInfo& p)
     std::string mem_s = getHumanSize(mem_size);
 
     char title[1000] = { 0 };
-    ::snprintf(title, sizeof(title), "%s%s%s | %s | %u x %u x %u bpp (%.1f%%) | %.1f %s (%.1f %s)", idx_img, name, sub_image, p.type, p.width, p.height, p.bpp, p.scale * 100.0f, file_size, file_s.c_str(), mem_size, mem_s.c_str());
+    const auto shortName = shortenFilename(fileName);
+    ::snprintf(title, sizeof(title), "%s%s%s | %s | %u x %u x %u bpp (%.1f%%) | %.1f %s (%.1f %s)", idx_img, shortName.c_str(), sub_image, p.type, p.width, p.height, p.bpp, p.scale * 100.0f, file_size, file_s.c_str(), mem_size, mem_s.c_str());
 
     m_bottominfo = title;
-
-    glfwSetWindowTitle(cRenderer::getWindow(), name);
 }
 
 const char* cInfoBar::getHumanSize(float& size)
@@ -121,9 +120,9 @@ const char* cInfoBar::getHumanSize(float& size)
     return s[idx];
 }
 
-const std::string& cInfoBar::shortenFilename(const char* path)
+const std::string cInfoBar::getFilename(const char* path) const
 {
-    m_filename.clear();
+    std::string filename = "n/a";
 
     if (path != nullptr)
     {
@@ -133,45 +132,52 @@ const std::string& cInfoBar::shortenFilename(const char* path)
             path = n + 1;
         }
 
-        m_filename = path;
-
-        // ::printf("'%s' -> ", path);
-
-        const uint8_t* s = (uint8_t*)path;
-        const uint32_t count = countCodePoints(s);
-
-        const uint32_t maxCount = m_config.fileMaxLength;
-        if (count > maxCount)
-        {
-            uint32_t state = 0;
-            uint32_t codepoint;
-
-            m_filename.clear();
-            for (uint32_t left = maxCount / 2; *s && left; s++)
-            {
-                m_filename += *s;
-                if (!decode(&state, &codepoint, *s))
-                {
-                    left--;
-                }
-            }
-
-            const char* delim = "~";
-
-            m_filename += delim;
-
-            for (uint32_t skip = count - (maxCount - ::strlen(delim)); *s && skip; s++)
-            {
-                if (!decode(&state, &codepoint, *s))
-                {
-                    skip--;
-                }
-            }
-
-            m_filename += (const char*)s;
-            // ::printf("'%s'\n", m_filename.c_str());
-        }
+        filename = path;
     }
 
-    return m_filename;
+    return filename;
+}
+
+const std::string cInfoBar::shortenFilename(const std::string& path) const
+{
+    std::string filename = path;
+
+    // ::printf("'%s' -> ", path);
+
+    const uint8_t* s = (uint8_t*)path.c_str();
+    const uint32_t count = countCodePoints(s);
+
+    const uint32_t maxCount = m_config.fileMaxLength;
+    if (count > maxCount)
+    {
+        uint32_t state = 0;
+        uint32_t codepoint;
+
+        filename.clear();
+        for (uint32_t left = maxCount / 2; *s && left; s++)
+        {
+            filename += *s;
+            if (!decode(&state, &codepoint, *s))
+            {
+                left--;
+            }
+        }
+
+        const char* delim = "~";
+
+        filename += delim;
+
+        for (uint32_t skip = count - (maxCount - ::strlen(delim)); *s && skip; s++)
+        {
+            if (!decode(&state, &codepoint, *s))
+            {
+                skip--;
+            }
+        }
+
+        filename += (const char*)s;
+        // ::printf("'%s'\n", filename.c_str());
+    }
+
+    return filename;
 }
