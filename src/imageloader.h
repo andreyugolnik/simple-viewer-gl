@@ -77,7 +77,7 @@ public:
     }
 
 private:
-    cFormat* createLoader(eImageType type);
+    cFormat* createLoader(eImageType type) const;
     cFormat* getLoader(eImageType type) const;
 
     void stop();
@@ -91,6 +91,6 @@ private:
     Mode m_mode = Mode::Image;
     std::thread m_loader;
     cFormat* m_image = nullptr;
-    std::unique_ptr<cFormat> m_formats[(unsigned)eImageType::COUNT];
+    mutable std::unique_ptr<cFormat> m_formats[(unsigned)eImageType::COUNT];
     sBitmapDescription m_desc;
 };

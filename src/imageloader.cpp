@@ -42,10 +42,10 @@
 cImageLoader::cImageLoader(iCallbacks* callbacks)
     : m_callbacks(callbacks)
 {
-    for (uint32_t i = 0; i < (uint32_t)eImageType::COUNT; i++)
-    {
-        createLoader((eImageType)i);
-    }
+    // for (uint32_t i = 0; i < (uint32_t)eImageType::COUNT; i++)
+    // {
+        // createLoader((eImageType)i);
+    // }
 }
 
 cImageLoader::~cImageLoader()
@@ -110,8 +110,13 @@ void cImageLoader::loadSubImage(unsigned subImage)
 
 bool cImageLoader::isLoaded() const
 {
+    if (m_desc.bitmap.empty())
+    {
+        return false;
+    }
+
     auto notAvailable = getLoader(eImageType::NOTAVAILABLE);
-    return m_image != notAvailable && m_desc.bitmap.empty() == false;
+    return m_image != notAvailable;
 }
 
 void cImageLoader::stop()
@@ -186,10 +191,14 @@ namespace
 
 }
 
-cFormat* cImageLoader::createLoader(eImageType type)
+cFormat* cImageLoader::createLoader(eImageType type) const
 {
+#if defined(LOADER_NAME)
+    ::printf("(II) Creating loader %s\n", typeToName(type));
+#endif
+
     auto& format = m_formats[(unsigned)type];
-    assert(m_formats[(unsigned)type].get() == nullptr);
+    assert(format.get() == nullptr);
 
     cFormat* loader = nullptr;
 
@@ -294,7 +303,13 @@ cFormat* cImageLoader::createLoader(eImageType type)
 
 cFormat* cImageLoader::getLoader(eImageType type) const
 {
-    return m_formats[(unsigned)type].get();
+    auto& loader = m_formats[(unsigned)type];
+    if (loader.get() == nullptr)
+    {
+        createLoader(type);
+    }
+
+    return loader.get();
 }
 
 eImageType cImageLoader::getType(const char* name)
@@ -304,24 +319,24 @@ eImageType cImageLoader::getType(const char* name)
     {
         const eImageType SortedTypes[] =
         {
-            eImageType::AGE,
-            eImageType::RAW,
             eImageType::JPG,
-            eImageType::PSD,
             eImageType::PNG,
+            eImageType::BMP,
             eImageType::GIF,
             eImageType::ICO,
+            eImageType::TGA,
             eImageType::TIF,
+            eImageType::PSD,
+            eImageType::EPS,
+            eImageType::DDS,
             eImageType::XWD,
             eImageType::XPM,
-            eImageType::DDS,
             eImageType::PNM,
-            eImageType::PVR,
-            eImageType::TGA,
             eImageType::WEBP,
-            eImageType::BMP,
+            eImageType::AGE,
+            eImageType::RAW, // pretend to remove
+            eImageType::PVR, // pretend to remove
             eImageType::SCR,
-            eImageType::EPS,
 
 #if defined(OPENEXR_SUPPORT)
             eImageType::EXR,
@@ -335,11 +350,14 @@ eImageType cImageLoader::getType(const char* name)
         Buffer buffer;
         for (auto type : SortedTypes)
         {
+#if defined(LOADER_NAME)
+            ::printf("(II) Probing loader %s\n", typeToName(type));
+#endif
             auto loader = getLoader(type);
             if (loader->isSupported(file, buffer))
             {
 #if defined(LOADER_NAME)
-                ::printf("(II) Loader by type %s\n", typeToName(type));
+                ::printf("(II) Using loader %s\n", typeToName(type));
 #endif
                 return type;
             }
