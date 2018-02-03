@@ -54,6 +54,7 @@ Supported formats: `PNG`, `JPEG`, `PSD`, `AI`, `EPS`, `GIF`, `TIFF`, `TARGA`, `I
 * `<e>`             - hide / show exif;
 * `<p>`             - hide / show pixel info;
 * `<b>`             - hide / show border around image;
+* `<g>`             - hide / show image grid;
 * `<?>`             - hide / show keybindings popup;
 
 ***
