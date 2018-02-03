@@ -128,7 +128,10 @@ $ sudo make rpm
 `X11`          | *libxrandr-dev*, *libxcursor-dev*  | X11 related libraries (Linux only)
 
 ```
-Copyright © 2008-2017 Andrey A. Ugolnik. All Rights Reserved.
+Copyright © 2008-2018 Andrey A. Ugolnik. All Rights Reserved.
 http://www.ugolnik.info
 andrey@ugolnik.info
+
+Icon was created by
+Iryna Poliakova (Iryna.poliakova@icloud.com).
 ```
