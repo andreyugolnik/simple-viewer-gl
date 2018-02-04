@@ -1,0 +1,128 @@
+2009-07-03  Henning Makholm  <henning@makholm.net>
+
+	* Version 1.0.7
+	* Fix GPL-to-PD transition: missed copyrigh blurb in online banner.
+
+2009-07-03  Henning Makholm  <henning@makholm.net>
+
+	* Version 1.0.6
+	* Change licensing from GPL-2 to PD.
+	* Fix bug: A layer without an alpha channel bug with an active
+	  layer mask was wrongly considered to obscure all lower layers.
+	* Fix bug: xcf2pnm would guess PBM as the output format even if
+	  the background was explicitly set to an intermediate gray, or
+	  if -T might produce grays.
+
+2009-07-02  Henning Makholm  <henning@makholm.net>
+
+	* Version 1.0.5
+	* Fix various bugs if extracted part of image contains pixels with
+	  negative canvas-based coordinates. Thanks to J\"orgen Grahn for
+	  reporting these. (Debian bug #533361).
+	* One of the fixed bugs was a buffer overrun which would allow a
+	  remote attacker to execute arbitrary if he could trick a user
+	  into converting an appropriately crafted XCF file with either
+	  the -C or the -O option. CVE-2009-2175.
+	* Fix another bug with interpretation of -C flag, which would
+	  convert the *intersection* of the visible layers rather than
+	  their *union*, as intended. Did I ever test this stuff?
+	* Minor manpage fixes; -C description should be less confusing now.
+	* Apply patch from Marcus Alanen for easier RPM packaging:
+	  $(DESTDIR) honored in Makefile's install target, spec file added.
+
+2006-05-14  Henning Makholm  <henning@makholm.net>
+
+	* Version 1.0.4
+	* Work around bug in certain older Gimp releases that would
+	  save the wrong length word of a Colormap property.
+
+2006-04-17  Henning Makholm  <henning@makholm.net>
+
+	* Version 1.0.3
+	* Also look for color name database in other locations than
+	  /usr/lib/X11, in an attempty to be X11R7 friendly
+
+2006-02-22  Henning Makholm  <henning@makholm.net>
+
+	* Version 1.0.2
+	* Don't ship aclocal.m4 in tarball; it will be re-assembled
+	  whenever needed anyway.
+	* Add option -C to autocrop to visible layers, suggested
+	  by Anthony DeRobertis (Debian bug #353883).
+	* Change metavariable for -Z option argument from "cmd"
+	  to "command", following suggestion by Anthony DeRobertis
+	  (Debian bug #353872).
+
+2006-02-20  Henning Makholm  <henning@makholm.net>
+
+	* Version 1.0.1
+	* Make sure that -b with an unknown color actually leads to
+	  a fatal error when the X11 color name database is not found.
+
+	* Version 1.0
+	* xcfview added
+	* Support for translated manpages added
+
+2006-02-13  Henning Makholm  <henning@makholm.net>
+
+	* Version 0.9.1
+	* Experimental l10n support added
+
+2006-02-12  Henning Makholm  <henning@makholm.net>
+
+	* Version 0.9
+	* Add layer mode Color. Now all of the Gimp's layer modes are
+	  supported. :-)
+	* Revamp the test suite inputs once again (they did not cover all
+	  combinations of colored pixels vs fully white or blacK).
+	
+	* Version 0.8.1
+	* Add layer modes Hue, Value, Saturation and tests for same.
+
+2006-02-11  Henning Makholm  <henning@makholm.net>
+
+	* Version 0.8
+	* Add tests of various error diagnostics to the test suite
+	* Revamp some of the test suite inputs such that HSV space
+	  layer modes can be tested with the same files.
+
+	* Version 0.7.2
+	* Do not precompute the big multiplication table by default,
+	  it is quick enough to do it at run-time as needed (which
+	  lets the binaries shrink significantly).
+
+2006-02-07  Henning Makholm  <henning@makholm.net>
+
+	* Respect -A option when generating indexed PNG (that is,
+	  create a tRNS chunk even if it's trivial); add test of
+	  -A in xcf2png to the test suite.
+
+2006-01-29  Henning Makholm  <henning@makholm.net>
+
+	* Update FSF address in GPL blurbs
+
+	* Version 0.7.1
+	* A few cosmetic changes done during debianization
+	* The code now passes the testsuite on several Debian
+	  architectures (powerpc, alpha, ia64, amd64, hppa,
+	  sparc, mipsel, m68k). Unfortunately I lack the
+	  access to test on non-Debian platforms.
+
+2006-01-28  Henning Makholm  <henning@makholm.net>
+
+	* Version 0.7
+	* xcf2png added
+	* Test suite added
+	* Various bug fixes
+
+2006-01-24  Henning Makholm  <henning@makholm.net>
+
+	* Version 0.6
+	* Allow X11 color names with -b option
+
+2006-01-22  Henning Makholm  <henning@makholm.net>
+
+	* Version 0.5
+	* First public release
+	   - xcfinfo
+	   - xcf2pnm

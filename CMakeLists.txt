@@ -56,8 +56,12 @@ if(HAVE_RT_LIBRARY)
     set(RT_LIBRARY "rt")
 endif(HAVE_RT_LIBRARY)
 
+add_subdirectory(third-party/xcf)
+
 include_directories(
     "src"
+    "third-party/xcf"
+    ${XCFTOOLS_INCLUDE_DIR}
     ${EXIF_INCLUDE_DIRS}
     ${GLFW_INCLUDE_DIRS}
     ${LCMS2_INCLUDE_DIR}
@@ -113,6 +117,9 @@ if(APPLE)
 else()
     add_executable(sviewgl ${SVIEW_SOURCES})
 endif()
+
+add_dependencies( sviewgl XcfTools )
+target_link_libraries( sviewgl XcfTools )
 
 target_link_libraries( sviewgl
     ${RT_LIBRARY}

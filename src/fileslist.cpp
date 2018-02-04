@@ -215,6 +215,7 @@ bool cFilesList::isValidExt(const char* path)
         ".eps",                                                                                                      // Encapsulated PostScript
         ".ico",                                                                                                      // ICO
         ".xwd",                                                                                                      // X Window Dump
+        ".xcf",                                                                                                      // GIMP XCF format
         ".dds",                                                                                                      // Microsoft DDS
         ".tga", ".targa", ".tpic",                                                                                   // Truevision Advanced Raster Graphics Adapter
         ".pnm", ".pbm", ".pgm", ".ppm",                                                                              // Netpbm

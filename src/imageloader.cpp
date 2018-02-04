@@ -30,6 +30,7 @@
 #include "formats/formattarga.h"
 #include "formats/formattiff.h"
 #include "formats/formatwebp.h"
+#include "formats/formatxcf.h"
 #include "formats/formatxpm.h"
 #include "formats/formatxwd.h"
 #include "notavailable.h"
@@ -42,10 +43,12 @@
 cImageLoader::cImageLoader(iCallbacks* callbacks)
     : m_callbacks(callbacks)
 {
-    // for (uint32_t i = 0; i < (uint32_t)eImageType::COUNT; i++)
-    // {
-        // createLoader((eImageType)i);
-    // }
+#if CREATE_ALL_LOADERS_AT_ONCE
+    for (uint32_t i = 0; i < (uint32_t)eImageType::COUNT; i++)
+    {
+        createLoader((eImageType)i);
+    }
+#endif
 }
 
 cImageLoader::~cImageLoader()
@@ -81,8 +84,7 @@ void cImageLoader::loadImage(const char* path)
     clear();
 
     m_mode = Mode::Image;
-    m_loader = std::thread([this](const char* path)
-    {
+    m_loader = std::thread([this](const char* path) {
         m_callbacks->startLoading();
         load(path);
         if (m_desc.images == 0)
@@ -90,7 +92,8 @@ void cImageLoader::loadImage(const char* path)
             m_desc.images = 1;
         }
         m_callbacks->endLoading();
-    }, path);
+    },
+                           path);
 }
 
 void cImageLoader::loadSubImage(unsigned subImage)
@@ -100,12 +103,12 @@ void cImageLoader::loadSubImage(unsigned subImage)
     stop();
 
     m_mode = Mode::SubImage;
-    m_loader = std::thread([this](unsigned subImage)
-    {
+    m_loader = std::thread([this](unsigned subImage) {
         m_callbacks->startLoading();
         m_image->LoadSubImage(subImage, m_desc);
         m_callbacks->endLoading();
-    }, subImage);
+    },
+                           subImage);
 }
 
 bool cImageLoader::isLoaded() const
@@ -147,13 +150,11 @@ const char* cImageLoader::getImageType() const
 
 namespace
 {
-
 // #define LOADER_NAME
 #if defined(LOADER_NAME)
     const char* typeToName(eImageType type)
     {
-        const char* Names[] =
-        {
+        const char* Names[] = {
 #if defined(IMLIB2_SUPPORT)
             "COMMON",
 #endif
@@ -177,6 +178,7 @@ namespace
             "SCR",
             "TGA",
             "BMP",
+            "XCF",
             "WEBP",
 
             "NOTAVAILABLE",
@@ -189,7 +191,7 @@ namespace
     }
 #endif
 
-}
+} // namespace
 
 cFormat* cImageLoader::createLoader(eImageType type) const
 {
@@ -284,6 +286,10 @@ cFormat* cImageLoader::createLoader(eImageType type) const
         loader = new cFormatBmp(m_callbacks);
         break;
 
+    case eImageType::XCF:
+        loader = new cFormatXcf(m_callbacks);
+        break;
+
     case eImageType::WEBP:
         loader = new cFormatWebP(m_callbacks);
         break;
@@ -317,16 +323,16 @@ eImageType cImageLoader::getType(const char* name)
     cFile file;
     if (file.open(name))
     {
-        const eImageType SortedTypes[] =
-        {
+        const eImageType SortedTypes[] = {
             eImageType::JPG,
             eImageType::PNG,
             eImageType::BMP,
             eImageType::GIF,
+            eImageType::PSD,
+            eImageType::XCF,
             eImageType::ICO,
             eImageType::TGA,
             eImageType::TIF,
-            eImageType::PSD,
             eImageType::EPS,
             eImageType::DDS,
             eImageType::XWD,

@@ -42,6 +42,7 @@ enum class eImageType
     SCR,
     TGA,
     BMP,
+    XCF,
     WEBP,
 
     NOTAVAILABLE,
