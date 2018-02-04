@@ -11,11 +11,23 @@
 #include "common/bitmap_description.h"
 #include "common/file.h"
 
-#include <gif_lib.h>
-
 #include <cstdio>
 #include <cstring>
 #include <memory>
+
+void cFormatGif::GifDeleter::operator()(GifFileType* gifFile)
+{
+#if GIFLIB_MAJOR >= 5
+    int errorCode = 0;
+    auto result = DGifCloseFile(gifFile, &errorCode);
+    (void)errorCode;
+#else
+    auto result = DGifCloseFile(gifFile);
+#endif
+
+    ::printf("(WW) GIF closed.\n");
+    (void)result;
+}
 
 namespace
 {
@@ -30,19 +42,6 @@ namespace
 #endif
 
         return gifFile;
-    }
-
-    int CloseFile(GifFileType* gifFile)
-    {
-#if GIFLIB_MAJOR >= 5
-        int errorCode = 0;
-        auto result = DGifCloseFile(gifFile, &errorCode);
-        (void)errorCode;
-#else
-        auto result = DGifCloseFile(gifFile);
-#endif
-
-        return result;
     }
 
     void putPixel(sBitmapDescription& desc, uint32_t pos, const GifColorType* color, bool transparent)
@@ -91,6 +90,33 @@ bool cFormatGif::isSupported(cFile& file, Buffer& buffer) const
 bool cFormatGif::LoadImpl(const char* filename, sBitmapDescription& desc)
 {
     m_filename = filename;
+
+    cFile file;
+    if (file.open(filename) == false)
+    {
+        ::printf("(EE) Error Opening GIF image.\n");
+        return false;
+    }
+
+    desc.size = file.getSize();
+    file.close();
+
+    auto gif = OpenFile(filename);
+    m_gif.reset(gif);
+
+    if (m_gif.get() == nullptr)
+    {
+        ::printf("(EE) Error Opening GIF image.\n");
+        return false;
+    }
+
+    int res = DGifSlurp(m_gif.get());
+    if (res != GIF_OK || m_gif->ImageCount < 1)
+    {
+        ::printf("(EE) Error Opening GIF image.\n");
+        return false;
+    }
+
     return load(0, desc);
 }
 
@@ -101,40 +127,17 @@ bool cFormatGif::LoadSubImageImpl(uint32_t current, sBitmapDescription& desc)
 
 bool cFormatGif::load(uint32_t current, sBitmapDescription& desc)
 {
-    cFile file;
-    if (!file.open(m_filename.c_str()))
-    {
-        return false;
-    }
-
-    desc.size = file.getSize();
-    file.close();
-
-    std::unique_ptr<GifFileType, int (*)(GifFileType*)> gif(OpenFile(m_filename.c_str()), CloseFile);
-    if (gif.get() == nullptr)
-    {
-        ::printf("(EE) Error Opening GIF image.\n");
-        return false;
-    }
-
-    int res = DGifSlurp(gif.get());
-    if (res != GIF_OK || gif->ImageCount < 1)
-    {
-        ::printf("(EE) Error Opening GIF image.\n");
-        return false;
-    }
-
-    desc.images = gif->ImageCount;
+    desc.images = m_gif->ImageCount;
     desc.isAnimation = desc.images > 1;
     desc.current = std::max<uint32_t>(current, 0);
     desc.current = std::min<uint32_t>(desc.current, desc.images - 1);
 
-    const auto& image = gif->SavedImages[desc.current];
+    const auto& image = m_gif->SavedImages[desc.current];
 
     auto cmap = image.ImageDesc.ColorMap;
     if (cmap == nullptr)
     {
-        cmap = gif->SColorMap;
+        cmap = m_gif->SColorMap;
     }
     if (cmap == nullptr)
     {
@@ -148,8 +151,8 @@ bool cFormatGif::load(uint32_t current, sBitmapDescription& desc)
     // place next frame abov previous
     if (!desc.current || desc.bitmap.empty())
     {
-        desc.width = desc.images > 1 ? gif->SWidth : width;
-        desc.height = desc.images > 1 ? gif->SHeight : height;
+        desc.width = desc.images > 1 ? m_gif->SWidth : width;
+        desc.height = desc.images > 1 ? m_gif->SHeight : height;
         desc.pitch = desc.width * 4;
         desc.bpp = 32;
         desc.bppImage = cmap->BitsPerPixel;

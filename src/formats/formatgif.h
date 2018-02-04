@@ -12,6 +12,7 @@
 #include "format.h"
 
 #include <string>
+#include <gif_lib.h>
 
 class cFormatGif final : public cFormat
 {
@@ -29,4 +30,11 @@ private:
 
 private:
     std::string m_filename;
+
+    struct GifDeleter
+    {
+        void operator()(GifFileType* b);
+    };
+
+    std::unique_ptr<GifFileType, GifDeleter> m_gif;
 };
