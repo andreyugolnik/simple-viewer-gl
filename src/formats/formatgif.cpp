@@ -25,7 +25,6 @@ void cFormatGif::GifDeleter::operator()(GifFileType* gifFile)
     auto result = DGifCloseFile(gifFile);
 #endif
 
-    ::printf("(WW) GIF closed.\n");
     (void)result;
 }
 
@@ -64,7 +63,7 @@ namespace
             putPixel(desc, pos, &cmap->Colors[idx], transparentIdx == idx);
         }
     }
-}
+} // namespace
 
 cFormatGif::cFormatGif(iCallbacks* callbacks)
     : cFormat(callbacks)
@@ -117,6 +116,17 @@ bool cFormatGif::LoadImpl(const char* filename, sBitmapDescription& desc)
         return false;
     }
 
+    desc.images = m_gif->ImageCount;
+    desc.isAnimation = desc.images > 1;
+
+    desc.width = m_gif->SWidth;
+    desc.height = m_gif->SHeight;
+
+    desc.pitch = desc.width * 4;
+    desc.bpp = 32;
+    desc.bitmap.resize(desc.pitch * desc.height);
+    desc.format = GL_RGBA;
+
     return load(0, desc);
 }
 
@@ -127,8 +137,6 @@ bool cFormatGif::LoadSubImageImpl(uint32_t current, sBitmapDescription& desc)
 
 bool cFormatGif::load(uint32_t current, sBitmapDescription& desc)
 {
-    desc.images = m_gif->ImageCount;
-    desc.isAnimation = desc.images > 1;
     desc.current = std::max<uint32_t>(current, 0);
     desc.current = std::min<uint32_t>(desc.current, desc.images - 1);
 
@@ -145,49 +153,48 @@ bool cFormatGif::load(uint32_t current, sBitmapDescription& desc)
         return false;
     }
 
-    const uint32_t width = image.ImageDesc.Width;
-    const uint32_t height = image.ImageDesc.Height;
+    desc.bppImage = cmap->BitsPerPixel;
 
-    // place next frame abov previous
-    if (!desc.current || desc.bitmap.empty())
-    {
-        desc.width = desc.images > 1 ? m_gif->SWidth : width;
-        desc.height = desc.images > 1 ? m_gif->SHeight : height;
-        desc.pitch = desc.width * 4;
-        desc.bpp = 32;
-        desc.bppImage = cmap->BitsPerPixel;
-        desc.bitmap.resize(desc.pitch * desc.height);
-        desc.format = GL_RGBA;
-    }
+    desc.delay = 100; // default value
 
     // look for the transparent color extension
     uint32_t transparentIdx = (uint32_t)-1U;
     for (int i = 0; i < image.ExtensionBlockCount; i++)
     {
         const auto& eb = image.ExtensionBlocks[i];
-        if (eb.Function == 0xF9 && eb.ByteCount == 4)
+        if (eb.ByteCount == 4)
         {
-            const bool hasTransparency = (eb.Bytes[0] & 1) == 1;
-            if (hasTransparency)
+            if (eb.Function == 0xF9)
             {
-                transparentIdx = eb.Bytes[3];
+                const bool hasTransparency = (eb.Bytes[0] & 1) == 1;
+                if (hasTransparency)
+                {
+                    transparentIdx = eb.Bytes[3];
+                }
+
+                const uint32_t disposalMode = (eb.Bytes[0] >> 2) & 0x07;
+                // ::printf("Disposal: %u at frame %u\n", disposalMode, desc.current);
+                // DISPOSAL_UNSPECIFIED 0 // No disposal specified.
+                // DISPOSE_DO_NOT       1 // Leave image in place
+                // DISPOSE_BACKGROUND   2 // Set area too background color
+                // DISPOSE_PREVIOUS     3 // Restore to previous content
+                if (disposalMode == 2)
+                {
+                    ::memset(desc.bitmap.data(), 0, desc.bitmap.size());
+                }
             }
 
-            const uint32_t disposalMode = (eb.Bytes[0] >> 2) & 0x07;
-            // ::printf("Disposal: %u at frame %u\n", disposalMode, desc.current);
-            // DISPOSAL_UNSPECIFIED 0 // No disposal specified.
-            // DISPOSE_DO_NOT       1 // Leave image in place
-            // DISPOSE_BACKGROUND   2 // Set area too background color
-            // DISPOSE_PREVIOUS     3 // Restore to previous content
-            if (disposalMode == 2)
+            // setup delay time in milliseconds
+            uint32_t delay = (eb.Bytes[1] | (eb.Bytes[2] << 8)) * 10;
+            if (delay != 0)
             {
-                ::memset(desc.bitmap.data(), 0, desc.bitmap.size());
+                desc.delay = delay;
             }
-
-            desc.delay = eb.Bytes[1] * 10 + eb.Bytes[2];
-            // ::printf(" %d ms\n", desc.delay);
         }
     }
+
+    const uint32_t width = image.ImageDesc.Width;
+    const uint32_t height = image.ImageDesc.Height;
 
     if (image.ImageDesc.Interlace)
     {
