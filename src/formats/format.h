@@ -26,7 +26,7 @@ public:
     bool Load(const char* filename, sBitmapDescription& desc);
     bool LoadSubImage(unsigned subImage, sBitmapDescription& desc);
 
-    void updateProgress(float percent);
+    void updateProgress(float percent) const;
 
     const char* getFormatName() const
     {
@@ -53,7 +53,6 @@ private:
 
 private:
     iCallbacks* m_callbacks;
-    float m_percent = 0.0f;
 
 protected:
     cCMS m_cms;

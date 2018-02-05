@@ -51,14 +51,9 @@ void cFormat::dump(sBitmapDescription& desc) const
     ::printf("(II) frame duration: %u\n", desc.delay);
 }
 
-void cFormat::updateProgress(float percent)
+void cFormat::updateProgress(float percent) const
 {
-    assert(m_callbacks != nullptr);
-    if (m_percent != percent)
-    {
-        m_percent = percent;
-        m_callbacks->doProgress(percent);
-    }
+    m_callbacks->doProgress(percent);
 }
 
 bool cFormat::readBuffer(cFile& file, Buffer& buffer, unsigned minSize) const
