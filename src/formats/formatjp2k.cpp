@@ -81,25 +81,72 @@ namespace
     {
         uint32_t cc = image->comps[0].data[pixel_pos];
         cc += (image->comps[0].sgnd ? 1 << (image->comps[0].prec - 1) : 0);
-        const double C = 1.0 - cc / 255.0; // C
+        float C = cc / 255.0f;
 
         uint32_t cm = image->comps[1].data[pixel_pos];
         cm += (image->comps[1].sgnd ? 1 << (image->comps[1].prec - 1) : 0);
-        const double M = 1.0 - cm / 255.0; // M
+        float M = cm / 255.0f;
 
         uint32_t cy = image->comps[2].data[pixel_pos];
         cy += (image->comps[2].sgnd ? 1 << (image->comps[2].prec - 1) : 0);
-        const double Y = 1.0 - cy / 255.0; // Y
+        float Y = cy / 255.0f;
 
         uint32_t ck = image->comps[3].data[pixel_pos];
         ck += (image->comps[3].sgnd ? 1 << (image->comps[3].prec - 1) : 0);
-        const double K = 1.0 - ck / 255.0; // K
+        float K = ck / 255.0f;
 
-        const double Kinv = 1.0 - K;
+        float Kinv = 1.0f - K;
 
-        bits[RGBA_RED] = (uint8_t)((1.0 - (C * Kinv + K)) * 255.0);
-        bits[RGBA_GREEN] = (uint8_t)((1.0 - (M * Kinv + K)) * 255.0);
-        bits[RGBA_BLUE] = (uint8_t)((1.0 - (Y * Kinv + K)) * 255.0);
+        bits[RGBA_RED] = (uint8_t)(255 * (1.0f - C) * Kinv);
+        bits[RGBA_GREEN] = (uint8_t)(255 * (1.0f - M) * Kinv);
+        bits[RGBA_BLUE] = (uint8_t)(255 * (1.0f - Y) * Kinv);
+
+        bits += 3;
+
+        return bits;
+    }
+
+    uint8_t* RGBtoRGB(opj_image_t* image, uint32_t pixel_pos, uint8_t* bits)
+    {
+        uint32_t r = image->comps[0].data[pixel_pos];
+        r += (image->comps[0].sgnd ? 1 << (image->comps[0].prec - 1) : 0);
+
+        uint32_t g = image->comps[1].data[pixel_pos];
+        g += (image->comps[1].sgnd ? 1 << (image->comps[1].prec - 1) : 0);
+
+        uint32_t b = image->comps[2].data[pixel_pos];
+        b += (image->comps[2].sgnd ? 1 << (image->comps[2].prec - 1) : 0);
+
+        bits[RGBA_RED] = (uint8_t)r;
+        bits[RGBA_GREEN] = (uint8_t)g;
+        bits[RGBA_BLUE] = (uint8_t)b;
+        bits += 3;
+
+        return bits;
+    }
+
+    uint8_t* SYCCtoRGB(opj_image_t* image, uint32_t pixel_pos, uint8_t* bits)
+    {
+        uint32_t y = image->comps[0].data[pixel_pos];
+        y += (image->comps[0].sgnd ? 1 << (image->comps[0].prec - 1) : 0);
+        float Y = y / 255.0f;
+
+        uint32_t cb = image->comps[1].data[pixel_pos];
+        cb += (image->comps[1].sgnd ? 1 << (image->comps[1].prec - 1) : 0);
+        float Cb = cb / 255.0f;
+
+        uint32_t cr = image->comps[2].data[pixel_pos];
+        cr += (image->comps[2].sgnd ? 1 << (image->comps[2].prec - 1) : 0);
+        float Cr = cr / 255.0f;
+
+        float r = std::max<float>(0.0f, std::min(1.0f, (float)(Y + 0.0000 * Cb + 1.4022 * Cr)));
+        float g = std::max<float>(0.0f, std::min(1.0f, (float)(Y - 0.3456 * Cb - 0.7145 * Cr)));
+        float b = std::max<float>(0.0f, std::min(1.0f, (float)(Y + 1.7710 * Cb + 0.0000 * Cr)));
+
+        bits[RGBA_RED] = (uint8_t)(r * 255);
+        bits[RGBA_GREEN] = (uint8_t)(g * 255);
+        bits[RGBA_BLUE] = (uint8_t)(b * 255);
+
         bits += 3;
 
         return bits;
@@ -280,13 +327,12 @@ bool cFormatJp2k::LoadImpl(const char* filename, sBitmapDescription& desc)
     {
         auto bitmap = desc.bitmap.data();
 
-        const float progress = m_cms.hasTransform() ? 0.5f : 1.0f;
-
-        for (uint32_t i = 0; i < desc.height; i++)
+        for (uint32_t y = 0; y < desc.height; y++)
         {
             m_cms.doTransform(bitmap, bitmap, desc.width);
             bitmap += desc.pitch;
-            updateProgress(0.5f + progress * i / desc.height);
+
+            updateProgress(y / desc.height);
         }
 
         m_cms.destroyTransform();
@@ -315,6 +361,11 @@ bool cFormatJp2k::loadJp2k(void* img, sBitmapDescription& desc) const
     // check the number of components
 
     auto colorspace = image->color_space;
+    if (colorspace == OPJ_CLRSPC_SYCC || colorspace == OPJ_CLRSPC_EYCC)
+    {
+        return false;
+    }
+
     uint32_t numcomps = image->numcomps;
 
     bool bIsValid = true;
@@ -347,6 +398,8 @@ bool cFormatJp2k::loadJp2k(void* img, sBitmapDescription& desc) const
     ::printf("  Comp: %u\n", image->comps[0].bpp);
     ::printf("  Prec: %u\n", image->comps[0].prec);
     ::printf("  Signed: %u\n", image->comps[0].sgnd);
+    ::printf("  Factor: %u\n", image->comps[0].factor);
+    ::printf("  Decoded resolution: %u\n", image->comps[0].resno_decoded);
 
     if (image->comps[0].prec <= 8)
     {
@@ -375,6 +428,37 @@ bool cFormatJp2k::loadJp2k(void* img, sBitmapDescription& desc) const
 
                     pixel_count++;
                 }
+
+                updateProgress(y / desc.height);
+            }
+        }
+        else if (numcomps == 2)
+        {
+            // 8-bit greyscale
+            // ----------------------------------------------------------
+
+            // load pixel data
+            allocBitmap(desc, 8, GL_LUMINANCE);
+
+            uint32_t pixel_count = 0;
+
+            for (uint32_t y = 0; y < desc.height; y++)
+            {
+                uint8_t* bits = getScanLine(desc, y);
+
+                for (uint32_t x = 0; x < desc.width; x++)
+                {
+                    const uint32_t pixel_pos = pixel_count / desc.width * wr + pixel_count % desc.width;
+
+                    uint32_t value = image->comps[1].data[pixel_pos];
+                    value += (image->comps[1].sgnd ? 1 << (image->comps[1].prec - 1) : 0);
+
+                    bits[x] = (uint8_t)value;
+
+                    pixel_count++;
+                }
+
+                updateProgress(y / desc.height);
             }
         }
         else if (numcomps == 3)
@@ -383,37 +467,26 @@ bool cFormatJp2k::loadJp2k(void* img, sBitmapDescription& desc) const
             // ----------------------------------------------------------
 
             // load pixel data
-            allocBitmap(desc, 24, GL_RGB);
-
             uint32_t pixel_count = 0;
+
+            allocBitmap(desc, 24, GL_RGB);
 
             for (uint32_t y = 0; y < desc.height; y++)
             {
-                uint8_t* bits = getScanLine(desc, y); //desc.height - 1 - y);
+                uint8_t* bits = getScanLine(desc, y);
 
                 for (uint32_t x = 0; x < desc.width; x++)
                 {
                     const uint32_t pixel_pos = pixel_count / desc.width * wr + pixel_count % desc.width;
-
-                    uint32_t r = image->comps[0].data[pixel_pos];
-                    r += (image->comps[0].sgnd ? 1 << (image->comps[0].prec - 1) : 0);
-
-                    uint32_t g = image->comps[1].data[pixel_pos];
-                    g += (image->comps[1].sgnd ? 1 << (image->comps[1].prec - 1) : 0);
-
-                    uint32_t b = image->comps[2].data[pixel_pos];
-                    b += (image->comps[2].sgnd ? 1 << (image->comps[2].prec - 1) : 0);
-
-                    bits[RGBA_RED] = (uint8_t)r;
-                    bits[RGBA_GREEN] = (uint8_t)g;
-                    bits[RGBA_BLUE] = (uint8_t)b;
-                    bits += 3;
+                    bits = RGBtoRGB(image, pixel_pos, bits);
 
                     pixel_count++;
                 }
+
+                updateProgress(y / desc.height);
             }
         }
-        else if (numcomps == 4)
+        else if (numcomps >= 4)
         {
             // 32-bit RGBA
             // ----------------------------------------------------------
@@ -445,6 +518,8 @@ bool cFormatJp2k::loadJp2k(void* img, sBitmapDescription& desc) const
 
                     pixel_count++;
                 }
+
+                updateProgress(y / desc.height);
             }
         }
     }
@@ -475,6 +550,8 @@ bool cFormatJp2k::loadJp2k(void* img, sBitmapDescription& desc) const
 
                     pixel_count++;
                 }
+
+                updateProgress(y / desc.height);
             }
         }
         else if (numcomps == 3)
@@ -511,6 +588,8 @@ bool cFormatJp2k::loadJp2k(void* img, sBitmapDescription& desc) const
 
                     pixel_count++;
                 }
+
+                updateProgress(y / desc.height);
             }
         }
         else if (numcomps == 4)
@@ -551,6 +630,8 @@ bool cFormatJp2k::loadJp2k(void* img, sBitmapDescription& desc) const
 
                     pixel_count++;
                 }
+
+                updateProgress(y / desc.height);
             }
         }
     }
