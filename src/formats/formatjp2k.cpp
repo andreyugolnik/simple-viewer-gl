@@ -9,7 +9,7 @@
 
 #include "formatjp2k.h"
 
-// #if defined(OPENJPEG_SUPPORT)
+#if defined(OPENJPEG_SUPPORT)
 
 #include "common/bitmap_description.h"
 #include "common/file.h"
@@ -558,4 +558,4 @@ bool cFormatJp2k::loadJp2k(void* img, sBitmapDescription& desc) const
     return true;
 }
 
-// #endif
+#endif
