@@ -63,7 +63,7 @@ cFormatCommon::~cFormatCommon()
 {
 }
 
-bool cFormatCommon::isSupported(cFile& file, Buffer& buffer) const
+bool cFormatCommon::isSupported(cFile& /*file*/, Buffer& /*buffer*/) const
 {
     return true;
 }

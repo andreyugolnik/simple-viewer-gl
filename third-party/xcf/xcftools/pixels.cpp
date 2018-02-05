@@ -430,8 +430,6 @@ copyTilePixels(Tile* dest, uint32_t ptr, convertParams* params)
     }
 }
 
-// #define TILEXn(dim, tx) \
-    // ((tx) == (dim).tilesx ? (dim).c.r : (dim).c.l + ((tx)*TILE_WIDTH))
 int TILEXn(const tileDimensions* dim, int tx)
 {
     return tx == (int)dim->tilesx
@@ -439,8 +437,6 @@ int TILEXn(const tileDimensions* dim, int tx)
         : dim->c.l + tx * TILE_WIDTH;
 }
 
-// #define TILEYn(dim, ty) \
-    // ((ty) == (dim).tilesy ? (dim).c.b : (dim).c.t + ((ty)*TILE_HEIGHT))
 int TILEYn(const tileDimensions* dim, int ty)
 {
     return ty == (int)dim->tilesy
