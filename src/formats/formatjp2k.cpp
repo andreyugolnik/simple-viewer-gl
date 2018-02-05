@@ -9,10 +9,11 @@
 
 #include "formatjp2k.h"
 
-#if defined(OPENJPEG_SUPPORT)
+// #if defined(OPENJPEG_SUPPORT)
 
 #include "common/bitmap_description.h"
 #include "common/file.h"
+#include "common/helpers.h"
 
 #include <cstring>
 #include <openjpeg.h>
@@ -46,10 +47,100 @@ namespace
         return desc.bitmap.data() + desc.pitch * y;
     }
 
-    const uint32_t FI_RGBA_RED = 0;
-    const uint32_t FI_RGBA_GREEN = 1;
-    const uint32_t FI_RGBA_BLUE = 2;
-    const uint32_t FI_RGBA_ALPHA = 3;
+    typedef uint8_t* (*FillPixelFunction)(opj_image_t* image, uint32_t pixel_pos, uint8_t* bits);
+
+    const uint32_t RGBA_RED = 0;
+    const uint32_t RGBA_GREEN = 1;
+    const uint32_t RGBA_BLUE = 2;
+    const uint32_t RGBA_ALPHA = 3;
+
+    uint8_t* RGBAtoRGBA(opj_image_t* image, uint32_t pixel_pos, uint8_t* bits)
+    {
+        uint32_t r = image->comps[0].data[pixel_pos];
+        r += (image->comps[0].sgnd ? 1 << (image->comps[0].prec - 1) : 0);
+
+        uint32_t g = image->comps[1].data[pixel_pos];
+        g += (image->comps[1].sgnd ? 1 << (image->comps[1].prec - 1) : 0);
+
+        uint32_t b = image->comps[2].data[pixel_pos];
+        b += (image->comps[2].sgnd ? 1 << (image->comps[2].prec - 1) : 0);
+
+        uint32_t a = image->comps[3].data[pixel_pos];
+        a += (image->comps[3].sgnd ? 1 << (image->comps[3].prec - 1) : 0);
+
+        bits[RGBA_RED] = (uint8_t)r;
+        bits[RGBA_GREEN] = (uint8_t)g;
+        bits[RGBA_BLUE] = (uint8_t)b;
+        bits[RGBA_ALPHA] = (uint8_t)a;
+        bits += 4;
+
+        return bits;
+    }
+
+    uint8_t* CMYKtoRGB(opj_image_t* image, uint32_t pixel_pos, uint8_t* bits)
+    {
+        uint32_t cc = image->comps[0].data[pixel_pos];
+        cc += (image->comps[0].sgnd ? 1 << (image->comps[0].prec - 1) : 0);
+        const double C = 1.0 - cc / 255.0; // C
+
+        uint32_t cm = image->comps[1].data[pixel_pos];
+        cm += (image->comps[1].sgnd ? 1 << (image->comps[1].prec - 1) : 0);
+        const double M = 1.0 - cm / 255.0; // M
+
+        uint32_t cy = image->comps[2].data[pixel_pos];
+        cy += (image->comps[2].sgnd ? 1 << (image->comps[2].prec - 1) : 0);
+        const double Y = 1.0 - cy / 255.0; // Y
+
+        uint32_t ck = image->comps[3].data[pixel_pos];
+        ck += (image->comps[3].sgnd ? 1 << (image->comps[3].prec - 1) : 0);
+        const double K = 1.0 - ck / 255.0; // K
+
+        const double Kinv = 1.0 - K;
+
+        bits[RGBA_RED] = (uint8_t)((1.0 - (C * Kinv + K)) * 255.0);
+        bits[RGBA_GREEN] = (uint8_t)((1.0 - (M * Kinv + K)) * 255.0);
+        bits[RGBA_BLUE] = (uint8_t)((1.0 - (Y * Kinv + K)) * 255.0);
+        bits += 3;
+
+        return bits;
+    }
+
+    const char* getColorSpaceName(COLOR_SPACE type)
+    {
+        switch (type)
+        {
+        case OPJ_CLRSPC_UNKNOWN:
+            return "Unknown";
+
+        case OPJ_CLRSPC_UNSPECIFIED:
+            return "Unspecified";
+
+        case OPJ_CLRSPC_SRGB:
+            return "sRGB";
+
+        case OPJ_CLRSPC_GRAY:
+            return "GRAYSCALE";
+
+        case OPJ_CLRSPC_SYCC:
+            return "SYCC";
+
+        case OPJ_CLRSPC_EYCC:
+            return "EYCC";
+
+        case OPJ_CLRSPC_CMYK:
+            return "CMYK";
+        }
+
+        return "Unknown";
+    }
+
+    void allocBitmap(sBitmapDescription& desc, uint32_t bpp, GLenum format)
+    {
+        desc.bpp = bpp;
+        desc.format = format;
+        desc.pitch = helpers::calculatePitch(desc.width, desc.bpp);
+        desc.bitmap.resize(desc.pitch * desc.height);
+    }
 } // namespace
 
 cFormatJp2k::cFormatJp2k(iCallbacks* callbacks)
@@ -174,12 +265,37 @@ bool cFormatJp2k::LoadImpl(const char* filename, sBitmapDescription& desc)
         return false;
     }
 
+    auto iccProfile = image->icc_profile_buf;
+    auto iccProfileSize = image->icc_profile_len;
+    if (iccProfile != nullptr && iccProfileSize != 0)
+    {
+        uint32_t numcomps = image->numcomps;
+
+        m_cms.createTransform(iccProfile, iccProfileSize, numcomps == 4 ? cCMS::Pixel::Rgba : cCMS::Pixel::Rgb);
+    }
+
+    m_formatName = m_cms.hasTransform() ? "jpeg2000/icc" : "jpeg2000";
+
+    if (m_cms.hasTransform())
+    {
+        auto bitmap = desc.bitmap.data();
+
+        const float progress = m_cms.hasTransform() ? 0.5f : 1.0f;
+
+        for (uint32_t i = 0; i < desc.height; i++)
+        {
+            m_cms.doTransform(bitmap, bitmap, desc.width);
+            bitmap += desc.pitch;
+            updateProgress(0.5f + progress * i / desc.height);
+        }
+
+        m_cms.destroyTransform();
+    }
+
     // free image data structure
     opj_image_destroy(image);
 
     opj_stream_destroy(stream);
-
-    m_formatName = "jpeg2000";
 
     return true;
 }
@@ -192,16 +308,13 @@ bool cFormatJp2k::loadJp2k(void* img, sBitmapDescription& desc) const
 
     // compute image width and height
 
-    // //uint32_t w = int_ceildiv(image->x1 - image->x0, image->comps[0].dx);
     uint32_t wr = image->comps[0].w;
     // uint32_t wrr = int_ceildivpow2(image->comps[0].w, image->comps[0].factor);
-
-    // //uint32_t h = int_ceildiv(image->y1 - image->y0, image->comps[0].dy);
-    // //uint32_t hr = image->comps[0].h;
     // uint32_t hrr = int_ceildivpow2(image->comps[0].h, image->comps[0].factor);
 
     // check the number of components
 
+    auto colorspace = image->color_space;
     uint32_t numcomps = image->numcomps;
 
     bool bIsValid = true;
@@ -216,28 +329,10 @@ bool cFormatJp2k::loadJp2k(void* img, sBitmapDescription& desc) const
         }
     }
 
-    bIsValid &= ((numcomps == 1) || (numcomps == 3) || (numcomps == 4));
-    if (!bIsValid)
-    {
-        if (numcomps)
-        {
-            ::printf("(WW) image contains %u greyscale components. Only the first will be loaded.\n", numcomps);
-            numcomps = 1;
-        }
-        else
-        {
-            // unknown type
-            return false;
-        }
-    }
-
-    desc.format = numcomps == 4 ? GL_RGBA : GL_RGB;
-    desc.bpp = numcomps * 8;
     desc.width = image->comps[0].w;
     desc.height = image->comps[0].h;
-    desc.pitch = numcomps * desc.width;
 
-    desc.bppImage = numcomps * 8; // image->comps[0].bpp;
+    desc.bppImage = numcomps * image->comps[0].prec;
 
     desc.images = 1;
 
@@ -246,7 +341,12 @@ bool cFormatJp2k::loadJp2k(void* img, sBitmapDescription& desc) const
         return false; // ERROR_UNSUPPORTED_FORMAT;
     }
 
-    desc.bitmap.resize(desc.pitch * desc.height);
+    ::printf("\n");
+    ::printf("Components: %u\n", numcomps);
+    ::printf("  Colorspace: %s\n", getColorSpaceName(colorspace));
+    ::printf("  Comp: %u\n", image->comps[0].bpp);
+    ::printf("  Prec: %u\n", image->comps[0].prec);
+    ::printf("  Signed: %u\n", image->comps[0].sgnd);
 
     if (image->comps[0].prec <= 8)
     {
@@ -255,41 +355,27 @@ bool cFormatJp2k::loadJp2k(void* img, sBitmapDescription& desc) const
             // 8-bit greyscale
             // ----------------------------------------------------------
 
-            // build a greyscale palette
-
-#if 0
-            RGBQUAD* pal = FreeImage_GetPalette(dib);
-            for (int i = 0; i < 256; i++)
-            {
-                pal[i].rgbRed = (uint8_t)i;
-                pal[i].rgbGreen = (uint8_t)i;
-                pal[i].rgbBlue = (uint8_t)i;
-            }
-
             // load pixel data
+            allocBitmap(desc, 8, GL_LUMINANCE);
 
             uint32_t pixel_count = 0;
 
             for (uint32_t y = 0; y < desc.height; y++)
             {
-                uint8_t* bits = getScanLine(desc, y);//desc.height - 1 - y);
+                uint8_t* bits = getScanLine(desc, y);
 
                 for (uint32_t x = 0; x < desc.width; x++)
                 {
                     const uint32_t pixel_pos = pixel_count / desc.width * wr + pixel_count % desc.width;
 
-                    int index = image->comps[0].data[pixel_pos];
-                    index += (image->comps[0].sgnd ? 1 << (image->comps[0].prec - 1) : 0);
+                    uint32_t value = image->comps[0].data[pixel_pos];
+                    value += (image->comps[0].sgnd ? 1 << (image->comps[0].prec - 1) : 0);
 
-                    bits[x] = (uint8_t)index;
+                    bits[x] = (uint8_t)value;
 
                     pixel_count++;
                 }
             }
-#else
-            ::printf("(EE) 8-bit grayscale not supported at this moment.\n");
-            return false;
-#endif
         }
         else if (numcomps == 3)
         {
@@ -297,12 +383,13 @@ bool cFormatJp2k::loadJp2k(void* img, sBitmapDescription& desc) const
             // ----------------------------------------------------------
 
             // load pixel data
+            allocBitmap(desc, 24, GL_RGB);
 
             uint32_t pixel_count = 0;
 
             for (uint32_t y = 0; y < desc.height; y++)
             {
-                uint8_t* bits = getScanLine(desc, y);//desc.height - 1 - y);
+                uint8_t* bits = getScanLine(desc, y); //desc.height - 1 - y);
 
                 for (uint32_t x = 0; x < desc.width; x++)
                 {
@@ -317,9 +404,9 @@ bool cFormatJp2k::loadJp2k(void* img, sBitmapDescription& desc) const
                     uint32_t b = image->comps[2].data[pixel_pos];
                     b += (image->comps[2].sgnd ? 1 << (image->comps[2].prec - 1) : 0);
 
-                    bits[FI_RGBA_RED] = (uint8_t)r;
-                    bits[FI_RGBA_GREEN] = (uint8_t)g;
-                    bits[FI_RGBA_BLUE] = (uint8_t)b;
+                    bits[RGBA_RED] = (uint8_t)r;
+                    bits[RGBA_GREEN] = (uint8_t)g;
+                    bits[RGBA_BLUE] = (uint8_t)b;
                     bits += 3;
 
                     pixel_count++;
@@ -335,31 +422,26 @@ bool cFormatJp2k::loadJp2k(void* img, sBitmapDescription& desc) const
 
             uint32_t pixel_count = 0;
 
+            FillPixelFunction fillPixel = nullptr;
+            if (colorspace == OPJ_CLRSPC_CMYK)
+            {
+                allocBitmap(desc, 24, GL_RGB);
+                fillPixel = CMYKtoRGB;
+            }
+            else
+            {
+                allocBitmap(desc, 32, GL_RGBA);
+                fillPixel = RGBAtoRGBA;
+            }
+
             for (uint32_t y = 0; y < desc.height; y++)
             {
-                uint8_t* bits = getScanLine(desc, y);//desc.height - 1 - y);
+                uint8_t* bits = getScanLine(desc, y);
 
                 for (uint32_t x = 0; x < desc.width; x++)
                 {
                     const uint32_t pixel_pos = pixel_count / desc.width * wr + pixel_count % desc.width;
-
-                    uint32_t r = image->comps[0].data[pixel_pos];
-                    r += (image->comps[0].sgnd ? 1 << (image->comps[0].prec - 1) : 0);
-
-                    uint32_t g = image->comps[1].data[pixel_pos];
-                    g += (image->comps[1].sgnd ? 1 << (image->comps[1].prec - 1) : 0);
-
-                    uint32_t b = image->comps[2].data[pixel_pos];
-                    b += (image->comps[2].sgnd ? 1 << (image->comps[2].prec - 1) : 0);
-
-                    uint32_t a = image->comps[3].data[pixel_pos];
-                    a += (image->comps[3].sgnd ? 1 << (image->comps[3].prec - 1) : 0);
-
-                    bits[FI_RGBA_RED] = (uint8_t)r;
-                    bits[FI_RGBA_GREEN] = (uint8_t)g;
-                    bits[FI_RGBA_BLUE] = (uint8_t)b;
-                    bits[FI_RGBA_ALPHA] = (uint8_t)a;
-                    bits += 4;
+                    bits = fillPixel(image, pixel_pos, bits);
 
                     pixel_count++;
                 }
@@ -374,21 +456,22 @@ bool cFormatJp2k::loadJp2k(void* img, sBitmapDescription& desc) const
             // ----------------------------------------------------------
 
             // load pixel data
+            allocBitmap(desc, 8, GL_LUMINANCE);
 
             uint32_t pixel_count = 0;
 
             for (uint32_t y = 0; y < desc.height; y++)
             {
-                auto bits = (uint16_t*)getScanLine(desc, y);//desc.height - 1 - y);
+                auto bits = (uint8_t*)getScanLine(desc, y);
 
                 for (uint32_t x = 0; x < desc.width; x++)
                 {
                     const uint32_t pixel_pos = pixel_count / desc.width * wr + pixel_count % desc.width;
 
-                    uint32_t index = image->comps[0].data[pixel_pos];
-                    index += (image->comps[0].sgnd ? 1 << (image->comps[0].prec - 1) : 0);
+                    uint32_t value = image->comps[0].data[pixel_pos];
+                    value += (image->comps[0].sgnd ? 1 << (image->comps[0].prec - 1) : 0);
 
-                    bits[x] = (uint16_t)index;
+                    bits[x] = (uint8_t)(value >> 4);
 
                     pixel_count++;
                 }
@@ -400,12 +483,13 @@ bool cFormatJp2k::loadJp2k(void* img, sBitmapDescription& desc) const
             // ----------------------------------------------------------
 
             // load pixel data
+            allocBitmap(desc, 24, GL_RGB);
 
             uint32_t pixel_count = 0;
 
             for (uint32_t y = 0; y < desc.height; y++)
             {
-                auto bits = (uint8_t*)getScanLine(desc, y);//desc.height - 1 - y);
+                auto bits = (uint8_t*)getScanLine(desc, y);
 
                 for (uint32_t x = 0; x < desc.width; x++)
                 {
@@ -420,9 +504,10 @@ bool cFormatJp2k::loadJp2k(void* img, sBitmapDescription& desc) const
                     uint32_t b = image->comps[2].data[pixel_pos];
                     b += (image->comps[2].sgnd ? 1 << (image->comps[2].prec - 1) : 0);
 
-                    bits[FI_RGBA_RED] = (uint8_t)r;
-                    bits[FI_RGBA_GREEN] = (uint8_t)g;
-                    bits[FI_RGBA_BLUE] = (uint8_t)b;
+                    bits[RGBA_RED] = (uint8_t)(r >> 8);
+                    bits[RGBA_GREEN] = (uint8_t)(g >> 8);
+                    bits[RGBA_BLUE] = (uint8_t)(b >> 8);
+                    bits += 3;
 
                     pixel_count++;
                 }
@@ -434,12 +519,13 @@ bool cFormatJp2k::loadJp2k(void* img, sBitmapDescription& desc) const
             // ----------------------------------------------------------
 
             // load pixel data
+            allocBitmap(desc, 32, GL_RGBA);
 
             uint32_t pixel_count = 0;
 
             for (uint32_t y = 0; y < desc.height; y++)
             {
-                auto bits = (uint8_t*)getScanLine(desc, y);//desc.height - 1 - y);
+                auto bits = (uint8_t*)getScanLine(desc, y); //desc.height - 1 - y);
 
                 for (uint32_t x = 0; x < desc.width; x++)
                 {
@@ -457,10 +543,11 @@ bool cFormatJp2k::loadJp2k(void* img, sBitmapDescription& desc) const
                     uint32_t a = image->comps[3].data[pixel_pos];
                     a += (image->comps[3].sgnd ? 1 << (image->comps[3].prec - 1) : 0);
 
-                    bits[FI_RGBA_RED] = (uint8_t)r;
-                    bits[FI_RGBA_GREEN] = (uint8_t)g;
-                    bits[FI_RGBA_BLUE] = (uint8_t)b;
-                    bits[FI_RGBA_ALPHA] = (uint8_t)a;
+                    bits[RGBA_RED] = (uint8_t)r;
+                    bits[RGBA_GREEN] = (uint8_t)g;
+                    bits[RGBA_BLUE] = (uint8_t)b;
+                    bits[RGBA_ALPHA] = (uint8_t)a;
+                    bits += 4;
 
                     pixel_count++;
                 }
@@ -471,4 +558,4 @@ bool cFormatJp2k::loadJp2k(void* img, sBitmapDescription& desc) const
     return true;
 }
 
-#endif
+// #endif
