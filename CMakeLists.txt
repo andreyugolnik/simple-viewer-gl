@@ -56,12 +56,15 @@ if(HAVE_RT_LIBRARY)
     set(RT_LIBRARY "rt")
 endif(HAVE_RT_LIBRARY)
 
+include_directories("src")
+
+add_subdirectory(third-party/imgui)
+include_directories("third-party/imgui")
+
 add_subdirectory(third-party/xcf)
+include_directories("third-party/xcf")
 
 include_directories(
-    "src"
-    "third-party/xcf"
-    ${XCFTOOLS_INCLUDE_DIR}
     ${EXIF_INCLUDE_DIRS}
     ${GLFW_INCLUDE_DIRS}
     ${LCMS2_INCLUDE_DIR}
@@ -118,8 +121,9 @@ else()
     add_executable(sviewgl ${SVIEW_SOURCES})
 endif()
 
-add_dependencies( sviewgl XcfTools )
-target_link_libraries( sviewgl XcfTools )
+add_dependencies(sviewgl ImGui)
+add_dependencies(sviewgl XcfTools)
+target_link_libraries(sviewgl XcfTools ImGui)
 
 target_link_libraries( sviewgl
     ${RT_LIBRARY}

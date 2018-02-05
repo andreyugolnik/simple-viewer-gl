@@ -9,10 +9,10 @@
 
 #include "gui.h"
 #include "DroidSans.h"
-#include "imgui/imgui.h"
 #include "renderer.h"
 
 #include <GLFW/glfw3.h>
+#include <imgui/imgui.h>
 
 void cGui::onMousePosition(const Vectorf& pos)
 {
@@ -63,9 +63,7 @@ bool cGui::createDeviceObjects()
     auto& io = ImGui::GetIO();
 
     const ImWchar range[] = { 0x0020, 0xFFFF, 0 };
-    io.Fonts->AddFontFromMemoryCompressedTTF(DroidSans_compressed_data, DroidSans_compressed_size, 16
-                                             , nullptr
-                                             , range);
+    io.Fonts->AddFontFromMemoryCompressedTTF(DroidSans_compressed_data, DroidSans_compressed_size, 16, nullptr, range);
 
     unsigned char* pixels;
     int width, height;
@@ -123,13 +121,11 @@ void cGui::init(GLFWwindow* window)
     io.IniFilename = nullptr;
     io.LogFilename = nullptr;
 
-    io.SetClipboardTextFn = [](void* user_data, const char* text)
-    {
+    io.SetClipboardTextFn = [](void* user_data, const char* text) {
         glfwSetClipboardString((GLFWwindow*)user_data, text);
     };
 
-    io.GetClipboardTextFn = [](void* user_data)
-    {
+    io.GetClipboardTextFn = [](void* user_data) {
         return glfwGetClipboardString((GLFWwindow*)user_data);
     };
 

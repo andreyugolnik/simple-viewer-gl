@@ -46,7 +46,7 @@ cppcheck:
 	cppcheck -j 1 --enable=all -f -I src src/ 2> cppcheck-output
 
 clean:
-	rm -fr $(BUILD_DIR_RELEASE) $(BUILD_DIR_DEBUG) $(BUNDLE_NAME) cppcheck-output $(BUNDLE_NAME)-$(VERSION)* $(BUNDLE_NAME)_$(VERSION)* *.log *.tasks *.sh *.xz *.list *.deb strace_out cov-int
+	rm -fr $(BUILD_DIR_RELEASE) $(BUILD_DIR_DEBUG) $(OUT_NAME) $(BUNDLE_NAME) cppcheck-output $(BUNDLE_NAME)-$(VERSION)* $(BUNDLE_NAME)_$(VERSION)* *.log *.tasks *.sh *.xz *.list *.deb strace_out cov-int
 
 install:
 	install -m 755 -d $(DESTDIR)$(PREFIX)/bin
