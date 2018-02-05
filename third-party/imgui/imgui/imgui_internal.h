@@ -197,7 +197,7 @@ enum ImGuiDataType
 {
     ImGuiDataType_Int,
     ImGuiDataType_Float,
-    ImGuiDataType_Float2,
+    ImGuiDataType_Float2
 };
 
 enum ImGuiCorner
