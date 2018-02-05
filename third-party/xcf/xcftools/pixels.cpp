@@ -66,17 +66,18 @@ tileDirectoryOneLevel(tileDimensions* dim, uint32_t ptr)
     {
         return 0;
     }
+
     if ((int)xcfL(ptr) != dim->c.r - dim->c.l || (int)xcfL(ptr + 4) != dim->c.b - dim->c.t)
     {
         FatalBadXCF("Drawable size mismatch at %" PRIX32, ptr);
     }
-    return ptr += 8;
+
+    return ptr + 8;
 }
 
 static void
 initTileDirectory(tileDimensions* dim, xcfTiles* tiles, const char* type)
 {
-    uint32_t data;
     uint32_t ptr = tiles->hierarchy;
 
     tiles->hierarchy = 0;
@@ -86,6 +87,7 @@ initTileDirectory(tileDimensions* dim, xcfTiles* tiles, const char* type)
         return;
     }
 
+    uint32_t data;
     if (tiles->params == &convertChannel)
     {
         /* A layer mask is a channel.
@@ -93,13 +95,16 @@ initTileDirectory(tileDimensions* dim, xcfTiles* tiles, const char* type)
         */
         xcfString(ptr, &ptr);
         while (xcfNextprop(&ptr, &data) != PROP_END)
-            ;
+        {
+        }
+
         ptr = xcfOffset(ptr, 4 * 4);
         if ((ptr = tileDirectoryOneLevel(dim, ptr)) == 0)
         {
             return;
         }
     }
+
     /* The XCF format has a dummy "hierarchy" level which was
     * once meant to mean something, but never happened. It contains
     * the bpp value and a list of "level" pointers; but only the
@@ -149,18 +154,20 @@ void initLayer(xcfLayer* layer)
         return;
     }
 
-    switch (layer->type)
-    {
 #define DEF(X)                              \
     case GIMP_##X##_IMAGE:                  \
         layer->pixels.params = &convert##X; \
         break
+
+    switch (layer->type)
+    {
         DEF(RGB);
         DEF(RGBA);
         DEF(GRAY);
         DEF(GRAYA);
         DEF(INDEXED);
         DEF(INDEXEDA);
+
     default:
         FatalUnsupportedXCF(_("Layer type %s"), _(showGimpImageType(layer->type)));
     }
@@ -419,8 +426,7 @@ copyTilePixels(Tile* dest, uint32_t ptr, convertParams* params)
         break;
 
     default:
-        FatalUnsupportedXCF(_("%s compression"),
-                            _(showXcfCompressionType(XCF.compression)));
+        FatalUnsupportedXCF(_("%s compression"), _(showXcfCompressionType(XCF.compression)));
     }
 }
 
@@ -475,8 +481,6 @@ getMaskOrLayerTile(tileDimensions* dim, xcfTiles* tiles, rect want)
         uint32_t width = want.r - want.l;
         rgba* pixvert = tile->pixels;
         rgba* pixhoriz;
-        uint32_t lstart, lnum;
-        uint32_t cstart, cnum;
 
         if (!isSubrect(want, dim->c))
         {
@@ -505,23 +509,26 @@ getMaskOrLayerTile(tileDimensions* dim, xcfTiles* tiles, rect want)
         fprintf(stderr, "jig0 (%d-%d),(%d-%d)\n", left, right, top, bottom);
 #endif
 
-        int l1;
-        int c1;
+        int l1 = 0;
+        uint32_t lnum = 0;
         for (int y = want.t, ty = TILE_NUM(want.t - dim->c.t), l0 = TILEYn(dim, ty);
              y < want.b;
              pixvert += lnum * width, ty++, y = l0 = l1)
         {
             l1 = TILEYn(dim, ty + 1);
-            lstart = y - l0;
+            uint32_t lstart = y - l0;
             lnum = (l1 > want.b ? want.b : l1) - y;
 
             pixhoriz = pixvert;
+
+            int c1 = 0;
+            uint32_t cnum = 0;
             for (int x = want.l, tx = TILE_NUM(want.l - dim->c.l), c0 = TILEXn(dim, tx);
                  x < want.r;
                  pixhoriz += cnum, tx++, x = c0 = c1)
             {
                 c1 = TILEXn(dim, tx + 1);
-                cstart = x - c0;
+                uint32_t cstart = x - c0;
                 cnum = (c1 > want.r ? want.r : c1) - x;
 
                 {

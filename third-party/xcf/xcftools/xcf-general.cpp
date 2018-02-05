@@ -218,10 +218,7 @@ static bool isXcfSupported()
     {
         XCF.version = 0;
     }
-    else if (xcf_file[13] == 0 && sscanf((char*)xcf_file, "gimp xcf v%d", &XCF.version) == 1)
-    {
-    }
-    else
+    else if (xcf_file[13] != 0 || sscanf((char*)xcf_file, "gimp xcf v%d", &XCF.version) != 1)
     {
         fprintf(stderr, _("Not an XCF file at all (magic not recognized)"));
         // FatalBadXCF(_("Not an XCF file at all (magic not recognized)"));
@@ -270,9 +267,11 @@ bool getBasicXcfInfo()
         case PROP_COLORMAP:
             XCF.colormapptr = data;
             break;
+
         case PROP_COMPRESSION:
             XCF.compression = (XcfCompressionType)xcf_file[data];
             break;
+
         default:
             /* Ignore unknown properties */
             break;
