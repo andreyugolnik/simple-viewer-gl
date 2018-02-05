@@ -237,7 +237,7 @@ namespace
 bool cFormatXcf::LoadImpl(const char* filename, sBitmapDescription& desc)
 {
     cFile file;
-    if (!file.open(filename))
+    if (file.open(filename) == false)
     {
         return false;
     }
@@ -249,7 +249,12 @@ bool cFormatXcf::LoadImpl(const char* filename, sBitmapDescription& desc)
 
     const char* unzipper = nullptr;
     read_or_mmap_xcf(filename, unzipper);
-    getBasicXcfInfo();
+
+    if (getBasicXcfInfo() == false)
+    {
+        return false;
+    }
+
     initColormap();
 
     complete_flatspec(&flatspec, guessIndexed);
