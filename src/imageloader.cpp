@@ -21,6 +21,7 @@
 #include "formats/formatgif.h"
 #include "formats/formatico.h"
 #include "formats/formatjpeg.h"
+#include "formats/formatjp2k.h"
 #include "formats/formatpng.h"
 #include "formats/formatpnm.h"
 #include "formats/formatpsd.h"
@@ -162,6 +163,9 @@ namespace
             "EXR",
 #endif
             "JPG",
+#if defined(OPENJPEG_SUPPORT)
+            "JP2",
+#endif
             "PSD",
             "EPS",
             "PNG",
@@ -215,6 +219,12 @@ cFormat* cImageLoader::createLoader(eImageType type) const
 #if defined(OPENEXR_SUPPORT)
     case eImageType::EXR:
         loader = new cFormatExr(m_callbacks);
+        break;
+#endif
+
+#if defined(OPENJPEG_SUPPORT)
+    case eImageType::JP2:
+        loader = new cFormatJp2k(m_callbacks);
         break;
 #endif
 
@@ -339,6 +349,9 @@ eImageType cImageLoader::getType(const char* name)
             eImageType::XPM,
             eImageType::PNM,
             eImageType::WEBP,
+#if defined(OPENJPEG_SUPPORT)
+            eImageType::JP2,
+#endif
             eImageType::AGE,
             eImageType::RAW, // pretend to remove
             eImageType::PVR, // pretend to remove

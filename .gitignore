@@ -1,14 +1,15 @@
+*.app/
 *.icns
 .DS_Store
 .build_debug
 .build_release
 .ycm_extra_conf.py*
+/_fix_it/
 TODO.org
 cppcheck-output
 project.xcworkspace/
 src/version.h
 sviewgl
-*.app/
 tags
 test/
 tmp/

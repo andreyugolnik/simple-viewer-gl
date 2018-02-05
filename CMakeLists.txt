@@ -1,5 +1,5 @@
 project(sviewgl)
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.8)
 
 include(FindPkgConfig)
 include(CheckLibraryExists)
@@ -8,17 +8,19 @@ include(cmake/clang-cxx-dev-tools.cmake)
 set(CMAKE_COLOR_MAKEFILE ON)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
 
-if( CMAKE_BUILD_TYPE STREQUAL "Release" )
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
     message(STATUS "=== RELEASE MODE ===")
-    add_definitions( "-DNDEBUG" )
-    add_definitions( "-Wall -Wextra -pedantic -pedantic-errors -O2" )
+    add_definitions("-DNDEBUG" )
+    add_definitions("-Wall -Wextra -pedantic -pedantic-errors -O2")
 else()
     message(STATUS "=== DEBUG MODE ===")
-    add_definitions( "-DDEBUG" )
-    add_definitions( "-Wall -Wextra -pedantic -pedantic-errors -O0 -g" )
+    add_definitions("-DDEBUG" )
+    add_definitions("-Wall -Wextra -pedantic -pedantic-errors -O0 -g")
 endif()
-
-set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11" )
 
 find_package(PkgConfig)
 find_package(OpenGL REQUIRED)
@@ -40,6 +42,14 @@ find_package(Imlib2)
 if(IMLIB2_FOUND)
     message(STATUS "ImLib2 support enabled")
     add_definitions(-DIMLIB2_SUPPORT=1)
+    include_directories(${IMLIB2_INCLUDE_DIR})
+endif()
+
+find_package(OpenJPEG REQUIRED)
+if(OPENJPEG_FOUND)
+    message(STATUS "OpenJPEG support enabled")
+    add_definitions(-DOPENJPEG_SUPPORT=1)
+    include_directories(${OPENJPEG_INCLUDE_DIR})
 endif()
 
 pkg_check_modules(OPENEXR OpenEXR)
@@ -48,6 +58,7 @@ if(OPENEXR_FOUND)
     if(ILMBASE_FOUND)
         message(STATUS "OpenEXR support enabled")
         add_definitions(-DOPENEXR_SUPPORT=1)
+        include_directories(${ILMBASE_INCLUDE_DIRS} ${OPENEXR_INCLUDE_DIRS})
     endif()
 endif()
 
@@ -74,24 +85,9 @@ include_directories(
     ${ZLIB_INCLUDE_DIRS}
     )
 
-if(IMLIB2_FOUND)
-    include_directories( ${INCLUDE_DIRECTORIES}
-        ${IMLIB2_INCLUDE_DIR}
-        )
-endif()
+link_directories(${EXIF_LIBRARY_DIRS})
 
-if(OPENEXR_FOUND AND ILMBASE_FOUND)
-    include_directories( ${INCLUDE_DIRECTORIES}
-        ${ILMBASE_INCLUDE_DIRS}
-        ${OPENEXR_INCLUDE_DIRS}
-        )
-endif()
-
-link_directories(
-    ${EXIF_LIBRARY_DIRS}
-    )
-
-file( GLOB_RECURSE SVIEW_SOURCES "src/*.cpp" )
+file(GLOB_RECURSE SVIEW_SOURCES "src/*.cpp")
 
 set(APP_TITLE           "Simple Viewer GL" CACHE STRING "Application name")
 set(APP_VERSION_MAJOR   "1" CACHE STRING "Application major version")
@@ -122,10 +118,12 @@ else()
 endif()
 
 add_dependencies(sviewgl ImGui)
-add_dependencies(sviewgl XcfTools)
-target_link_libraries(sviewgl XcfTools ImGui)
+target_link_libraries(sviewgl ImGui)
 
-target_link_libraries( sviewgl
+add_dependencies(sviewgl XcfTools)
+target_link_libraries(sviewgl XcfTools)
+
+target_link_libraries(sviewgl
     ${RT_LIBRARY}
     ${CMAKE_THREAD_LIBS_INIT}
     ${X11_LIBRARIES}
@@ -142,21 +140,18 @@ target_link_libraries( sviewgl
     )
 
 if(X11_Xinerama_FOUND)
-    target_link_libraries( sviewgl
-        ${X11_Xinerama_LIB}
-        )
+    target_link_libraries(sviewgl ${X11_Xinerama_LIB})
 endif()
 
 if(IMLIB2_FOUND)
-    target_link_libraries( sviewgl
-        ${IMLIB2_LIBRARY}
-        )
+    target_link_libraries(sviewgl ${IMLIB2_LIBRARY})
+endif()
+
+if(OPENJPEG_FOUND)
+    target_link_libraries(sviewgl ${OPENJPEG_LIBRARIES})
 endif()
 
 if(OPENEXR_FOUND AND ILMBASE_FOUND)
-    target_link_libraries( sviewgl
-        ${ILMBASE_LIBRARIES}
-        ${OPENEXR_LIBRARIES}
-        )
+    target_link_libraries(sviewgl ${ILMBASE_LIBRARIES} ${OPENEXR_LIBRARIES})
 endif()
 

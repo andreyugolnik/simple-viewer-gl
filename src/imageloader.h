@@ -26,6 +26,9 @@ enum class eImageType
     EXR,
 #endif
     JPG,
+#if defined(OPENJPEG_SUPPORT)
+    JP2,
+#endif
     PSD,
     EPS,
     PNG,

@@ -198,6 +198,7 @@ bool cFilesList::isValidExt(const char* path)
         // external loaders
         ".exr",                           // openexr
         ".jpeg", ".jpg", ".jpe", ".jfif", // libjpeg
+        ".jp2",                           // openjpeg
         ".tiff", ".tif",                  // libtiff
         ".png",                           // libpng
         ".gif",                           // giflib
