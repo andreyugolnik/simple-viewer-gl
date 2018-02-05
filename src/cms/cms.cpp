@@ -12,9 +12,16 @@
 #include <cassert>
 #include <lcms2.h>
 
+void cmsLogErrorHandler(cmsContext /*ContextID*/, cmsUInt32Number ErrorCode, const char* Text)
+{
+    ::printf("(EE) LCMS2: (%u) '%s'\n", ErrorCode, Text);
+}
+
 cCMS::cCMS()
 {
     m_outProfile = cmsCreate_sRGBProfile();
+
+    cmsSetLogErrorHandler(cmsLogErrorHandler);
 }
 
 cCMS::~cCMS()
@@ -41,12 +48,12 @@ void cCMS::createTransform(const float* chr, const float* wp
                            , Pixel format)
 {
     cmsCIExyYTRIPLE Primaries;
-    Primaries.Red.x   =  chr[0];
-    Primaries.Red.y   =  chr[1];
-    Primaries.Green.x =  chr[2];
-    Primaries.Green.y =  chr[3];
-    Primaries.Blue.x  =  chr[4];
-    Primaries.Blue.y  =  chr[5];
+    Primaries.Red.x = chr[0];
+    Primaries.Red.y = chr[1];
+    Primaries.Green.x = chr[2];
+    Primaries.Green.y = chr[3];
+    Primaries.Blue.x = chr[4];
+    Primaries.Blue.y = chr[5];
     Primaries.Red.Y = Primaries.Green.Y = Primaries.Blue.Y = 1.0;
 
     cmsCIExyY WhitePoint;
