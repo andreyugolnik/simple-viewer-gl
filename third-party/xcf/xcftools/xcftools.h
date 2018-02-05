@@ -21,6 +21,7 @@
 
 #include "config.h"
 #include "enums.h"
+
 #include <stddef.h>
 #include <stdio.h>
 
@@ -132,7 +133,7 @@ extern uint8_t* xcf_file;
 extern size_t xcf_length;
 extern int use_utf8;
 
-void xcfCheckspace(uint32_t addr, int spaceafter, const char* format, ...)
+void xcfCheckspace(uint32_t addr, uint32_t spaceafter, const char* format, ...)
     __ATTRIBUTE__((format(printf, 3, 4)));
 uint32_t xcfOffset(uint32_t addr, int spaceafter);
 
@@ -194,6 +195,6 @@ extern struct xcfImage
     uint32_t colormapptr;
 } XCF;
 
-void getBasicXcfInfo(void);
+bool getBasicXcfInfo();
 
 #endif /* XCFTOOLS_H */

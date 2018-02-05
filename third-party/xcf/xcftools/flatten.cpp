@@ -784,7 +784,7 @@ void flattenIncrementally(FlattenSpec* spec, lineCallback callback)
 
 static rgba** collectPointer;
 
-static void collector(unsigned num, rgba* row)
+static void collector(unsigned /*num*/, rgba* row)
 {
     *collectPointer++ = row;
 }

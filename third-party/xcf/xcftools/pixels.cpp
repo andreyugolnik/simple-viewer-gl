@@ -2,7 +2,7 @@
  *
  * This file was written by Henning Makholm <henning@makholm.net>
  * It is hereby in the public domain.
- * 
+ *
  * In jurisdictions that do not recognise grants of copyright to the
  * public domain: I, the author and (presumably, in those jurisdictions)
  * copyright holder, hereby permit anyone to distribute and use this code,
@@ -16,19 +16,22 @@
  * credit for writing it, in whichever way you find proper and customary.
  */
 
-#define DEBUG
+// #define DEBUG
 #include "pixels.h"
 #include "xcftools.h"
+
 #include <assert.h>
 #include <string.h>
 
 rgba colormap[256];
-unsigned colormapLength = 0;
+uint32_t colormapLength = 0;
 
 int degrayPixel(rgba pixel)
 {
     if (((pixel >> RED_SHIFT) & 255) == ((pixel >> GREEN_SHIFT) & 255) && ((pixel >> RED_SHIFT) & 255) == ((pixel >> BLUE_SHIFT) & 255))
+    {
         return (pixel >> RED_SHIFT) & 255;
+    }
     return -1;
 }
 
@@ -41,6 +44,7 @@ typedef const struct _convertParams
     uint32_t base_pixel;
     const rgba* lookup;
 } convertParams;
+
 #define RGB_SHIFT RED_SHIFT, GREEN_SHIFT, BLUE_SHIFT
 #define OPAQUE (255 << ALPHA_SHIFT)
 static convertParams convertRGB = { 3, { RGB_SHIFT }, OPAQUE, 0 };
@@ -59,64 +63,81 @@ static inline int
 tileDirectoryOneLevel(tileDimensions* dim, uint32_t ptr)
 {
     if (ptr == 0)
+    {
         return 0;
-    if (xcfL(ptr) != dim->c.r - dim->c.l || xcfL(ptr + 4) != dim->c.b - dim->c.t)
+    }
+    if ((int)xcfL(ptr) != dim->c.r - dim->c.l || (int)xcfL(ptr + 4) != dim->c.b - dim->c.t)
+    {
         FatalBadXCF("Drawable size mismatch at %" PRIX32, ptr);
+    }
     return ptr += 8;
 }
 
 static void
-initTileDirectory(tileDimensions* dim, xcfTiles* tiles,
-                  const char* type)
+initTileDirectory(tileDimensions* dim, xcfTiles* tiles, const char* type)
 {
-    uint32_t ptr;
     uint32_t data;
+    uint32_t ptr = tiles->hierarchy;
 
-    ptr = tiles->hierarchy;
     tiles->hierarchy = 0;
+
     if ((ptr = tileDirectoryOneLevel(dim, ptr)) == 0)
+    {
         return;
+    }
+
     if (tiles->params == &convertChannel)
     {
         /* A layer mask is a channel.
-     * Skip a name and a property list.
-     */
+        * Skip a name and a property list.
+        */
         xcfString(ptr, &ptr);
         while (xcfNextprop(&ptr, &data) != PROP_END)
             ;
         ptr = xcfOffset(ptr, 4 * 4);
         if ((ptr = tileDirectoryOneLevel(dim, ptr)) == 0)
+        {
             return;
+        }
     }
     /* The XCF format has a dummy "hierarchy" level which was
-   * once meant to mean something, but never happened. It contains
-   * the bpp value and a list of "level" pointers; but only the
-   * first level actually contains data.
-   */
+    * once meant to mean something, but never happened. It contains
+    * the bpp value and a list of "level" pointers; but only the
+    * first level actually contains data.
+    */
     data = xcfL(ptr);
-    if (xcfL(ptr) != tiles->params->bpp)
+    if ((int)xcfL(ptr) != tiles->params->bpp)
+    {
         FatalBadXCF("%" PRIu32 " bytes per pixel for %s drawable", xcfL(ptr), type);
+    }
     ptr = xcfOffset(ptr + 4, 3 * 4);
     if ((ptr = tileDirectoryOneLevel(dim, ptr)) == 0)
+    {
         return;
+    }
 
     xcfCheckspace(ptr, dim->ntiles * 4 + 4, "Tile directory at %" PRIX32, ptr);
     if (xcfL(ptr + dim->ntiles * 4) != 0)
+    {
         FatalBadXCF("Wrong sized tile directory at %" PRIX32, ptr);
+    }
 #define REUSE_RAW_DATA tiles->tileptrs = (uint32_t*)(xcf_file + ptr)
 #if defined(WORDS_BIGENDIAN) && defined(CAN_DO_UNALIGNED_WORDS)
     REUSE_RAW_DATA;
 #else
 #if defined(WORDS_BIGENDIAN)
     if ((ptr & 3) == 0)
+    {
         REUSE_RAW_DATA;
+    }
     else
 #endif
     {
-        unsigned i;
         tiles->tileptrs = (uint32_t*)xcfmalloc(dim->ntiles * sizeof(uint32_t));
-        for (i = 0; i < dim->ntiles; i++)
+        for (uint32_t i = 0; i < dim->ntiles; i++)
+        {
             tiles->tileptrs[i] = xcfL(ptr + i * 4);
+        }
     }
 #endif
 }
@@ -124,7 +145,10 @@ initTileDirectory(tileDimensions* dim, xcfTiles* tiles,
 void initLayer(xcfLayer* layer)
 {
     if (layer->dim.ntiles == 0 || (layer->pixels.hierarchy == 0 && layer->mask.hierarchy == 0))
+    {
         return;
+    }
+
     switch (layer->type)
     {
 #define DEF(X)                              \
@@ -140,34 +164,40 @@ void initLayer(xcfLayer* layer)
     default:
         FatalUnsupportedXCF(_("Layer type %s"), _(showGimpImageType(layer->type)));
     }
-    initTileDirectory(&layer->dim, &layer->pixels,
-                      _(showGimpImageType(layer->type)));
+
+    initTileDirectory(&layer->dim, &layer->pixels, _(showGimpImageType(layer->type)));
     layer->mask.params = &convertChannel;
     initTileDirectory(&layer->dim, &layer->mask, "layer mask");
 }
-static void copyStraightPixels(rgba* dest, unsigned npixels,
-                               uint32_t ptr, convertParams* params);
-void initColormap(void)
+
+static void copyStraightPixels(rgba* dest, uint32_t npixels, uint32_t ptr, convertParams* params);
+
+void initColormap()
 {
-    uint32_t ncolors;
     if (XCF.colormapptr == 0)
     {
         colormapLength = 0;
         return;
     }
-    ncolors = xcfL(XCF.colormapptr);
+
+    uint32_t ncolors = xcfL(XCF.colormapptr);
     if (ncolors > 256)
+    {
         FatalUnsupportedXCF(_("Color map has more than 256 entries"));
+    }
+
     copyStraightPixels(colormap, ncolors, XCF.colormapptr + 4, &convertColormap);
     colormapLength = ncolors;
+
 #ifdef xDEBUG
     {
-        unsigned j;
         fprintf(stderr, "Colormap decoding OK\n");
-        for (j = 0; j < ncolors; j++)
+        for (uint32_t j = 0; j < ncolors; j++)
         {
             if (j % 8 == 0)
+            {
                 fprintf(stderr, "\n");
+            }
             fprintf(stderr, " %08x", colormap[j]);
         }
         fprintf(stderr, "\n");
@@ -179,7 +209,7 @@ void initColormap(void)
 
 Tile* newTile(rect r)
 {
-    unsigned npixels = (unsigned)(r.b - r.t) * (unsigned)(r.r - r.l);
+    uint32_t npixels = (uint32_t)(r.b - r.t) * (uint32_t)(r.r - r.l);
     Tile* data = (Tile*)xcfmalloc(sizeof(Tile) - sizeof(rgba) * (TILE_HEIGHT * TILE_WIDTH - npixels));
     data->count = npixels;
     data->refcount = 1;
@@ -190,34 +220,45 @@ Tile* newTile(rect r)
 Tile* forkTile(Tile* tile)
 {
     if (++tile->refcount <= 0)
+    {
         FatalUnsupportedXCF(_("Unbelievably many layers?\n"
                               "More likely to be a bug in %s"),
                             progname);
+    }
+
     return tile;
 }
 
 void freeTile(Tile* tile)
 {
     if (--tile->refcount == 0)
+    {
         xcffree(tile);
+    }
 }
 
-summary_t
-tileSummary(Tile* tile)
+summary_t tileSummary(Tile* tile)
 {
-    unsigned i;
-    summary_t summary;
     if ((tile->summary & TILESUMMARY_UPTODATE) != 0)
+    {
         return tile->summary;
-    summary = TILESUMMARY_ALLNULL + TILESUMMARY_ALLFULL + TILESUMMARY_CRISP;
-    for (i = 0; summary && i < tile->count; i++)
+    }
+
+    summary_t summary = TILESUMMARY_ALLNULL + TILESUMMARY_ALLFULL + TILESUMMARY_CRISP;
+    for (uint32_t i = 0; summary && i < tile->count; i++)
     {
         if (FULLALPHA(tile->pixels[i]))
+        {
             summary &= ~TILESUMMARY_ALLNULL;
+        }
         else if (NULLALPHA(tile->pixels[i]))
+        {
             summary &= ~TILESUMMARY_ALLFULL;
+        }
         else
+        {
             summary = 0;
+        }
     }
     summary += TILESUMMARY_UPTODATE;
     tile->summary = summary;
@@ -226,34 +267,40 @@ tileSummary(Tile* tile)
 
 void fillTile(Tile* tile, rgba data)
 {
-    unsigned i;
-    for (i = 0; i < tile->count; i++)
+    for (uint32_t i = 0; i < tile->count; i++)
+    {
         tile->pixels[i] = data;
+    }
     if (FULLALPHA(data))
+    {
         tile->summary = TILESUMMARY_UPTODATE + TILESUMMARY_ALLFULL + TILESUMMARY_CRISP;
+    }
     else if (NULLALPHA(data))
+    {
         tile->summary = TILESUMMARY_UPTODATE + TILESUMMARY_ALLNULL + TILESUMMARY_CRISP;
+    }
     else
+    {
         tile->summary = TILESUMMARY_UPTODATE;
+    }
 }
 
 /* ****************************************************************** */
 
 static void
-copyStraightPixels(rgba* dest, unsigned npixels,
-                   uint32_t ptr, convertParams* params)
+copyStraightPixels(rgba* dest, uint32_t npixels, uint32_t ptr, convertParams* params)
 {
-    unsigned bpp = params->bpp;
+    uint32_t bpp = params->bpp;
     const rgba* lookup = params->lookup;
     rgba base_pixel = params->base_pixel;
     uint8_t* bp = xcf_file + ptr;
-    xcfCheckspace(ptr, bpp * npixels,
-                  "pixel array (%u x %d bpp) at %" PRIX32, npixels, bpp, ptr);
+
+    xcfCheckspace(ptr, bpp * npixels, "pixel array (%u x %d bpp) at %" PRIX32, npixels, bpp, ptr);
+
     while (npixels--)
     {
         rgba pixel = base_pixel;
-        unsigned i;
-        for (i = 0; i < bpp; i++)
+        for (uint32_t i = 0; i < bpp; i++)
         {
             if (params->shift[i] < 0)
             {
@@ -269,9 +316,8 @@ copyStraightPixels(rgba* dest, unsigned npixels,
 }
 
 static inline void
-copyRLEpixels(rgba* dest, unsigned npixels, uint32_t ptr, convertParams* params)
+copyRLEpixels(rgba* dest, uint32_t npixels, uint32_t ptr, convertParams* params)
 {
-    unsigned i, j;
     rgba base_pixel = params->base_pixel;
 
 #ifdef xDEBUG
@@ -281,22 +327,26 @@ copyRLEpixels(rgba* dest, unsigned npixels, uint32_t ptr, convertParams* params)
 
     /* This algorithm depends on the indexed byte always being the first one */
     if (params->shift[0] < -1)
+    {
         base_pixel = 0;
-    for (j = npixels; j--;)
+    }
+    for (uint32_t j = npixels; j--;)
+    {
         dest[j] = base_pixel;
+    }
 
-    for (i = 0; i < params->bpp; i++)
+    for (uint32_t i = 0; i < (uint32_t)params->bpp; i++)
     {
         int shift = params->shift[i];
         if (shift < 0)
-            shift = 0;
-        for (j = 0; j < npixels;)
         {
-            int countspec;
-            unsigned count;
+            shift = 0;
+        }
+        for (uint32_t j = 0; j < npixels;)
+        {
             xcfCheckspace(ptr, 2, "RLE data stream");
-            countspec = (int8_t)xcf_file[ptr++];
-            count = countspec >= 0 ? countspec + 1 : -countspec;
+            int countspec = (int8_t)xcf_file[ptr++];
+            uint32_t count = countspec >= 0 ? countspec + 1 : -countspec;
             if (count == 128)
             {
                 xcfCheckspace(ptr, 3, "RLE long count");
@@ -304,25 +354,31 @@ copyRLEpixels(rgba* dest, unsigned npixels, uint32_t ptr, convertParams* params)
                 count += xcf_file[ptr++];
             }
             if (j + count > npixels)
-                FatalBadXCF("Overlong RLE run at %" PRIX32 " (plane %u, %u left)",
-                            ptr, i, npixels - j);
+            {
+                FatalBadXCF("Overlong RLE run at %" PRIX32 " (plane %u, %u left)", ptr, i, npixels - j);
+            }
             if (countspec >= 0)
             {
                 rgba data = (uint32_t)xcf_file[ptr++] << shift;
                 while (count--)
+                {
                     dest[j++] += data;
+                }
             }
             else
             {
                 while (count--)
+                {
                     dest[j++] += (uint32_t)xcf_file[ptr++] << shift;
+                }
             }
         }
+
         if (i == 0 && params->shift[0] < 0)
         {
             const rgba* lookup = params->lookup;
             base_pixel = params->base_pixel;
-            for (j = npixels; j--;)
+            for (uint32_t j = npixels; j--;)
             {
                 dest[j] = lookup[dest[j] - base_pixel] + base_pixel;
             }
@@ -331,12 +387,12 @@ copyRLEpixels(rgba* dest, unsigned npixels, uint32_t ptr, convertParams* params)
 #ifdef xDEBUG
     fprintf(stderr, "RLE decoding OK at %" PRIX32 "\n", ptr);
     /*
-  for( j = 0 ; j < npixels ; j++ ) {
+    for( j = 0 ; j < npixels ; j++ ) {
     if( j % 8 == 0 ) fprintf(stderr,"\n");
     fprintf(stderr," %8x",dest[j]);
-  }
-  fprintf(stderr,"\n");
-  */
+    }
+    fprintf(stderr,"\n");
+    */
 #endif
 }
 
@@ -344,26 +400,50 @@ static inline void
 copyTilePixels(Tile* dest, uint32_t ptr, convertParams* params)
 {
     if (FULLALPHA(params->base_pixel))
+    {
         dest->summary = TILESUMMARY_UPTODATE + TILESUMMARY_ALLFULL + TILESUMMARY_CRISP;
+    }
     else
+    {
         dest->summary = 0;
+    }
+
     switch (XCF.compression)
     {
     case COMPRESS_NONE:
         copyStraightPixels(dest->pixels, dest->count, ptr, params);
         break;
+
     case COMPRESS_RLE:
         copyRLEpixels(dest->pixels, dest->count, ptr, params);
         break;
+
     default:
         FatalUnsupportedXCF(_("%s compression"),
                             _(showXcfCompressionType(XCF.compression)));
     }
 }
 
+// #define TILEXn(dim, tx) \
+    // ((tx) == (dim).tilesx ? (dim).c.r : (dim).c.l + ((tx)*TILE_WIDTH))
+int TILEXn(const tileDimensions* dim, int tx)
+{
+    return tx == (int)dim->tilesx
+        ? dim->c.r
+        : dim->c.l + tx * TILE_WIDTH;
+}
+
+// #define TILEYn(dim, ty) \
+    // ((ty) == (dim).tilesy ? (dim).c.b : (dim).c.t + ((ty)*TILE_HEIGHT))
+int TILEYn(const tileDimensions* dim, int ty)
+{
+    return ty == (int)dim->tilesy
+        ? dim->c.b
+        : dim->c.t + ty * TILE_HEIGHT;
+}
+
 static Tile*
-getMaskOrLayerTile(tileDimensions* dim, xcfTiles* tiles,
-                   rect want)
+getMaskOrLayerTile(tileDimensions* dim, xcfTiles* tiles, rect want)
 {
     Tile* tile = newTile(want);
 
@@ -382,7 +462,7 @@ getMaskOrLayerTile(tileDimensions* dim, xcfTiles* tiles,
     {
         int tx = TILE_NUM(want.l - dim->c.l);
         int ty = TILE_NUM(want.t - dim->c.t);
-        if (want.r == TILEXn(*dim, tx + 1) && want.b == TILEYn(*dim, ty + 1))
+        if (want.r == TILEXn(dim, tx + 1) && want.b == TILEYn(dim, ty + 1))
         {
             /* The common case? An entire single tile from the layer */
             copyTilePixels(tile, tiles->tileptrs[tx + ty * dim->tilesx], tiles->params);
@@ -392,13 +472,11 @@ getMaskOrLayerTile(tileDimensions* dim, xcfTiles* tiles,
 
     /* OK, we must construct the wanted tile as a jigsaw */
     {
-        unsigned width = want.r - want.l;
+        uint32_t width = want.r - want.l;
         rgba* pixvert = tile->pixels;
         rgba* pixhoriz;
-        int y, ty, l0, l1;
-        int x, tx, c0, c1;
-        unsigned lstart, lnum;
-        unsigned cstart, cnum;
+        uint32_t lstart, lnum;
+        uint32_t cstart, cnum;
 
         if (!isSubrect(want, dim->c))
         {
@@ -406,12 +484,16 @@ getMaskOrLayerTile(tileDimensions* dim, xcfTiles* tiles,
                 pixvert += (dim->c.l - want.l),
                     want.l = dim->c.l;
             if (want.r > dim->c.r)
+            {
                 want.r = dim->c.r;
+            }
             if (want.t < dim->c.t)
                 pixvert += (dim->c.t - want.t) * width,
                     want.t = dim->c.t;
             if (want.b > dim->c.b)
+            {
                 want.b = dim->c.b;
+            }
             fillTile(tile, 0);
         }
         else
@@ -423,39 +505,42 @@ getMaskOrLayerTile(tileDimensions* dim, xcfTiles* tiles,
         fprintf(stderr, "jig0 (%d-%d),(%d-%d)\n", left, right, top, bottom);
 #endif
 
-        for (y = want.t, ty = TILE_NUM(want.t - dim->c.t), l0 = TILEYn(*dim, ty);
+        int l1;
+        int c1;
+        for (int y = want.t, ty = TILE_NUM(want.t - dim->c.t), l0 = TILEYn(dim, ty);
              y < want.b;
              pixvert += lnum * width, ty++, y = l0 = l1)
         {
-            l1 = TILEYn(*dim, ty + 1);
+            l1 = TILEYn(dim, ty + 1);
             lstart = y - l0;
             lnum = (l1 > want.b ? want.b : l1) - y;
 
             pixhoriz = pixvert;
-            for (x = want.l, tx = TILE_NUM(want.l - dim->c.l), c0 = TILEXn(*dim, tx);
+            for (int x = want.l, tx = TILE_NUM(want.l - dim->c.l), c0 = TILEXn(dim, tx);
                  x < want.r;
                  pixhoriz += cnum, tx++, x = c0 = c1)
             {
-                c1 = TILEXn(*dim, tx + 1);
+                c1 = TILEXn(dim, tx + 1);
                 cstart = x - c0;
                 cnum = (c1 > want.r ? want.r : c1) - x;
 
                 {
+                    uint32_t dwidth = c1 - c0;
                     static Tile tmptile;
-                    unsigned dwidth = c1 - c0;
-                    unsigned i, j;
                     tmptile.count = (c1 - c0) * (l1 - l0);
 #ifdef xDEBUG
                     fprintf(stderr, "jig ty=%u(%u-%u-%u)(%u+%u) tx=%u(%u-%u-%u)(%u+%u)\n",
                             ty, l0, y, l1, lstart, lnum,
                             tx, c0, x, c1, cstart, cnum);
 #endif
-                    copyTilePixels(&tmptile,
-                                   tiles->tileptrs[tx + ty * dim->tilesx], tiles->params);
-                    for (i = 0; i < lnum; i++)
-                        for (j = 0; j < cnum; j++)
-                            pixhoriz[i * width + j]
-                                = tmptile.pixels[(i + lstart) * dwidth + (j + cstart)];
+                    copyTilePixels(&tmptile, tiles->tileptrs[tx + ty * dim->tilesx], tiles->params);
+                    for (uint32_t i = 0; i < lnum; i++)
+                    {
+                        for (uint32_t j = 0; j < cnum; j++)
+                        {
+                            pixhoriz[i * width + j] = tmptile.pixels[(i + lstart) * dwidth + (j + cstart)];
+                        }
+                    }
                     tile->summary &= tmptile.summary;
                 }
             }
@@ -466,52 +551,55 @@ getMaskOrLayerTile(tileDimensions* dim, xcfTiles* tiles,
 
 void applyMask(Tile* tile, Tile* mask)
 {
-    unsigned i;
     assertTileCompatibility(tile, mask);
     assert(tile->count == mask->count);
     INIT_SCALETABLE_IF(1);
     invalidateSummary(tile, 0);
-    for (i = 0; i < tile->count; i++)
+
+    for (uint32_t i = 0; i < tile->count; i++)
+    {
         tile->pixels[i] = NEWALPHA(tile->pixels[i],
                                    scaletable[mask->pixels[i] >> ALPHA_SHIFT]
                                              [ALPHA(tile->pixels[i])]);
+    }
+
     freeTile(mask);
 }
 
 Tile* getLayerTile(xcfLayer* layer, const rect* where)
 {
-    Tile* data;
-
 #ifdef xDEBUG
-    fprintf(stderr, "getLayerTile(%s): (%d-%d),(%d-%d)\n",
-            layer->name, where->l, where->r, where->t, where->b);
+    fprintf(stderr, "getLayerTile(%s): (%d-%d),(%d-%d)\n", layer->name, where->l, where->r, where->t, where->b);
 #endif
 
     if (disjointRects(*where, layer->dim.c) || layer->opacity == 0)
     {
-        data = newTile(*where);
+        Tile* data = newTile(*where);
         fillTile(data, 0);
         return data;
     }
 
-    data = getMaskOrLayerTile(&layer->dim, &layer->pixels, *where);
+    Tile* data = getMaskOrLayerTile(&layer->dim, &layer->pixels, *where);
     if ((data->summary & TILESUMMARY_ALLNULL) != 0)
+    {
         return data;
+    }
+
     if (layer->hasMask)
     {
         Tile* mask = getMaskOrLayerTile(&layer->dim, &layer->mask, *where);
         applyMask(data, mask);
     }
+
     if (layer->opacity < 255)
     {
-        const uint8_t* ourtable;
-        int i;
         invalidateSummary(data, ~(TILESUMMARY_CRISP | TILESUMMARY_ALLFULL));
         INIT_SCALETABLE_IF(1);
-        ourtable = scaletable[layer->opacity];
-        for (i = 0; i < data->count; i++)
-            data->pixels[i]
-                = NEWALPHA(data->pixels[i], ourtable[ALPHA(data->pixels[i])]);
+        const uint8_t* ourtable = scaletable[layer->opacity];
+        for (uint32_t i = 0; i < data->count; i++)
+        {
+            data->pixels[i] = NEWALPHA(data->pixels[i], ourtable[ALPHA(data->pixels[i])]);
+        }
     }
     return data;
 }

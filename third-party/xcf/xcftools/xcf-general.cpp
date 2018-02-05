@@ -211,37 +211,58 @@ void computeDimensions(tileDimensions* d)
 
 xcfImage XCF;
 
-void getBasicXcfInfo(void)
+static bool isXcfSupported()
 {
-    uint32_t ptr, data, layerfile;
-    PropType type;
-    int i;
-
     xcfCheckspace(0, 14 + 7 * 4, "(very short)");
     if (strcmp((char*)xcf_file, "gimp xcf file") == 0)
-        XCF.version = 0;
-    else if (xcf_file[13] == 0 && sscanf((char*)xcf_file, "gimp xcf v%d", &XCF.version) == 1)
-        ;
-    else
-        FatalBadXCF(_("Not an XCF file at all (magic not recognized)"));
-
-    if (XCF.version < 0 || XCF.version > 2)
     {
-        fprintf(stderr,
-                _("Warning: XCF version %d not supported (trying anyway...)\n"),
-                XCF.version);
+        XCF.version = 0;
+    }
+    else if (xcf_file[13] == 0 && sscanf((char*)xcf_file, "gimp xcf v%d", &XCF.version) == 1)
+    {
+    }
+    else
+    {
+        fprintf(stderr, _("Not an XCF file at all (magic not recognized)"));
+        // FatalBadXCF(_("Not an XCF file at all (magic not recognized)"));
+        return false;
+    }
+
+    if (XCF.version >= 0 && XCF.version <= 2)
+    {
+        return true;
+    }
+
+    fprintf(stderr, _("Warning: XCF version %d not supported (trying anyway...)\n"), XCF.version);
+
+    if (XCF.version == 3)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+bool getBasicXcfInfo()
+{
+    if (isXcfSupported() == false)
+    {
+        return false;
     }
 
     XCF.compression = COMPRESS_NONE;
     XCF.colormapptr = 0;
 
-    ptr = 14;
+    uint32_t ptr = 14;
     XCF.width = xcfL(ptr);
     ptr += 4;
     XCF.height = xcfL(ptr);
     ptr += 4;
     XCF.type = (GimpImageBaseType)xcfL(ptr);
     ptr += 4;
+
+    uint32_t data;
+    PropType type;
     while ((type = (PropType)xcfNextprop(&ptr, &data)) != PROP_END)
     {
         switch (type)
@@ -258,11 +279,13 @@ void getBasicXcfInfo(void)
         }
     }
 
-    layerfile = ptr;
+    uint32_t layerfile = ptr;
     for (XCF.numLayers = 0; xcfOffset(ptr, 8 * 4); XCF.numLayers++, ptr += 4)
-        ;
+    {
+    }
+
     XCF.layers = (xcfLayer*)xcfmalloc(XCF.numLayers * sizeof(xcfLayer));
-    for (i = 0; i < XCF.numLayers; i++)
+    for (int i = 0; i < XCF.numLayers; i++)
     {
         xcfLayer* L = XCF.layers + i;
         ptr = xcfL(layerfile + 4 * (XCF.numLayers - 1 - i));
@@ -313,4 +336,6 @@ void getBasicXcfInfo(void)
 
         computeDimensions(&L->dim);
     }
+
+    return true;
 }

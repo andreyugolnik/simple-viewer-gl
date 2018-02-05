@@ -66,18 +66,13 @@ void mk_scaletable(void);
 
 extern const rgba graytable[256];
 extern rgba colormap[256];
-extern unsigned colormapLength;
+extern uint32_t colormapLength;
 void initLayer(xcfLayer*);
 void initColormap();
 
 int degrayPixel(rgba); /* returns -1 for non-gray pixels */
 
 /* ******************************************************* */
-
-#define TILEXn(dim, tx) \
-    ((tx) == (dim).tilesx ? (dim).c.r : (dim).c.l + ((tx)*TILE_WIDTH))
-#define TILEYn(dim, ty) \
-    ((ty) == (dim).tilesy ? (dim).c.b : (dim).c.t + ((ty)*TILE_HEIGHT))
 
 #if __i386__
 /* This is probably the only common architecture where small constants
@@ -98,7 +93,7 @@ struct Tile
 {
     refcount_t refcount;
     summary_t summary; /* a combination of TIMESUMMARY_FOO constatns */
-    unsigned count;
+    uint32_t count;
     rgba pixels[TILE_WIDTH * TILE_HEIGHT];
 };
 /* Actually, the Tile structures that get allocated many not have

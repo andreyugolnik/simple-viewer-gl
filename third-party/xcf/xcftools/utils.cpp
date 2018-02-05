@@ -69,7 +69,7 @@ void FatalBadXCF(const char* format, ...)
     vFatalGeneric(125, format, v);
 }
 
-void xcfCheckspace(uint32_t addr, int spaceafter, const char* format, ...)
+void xcfCheckspace(uint32_t addr, uint32_t spaceafter, const char* format, ...)
 {
     if (xcf_length < spaceafter || addr > xcf_length - spaceafter)
     {
