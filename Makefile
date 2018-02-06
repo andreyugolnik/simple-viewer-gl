@@ -29,7 +29,7 @@ help:
 
 resources:
 	$(shell if [ $(UNAME) == "Darwin" ]; then \
-		makeicns -in sviewgl.png -out res/macos/Icon.icns; \
+		makeicns -in res/Icon-1024.png -32 res/Icon-32.png -16 res/Icon-16.png -out res/macos/Icon.icns; \
 		fi )
 
 release: resources
