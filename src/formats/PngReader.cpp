@@ -89,7 +89,9 @@ cPngReader::~cPngReader()
 
 bool cPngReader::isValid(const uint8_t* data, uint32_t size)
 {
-    return size >= MinBytesToTest && png_sig_cmp(data, 0, MinBytesToTest) == 0;
+    uint8_t header[MinBytesToTest];
+    ::memcpy(header, data, sizeof(header));
+    return size >= MinBytesToTest && png_sig_cmp(header, 0, sizeof(header)) == 0;
 }
 
 bool cPngReader::loadPng(sBitmapDescription& desc, const uint8_t* data, uint32_t size) const
