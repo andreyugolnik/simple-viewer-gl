@@ -9,6 +9,7 @@
 #include "PngReader.h"
 #include "cms/cms.h"
 #include "common/bitmap_description.h"
+#include "common/file.h"
 #include "common/helpers.h"
 
 #include <cstring>
@@ -86,9 +87,14 @@ cPngReader::~cPngReader()
 {
 }
 
+bool cPngReader::isValid(const uint8_t* data, uint32_t size)
+{
+    return size >= MinBytesToTest && png_sig_cmp(data, 0, MinBytesToTest) == 0;
+}
+
 bool cPngReader::loadPng(sBitmapDescription& desc, const uint8_t* data, uint32_t size) const
 {
-    if (size < 8 || png_sig_cmp(data, 0, 8) != 0)
+    if (isValid(data, size) == false)
     {
         ::printf("(EE) Frame is not recognized as a PNG format.\n");
         return false;
@@ -233,18 +239,12 @@ bool cPngReader::loadPng(sBitmapDescription& desc, const uint8_t* data, uint32_t
     return true;
 }
 
-bool cPngReader::isValid(const uint8_t* data, uint32_t size) const
-{
-    return size >= 8 && png_sig_cmp(data, 0, 8) == 0;
-}
-
 bool cPngReader::loadPng(sBitmapDescription& desc, cFile& file) const
 {
-#if 0
     desc.size = file.getSize();
 
-    PngHeader header;
-    if (file.read(&header, sizeof(header)) != sizeof(header)
+    uint8_t header[MinBytesToTest];
+    if (file.read(&header, MinBytesToTest) != MinBytesToTest
         && isValid(header, file.getSize()) == false)
     {
         ::printf("(EE) Is not recognized as a PNG file.\n");
@@ -280,8 +280,8 @@ bool cPngReader::loadPng(sBitmapDescription& desc, cFile& file) const
     // get real bits per pixel
     desc.bppImage = png_get_bit_depth(png, info) * png_get_channels(png, info);
 
-    uint8_t color_type = png_get_color_type(png, info);
-    if (color_type == PNG_COLOR_TYPE_PALETTE)
+    auto colorType = png_get_color_type(png, info);
+    if (colorType == PNG_COLOR_TYPE_PALETTE)
     {
         png_set_palette_to_rgb(png);
     }
@@ -294,7 +294,7 @@ bool cPngReader::loadPng(sBitmapDescription& desc, cFile& file) const
     {
         png_set_strip_16(png);
     }
-    if (color_type == PNG_COLOR_TYPE_GRAY || color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
+    if (colorType == PNG_COLOR_TYPE_GRAY || colorType == PNG_COLOR_TYPE_GRAY_ALPHA)
     {
         png_set_gray_to_rgb(png);
     }
@@ -311,6 +311,8 @@ bool cPngReader::loadPng(sBitmapDescription& desc, cFile& file) const
         ::printf("(EE) Invalid pitch: %u instead %u.\n", desc.pitch, (uint32_t)png_get_rowbytes(png, info));
     }
 
+    colorType = png_get_color_type(png, info);
+
     // read file
     if (setjmp(png_jmpbuf(png)) != 0)
     {
@@ -318,15 +320,6 @@ bool cPngReader::loadPng(sBitmapDescription& desc, cFile& file) const
         return false;
     }
 
-    // create buffer and read data
-    // auto row_pointers = new png_bytep[desc.height];
-    // for (unsigned y = 0; y < desc.height; y++)
-    // {
-    // row_pointers[y] = new png_byte[desc.pitch];
-    // }
-    // png_read_image(png, row_pointers);
-
-    // create RGBA buffer and decode image data
     desc.bitmap.resize(desc.pitch * desc.height);
     auto out = desc.bitmap.data();
     std::vector<png_bytep> row_pointers(desc.height);
@@ -336,15 +329,11 @@ bool cPngReader::loadPng(sBitmapDescription& desc, cFile& file) const
     }
     png_read_image(png, row_pointers.data());
 
-    color_type = png_get_color_type(png, info);
-
     unsigned iccProfileSize = 0;
     auto iccProfile = locateICCProfile(png, info, iccProfileSize);
     m_cms.createTransform(iccProfile, iccProfileSize, cCMS::Pixel::Rgb);
 
-    m_formatName = m_cms.hasTransform() ? "png/icc" : "png";
-
-    if (color_type == PNG_COLOR_TYPE_RGB)
+    if (colorType == PNG_COLOR_TYPE_RGB)
     {
         desc.format = GL_RGB;
 
@@ -359,7 +348,7 @@ bool cPngReader::loadPng(sBitmapDescription& desc, cFile& file) const
             }
         }
     }
-    else if (color_type == PNG_COLOR_TYPE_RGB_ALPHA)
+    else if (colorType == PNG_COLOR_TYPE_RGB_ALPHA)
     {
         desc.format = GL_RGBA;
 
@@ -405,6 +394,5 @@ bool cPngReader::loadPng(sBitmapDescription& desc, cFile& file) const
 
     m_cms.destroyTransform();
 
-#endif
     return true;
 }

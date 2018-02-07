@@ -29,7 +29,7 @@ public:
         m_progress = callback;
     }
 
-    bool isValid(const uint8_t* data, uint32_t size) const;
+    static bool isValid(const uint8_t* data, uint32_t size);
 
     bool loadPng(sBitmapDescription& desc, const uint8_t* data, uint32_t size) const;
     bool loadPng(sBitmapDescription& desc, cFile& file) const;
@@ -42,6 +42,9 @@ private:
             m_progress(percent);
         }
     }
+
+public:
+    static const uint32_t MinBytesToTest = 8;
 
 private:
     cCMS& m_cms;
