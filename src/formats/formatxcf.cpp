@@ -10,10 +10,11 @@
 #include "formatxcf.h"
 #include "common/bitmap_description.h"
 #include "common/file.h"
+#include "formats/xcf.h"
 
-#include <xcftools/flatten.h>
-#include <xcftools/palette.h>
-#include <xcftools/xcftools.h>
+// #include <xcftools/flatten.h>
+// #include <xcftools/palette.h>
+// #include <xcftools/xcftools.h>
 #include <cstdio>
 #include <cstring>
 
@@ -38,6 +39,7 @@ bool cFormatXcf::isSupported(cFile& file, Buffer& buffer) const
     return ::memcmp(buffer.data(), header, sizeof(header)) == 0;
 }
 
+#if 0
 namespace
 {
     FlattenSpec flatspec;
@@ -233,6 +235,7 @@ namespace
     }
 
 } // namespace
+#endif
 
 bool cFormatXcf::LoadImpl(const char* filename, sBitmapDescription& desc)
 {
@@ -242,6 +245,7 @@ bool cFormatXcf::LoadImpl(const char* filename, sBitmapDescription& desc)
         return false;
     }
 
+#if 0
     Offset = 0;
     Bitmap = nullptr;
 
@@ -309,6 +313,10 @@ bool cFormatXcf::LoadImpl(const char* filename, sBitmapDescription& desc)
         auto callback = selectCallback(flatspec.out_color_mode);
         flattenIncrementally(&flatspec, callback);
     }
-
     return true;
+
+#endif
+
+    m_formatName = "xcf";
+    return import_xcf(file, desc);
 }
