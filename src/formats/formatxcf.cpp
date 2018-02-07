@@ -10,7 +10,8 @@
 #include "formatxcf.h"
 #include "common/bitmap_description.h"
 #include "common/file.h"
-#include "formats/xcf.h"
+#include "sdl_xcf.h"
+// #include "formats/xcf.h"
 
 // #include <xcftools/flatten.h>
 // #include <xcftools/palette.h>
@@ -318,5 +319,9 @@ bool cFormatXcf::LoadImpl(const char* filename, sBitmapDescription& desc)
 #endif
 
     m_formatName = "xcf";
+#if 0
     return import_xcf(file, desc);
+#endif
+
+    return load(file, desc);
 }

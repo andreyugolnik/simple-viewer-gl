@@ -213,7 +213,9 @@ namespace
         uint32_t count;
         std::unique_ptr<xcf_col_t[]> palette;
         xcf_property_col_map_t(xcf_property_t head, cFile& file)
-            : head(head), count(fread<uint32_t>(file, true)), palette(std::make_unique<xcf_col_t[]>(count))
+            : head(head)
+            , count(fread<uint32_t>(file, true))
+            , palette(std::make_unique<xcf_col_t[]>(count))
         {
             file.read(reinterpret_cast<char*>(palette.get()), count * sizeof(xcf_col_t));
         }
@@ -267,14 +269,21 @@ namespace
         std::vector<property_pair_t> properties;
         uint32_t hierarchy_ptr, mask_ptr;
         xcf_layer_t(cFile& file)
-            : width(fread<uint32_t>(file, true)), height(fread<uint32_t>(file, true)), type(fread<xcf_layer_col_mode>(file, true)), name(xcf_read_string(file, true)), properties(xcf_query_properties_list(file)), hierarchy_ptr(fread<uint32_t>(file, true)), mask_ptr(fread<uint32_t>(file, true))
+            : width(fread<uint32_t>(file, true))
+            , height(fread<uint32_t>(file, true))
+            , type(fread<xcf_layer_col_mode>(file, true))
+            , name(xcf_read_string(file, true))
+            , properties(xcf_query_properties_list(file))
+            , hierarchy_ptr(fread<uint32_t>(file, true))
+            , mask_ptr(fread<uint32_t>(file, true))
         {
-#if 0
             for (const auto& property : properties)
             {
-                auto [prop, pos] = property;
+                // auto [prop, pos] = property;
+                auto prop = property.first;
+                auto pos = property.second;
+                ::printf("(II) Property %u at %u pos.\n", prop.type, pos);
             }
-#endif
         }
     };
 
@@ -906,13 +915,14 @@ bool import_xcf(cFile& file, sBitmapDescription& desc)
     const uint32_t width = fread<uint32_t>(file, true);
     const uint32_t height = fread<uint32_t>(file, true);
     const xcf_col_mode col_mode = fread<xcf_col_mode>(file, true);
-
-    auto properties = xcf_query_properties_list(file);
-    auto const post_props_pos = file.getOffset();
+    ::printf("(II) Color mode %u.\n", col_mode);
 
     xcf_comp_mode compression = xcf_comp_mode::none;
 
     std::array<xcf_col_t, 256> palette;
+
+    auto properties = xcf_query_properties_list(file);
+    const auto post_props_pos = file.getOffset();
 
     for (const auto& property : properties)
     {
@@ -943,7 +953,7 @@ bool import_xcf(cFile& file, sBitmapDescription& desc)
         {
             xcf_property_comp_t p(prop, file);
             compression = p.compression;
-            ::printf("(II) Compression %u\n", uint32_t(p.compression));
+            ::printf("(II) Compression %u\n", (uint32_t)p.compression);
         }
         break;
 
@@ -1113,6 +1123,7 @@ bool import_xcf(cFile& file, sBitmapDescription& desc)
     desc.pitch = width * 4;
     desc.bitmap.resize(desc.pitch * height);
     auto pix = desc.bitmap.data();
+    std::fill(desc.bitmap.begin(), desc.bitmap.end(), 0);
 
     raw_layer_t canvas_layer = {};
     canvas_layer.bpp = 4;
