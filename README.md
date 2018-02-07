@@ -123,13 +123,13 @@ $ sudo make rpm
 `GIF`          | *libgif-dev*                       | GIF format support.
 `TIFF`         | *libtiff5-dev*                     | TIFF format support.
 `WebP`         | *libwebp-dev*                      | WebP format support.
-`ImLib2`       | *libimlib2-dev*                    | (Optional) Common formats support.
-`OpenEXR`      | *libilmbase-dev*, *libopenexr-dev* | (Optional) OpenEXR is a high dynamic-range (HDR) image file format developed by Industrial Light & Magic for use in computer imaging applications.
-`FreeType2`    | *libfreetype6-dev*                 | TTF/OTF font engine.
 `Little CMS 2` | *liblcms2-dev*                     | Color management engine supporting ICC profiles.
 `Zlib`         | *zlib1g-dev*                       | Compression support.
 `Exif`         | *libexif-dev*                      | Exif support.
 `X11`          | *libxrandr-dev*, *libxcursor-dev*  | X11 related libraries (Linux only)
+`ImLib2`       | *libimlib2-dev*                    | (Optional) Common formats support.
+`OpenEXR`      | *libilmbase-dev*, *libopenexr-dev* | (Optional) OpenEXR is a high dynamic-range (HDR) image file format developed by Industrial Light & Magic for use in computer imaging applications.
+`OpenJPEG`     | *libopenjpeg-dev*,                 | (Optional) JPEG 2000 support.
 
 ```
 Copyright © 2008-2018 Andrey A. Ugolnik. All Rights Reserved.
