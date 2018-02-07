@@ -19,9 +19,10 @@
 #include "formats/formateps.h"
 #include "formats/formatexr.h"
 #include "formats/formatgif.h"
+#include "formats/formaticns.h"
 #include "formats/formatico.h"
-#include "formats/formatjpeg.h"
 #include "formats/formatjp2k.h"
+#include "formats/formatjpeg.h"
 #include "formats/formatpng.h"
 #include "formats/formatpnm.h"
 #include "formats/formatpsd.h"
@@ -171,6 +172,7 @@ namespace
             "PNG",
             "GIF",
             "ICO",
+            "ICNS",
             "TIF",
             "XWD",
             "XPM",
@@ -250,6 +252,10 @@ cFormat* cImageLoader::createLoader(eImageType type) const
 
     case eImageType::ICO:
         loader = new cFormatIco(m_callbacks);
+        break;
+
+    case eImageType::ICNS:
+        loader = new cFormatIcns(m_callbacks);
         break;
 
     case eImageType::TIF:
@@ -348,6 +354,7 @@ eImageType cImageLoader::getType(const char* name)
             eImageType::XWD,
             eImageType::XPM,
             eImageType::PNM,
+            eImageType::ICNS,
             eImageType::WEBP,
 #if defined(OPENJPEG_SUPPORT)
             eImageType::JP2,

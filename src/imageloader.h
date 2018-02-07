@@ -34,6 +34,7 @@ enum class eImageType
     PNG,
     GIF,
     ICO,
+    ICNS,
     TIF,
     XWD,
     XPM,

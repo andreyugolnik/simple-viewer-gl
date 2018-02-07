@@ -215,6 +215,7 @@ bool cFilesList::isValidExt(const char* path)
         ".ai",                                                                                                       // Adobe Illustrator
         ".eps",                                                                                                      // Encapsulated PostScript
         ".ico",                                                                                                      // ICO
+        ".icns",                                                                                                     // Apple Icon Image
         ".xwd",                                                                                                      // X Window Dump
         ".xcf",                                                                                                      // GIMP XCF format
         ".dds",                                                                                                      // Microsoft DDS
