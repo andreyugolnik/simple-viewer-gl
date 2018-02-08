@@ -10,12 +10,19 @@
 #include "formatxcf.h"
 #include "common/bitmap_description.h"
 #include "common/file.h"
-#include "sdl_xcf.h"
-// #include "formats/xcf.h"
 
-// #include <xcftools/flatten.h>
-// #include <xcftools/palette.h>
-// #include <xcftools/xcftools.h>
+#define XCF
+
+#if defined(XCF)
+#include "formats/xcf.h"
+#elif defined(SDL_XCF)
+#include "sdl_xcf.h"
+#elif defined(XCFTOOLS)
+#include <xcftools/flatten.h>
+#include <xcftools/palette.h>
+#include <xcftools/xcftools.h>
+#endif
+
 #include <cstdio>
 #include <cstring>
 
@@ -40,7 +47,7 @@ bool cFormatXcf::isSupported(cFile& file, Buffer& buffer) const
     return ::memcmp(buffer.data(), header, sizeof(header)) == 0;
 }
 
-#if 0
+#if defined(XCFTOOLS)
 namespace
 {
     FlattenSpec flatspec;
@@ -246,7 +253,17 @@ bool cFormatXcf::LoadImpl(const char* filename, sBitmapDescription& desc)
         return false;
     }
 
-#if 0
+    m_formatName = "xcf";
+
+#if defined(XCF)
+
+    return import_xcf(file, desc);
+
+#elif defined(SDL_XCF)
+
+    return load(file, desc);
+
+#elif defined(XCFTOOLS)
     Offset = 0;
     Bitmap = nullptr;
 
@@ -317,11 +334,4 @@ bool cFormatXcf::LoadImpl(const char* filename, sBitmapDescription& desc)
     return true;
 
 #endif
-
-    m_formatName = "xcf";
-#if 0
-    return import_xcf(file, desc);
-#endif
-
-    return load(file, desc);
 }
