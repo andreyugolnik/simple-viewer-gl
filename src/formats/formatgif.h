@@ -9,6 +9,8 @@
 
 #pragma once
 
+#if defined(GIF_SUPPORT)
+
 #include "format.h"
 
 #include <string>
@@ -39,3 +41,5 @@ private:
 
     std::unique_ptr<GifFileType, GifDeleter> m_gif;
 };
+
+#endif

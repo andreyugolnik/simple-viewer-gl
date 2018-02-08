@@ -9,6 +9,8 @@
 
 #pragma once
 
+#if defined(TIFF_SUPPORT)
+
 #include "format.h"
 
 #include <string>
@@ -31,3 +33,5 @@ private:
 private:
     std::string m_filename;
 };
+
+#endif

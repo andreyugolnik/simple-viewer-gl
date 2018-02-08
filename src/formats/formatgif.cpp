@@ -7,6 +7,8 @@
 *
 \**********************************************/
 
+#if defined(GIF_SUPPORT)
+
 #include "formatgif.h"
 #include "common/bitmap_description.h"
 #include "common/file.h"
@@ -153,6 +155,13 @@ bool cFormatGif::load(uint32_t current, sBitmapDescription& desc)
         return false;
     }
 
+    if (desc.images == 1)
+    {
+        // use frame size instead 'canvas' size
+        desc.width = image.ImageDesc.Width;
+        desc.height = image.ImageDesc.Height;
+    }
+
     desc.bppImage = cmap->BitsPerPixel;
 
     desc.delay = 100; // default value
@@ -240,3 +249,5 @@ bool cFormatGif::load(uint32_t current, sBitmapDescription& desc)
 
     return true;
 }
+
+#endif

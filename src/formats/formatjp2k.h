@@ -9,7 +9,7 @@
 
 #pragma once
 
-#if defined(OPENJPEG_SUPPORT)
+#if defined(JPEG2000_SUPPORT)
 
 #include "format.h"
 

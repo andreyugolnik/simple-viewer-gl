@@ -164,16 +164,20 @@ namespace
             "EXR",
 #endif
             "JPG",
-#if defined(OPENJPEG_SUPPORT)
+#if defined(JPEG2000_SUPPORT)
             "JP2",
 #endif
             "PSD",
             "EPS",
             "PNG",
+#if defined(GIF_SUPPORT)
             "GIF",
+#endif
             "ICO",
             "ICNS",
+#if defined(TIFF_SUPPORT)
             "TIF",
+#endif
             "XWD",
             "XPM",
             "DDS",
@@ -185,7 +189,9 @@ namespace
             "TGA",
             "BMP",
             "XCF",
+#if defined(WEBP_SUPPORT)
             "WEBP",
+#endif
 
             "NOTAVAILABLE",
         };
@@ -224,7 +230,7 @@ cFormat* cImageLoader::createLoader(eImageType type) const
         break;
 #endif
 
-#if defined(OPENJPEG_SUPPORT)
+#if defined(JPEG2000_SUPPORT)
     case eImageType::JP2:
         loader = new cFormatJp2k(m_callbacks);
         break;
@@ -246,9 +252,11 @@ cFormat* cImageLoader::createLoader(eImageType type) const
         loader = new cFormatPng(m_callbacks);
         break;
 
+#if defined(GIF_SUPPORT)
     case eImageType::GIF:
         loader = new cFormatGif(m_callbacks);
         break;
+#endif
 
     case eImageType::ICO:
         loader = new cFormatIco(m_callbacks);
@@ -258,9 +266,11 @@ cFormat* cImageLoader::createLoader(eImageType type) const
         loader = new cFormatIcns(m_callbacks);
         break;
 
+#if defined(TIFF_SUPPORT)
     case eImageType::TIF:
         loader = new cFormatTiff(m_callbacks);
         break;
+#endif
 
     case eImageType::XWD:
         loader = new cFormatXwd(m_callbacks);
@@ -306,9 +316,11 @@ cFormat* cImageLoader::createLoader(eImageType type) const
         loader = new cFormatXcf(m_callbacks);
         break;
 
+#if defined(WEBP_SUPPORT)
     case eImageType::WEBP:
         loader = new cFormatWebP(m_callbacks);
         break;
+#endif
 
     case eImageType::NOTAVAILABLE:
         loader = new cNotAvailable();
@@ -343,20 +355,26 @@ eImageType cImageLoader::getType(const char* name)
             eImageType::JPG,
             eImageType::PNG,
             eImageType::BMP,
+#if defined(GIF_SUPPORT)
             eImageType::GIF,
+#endif
             eImageType::PSD,
             eImageType::XCF,
             eImageType::ICO,
             eImageType::TGA,
+#if defined(TIFF_SUPPORT)
             eImageType::TIF,
+#endif
             eImageType::EPS,
             eImageType::DDS,
             eImageType::XWD,
             eImageType::XPM,
             eImageType::PNM,
             eImageType::ICNS,
+#if defined(WEBP_SUPPORT)
             eImageType::WEBP,
-#if defined(OPENJPEG_SUPPORT)
+#endif
+#if defined(JPEG2000_SUPPORT)
             eImageType::JP2,
 #endif
             eImageType::AGE,
