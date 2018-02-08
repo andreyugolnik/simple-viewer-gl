@@ -55,9 +55,9 @@ if(GLFW3_FOUND)
 endif()
 
 set(THREADS_PREFER_PTHREAD_FLAG TRUE)
-find_package(THREADS QUIET REQUIRED)
-if(THREADS_FOUND)
-    message(STATUS "* THREADS found")
+find_package(Threads QUIET REQUIRED)
+if(Threads_FOUND)
+    message(STATUS "* Threads found")
 endif()
 
 find_package(X11 QUIET)
@@ -224,6 +224,10 @@ endif()
 
 if(GLFW3_FOUND)
     target_link_libraries(sviewgl ${GLFW3_LIBRARIES})
+endif()
+
+if(Threads_FOUND)
+    target_link_libraries(sviewgl ${CMAKE_THREAD_LIBS_INIT})
 endif()
 
 if(LCMS2_FOUND)
