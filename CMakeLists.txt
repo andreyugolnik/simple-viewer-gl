@@ -19,18 +19,22 @@ set(APP_VERSION_MAJOR   "1" CACHE STRING "Application major version")
 set(APP_VERSION_MINOR   "0" CACHE STRING "Application minor version")
 set(APP_VERSION_RELEASE "0" CACHE STRING "Application release version")
 set(VERSION "${APP_VERSION_MAJOR}.${APP_VERSION_MINOR}.${APP_VERSION_RELEASE}")
+
 message(STATUS "***************************")
 message(STATUS "* Simple Viewer GL v${VERSION} *")
+message(STATUS "***************************")
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
-    message(STATUS "* Release Build")
+    message(STATUS "*      Release Build      *")
     add_definitions("-DNDEBUG" )
     add_definitions("-Wall -Wextra -pedantic -pedantic-errors -O2")
 else()
-    message(STATUS "* Debug Build")
+    message(STATUS "*       Debug Build       *")
     add_definitions("-DDEBUG" )
     add_definitions("-Wall -Wextra -pedantic -pedantic-errors -O0 -g")
 endif()
+
+message(STATUS "***************************")
 
 find_package(PkgConfig)
 
@@ -170,6 +174,8 @@ if(RT_FOUND)
     set(RT_LIBRARY "rt")
 endif()
 
+message(STATUS "***************************")
+
 include_directories("src")
 
 add_subdirectory(third-party/imgui)
@@ -189,6 +195,7 @@ if(APPLE)
     execute_process(
         COMMAND makeicns -in res/Icon-1024.png -32 res/Icon-32.png -16 res/Icon-16.png -out res/macos/Icon.icns
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        OUTPUT_QUIET ERROR_QUIET
         )
     set(SVIEW_ICON ${CMAKE_CURRENT_SOURCE_DIR}/res/macos/Icon.icns)
     set_source_files_properties(${SVIEW_ICON} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
