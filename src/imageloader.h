@@ -26,16 +26,20 @@ enum class eImageType
     EXR,
 #endif
     JPG,
-#if defined(OPENJPEG_SUPPORT)
+#if defined(JPEG2000_SUPPORT)
     JP2,
 #endif
     PSD,
     EPS,
     PNG,
+#if defined(GIF_SUPPORT)
     GIF,
+#endif
     ICO,
     ICNS,
+#if defined(TIFF_SUPPORT)
     TIF,
+#endif
     XWD,
     XPM,
     DDS,
@@ -47,7 +51,9 @@ enum class eImageType
     TGA,
     BMP,
     XCF,
+#if defined(WEBP_SUPPORT)
     WEBP,
+#endif
 
     NOTAVAILABLE,
 

@@ -9,7 +9,7 @@
 
 #include "formatjp2k.h"
 
-#if defined(OPENJPEG_SUPPORT)
+#if defined(JPEG2000_SUPPORT)
 
 #include "common/bitmap_description.h"
 #include "common/file.h"

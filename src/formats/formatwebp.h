@@ -9,6 +9,8 @@
 
 #pragma once
 
+#if defined(WEBP_SUPPORT)
+
 #include "format.h"
 
 class cFormatWebP final : public cFormat
@@ -22,3 +24,5 @@ public:
 private:
     bool LoadImpl(const char* filename, sBitmapDescription& desc) override;
 };
+
+#endif

@@ -7,6 +7,8 @@
 *
 \**********************************************/
 
+#if defined(TIFF_SUPPORT)
+
 #include "formattiff.h"
 #include "cms/cms.h"
 #include "common/bitmap_description.h"
@@ -156,3 +158,5 @@ bool cFormatTiff::load(unsigned current, sBitmapDescription& desc)
 
     return result;
 }
+
+#endif

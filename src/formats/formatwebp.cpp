@@ -7,6 +7,8 @@
 *
 \**********************************************/
 
+#if defined(WEBP_SUPPORT)
+
 #include "formatwebp.h"
 #include "common/bitmap_description.h"
 #include "common/file.h"
@@ -117,3 +119,5 @@ bool cFormatWebP::LoadImpl(const char* filename, sBitmapDescription& desc)
 
     return true;
 }
+
+#endif
