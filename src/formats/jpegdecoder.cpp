@@ -197,7 +197,7 @@ bool cJpegDecoder::decodeJpeg(const uint8_t* in, uint32_t size, sBitmapDescripti
 
     m_formatName = "jpeg";
 
-    if (applyIccProfile(desc, icc.data(), icc.size(), cCMS::Pixel::Rgb))
+    if (applyIccProfile(desc, icc.data(), icc.size()))
     {
         m_formatName = "jpeg/icc";
     }

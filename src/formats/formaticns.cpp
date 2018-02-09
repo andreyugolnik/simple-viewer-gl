@@ -251,7 +251,7 @@ bool cFormatIcns::load(uint32_t current, sBitmapDescription& desc)
             auto& iccProfile = reader.getIccProfile();
             if (iccProfile.size() != 0)
             {
-                if (applyIccProfile(desc, iccProfile.data(), iccProfile.size(), cCMS::Pixel::Rgb))
+                if (applyIccProfile(desc, iccProfile.data(), iccProfile.size()))
                 {
                     m_formatName = "icns/png/icc";
                 }

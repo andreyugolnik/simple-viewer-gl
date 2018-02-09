@@ -320,7 +320,7 @@ bool cFormatJp2k::LoadImpl(const char* filename, sBitmapDescription& desc)
     {
         uint32_t numcomps = image->numcomps;
 
-        if (applyIccProfile(desc, iccProfile, iccProfileSize, numcomps == 4 ? cCMS::Pixel::Rgba : cCMS::Pixel::Rgb))
+        if (applyIccProfile(desc, iccProfile, iccProfileSize))
         {
             m_formatName = "jpeg2000/icc";
         }

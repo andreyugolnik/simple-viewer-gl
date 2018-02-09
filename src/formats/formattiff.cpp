@@ -151,11 +151,11 @@ bool cFormatTiff::load(unsigned current, sBitmapDescription& desc)
 
                     if (icc.hasEmbeded())
                     {
-                        applyIccProfile(desc, icc.profile, icc.profileSize, cCMS::Pixel::Rgba);
+                        applyIccProfile(desc, icc.profile, icc.profileSize);
                     }
                     else if (icc.hasTables())
                     {
-                        applyIccProfile(desc, icc.chr, icc.wp, icc.gmr, icc.gmg, icc.gmb, cCMS::Pixel::Rgba);
+                        applyIccProfile(desc, icc.chr, icc.wp, icc.gmr, icc.gmg, icc.gmb);
                     }
                 }
 

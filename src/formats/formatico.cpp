@@ -186,7 +186,7 @@ bool cFormatIco::loadPngFrame(sBitmapDescription& desc, cFile& file, const IcoDi
         auto& iccProfile = reader.getIccProfile();
         if (iccProfile.size() != 0)
         {
-            if (applyIccProfile(desc, iccProfile.data(), iccProfile.size(), cCMS::Pixel::Rgb))
+            if (applyIccProfile(desc, iccProfile.data(), iccProfile.size()))
             {
                 m_formatName = "ico/png/icc";
             }
