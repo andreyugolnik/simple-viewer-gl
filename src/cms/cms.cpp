@@ -43,7 +43,7 @@ void cCMS::createTransform(const void* iccProfile, uint32_t iccProfileSize, Pixe
 {
 #if defined(LCMS2_SUPPORT)
     destroyTransform();
-    if (iccProfile != nullptr)
+    if (iccProfile != nullptr && iccProfileSize != 0)
     {
         auto inProfile = cmsOpenProfileFromMem(iccProfile, iccProfileSize);
         createTransform(inProfile, format);

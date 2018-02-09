@@ -19,24 +19,14 @@
 #include <setjmp.h>
 
 #include <jpeglib.h>
+
+#if defined(EXIF_SUPPORT)
 #include <libexif/exif-data.h>
+#endif
 
 namespace
 {
-    // Remove spaces on the right of the string
-    void trimSpaces(char* buf)
-    {
-        char* s = buf - 1;
-        for (; *buf; ++buf)
-        {
-            if (*buf != ' ')
-            {
-                s = buf;
-            }
-        }
-        *++s = 0; // nul terminate the string on the first of the final spaces
-    }
-
+#if defined(EXIF_SUPPORT)
     void addExifTag(ExifData* d, ExifIfd ifd, ExifTag tag, sBitmapDescription::ExifList& exifList)
     {
         ExifEntry* entry = exif_content_get_entry(d->ifd[ifd], tag);
@@ -46,7 +36,7 @@ namespace
             char buf[1024];
             exif_entry_get_value(entry, buf, sizeof(buf));
 
-            trimSpaces(buf);
+            helpers::trimRightSpaces(buf);
             if (*buf)
             {
                 exifList.push_back({ exif_tag_get_title_in_ifd(tag, ifd), buf });
@@ -203,6 +193,7 @@ namespace
         }
     }
 #endif
+#endif
 }
 
 cFormatJpeg::cFormatJpeg(iCallbacks* callbacks)
@@ -262,6 +253,7 @@ bool cFormatJpeg::LoadImpl(const char* filename, sBitmapDescription& desc)
     bool result = decodeJpeg(in.data(), size, desc);
     if (result)
     {
+#if defined(EXIF_SUPPORT)
         auto ed = exif_data_new_from_file(filename);
         if (ed != nullptr)
         {
@@ -299,6 +291,7 @@ bool cFormatJpeg::LoadImpl(const char* filename, sBitmapDescription& desc)
 
             exif_data_unref(ed);
         }
+#endif
     }
 
     return result;
