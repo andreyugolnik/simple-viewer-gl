@@ -372,6 +372,8 @@ namespace
 
     bool readRLE8(cFile& file, sBitmapDescription& desc, const BITMAPCOMMON& header, const Buffer& pal, bool isRle8)
     {
+        (void)header;
+
         cCachedReader reader(file, 5);
 
         auto palette = (const RGBA*)pal.data();

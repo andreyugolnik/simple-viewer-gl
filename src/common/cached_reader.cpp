@@ -10,6 +10,8 @@
 #include "cached_reader.h"
 #include "common/file.h"
 
+#include <cstring>
+
 cCachedReader::cCachedReader(cFile& file, uint32_t bufferSize)
     : m_file(file)
     , m_buffer(bufferSize)
