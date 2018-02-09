@@ -23,7 +23,10 @@ protected:
 
 private:
     void setupMarkers(jpeg_decompress_struct* cinfo);
-    void* locateICCProfile(const jpeg_decompress_struct& cinfo, uint32_t& iccProfileSize);
+
+    using Icc = std::vector<uint8_t>;
+
+    bool locateICCProfile(const jpeg_decompress_struct& cinfo, Icc& icc) const;
 
 private:
     const uint8_t JPEG_EXIF; // Exif/XMP

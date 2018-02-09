@@ -131,8 +131,8 @@ bool cJpegDecoder::decodeJpeg(const uint8_t* in, uint32_t size, sBitmapDescripti
 
     // m_formatName = GetFormat(cinfo.jpeg_color_space);
 
-    uint32_t iccProfileSize = 0;
-    auto iccProfile = locateICCProfile(cinfo, iccProfileSize);
+    Icc icc;
+    locateICCProfile(cinfo, icc);
 
     if (isCMYK)
     {
@@ -197,7 +197,7 @@ bool cJpegDecoder::decodeJpeg(const uint8_t* in, uint32_t size, sBitmapDescripti
 
     m_formatName = "jpeg";
 
-    if (applyIccProfile(desc, iccProfile, iccProfileSize, cCMS::Pixel::Rgb))
+    if (applyIccProfile(desc, icc.data(), icc.size(), cCMS::Pixel::Rgb))
     {
         m_formatName = "jpeg/icc";
     }
@@ -226,7 +226,7 @@ void cJpegDecoder::setupMarkers(jpeg_decompress_struct* cinfo)
     jpeg_save_markers(cinfo, JPEG_ICCP, maxMarkerLength);
 }
 
-void* cJpegDecoder::locateICCProfile(const jpeg_decompress_struct& cinfo, uint32_t& iccProfileSize)
+bool cJpegDecoder::locateICCProfile(const jpeg_decompress_struct& cinfo, Icc& icc) const
 {
     const char kICCPSignature[] = "ICC_PROFILE";
     const size_t kICCPSkipLength = 14; // signature + seq & count
@@ -237,10 +237,11 @@ void* cJpegDecoder::locateICCProfile(const jpeg_decompress_struct& cinfo, uint32
             && m->data_length > kICCPSkipLength
             && ::memcmp(m->data, kICCPSignature, sizeof(kICCPSignature)) == 0)
         {
-            iccProfileSize = m->data_length - kICCPSkipLength;
-            return m->data + kICCPSkipLength;
+            icc.resize(m->data_length - kICCPSkipLength);
+            ::memcpy(icc.data(), m->data + kICCPSkipLength, icc.size());
+            return true;
         }
     }
 
-    return nullptr;
+    return false;
 }
