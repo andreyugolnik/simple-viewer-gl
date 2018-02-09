@@ -9,44 +9,55 @@
 
 #include "cms.h"
 
+
 #include <cassert>
+
+#if defined(LCMS2_SUPPORT)
 #include <lcms2.h>
 
 void cmsLogErrorHandler(cmsContext /*ContextID*/, cmsUInt32Number ErrorCode, const char* Text)
 {
     ::printf("(EE) LCMS2: (%u) '%s'\n", ErrorCode, Text);
 }
+#endif
 
 cCMS::cCMS()
 {
+#if defined(LCMS2_SUPPORT)
     m_outProfile = cmsCreate_sRGBProfile();
 
     cmsSetLogErrorHandler(cmsLogErrorHandler);
+#endif
 }
 
 cCMS::~cCMS()
 {
+#if defined(LCMS2_SUPPORT)
     destroyTransform();
 
     cmsCloseProfile(m_outProfile);
+#endif
 }
 
-void cCMS::createTransform(const void* iccProfile, uint32_t iccProfileSize, Pixel format)
+void cCMS::createTransform(const void* iccProfile, uint32_t iccProfileSize, Pixel format) const
 {
+#if defined(LCMS2_SUPPORT)
     destroyTransform();
     if (iccProfile != nullptr)
     {
         auto inProfile = cmsOpenProfileFromMem(iccProfile, iccProfileSize);
         createTransform(inProfile, format);
     }
+#endif
 }
 
 void cCMS::createTransform(const float* chr, const float* wp
                            , const uint16_t* gmr
                            , const uint16_t* gmg
                            , const uint16_t* gmb
-                           , Pixel format)
+                           , Pixel format) const
 {
+#if defined(LCMS2_SUPPORT)
     cmsCIExyYTRIPLE Primaries;
     Primaries.Red.x = chr[0];
     Primaries.Red.y = chr[1];
@@ -74,10 +85,12 @@ void cCMS::createTransform(const float* chr, const float* wp
     }
 
     createTransform(inProfile, format);
+#endif
 }
 
-void cCMS::createTransform(void* inProfile, Pixel format)
+void cCMS::createTransform(void* inProfile, Pixel format) const
 {
+#if defined(LCMS2_SUPPORT)
     if (inProfile != nullptr)
     {
         auto pixel = format == Pixel::Rgb ? TYPE_RGB_8 : TYPE_RGBA_8;
@@ -86,19 +99,24 @@ void cCMS::createTransform(void* inProfile, Pixel format)
                                          , INTENT_PERCEPTUAL, 0);
         cmsCloseProfile(inProfile);
     }
+#endif
 }
 
-void cCMS::destroyTransform()
+void cCMS::destroyTransform() const
 {
+#if defined(LCMS2_SUPPORT)
     if (m_transform != nullptr)
     {
         cmsDeleteTransform(m_transform);
         m_transform = nullptr;
     }
+#endif
 }
 
 void cCMS::doTransform(void* input, void* output, uint32_t sizeInPixels) const
 {
+#if defined(LCMS2_SUPPORT)
     assert(m_transform != nullptr);
     cmsDoTransform(m_transform, input, output, sizeInPixels);
+#endif
 }

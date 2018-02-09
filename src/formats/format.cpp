@@ -71,3 +71,37 @@ bool cFormat::readBuffer(cFile& file, Buffer& buffer, unsigned minSize) const
 
     return minSize <= buffer.size();
 }
+
+bool cFormat::applyIccProfile(sBitmapDescription& desc, const void* iccProfile, uint32_t iccProfileSize, cCMS::Pixel type) const
+{
+    m_cms.createTransform(iccProfile, iccProfileSize, type);
+    return applyIccProfile(desc);
+}
+
+bool cFormat::applyIccProfile(sBitmapDescription& desc, const float* chr, const float* wp, const uint16_t* gmr, const uint16_t* gmg, const uint16_t* gmb, cCMS::Pixel format) const
+{
+    m_cms.createTransform(chr, wp, gmr, gmg, gmb, format);
+    return applyIccProfile(desc);
+}
+
+bool cFormat::applyIccProfile(sBitmapDescription& desc) const
+{
+    bool hasIccProfile = m_cms.hasTransform();
+
+    if (hasIccProfile)
+    {
+        auto bitmap = desc.bitmap.data();
+
+        for (uint32_t y = 0; y < desc.height; y++)
+        {
+            m_cms.doTransform(bitmap, bitmap, desc.width);
+            bitmap += desc.pitch;
+
+            updateProgress((float)y / desc.height);
+        }
+    }
+
+    m_cms.destroyTransform();
+
+    return hasIccProfile;
+}

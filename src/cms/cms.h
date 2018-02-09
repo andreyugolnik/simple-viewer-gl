@@ -22,13 +22,13 @@ public:
         Rgba,
         Rgb,
     };
-    void createTransform(const void* iccProfile, uint32_t iccProfileSize, Pixel format);
+    void createTransform(const void* iccProfile, uint32_t iccProfileSize, Pixel format) const;
     void createTransform(const float* chr, const float* wp
                          , const uint16_t* gmr
                          , const uint16_t* gmg
                          , const uint16_t* gmb
-                         , Pixel format);
-    void destroyTransform();
+                         , Pixel format) const;
+    void destroyTransform() const;
 
     void doTransform(void* input, void* output, uint32_t sizeInPixels) const;
 
@@ -38,9 +38,9 @@ public:
     }
 
 private:
-    void createTransform(void* inProfile, Pixel format);
+    void createTransform(void* inProfile, Pixel format) const;
 
 private:
-    void* m_outProfile = nullptr;
-    void* m_transform = nullptr;
+    mutable void* m_outProfile = nullptr;
+    mutable void* m_transform = nullptr;
 };

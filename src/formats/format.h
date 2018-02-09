@@ -9,8 +9,8 @@
 
 #pragma once
 
-#include "common/buffer.h"
 #include "cms/cms.h"
+#include "common/buffer.h"
 
 class iCallbacks;
 class cFile;
@@ -43,8 +43,12 @@ public:
 protected:
     cFormat(iCallbacks* callbacks);
     bool readBuffer(cFile& file, Buffer& buffer, unsigned minSize) const;
+    bool applyIccProfile(sBitmapDescription& desc, const void* iccProfile, uint32_t iccProfileSize, cCMS::Pixel type) const;
+    bool applyIccProfile(sBitmapDescription& desc, const float* chr, const float* wp, const uint16_t* gmr, const uint16_t* gmg, const uint16_t* gmb, cCMS::Pixel format) const;
 
 private:
+    bool applyIccProfile(sBitmapDescription& desc) const;
+
     virtual bool LoadImpl(const char* filename, sBitmapDescription& desc) = 0;
     virtual bool LoadSubImageImpl(unsigned /*subImage*/, sBitmapDescription& /*desc*/)
     {
@@ -53,10 +57,9 @@ private:
 
 private:
     iCallbacks* m_callbacks;
-
-protected:
     cCMS m_cms;
 
+protected:
     const char* m_formatName = nullptr;
     bool m_stop = false;
 };

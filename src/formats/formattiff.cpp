@@ -20,33 +20,6 @@
 
 namespace
 {
-    void locateICCProfile(TIFF* tif, cCMS& cms)
-    {
-        unsigned iccProfileSize = 0;
-        void* iccProfile = nullptr;
-        if (TIFFGetField(tif, TIFFTAG_ICCPROFILE, &iccProfileSize, &iccProfile))
-        {
-            cms.createTransform(iccProfile, iccProfileSize, cCMS::Pixel::Rgba);
-        }
-        else
-        {
-            float* chr;
-            if (TIFFGetField(tif, TIFFTAG_PRIMARYCHROMATICITIES, &chr))
-            {
-                float* wp;
-                if (TIFFGetField(tif, TIFFTAG_WHITEPOINT, &wp))
-                {
-                    unsigned short* gmr;
-                    unsigned short* gmg;
-                    unsigned short* gmb;
-                    TIFFGetFieldDefaulted(tif, TIFFTAG_TRANSFERFUNCTION, &gmr, &gmg, &gmb);
-
-                    cms.createTransform(chr, wp, gmr, gmg, gmb, cCMS::Pixel::Rgba);
-                }
-            }
-        }
-    }
-
     void ErrorHandler(const char*, const char*, va_list)
     {
         // ::printf("(EE) \n");
@@ -56,7 +29,7 @@ namespace
     {
         // ::printf("(WW) \n");
     }
-}
+} // namespace
 
 cFormatTiff::cFormatTiff(iCallbacks* callbacks)
     : cFormat(callbacks)
@@ -118,7 +91,40 @@ bool cFormatTiff::load(unsigned current, sBitmapDescription& desc)
         // set desired page
         if (TIFFSetDirectory(tif, desc.current) != 0)
         {
-            locateICCProfile(tif, m_cms);
+            struct Icc
+            {
+                bool hasEmbeded() const
+                {
+                    return profileSize && profile != nullptr;
+                }
+
+                uint32_t profileSize = 0;
+                void* profile = nullptr;
+
+                bool hasTables() const
+                {
+                    return chr != nullptr && wp != nullptr && gmr != nullptr && gmg != nullptr && gmb != nullptr;
+                }
+
+                float* chr = nullptr;
+                float* wp = nullptr;
+                uint16_t* gmr = nullptr;
+                uint16_t* gmg = nullptr;
+                uint16_t* gmb = nullptr;
+            };
+
+            Icc icc;
+
+            if (TIFFGetField(tif, TIFFTAG_ICCPROFILE, &icc.profileSize, &icc.profile) == 0)
+            {
+                if (TIFFGetField(tif, TIFFTAG_PRIMARYCHROMATICITIES, &icc.chr))
+                {
+                    if (TIFFGetField(tif, TIFFTAG_WHITEPOINT, &icc.wp))
+                    {
+                        TIFFGetFieldDefaulted(tif, TIFFTAG_TRANSFERFUNCTION, &icc.gmr, &icc.gmg, &icc.gmb);
+                    }
+                }
+            }
 
             TIFFRGBAImage img;
             if (TIFFRGBAImageBegin(&img, tif, 0, nullptr) != 0)
@@ -134,24 +140,28 @@ bool cFormatTiff::load(unsigned current, sBitmapDescription& desc)
                 // set desired orientation
                 img.req_orientation = ORIENTATION_TOPLEFT;
 
-                m_formatName = m_cms.hasTransform() ? "tiff/icc" : "tiff";
+                m_formatName = "tiff";
 
                 auto bitmap = desc.bitmap.data();
                 result = TIFFRGBAImageGet(&img, (uint32*)bitmap, desc.width, desc.height) != 0;
 
-                if (result && m_cms.hasTransform())
+                if (result)
                 {
-                    for (unsigned i = 0; i < desc.height; i++)
+                    m_formatName = "tiff/icc";
+
+                    if (icc.hasEmbeded())
                     {
-                        m_cms.doTransform(bitmap, bitmap, desc.width);
+                        applyIccProfile(desc, icc.profile, icc.profileSize, cCMS::Pixel::Rgba);
+                    }
+                    else if (icc.hasTables())
+                    {
+                        applyIccProfile(desc, icc.chr, icc.wp, icc.gmr, icc.gmg, icc.gmb, cCMS::Pixel::Rgba);
                     }
                 }
 
                 TIFFRGBAImageEnd(&img);
             }
         }
-
-        m_cms.destroyTransform();
 
         TIFFClose(tif);
     }

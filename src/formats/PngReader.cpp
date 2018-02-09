@@ -7,7 +7,6 @@
 \**********************************************/
 
 #include "PngReader.h"
-#include "cms/cms.h"
 #include "common/bitmap_description.h"
 #include "common/file.h"
 #include "common/helpers.h"
@@ -78,8 +77,7 @@ namespace
 
 } // namespace
 
-cPngReader::cPngReader(cCMS& cms)
-    : m_cms(cms)
+cPngReader::cPngReader()
 {
 }
 
@@ -94,7 +92,7 @@ bool cPngReader::isValid(const uint8_t* data, uint32_t size)
     return size >= MinBytesToTest && png_sig_cmp(header, 0, sizeof(header)) == 0;
 }
 
-bool cPngReader::loadPng(sBitmapDescription& desc, const uint8_t* data, uint32_t size) const
+bool cPngReader::loadPng(sBitmapDescription& desc, const uint8_t* data, uint32_t size)
 {
     if (isValid(data, size) == false)
     {
@@ -164,84 +162,36 @@ bool cPngReader::loadPng(sBitmapDescription& desc, const uint8_t* data, uint32_t
 
     colorType = png_get_color_type(png, info);
 
-    desc.bitmap.resize(desc.pitch * desc.height);
-    auto out = desc.bitmap.data();
-    std::vector<png_bytep> rows(desc.height);
-    for (uint32_t y = 0; y < desc.height; y++)
-    {
-        rows[y] = out + desc.pitch * y;
-    }
-    png_read_image(png, rows.data());
-
-    uint32_t iccProfileSize = 0;
-    auto iccProfile = locateICCProfile(png, info, iccProfileSize);
-    m_cms.createTransform(iccProfile, iccProfileSize, cCMS::Pixel::Rgb);
-
-    if (colorType == PNG_COLOR_TYPE_RGB)
-    {
-        desc.format = GL_RGB;
-
-        if (m_cms.hasTransform())
-        {
-            for (uint32_t y = 0; y < desc.height; y++)
-            {
-                auto input = rows[y];
-                m_cms.doTransform(input, input, desc.width);
-
-                updateProgress((float)y / desc.height);
-            }
-        }
-    }
-    else if (colorType == PNG_COLOR_TYPE_RGB_ALPHA)
-    {
-        desc.format = GL_RGBA;
-
-        if (m_cms.hasTransform())
-        {
-            std::vector<uint8_t> buffer(desc.width * 3);
-            auto input = buffer.data();
-
-            for (uint32_t y = 0; y < desc.height; y++)
-            {
-                auto bmp = rows[y];
-
-                for (uint32_t x = 0; x < desc.width; x++)
-                {
-                    const uint32_t dst = x * 3;
-                    const uint32_t src = x * 4;
-                    input[dst + 0] = bmp[src + 0];
-                    input[dst + 1] = bmp[src + 1];
-                    input[dst + 2] = bmp[src + 2];
-                }
-
-                m_cms.doTransform(input, input, desc.width);
-
-                for (uint32_t x = 0; x < desc.width; x++)
-                {
-                    const uint32_t dst = x * 4;
-                    const uint32_t src = x * 3;
-                    bmp[dst + 0] = input[src + 0];
-                    bmp[dst + 1] = input[src + 1];
-                    bmp[dst + 2] = input[src + 2];
-                }
-
-                updateProgress((float)y / desc.height);
-            }
-        }
-    }
-    else
+    if (colorType != PNG_COLOR_TYPE_RGB_ALPHA && colorType != PNG_COLOR_TYPE_RGB)
     {
         ::printf("(EE) Should't be happened.\n");
     }
 
-    png_destroy_read_struct(&png, &info, nullptr);
+    desc.format = colorType == PNG_COLOR_TYPE_RGB_ALPHA ? GL_RGBA : GL_RGB;
 
-    m_cms.destroyTransform();
+    desc.bitmap.resize(desc.pitch * desc.height);
+    auto out = desc.bitmap.data();
+    std::vector<png_bytep> scanlines(desc.height);
+    for (uint32_t y = 0; y < desc.height; y++)
+    {
+        scanlines[y] = out + desc.pitch * y;
+    }
+    png_read_image(png, scanlines.data());
+
+    uint32_t iccProfileSize = 0;
+    auto iccProfile = locateICCProfile(png, info, iccProfileSize);
+    m_iccProfile.resize(iccProfileSize);
+    if (iccProfile != nullptr && iccProfileSize != 0)
+    {
+        ::memcpy(m_iccProfile.data(), iccProfile, iccProfileSize);
+    }
+
+    png_destroy_read_struct(&png, &info, nullptr);
 
     return true;
 }
 
-bool cPngReader::loadPng(sBitmapDescription& desc, cFile& file) const
+bool cPngReader::loadPng(sBitmapDescription& desc, cFile& file)
 {
     desc.size = file.getSize();
 
@@ -315,6 +265,13 @@ bool cPngReader::loadPng(sBitmapDescription& desc, cFile& file) const
 
     colorType = png_get_color_type(png, info);
 
+    if (colorType != PNG_COLOR_TYPE_RGB_ALPHA && colorType != PNG_COLOR_TYPE_RGB)
+    {
+        ::printf("(EE) Should't be happened.\n");
+    }
+
+    desc.format = colorType == PNG_COLOR_TYPE_RGB_ALPHA ? GL_RGBA : GL_RGB;
+
     // read file
     if (setjmp(png_jmpbuf(png)) != 0)
     {
@@ -324,77 +281,22 @@ bool cPngReader::loadPng(sBitmapDescription& desc, cFile& file) const
 
     desc.bitmap.resize(desc.pitch * desc.height);
     auto out = desc.bitmap.data();
-    std::vector<png_bytep> row_pointers(desc.height);
+    std::vector<png_bytep> scanlines(desc.height);
     for (uint32_t y = 0; y < desc.height; y++)
     {
-        row_pointers[y] = out + desc.pitch * y;
+        scanlines[y] = out + desc.pitch * y;
     }
-    png_read_image(png, row_pointers.data());
+    png_read_image(png, scanlines.data());
 
-    unsigned iccProfileSize = 0;
+    uint32_t iccProfileSize = 0;
     auto iccProfile = locateICCProfile(png, info, iccProfileSize);
-    m_cms.createTransform(iccProfile, iccProfileSize, cCMS::Pixel::Rgb);
-
-    if (colorType == PNG_COLOR_TYPE_RGB)
+    m_iccProfile.resize(iccProfileSize);
+    if (iccProfile != nullptr && iccProfileSize != 0)
     {
-        desc.format = GL_RGB;
-
-        if (m_cms.hasTransform())
-        {
-            for (unsigned y = 0; y < desc.height; y++)
-            {
-                auto input = row_pointers[y];
-                m_cms.doTransform(input, input, desc.width);
-
-                updateProgress((float)y / desc.height);
-            }
-        }
-    }
-    else if (colorType == PNG_COLOR_TYPE_RGB_ALPHA)
-    {
-        desc.format = GL_RGBA;
-
-        if (m_cms.hasTransform())
-        {
-            std::vector<uint8_t> buffer(desc.width * 3);
-            auto input = buffer.data();
-
-            for (unsigned y = 0; y < desc.height; y++)
-            {
-                auto bmp = row_pointers[y];
-
-                for (unsigned x = 0; x < desc.width; x++)
-                {
-                    const unsigned dst = x * 3;
-                    const unsigned src = x * 4;
-                    input[dst + 0] = bmp[src + 0];
-                    input[dst + 1] = bmp[src + 1];
-                    input[dst + 2] = bmp[src + 2];
-                }
-
-                m_cms.doTransform(input, input, desc.width);
-
-                for (unsigned x = 0; x < desc.width; x++)
-                {
-                    const unsigned dst = x * 4;
-                    const unsigned src = x * 3;
-                    bmp[dst + 0] = input[src + 0];
-                    bmp[dst + 1] = input[src + 1];
-                    bmp[dst + 2] = input[src + 2];
-                }
-
-                updateProgress((float)y / desc.height);
-            }
-        }
-    }
-    else
-    {
-        ::printf("(EE) Should't be happened.\n");
+        ::memcpy(m_iccProfile.data(), iccProfile, iccProfileSize);
     }
 
     png_destroy_read_struct(&png, &info, nullptr);
-
-    m_cms.destroyTransform();
 
     return true;
 }

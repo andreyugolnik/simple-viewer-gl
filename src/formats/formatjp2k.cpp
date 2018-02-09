@@ -312,30 +312,18 @@ bool cFormatJp2k::LoadImpl(const char* filename, sBitmapDescription& desc)
         return false;
     }
 
+    m_formatName = "jpeg2000";
+
     auto iccProfile = image->icc_profile_buf;
     auto iccProfileSize = image->icc_profile_len;
     if (iccProfile != nullptr && iccProfileSize != 0)
     {
         uint32_t numcomps = image->numcomps;
 
-        m_cms.createTransform(iccProfile, iccProfileSize, numcomps == 4 ? cCMS::Pixel::Rgba : cCMS::Pixel::Rgb);
-    }
-
-    m_formatName = m_cms.hasTransform() ? "jpeg2000/icc" : "jpeg2000";
-
-    if (m_cms.hasTransform())
-    {
-        auto bitmap = desc.bitmap.data();
-
-        for (uint32_t y = 0; y < desc.height; y++)
+        if (applyIccProfile(desc, iccProfile, iccProfileSize, numcomps == 4 ? cCMS::Pixel::Rgba : cCMS::Pixel::Rgb))
         {
-            m_cms.doTransform(bitmap, bitmap, desc.width);
-            bitmap += desc.pitch;
-
-            updateProgress(y / desc.height);
+            m_formatName = "jpeg2000/icc";
         }
-
-        m_cms.destroyTransform();
     }
 
     // free image data structure
