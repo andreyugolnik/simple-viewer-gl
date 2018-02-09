@@ -135,7 +135,7 @@ if(EXIF_FOUND)
     add_definitions(-DEXIF_SUPPORT=1)
     include_directories(${EXIF_INCLUDE_DIRS})
 else()
-    message(FATAL_ERROR "* EXIF not found")
+    message(STATUS "* EXIF support disabled")
 endif()
 
 find_package(LCMS2 QUIET)
