@@ -55,7 +55,7 @@ namespace
             exif_entry_get_value(entry, buf, sizeof(buf));
 
             // Don't bother printing it if it's entirely blank
-            trimSpaces(buf);
+            helpers::trimRightSpaces(buf);
             if (*buf != 0)
             {
                 ::printf("ifd %d , tag 0x%.4x : '%s': '%s'\n", ifd, tag, exif_tag_get_name_in_ifd(tag, ifd), buf);
