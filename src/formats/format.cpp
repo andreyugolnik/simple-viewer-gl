@@ -19,6 +19,7 @@
 cFormat::cFormat(iCallbacks* callbacks)
     : m_callbacks(callbacks)
 {
+    m_cms.reset(new cCMS());
 }
 
 cFormat::~cFormat()
