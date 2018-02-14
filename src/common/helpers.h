@@ -9,8 +9,8 @@
 
 #pragma once
 
-#include "types/types.h"
 #include "common/buffer.h"
+#include "types/types.h"
 
 #include <string>
 
@@ -45,4 +45,4 @@ namespace helpers
     char* memfind(const char* buf, size_t size, const char* tofind);
 
     bool base64decode(const char* input, size_t in_len, Buffer& out);
-}
+} // namespace helpers

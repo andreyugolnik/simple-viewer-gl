@@ -35,6 +35,7 @@
 #include "formats/formatxcf.h"
 #include "formats/formatxpm.h"
 #include "formats/formatxwd.h"
+#include "network/curl.h"
 #include "notavailable.h"
 
 #include <algorithm>
@@ -63,11 +64,30 @@ void cImageLoader::load(const char* path)
 {
     if (path != nullptr)
     {
-        const eImageType type = getType(path);
-        m_image = getLoader(type);
-
         // auto start = helpers::getTime();
-        const bool result = m_image->Load(path, m_desc);
+        bool result = false;
+
+        cCurl curl;
+        if (curl.isUrl(path))
+        {
+            if (curl.loadFile(path))
+            {
+                path = curl.getPath();
+
+                const eImageType type = getType(path);
+                m_image = getLoader(type);
+
+                result = m_image->Load(path, m_desc);
+            }
+        }
+        else
+        {
+            const eImageType type = getType(path);
+            m_image = getLoader(type);
+
+            result = m_image->Load(path, m_desc);
+        }
+
         // ::printf("(II) Loading time: %u μs.\n", (uint32_t)(helpers::getTime() - start) / 1000);
 
         if (result == true)
