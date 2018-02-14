@@ -16,6 +16,8 @@ class cQuad;
 class cProgress final
 {
 public:
+    cProgress() = default;
+
     void init();
 
     void show()

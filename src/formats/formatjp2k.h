@@ -16,7 +16,7 @@
 class cFormatJp2k final : public cFormat
 {
 public:
-    cFormatJp2k(iCallbacks* callbacks);
+    explicit cFormatJp2k(iCallbacks* callbacks);
     ~cFormatJp2k();
 
     bool isSupported(cFile& file, Buffer& buffer) const override;

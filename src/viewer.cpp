@@ -447,10 +447,12 @@ void cViewer::onKey(int key, int scancode, int action, int mods)
         break;
 
     case GLFW_KEY_EQUAL:
+    case GLFW_KEY_KP_ADD:
         updateScale(true);
         break;
 
     case GLFW_KEY_MINUS:
+    case GLFW_KEY_KP_SUBTRACT:
         updateScale(false);
         break;
 
@@ -459,6 +461,7 @@ void cViewer::onKey(int key, int scancode, int action, int mods)
         break;
 
     case GLFW_KEY_ENTER:
+    case GLFW_KEY_KP_ENTER:
         m_windowModeChangeRequested = true;
         break;
 

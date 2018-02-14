@@ -20,7 +20,7 @@
 class cFormatGif final : public cFormat
 {
 public:
-    cFormatGif(iCallbacks* callbacks);
+    explicit cFormatGif(iCallbacks* callbacks);
     ~cFormatGif();
 
     bool isSupported(cFile& file, Buffer& buffer) const override;

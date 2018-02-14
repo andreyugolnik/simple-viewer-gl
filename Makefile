@@ -38,7 +38,10 @@ debug:
 	rm -fr $(OUT_NAME) && cp -r $(BUILD_DIR_DEBUG)/$(BUNDLE_NAME) $(OUT_NAME)
 
 cppcheck:
-	cppcheck -j 1 --enable=all -f -I src src/ 2> cppcheck-output
+	cppcheck \
+		-DEXIF_SUPPORT=1 -DLCMS2_SUPPORT=1 -DJPEG2000_SUPPORT=1 -DGIF_SUPPORT=1 \
+		-DTIFF_SUPPORT=1 -DWEBP_SUPPORT=1 -DOPENEXR_SUPPORT=1 -DIMLIB2_SUPPORT=1 \
+		-j 1 --std=c++11 --enable=all -f -I src src/ 2> cppcheck-output
 
 clean:
 	rm -fr $(BUILD_DIR_RELEASE) $(BUILD_DIR_DEBUG) $(OUT_NAME) $(BUNDLE_NAME) cppcheck-output $(BUNDLE_NAME)-$(VERSION)* $(BUNDLE_NAME)_$(VERSION)* *.log *.tasks *.sh *.xz *.list *.deb strace_out cov-int

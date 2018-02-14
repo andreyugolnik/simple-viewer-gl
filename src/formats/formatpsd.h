@@ -14,7 +14,7 @@
 class cFormatPsd final : public cFormat
 {
 public:
-    cFormatPsd(iCallbacks* callbacks);
+    explicit cFormatPsd(iCallbacks* callbacks);
     ~cFormatPsd();
 
     bool isSupported(cFile& file, Buffer& buffer) const override;

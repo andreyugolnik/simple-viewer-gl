@@ -11,28 +11,35 @@
 #include "types/types.h"
 
 #include <functional>
+#include <vector>
 
-class cCMS;
 class cFile;
 struct sBitmapDescription;
 
 class cPngReader
 {
 public:
-    cPngReader(cCMS& cms);
+    cPngReader();
     virtual ~cPngReader();
 
     typedef std::function<void (float percent)> progressCallback;
 
-    void setProgressCallback(progressCallback callback)
+    void setProgressCallback(const progressCallback& callback)
     {
         m_progress = callback;
     }
 
     static bool isValid(const uint8_t* data, uint32_t size);
 
-    bool loadPng(sBitmapDescription& desc, const uint8_t* data, uint32_t size) const;
-    bool loadPng(sBitmapDescription& desc, cFile& file) const;
+    bool loadPng(sBitmapDescription& desc, const uint8_t* data, uint32_t size);
+    bool loadPng(sBitmapDescription& desc, cFile& file);
+
+    using IccProfile = std::vector<uint8_t>;
+
+    const IccProfile& getIccProfile() const
+    {
+        return m_iccProfile;
+    }
 
 private:
     void updateProgress(float percent) const
@@ -47,6 +54,7 @@ public:
     static const uint32_t MinBytesToTest = 8;
 
 private:
-    cCMS& m_cms;
     progressCallback m_progress = nullptr;
+
+    IccProfile m_iccProfile;
 };

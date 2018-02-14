@@ -143,15 +143,15 @@ bool cFormatIco::load(uint32_t current, sBitmapDescription& desc)
 
     if (image->colors == 0 && image->width == 0 && image->height == 0)
     {
-        result = loadPngFrame(desc, file, image);
-
         m_formatName = "ico/png";
+
+        result = loadPngFrame(desc, file, image);
     }
     else
     {
-        result = loadOrdinaryFrame(desc, file, image);
-
         m_formatName = "ico";
+
+        result = loadOrdinaryFrame(desc, file, image);
     }
 
     // store frame number and frames count after reset again
@@ -174,12 +174,26 @@ bool cFormatIco::loadPngFrame(sBitmapDescription& desc, cFile& file, const IcoDi
         return false;
     }
 
-    cPngReader reader(m_cms);
+    cPngReader reader;
     reader.setProgressCallback([this](float percent) {
         updateProgress(percent);
     });
 
-    return reader.loadPng(desc, data, size);
+    bool result = reader.loadPng(desc, data, size);
+
+    if (result)
+    {
+        auto& iccProfile = reader.getIccProfile();
+        if (iccProfile.size() != 0)
+        {
+            if (applyIccProfile(desc, iccProfile.data(), iccProfile.size()))
+            {
+                m_formatName = "ico/png/icc";
+            }
+        }
+    }
+
+    return result;
 }
 
 // load frame in ordinary format

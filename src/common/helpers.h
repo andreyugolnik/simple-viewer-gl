@@ -21,6 +21,8 @@ namespace helpers
     void swap_uint32s(uint8_t* p, uint32_t size);
     void swap_uint16s(uint8_t* p, uint32_t size);
 
+    void trimRightSpaces(char* buf);
+
     template <typename T>
     T clamp(const T& min, const T& max, const T& val)
     {

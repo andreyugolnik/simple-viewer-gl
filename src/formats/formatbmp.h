@@ -14,7 +14,7 @@
 class cFormatBmp final : public cFormat
 {
 public:
-    cFormatBmp(iCallbacks* callbacks);
+    explicit cFormatBmp(iCallbacks* callbacks);
     ~cFormatBmp();
 
     bool isSupported(cFile& file, Buffer& buffer) const override;

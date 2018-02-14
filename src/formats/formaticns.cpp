@@ -237,14 +237,27 @@ bool cFormatIcns::load(uint32_t current, sBitmapDescription& desc)
 
     if (chunk.id[0] == 'i' && chunk.id[1] == 'c')
     {
-        cPngReader reader(m_cms);
+        m_formatName = "icns/png";
+
+        cPngReader reader;
         reader.setProgressCallback([this](float percent) {
             updateProgress(percent);
         });
 
         auto data = icon + sizeof(IcnsChunk);
         auto size = chunk.chunkSize - sizeof(IcnsChunk);
-        if (reader.loadPng(desc, data, size) == false)
+        if (reader.loadPng(desc, data, size))
+        {
+            auto& iccProfile = reader.getIccProfile();
+            if (iccProfile.size() != 0)
+            {
+                if (applyIccProfile(desc, iccProfile.data(), iccProfile.size()))
+                {
+                    m_formatName = "icns/png/icc";
+                }
+            }
+        }
+        else
         {
             ::printf("(EE) Error loading PNG frame.\n");
         }

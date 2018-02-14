@@ -46,6 +46,19 @@ namespace helpers
         }
     }
 
+    void trimRightSpaces(char* buf)
+    {
+        char* s = buf - 1;
+        for (; *buf; ++buf)
+        {
+            if (*buf != ' ')
+            {
+                s = buf;
+            }
+        }
+        *++s = 0; // nul terminate the string on the first of the final spaces
+    }
+
     uint32_t nextPot(uint32_t n)
     {
         n = n - 1;

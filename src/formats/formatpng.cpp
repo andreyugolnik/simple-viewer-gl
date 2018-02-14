@@ -40,15 +40,24 @@ bool cFormatPng::LoadImpl(const char* filename, sBitmapDescription& desc)
         return false;
     }
 
-    cPngReader reader(m_cms);
+    cPngReader reader;
     reader.setProgressCallback([this](float progress) {
         updateProgress(progress);
     });
 
+    m_formatName = "png";
+
     auto result = reader.loadPng(desc, file);
     if (result)
     {
-        m_formatName = m_cms.hasTransform() ? "png/icc" : "png";
+        auto& iccProfile = reader.getIccProfile();
+        if (iccProfile.size() != 0)
+        {
+            if (applyIccProfile(desc, iccProfile.data(), iccProfile.size()))
+            {
+                m_formatName = "png/icc";
+            }
+        }
     }
 
     return result;

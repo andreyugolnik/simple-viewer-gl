@@ -14,7 +14,7 @@
 class cFormatDds final : public cFormat
 {
 public:
-    cFormatDds(iCallbacks* callbacks);
+    explicit cFormatDds(iCallbacks* callbacks);
     ~cFormatDds();
 
     bool isSupported(cFile& file, Buffer& buffer) const override;

@@ -14,7 +14,7 @@
 class cFormatXcf final : public cFormat
 {
 public:
-    cFormatXcf(iCallbacks* callbacks);
+    explicit cFormatXcf(iCallbacks* callbacks);
     ~cFormatXcf();
 
     bool isSupported(cFile& file, Buffer& buffer) const override;

@@ -99,10 +99,6 @@ bool cJpegDecoder::decodeJpeg(const uint8_t* in, uint32_t size, sBitmapDescripti
     setupMarkers(&cinfo);
     jpeg_read_header(&cinfo, TRUE);
 
-    uint32_t iccProfileSize = 0;
-    auto iccProfile = locateICCProfile(cinfo, iccProfileSize);
-    m_cms.createTransform(iccProfile, iccProfileSize, cCMS::Pixel::Rgb);
-
     // unsigned exifSize = 0;
     // auto exif = locateExif(cinfo, exifSize);
     // if (exif != nullptr)
@@ -134,9 +130,9 @@ bool cJpegDecoder::decodeJpeg(const uint8_t* in, uint32_t size, sBitmapDescripti
      */
 
     // m_formatName = GetFormat(cinfo.jpeg_color_space);
-    m_formatName = m_cms.hasTransform() ? "jpeg/icc" : "jpeg";
 
-    const float progress = m_cms.hasTransform() ? 0.5f : 1.0f;
+    Icc icc;
+    locateICCProfile(cinfo, icc);
 
     if (isCMYK)
     {
@@ -170,7 +166,7 @@ bool cJpegDecoder::decodeJpeg(const uint8_t* in, uint32_t size, sBitmapDescripti
 
             out += desc.pitch;
 
-            updateProgress(progress * cinfo.output_scanline / cinfo.output_height);
+            updateProgress(cinfo.output_scanline / cinfo.output_height);
         }
     }
     else
@@ -191,13 +187,20 @@ bool cJpegDecoder::decodeJpeg(const uint8_t* in, uint32_t size, sBitmapDescripti
             jpeg_read_scanlines(&cinfo, &out, 1);
             out += desc.pitch;
 
-            updateProgress(progress * cinfo.output_scanline / cinfo.output_height);
+            updateProgress(cinfo.output_scanline / cinfo.output_height);
         }
     }
 
     /* Step 7: Finish decompression */
 
     jpeg_finish_decompress(&cinfo);
+
+    m_formatName = "jpeg";
+
+    if (applyIccProfile(desc, icc.data(), icc.size()))
+    {
+        m_formatName = "jpeg/icc";
+    }
 
     /* Step 8: Release JPEG decompression object */
 
@@ -214,20 +217,6 @@ bool cJpegDecoder::decodeJpeg(const uint8_t* in, uint32_t size, sBitmapDescripti
      * warnings occurred (test whether jerr.pub.num_warnings is nonzero).
      */
 
-    if (m_cms.hasTransform())
-    {
-        auto bitmap = desc.bitmap.data();
-
-        for (uint32_t i = 0; i < desc.height; i++)
-        {
-            m_cms.doTransform(bitmap, bitmap, desc.width);
-            bitmap += desc.pitch;
-            updateProgress(0.5f + progress * i / desc.height);
-        }
-
-        m_cms.destroyTransform();
-    }
-
     return true;
 }
 
@@ -237,7 +226,7 @@ void cJpegDecoder::setupMarkers(jpeg_decompress_struct* cinfo)
     jpeg_save_markers(cinfo, JPEG_ICCP, maxMarkerLength);
 }
 
-void* cJpegDecoder::locateICCProfile(const jpeg_decompress_struct& cinfo, uint32_t& iccProfileSize)
+bool cJpegDecoder::locateICCProfile(const jpeg_decompress_struct& cinfo, Icc& icc) const
 {
     const char kICCPSignature[] = "ICC_PROFILE";
     const size_t kICCPSkipLength = 14; // signature + seq & count
@@ -248,10 +237,11 @@ void* cJpegDecoder::locateICCProfile(const jpeg_decompress_struct& cinfo, uint32
             && m->data_length > kICCPSkipLength
             && ::memcmp(m->data, kICCPSignature, sizeof(kICCPSignature)) == 0)
         {
-            iccProfileSize = m->data_length - kICCPSkipLength;
-            return m->data + kICCPSkipLength;
+            icc.resize(m->data_length - kICCPSkipLength);
+            ::memcpy(icc.data(), m->data + kICCPSkipLength, icc.size());
+            return true;
         }
     }
 
-    return nullptr;
+    return false;
 }

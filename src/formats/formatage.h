@@ -14,7 +14,7 @@
 class cFormatAge final : public cFormat
 {
 public:
-    cFormatAge(iCallbacks* callbacks);
+    explicit cFormatAge(iCallbacks* callbacks);
     ~cFormatAge();
 
     bool isSupported(cFile& file, Buffer& buffer) const override;

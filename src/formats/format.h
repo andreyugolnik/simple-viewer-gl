@@ -10,10 +10,12 @@
 #pragma once
 
 #include "common/buffer.h"
-#include "cms/cms.h"
 
-class iCallbacks;
+#include <memory>
+
+class cCMS;
 class cFile;
+class iCallbacks;
 struct sBitmapDescription;
 
 class cFormat
@@ -24,7 +26,7 @@ public:
     virtual bool isSupported(cFile& file, Buffer& buffer) const = 0;
 
     bool Load(const char* filename, sBitmapDescription& desc);
-    bool LoadSubImage(unsigned subImage, sBitmapDescription& desc);
+    bool LoadSubImage(uint32_t subImage, sBitmapDescription& desc);
 
     void updateProgress(float percent) const;
 
@@ -42,21 +44,24 @@ public:
 
 protected:
     cFormat(iCallbacks* callbacks);
-    bool readBuffer(cFile& file, Buffer& buffer, unsigned minSize) const;
+    bool readBuffer(cFile& file, Buffer& buffer, uint32_t minSize) const;
+    bool applyIccProfile(sBitmapDescription& desc, const void* iccProfile, uint32_t iccProfileSize) const;
+    bool applyIccProfile(sBitmapDescription& desc, const float* chr, const float* wp, const uint16_t* gmr, const uint16_t* gmg, const uint16_t* gmb) const;
 
 private:
+    bool applyIccProfile(sBitmapDescription& desc) const;
+
     virtual bool LoadImpl(const char* filename, sBitmapDescription& desc) = 0;
-    virtual bool LoadSubImageImpl(unsigned /*subImage*/, sBitmapDescription& /*desc*/)
+    virtual bool LoadSubImageImpl(uint32_t /*subImage*/, sBitmapDescription& /*desc*/)
     {
         return false;
     }
 
 private:
     iCallbacks* m_callbacks;
+    std::unique_ptr<cCMS> m_cms;
 
 protected:
-    cCMS m_cms;
-
     const char* m_formatName = nullptr;
     bool m_stop = false;
 };

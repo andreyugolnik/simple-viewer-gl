@@ -15,7 +15,6 @@
 
 namespace ini
 {
-
     cFile::cFile()
         : m_file(nullptr)
         , m_size(0)
@@ -50,8 +49,8 @@ namespace ini
     {
         const bool result = m_file != nullptr ? (fclose((FILE*)m_file) == 0) : false;
 
-        m_file   = nullptr;
-        m_size   = 0;
+        m_file = nullptr;
+        m_size = 0;
         m_offset = 0;
 
         return result;
@@ -104,8 +103,6 @@ namespace ini
         return result;
     }
 
-
-
     void TrimSpaces(std::string& str)
     {
         // Trim Both leading and trailing spaces
@@ -139,8 +136,6 @@ namespace ini
         return result;
     }
 
-
-
     class cSection final
     {
     public:
@@ -151,13 +146,13 @@ namespace ini
             {
             }
 
-            Entry(const std::string& c)
+            explicit Entry(const std::string& c)
                 : type(Type::Comment)
                 , key(c)
             {
             }
 
-            Entry(const std::string& k, const std::string& v)
+            explicit Entry(const std::string& k, const std::string& v)
                 : type(Type::KeyValue)
                 , key(k)
                 , value(v)
@@ -177,7 +172,7 @@ namespace ini
         };
         typedef std::vector<Entry> Entries;
 
-        cSection(const std::string& name)
+        explicit cSection(const std::string& name)
             : m_name(name)
         {
         }
@@ -202,30 +197,29 @@ namespace ini
                         auto value = data.substr(pos + 1, data.length() - pos);
                         TrimSpaces(value);
 
-                        m_entries.push_back({ key, value });
+                        m_entries.emplace_back(key, value);
                     }
                     else
                     {
                         auto key = data;
                         TrimSpaces(key);
-                        m_entries.push_back({ key, "" });
+                        m_entries.emplace_back(key, std::string());
                     }
                 }
                 else
                 {
-                    m_entries.push_back({ data });
+                    m_entries.emplace_back(data);
                 }
             }
             else
             {
-                m_entries.push_back({ });
+                m_entries.emplace_back();
             }
         }
 
         void setValue(const char* key, const char* value)
         {
-            auto it = std::find_if(m_entries.begin(), m_entries.end(), [&key](const Entry & e)
-            {
+            auto it = std::find_if(m_entries.begin(), m_entries.end(), [&key](const Entry& e) {
                 return e.key == key;
             });
 
@@ -237,7 +231,7 @@ namespace ini
                 }
                 else
                 {
-                    m_entries.push_back({ key, value });
+                    m_entries.emplace_back(key, value);
                 }
             }
             else
@@ -251,8 +245,7 @@ namespace ini
 
         const char* getValue(const char* key) const
         {
-            auto it = std::find_if(m_entries.begin(), m_entries.end(), [key](const Entry & e)
-            {
+            auto it = std::find_if(m_entries.begin(), m_entries.end(), [key](const Entry& e) {
                 return e.key == key;
             });
             if (it != m_entries.end())
@@ -271,8 +264,6 @@ namespace ini
         const std::string m_name;
         Entries m_entries;
     };
-
-
 
     cSection* Find(const char* section, const ini::SectionList& sections)
     {
@@ -307,8 +298,6 @@ namespace ini
 
         return currentSection;
     }
-
-
 
     cIni::cIni()
     {
