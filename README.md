@@ -130,6 +130,7 @@ $ sudo make rpm
 `OpenEXR`      | *libilmbase-dev*, *libopenexr-dev* | (Optional) OpenEXR is a high dynamic-range (HDR) image file format developed by Industrial Light & Magic for use in computer imaging applications.
 `OpenJPEG`     | *libopenjpeg-dev*,                 | (Optional) JPEG 2000 support.
 `ImLib2`       | *libimlib2-dev*                    | (Optional) Common formats support.
+`curl`         | *libcurl-dev*                      | (Optional) Support loading via http/https/ftp protocols.
 
 ```
 Copyright © 2008-2018 Andrey A. Ugolnik. All Rights Reserved.
