@@ -14,7 +14,7 @@
 class cFormatTarga final : public cFormat
 {
 public:
-    cFormatTarga(iCallbacks* callbacks);
+    explicit cFormatTarga(iCallbacks* callbacks);
     ~cFormatTarga();
 
     bool isSupported(cFile& file, Buffer& buffer) const override;

@@ -14,7 +14,7 @@
 class cFormatEps final : public cJpegDecoder
 {
 public:
-    cFormatEps(iCallbacks* callbacks);
+    explicit cFormatEps(iCallbacks* callbacks);
     ~cFormatEps();
 
     bool isSupported(cFile& file, Buffer& buffer) const override;

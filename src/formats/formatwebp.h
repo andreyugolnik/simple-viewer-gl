@@ -16,7 +16,7 @@
 class cFormatWebP final : public cFormat
 {
 public:
-    cFormatWebP(iCallbacks* callbacks);
+    explicit cFormatWebP(iCallbacks* callbacks);
     ~cFormatWebP();
 
     bool isSupported(cFile& file, Buffer& buffer) const override;

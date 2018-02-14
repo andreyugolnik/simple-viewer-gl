@@ -18,7 +18,7 @@
 class cFormatTiff final : public cFormat
 {
 public:
-    cFormatTiff(iCallbacks* callbacks);
+    explicit cFormatTiff(iCallbacks* callbacks);
     ~cFormatTiff();
 
     bool isSupported(cFile& file, Buffer& buffer) const override;

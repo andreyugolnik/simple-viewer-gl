@@ -318,7 +318,7 @@ bool cFormatJp2k::LoadImpl(const char* filename, sBitmapDescription& desc)
     auto iccProfileSize = image->icc_profile_len;
     if (iccProfile != nullptr && iccProfileSize != 0)
     {
-        uint32_t numcomps = image->numcomps;
+        // uint32_t numcomps = image->numcomps;
 
         if (applyIccProfile(desc, iccProfile, iccProfileSize))
         {
@@ -356,15 +356,13 @@ bool cFormatJp2k::loadJp2k(void* img, sBitmapDescription& desc) const
 
     uint32_t numcomps = image->numcomps;
 
-    bool bIsValid = true;
     for (uint32_t c = 0; c < numcomps - 1; c++)
     {
         if (image->comps[c].dx != image->comps[c + 1].dx
             || image->comps[c].dy != image->comps[c + 1].dy
             || image->comps[c].prec != image->comps[c + 1].prec)
         {
-            bIsValid = false;
-            break;
+            return false;
         }
     }
 

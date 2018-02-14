@@ -24,7 +24,7 @@ public:
 
     typedef std::function<void (float percent)> progressCallback;
 
-    void setProgressCallback(progressCallback callback)
+    void setProgressCallback(const progressCallback& callback)
     {
         m_progress = callback;
     }

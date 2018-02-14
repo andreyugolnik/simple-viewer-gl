@@ -16,7 +16,7 @@
 class cFormatExr final : public cFormat
 {
 public:
-    cFormatExr(iCallbacks* callbacks);
+    explicit cFormatExr(iCallbacks* callbacks);
     ~cFormatExr();
 
     bool isSupported(cFile& file, Buffer& buffer) const override;
