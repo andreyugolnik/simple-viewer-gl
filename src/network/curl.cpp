@@ -93,17 +93,19 @@ void cCurl::deleteFile()
 {
 #if defined(CURL_SUPPORT)
     char* path = m_path.data();
-
-    ::unlink(path);
-
-    char* n = ::strrchr(path, '/');
-    if (n != nullptr)
+    if (path != nullptr)
     {
-        n[0] = 0;
+        ::unlink(path);
+
+        char* n = ::strrchr(path, '/');
+        if (n != nullptr)
+        {
+            n[0] = 0;
+        }
+
+        ::rmdir(path);
+
+        m_path.clear();
     }
-
-    ::rmdir(path);
-
-    m_path.clear();
 #endif
 }
