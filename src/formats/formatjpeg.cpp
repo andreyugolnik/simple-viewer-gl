@@ -271,7 +271,7 @@ bool cFormatJpeg::LoadImpl(const char* filename, sBitmapDescription& desc)
             addExifTag(ed, EXIF_IFD_0, EXIF_TAG_Y_RESOLUTION, exifList);
 
             addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_MAX_APERTURE_VALUE, exifList);
-            addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_DATE_TIME, exifList);
+            addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_DATE_TIME_ORIGINAL, exifList);
             addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_FNUMBER, exifList);
             addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_FOCAL_LENGTH, exifList);
             addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_EXPOSURE_TIME, exifList);
