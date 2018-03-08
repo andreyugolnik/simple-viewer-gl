@@ -76,7 +76,8 @@ namespace
         printf("  <pgdn>        next image in multi-page image;\n");
         printf("  <pgup>        previous image in multi-page image;\n");
         printf("  <enter>       switch fullscreen / windowed mode;\n");
-        printf("  <ctrl>+<del>  delete image from disk;\n");
+        printf("  <del>         toggle deletion mark;\n");
+        printf("  <ctrl>+<del>  delete marked images from disk;\n");
         printf("  <s>           fit image to window;\n");
         printf("  <r>           rotate clockwise;\n");
         printf("  <shift>+<r>   rotate counterclockwise;\n");
