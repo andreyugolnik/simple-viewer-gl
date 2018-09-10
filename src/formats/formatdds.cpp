@@ -352,7 +352,7 @@ bool cFormatDds::LoadImpl(const char* filename, sBitmapDescription& desc)
     {
         if (header.ddspf.dwFourCC == ('D' | 'X' << 8 | '1' << 16 | '0' << 24))
         {
-            if (sizeof(header) != file.read(&header10, sizeof(header10)))
+            if (sizeof(header10) != file.read(&header10, sizeof(header10)))
             {
                 ::printf("(EE) Error load DDS file '%s': wrong DX10 header size.\n", filename);
                 return false;
