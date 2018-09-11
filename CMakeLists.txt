@@ -36,7 +36,7 @@ endif()
 
 message(STATUS "***************************")
 
-find_package(PkgConfig)
+find_package(PkgConfig REQUIRED)
 
 find_package(OpenGL QUIET REQUIRED)
 if(OPENGL_FOUND)
@@ -50,7 +50,7 @@ else()
     message(FATAL_ERROR "* OpenGL not found")
 endif()
 
-pkg_check_modules(GLFW3 QUIET REQUIRED glfw3)
+pkg_search_module(GLFW3 QUIET REQUIRED glfw3)
 if(GLFW3_FOUND)
     message(STATUS "* GLFW3 found")
     if(VERBOSE_PATHS)
