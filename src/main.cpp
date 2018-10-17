@@ -59,10 +59,10 @@ namespace
         printf("  -r             recursive directory scan (default: %s);\n", getValue(config.recursiveScan));
         printf("  -wz            enable wheel zoom (default: %s);\n", getValue(config.wheelZoom));
         printf("  -mipmap VALUE  min texture size for mipmap creation (default: %u px);\n", config.mipmapTextureSize);
-        printf("  -C RRGGBB      background color in hex format (default: %.2X%.2X%.2X);\n"
-               , (uint32_t)(config.bgColor.r)
-               , (uint32_t)(config.bgColor.g)
-               , (uint32_t)(config.bgColor.b));
+        printf("  -C RRGGBB      background color in hex format (default: %.2X%.2X%.2X);\n",
+               (uint32_t)(config.bgColor.r),
+               (uint32_t)(config.bgColor.g),
+               (uint32_t)(config.bgColor.b));
         printf("  --             read null terminated files list from stdin.\n");
         printf("                 Usage:\n");
         printf("                   find /path -name *.psd -print0 | sviewgl --\n");
@@ -174,9 +174,15 @@ namespace
 #endif
     }
 
-    GLFWwindow* createWindowedWindow(int width, int height, GLFWwindow* parent)
+    GLFWwindow* createWindowedWindow(int width, int height, GLFWwindow* parent, const sConfig& config)
     {
         auto newWindow = glfwCreateWindow(width, height, SVGL_Title, nullptr, parent);
+
+        if (config.centerWindow == false)
+        {
+            glfwSetWindowPos(newWindow, config.windowPos.x, config.windowPos.y);
+        }
+
         return newWindow;
     }
 
@@ -187,90 +193,118 @@ namespace
         auto newWindow = glfwCreateWindow(mode->width, mode->height, SVGL_Title, monitor, parent);
         return newWindow;
     }
+
+    //
+    // macOS Mojave / Xcode 10 specific bug workaround
+    // https://github.com/glfw/glfw/issues/1334
+    //
+    static int macOSHackCount = 0;
+
+    void macOSMojaveUglyHack(GLFWwindow* window)
+    {
+#ifdef __APPLE__
+        if (macOSHackCount < 2)
+        {
+            macOSHackCount++;
+            if (macOSHackCount == 1)
+            {
+                int x, y;
+                glfwGetWindowPos(window, &x, &y);
+                glfwSetWindowPos(window, ++x, y);
+            }
+            else if (macOSHackCount == 2)
+            {
+                int x, y;
+                glfwGetWindowPos(window, &x, &y);
+                glfwSetWindowPos(window, --x, y);
+            }
+        }
+#endif
+    }
 } // namespace
 
 int main(int argc, char* argv[])
 {
-    setlocale(LC_ALL, "");
+    ::setlocale(LC_ALL, "");
 
     sConfig config;
 
     for (int i = 1; i < argc; i++)
     {
-        if (!strncmp(argv[i], "-h", 2) || !strncmp(argv[i], "--help", 6))
+        if (!::strncmp(argv[i], "-h", 2) || !::strncmp(argv[i], "--help", 6))
         {
             showVersion();
             showHelp(argv[0], config);
             return 0;
         }
-        else if (!strncmp(argv[i], "-v", 2) || !strncmp(argv[i], "--version", 9))
+        else if (!::strncmp(argv[i], "-v", 2) || !::strncmp(argv[i], "--version", 9))
         {
             showVersion();
             return 0;
         }
     }
 
-    cConfig reader;
-    reader.read(config);
+    cConfig fileConfig;
+    fileConfig.read(config);
 
     std::vector<const char*> pathsList;
     std::vector<std::string> stdinPaths;
 
     for (int i = 1; i < argc; i++)
     {
-        if (strncmp(argv[i], "--debug", 7) == 0)
+        if (::strncmp(argv[i], "--debug", 7) == 0)
         {
             config.debug = true;
         }
-        if (strncmp(argv[i], "-i", 2) == 0)
+        if (::strncmp(argv[i], "-i", 2) == 0)
         {
             config.hideInfobar = true;
         }
-        else if (strncmp(argv[i], "-p", 2) == 0)
+        else if (::strncmp(argv[i], "-p", 2) == 0)
         {
             config.showPixelInfo = true;
         }
-        else if (strncmp(argv[i], "-e", 2) == 0)
+        else if (::strncmp(argv[i], "-e", 2) == 0)
         {
             config.showExif = true;
         }
-        else if (strncmp(argv[i], "-f", 2) == 0)
+        else if (::strncmp(argv[i], "-f", 2) == 0)
         {
             config.fullScreen = true;
         }
-        else if (strncmp(argv[i], "-cw", 3) == 0)
+        else if (::strncmp(argv[i], "-cw", 3) == 0)
         {
             config.centerWindow = true;
         }
-        else if (strncmp(argv[i], "-c", 2) == 0)
+        else if (::strncmp(argv[i], "-c", 2) == 0)
         {
             config.hideCheckboard = true;
         }
-        else if (strncmp(argv[i], "-s", 2) == 0)
+        else if (::strncmp(argv[i], "-s", 2) == 0)
         {
             config.fitImage = true;
         }
-        else if (strncmp(argv[i], "-b", 2) == 0)
+        else if (::strncmp(argv[i], "-b", 2) == 0)
         {
             config.showImageBorder = true;
         }
-        else if (strncmp(argv[i], "-g", 2) == 0)
+        else if (::strncmp(argv[i], "-g", 2) == 0)
         {
             config.showImageGrid = true;
         }
-        else if (strncmp(argv[i], "-r", 2) == 0)
+        else if (::strncmp(argv[i], "-r", 2) == 0)
         {
             config.recursiveScan = true;
         }
-        else if (strncmp(argv[i], "-a", 2) == 0)
+        else if (::strncmp(argv[i], "-a", 2) == 0)
         {
             config.skipFilter = true;
         }
-        else if (strncmp(argv[i], "-wz", 3) == 0)
+        else if (::strncmp(argv[i], "-wz", 3) == 0)
         {
             config.wheelZoom = true;
         }
-        else if (strncmp(argv[i], "-C", 2) == 0)
+        else if (::strncmp(argv[i], "-C", 2) == 0)
         {
             uint32_t r, g, b;
             if (3 == sscanf(argv[i + 1], "%2x%2x%2x", &r, &g, &b))
@@ -279,7 +313,7 @@ int main(int argc, char* argv[])
                 i++;
             }
         }
-        else if (strncmp(argv[i], "-mipmap", 7) == 0)
+        else if (::strncmp(argv[i], "-mipmap", 7) == 0)
         {
             if (i + 1 < argc)
             {
@@ -338,7 +372,10 @@ int main(int argc, char* argv[])
         }
         else
         {
-            window = createWindowedWindow(640, 480, nullptr);
+            auto width = config.windowSize.x == 0 ? 640 : config.windowSize.x;
+            auto height = config.windowSize.y == 0 ? 480 : config.windowSize.y;
+            window = createWindowedWindow(width, height, nullptr, config);
+
             viewer.setWindowed(true);
         }
 
@@ -351,6 +388,8 @@ int main(int argc, char* argv[])
 
             while (!glfwWindowShouldClose(window))
             {
+                macOSMojaveUglyHack(window);
+
                 if (viewer.isWindowModeRequested())
                 {
                     GLFWwindow* newWindow = nullptr;
@@ -360,8 +399,7 @@ int main(int argc, char* argv[])
                     {
                         updateSizePos = true;
 
-                        const auto& size = viewer.getWindowSize();
-                        newWindow = createWindowedWindow(size.x, size.y, window);
+                        newWindow = createWindowedWindow(config.windowSize.x, config.windowSize.y, window, config);
                     }
                     else
                     {
@@ -375,21 +413,20 @@ int main(int argc, char* argv[])
 
                     glfwDestroyWindow(window);
                     window = newWindow;
+
+                    macOSHackCount = 0;
                 }
                 else if (updateSizePos)
                 {
                     updateSizePos = false;
                     viewer.setWindowed(true);
 
-                    const auto& size = viewer.getWindowSize();
-                    const auto& pos = viewer.getWindowPosition();
-                    glfwSetWindowSize(window, size.x, size.y);
-                    glfwSetWindowPos(window, pos.x, pos.y);
-                    // ::printf("- updated to : %d x %d , size %d x %d\n", pos.x, pos.y, size.x, size.y);
+                    glfwSetWindowSize(window, config.windowSize.x, config.windowSize.y);
+                    glfwSetWindowPos(window, config.windowPos.x, config.windowPos.y);
                 }
 
-                const float start = glfwGetTime();
-                static float end = start;
+                const float timeStart = glfwGetTime();
+                static float timeEnd = timeStart;
 
                 viewer.onRender();
                 viewer.onUpdate();
@@ -398,7 +435,7 @@ int main(int argc, char* argv[])
 
                 if (viewer.isUploading() == false)
                 {
-                    const float delta = end - start;
+                    const float delta = timeEnd - timeStart;
 
                     const float disiredFps = 1.0f / 60.0f;
                     const float time_rest = disiredFps - delta;
@@ -408,8 +445,10 @@ int main(int argc, char* argv[])
                     }
                 }
 
-                end = glfwGetTime();
+                timeEnd = glfwGetTime();
             }
+
+            fileConfig.write(config);
         }
         else
         {

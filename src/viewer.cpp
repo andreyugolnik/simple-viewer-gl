@@ -64,8 +64,6 @@ cViewer::cViewer(sConfig& config)
     m_grid.reset(new cImageGrid());
     m_selection.reset(new cSelection());
     m_filesList.reset(new cFilesList(config.skipFilter, config.recursiveScan));
-
-    m_prevSize = { DEF_WINDOW_W, DEF_WINDOW_H };
 }
 
 cViewer::~cViewer()
@@ -125,8 +123,6 @@ void cViewer::onRender()
     m_imgui.beginFrame();
 
     m_checkerBoard->render(!m_config.hideCheckboard);
-
-    //updateViewportSize();
 
     const float scale = m_scale.getScale();
 
@@ -243,13 +239,13 @@ bool cViewer::isUploading() const
 
 void cViewer::onResize(const Vectori& size)
 {
-    GLFWwindow* window = cRenderer::getWindow();
+    auto window = cRenderer::getWindow();
 
     if (m_isWindowed)
     {
-        m_prevSize = size;
+        m_config.windowSize = size;
 
-        glfwGetWindowPos(window, &m_prevPos.x, &m_prevPos.y);
+        glfwGetWindowPos(window, &m_config.windowPos.x, &m_config.windowPos.y);
     }
 
     Vectori fbSize;
@@ -270,7 +266,7 @@ void cViewer::onResize(const Vectori& size)
 
 void cViewer::onPosition(const Vectori& pos)
 {
-    m_prevPos = pos;
+    m_config.windowPos = pos;
 }
 
 Vectorf cViewer::calculateMousePosition(const Vectorf& pos) const
@@ -660,7 +656,7 @@ void cViewer::updateFiltering()
 
 void cViewer::centerWindow()
 {
-    GLFWwindow* window = cRenderer::getWindow();
+    auto window = cRenderer::getWindow();
 
     if (m_isWindowed)
     {
@@ -685,8 +681,8 @@ void cViewer::centerWindow()
             glfwSetWindowSize(window, width, height);
             glfwSetWindowPos(window, x, y);
 
-            m_prevSize = { width, height };
-            m_prevPos = { x, y };
+            m_config.windowSize = { width, height };
+            m_config.windowPos = { x, y };
         }
 
         calculateScale();

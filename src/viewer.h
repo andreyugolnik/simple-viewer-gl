@@ -59,15 +59,6 @@ public:
         m_isWindowed = windowed;
     }
 
-    const Vectori& getWindowPosition() const
-    {
-        return m_prevPos;
-    }
-    const Vectori& getWindowSize() const
-    {
-        return m_prevSize;
-    }
-
 public:
     virtual void startLoading() override;
     virtual void doProgress(float progress) override;
@@ -117,8 +108,6 @@ private:
     bool m_mouseLB, m_mouseMB, m_mouseRB;
     Vectorf m_lastMouse;
     Vectorf m_camera;
-    Vectori m_prevPos;
-    Vectori m_prevSize;
     int m_angle;
 
     bool m_subImageForced = false;
