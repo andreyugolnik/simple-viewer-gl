@@ -114,8 +114,7 @@ void cImageLoader::loadImage(const char* path)
             m_desc.images = 1;
         }
         m_callbacks->endLoading();
-    },
-                           path);
+    }, path);
 }
 
 void cImageLoader::loadSubImage(unsigned subImage)
@@ -129,8 +128,7 @@ void cImageLoader::loadSubImage(unsigned subImage)
         m_callbacks->startLoading();
         m_image->LoadSubImage(subImage, m_desc);
         m_callbacks->endLoading();
-    },
-                           subImage);
+    }, subImage);
 }
 
 bool cImageLoader::isLoaded() const
