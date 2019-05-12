@@ -12,6 +12,7 @@ pipelines:
           # - echo "deb http://ppa.launchpad.net/keithw/glfw3/ubuntu trusty main" | tee -a /etc/apt/sources.list.d/fillwave_ext.list
           # - echo "deb-src http://ppa.launchpad.net/keithw/glfw3/ubuntu trusty main" | tee -a /etc/apt/sources.list.d/fillwave_ext.list
           - apt-get update -qq
+          - apt-cache search glfw
           - apt-get install software-properties-common -y
           - apt-get install -y --force-yes libglfw3-dev
           - apt-get install -y cmake libxrandr-dev libxcursor-dev libfreetype6-dev liblcms2-dev libexif-dev
