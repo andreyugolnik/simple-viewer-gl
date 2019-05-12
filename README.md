@@ -37,26 +37,32 @@ Supported formats: `PNG`, `JPEG`, `JPEG 2000`, `PSD`, `AI`, `EPS`, `XCF` (GIMP i
 ***
 ##Key bindings##
 
-* `<esc>`           - exit;
-* `<space>`         - next image;
-* `<backspace>`     - previous image;
-* `<+> / <->`       - scale image;
-* `<1>...<0>`       - set scale from 100% to 1000%;
-* `<enter>`         - switch fullscreen / windowed mode;
-* `<del>`           - toggle deletion mark;
-* `<ctrl>+<del>`    - delete marked images from disk;
-* `<r>`             - rotate clockwise;
-* `<shift>+<r>`     - rotate counterclockwise;
-* `<pgup> / <bgdn>` - previous /next subimage;
-* `<s>`             - fit image to window;
-* `<shift>+<s>`     - toggle 'keep scale' on image load;
-* `<c>`             - hide / show chequerboard;
-* `<i>`             - hide / show on-screen info;
-* `<e>`             - hide / show exif;
-* `<p>`             - hide / show pixel info;
-* `<b>`             - hide / show border around image;
-* `<g>`             - hide / show image grid;
-* `<?>`             - hide / show keybindings popup;
+Hotkey                 | Action
+-----------------------|----------------------------------
+`<esc>`                | exit
+`<space>`              | next image
+`<backspace>`          | previous image
+`<+> / <->`            | scale image
+`<1>...<0>`            | set scale from 100% to 1000%
+`<enter>`              | switch fullscreen / windowed mode
+`<h> / <l>`            | pan left / right in pixels
+`<j> / <k>`            | pan down / up in pixels
+`<shift> + <h> / <l>`  | pan left / right in percents
+`<shift> + <j> / <k>`  | pan down / up in percents
+`<del>`                | toggle deletion mark
+`<ctrl> + <del>`       | delete marked images from disk
+`<r>`                  | rotate clockwise
+`<shift> + <r>`        | rotate counterclockwise
+`<pgup> / <bgdn>`      | previous /next subimage
+`<s>`                  | fit image to window
+`<shift> + <s>`        | toggle 'keep scale' on image load
+`<c>`                  | hide / show chequerboard
+`<i>`                  | hide / show on-screen info
+`<e>`                  | hide / show exif
+`<p>`                  | hide / show pixel info
+`<b>`                  | hide / show border around image
+`<g>`                  | hide / show image grid
+`<?>`                  | hide / show keybindings popup
 
 ***
 ##Download and build from sources##

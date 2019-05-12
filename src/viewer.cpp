@@ -463,22 +463,22 @@ void cViewer::onKey(int key, int scancode, int action, int mods)
 
     case GLFW_KEY_H:
     case GLFW_KEY_LEFT:
-        keyLeft();
+        keyLeft((mods & GLFW_MOD_SHIFT) == 0);
         break;
 
     case GLFW_KEY_L:
     case GLFW_KEY_RIGHT:
-        keyRight();
+        keyRight((mods & GLFW_MOD_SHIFT) == 0);
         break;
 
     case GLFW_KEY_K:
     case GLFW_KEY_UP:
-        keyUp();
+        keyUp((mods & GLFW_MOD_SHIFT) == 0);
         break;
 
     case GLFW_KEY_J:
     case GLFW_KEY_DOWN:
-        keyDown();
+        keyDown((mods & GLFW_MOD_SHIFT) == 0);
         break;
 
     case GLFW_KEY_R:
@@ -530,24 +530,50 @@ void cViewer::onChar(uint32_t c)
     m_imgui.onChar(c);
 }
 
-void cViewer::keyUp()
+float cViewer::getStepVert(bool byPixel) const
 {
-    shiftCamera({ 0, -10 / m_scale.getScale() });
+    if (byPixel)
+    {
+        return m_config.shiftInPixels / m_scale.getScale();
+    }
+
+    auto percent = m_config.shiftInPercent;
+    return percent * m_image->getHeight();
 }
 
-void cViewer::keyDown()
+float cViewer::getStepHori(bool byPixel) const
 {
-    shiftCamera({ 0, 10 / m_scale.getScale() });
+    if (byPixel)
+    {
+        return m_config.shiftInPixels / m_scale.getScale();
+    }
+
+    auto percent = m_config.shiftInPercent;
+    return percent * m_image->getWidth();
 }
 
-void cViewer::keyLeft()
+void cViewer::keyUp(bool byPixel)
 {
-    shiftCamera({ -10 / m_scale.getScale(), 0 });
+    auto step = getStepVert(byPixel);
+    shiftCamera({ 0.0f, -step });
 }
 
-void cViewer::keyRight()
+void cViewer::keyDown(bool byPixel)
 {
-    shiftCamera({ 10 / m_scale.getScale(), 0 });
+    auto step = getStepVert(byPixel);
+    shiftCamera({ 0.0f, step });
+}
+
+void cViewer::keyLeft(bool byPixel)
+{
+    auto step = getStepHori(byPixel);
+    shiftCamera({ -step, 0.0f });
+}
+
+void cViewer::keyRight(bool byPixel)
+{
+    auto step = getStepHori(byPixel);
+    shiftCamera({ step, 0.0f });
 }
 
 void cViewer::shiftCamera(const Vectorf& delta)

@@ -41,6 +41,9 @@ struct sConfig
 
     float fontRatio = 0.5f;
 
+    float shiftInPixels = 10.0f;
+    float shiftInPercent = 0.5f;
+
     Vectori windowSize{ 0, 0 };
     Vectori windowPos{ 0, 0 };
 };

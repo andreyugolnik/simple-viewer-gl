@@ -87,10 +87,12 @@ private:
     void updateInfobar();
     void updatePixelInfo(const Vectorf& pos);
 
-    void keyUp();
-    void keyDown();
-    void keyLeft();
-    void keyRight();
+    float getStepVert(bool byPixel) const;
+    float getStepHori(bool byPixel) const;
+    void keyUp(bool byPixel);
+    void keyDown(bool byPixel);
+    void keyLeft(bool byPixel);
+    void keyRight(bool byPixel);
     void shiftCamera(const Vectorf& delta);
     Vectorf screenToImage(const Vectorf& pos) const;
     Vectorf calculateMousePosition(const Vectorf& pos) const;
