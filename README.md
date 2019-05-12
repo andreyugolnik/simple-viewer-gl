@@ -17,14 +17,14 @@ Supported formats: `PNG`, `JPEG`, `JPEG 2000`, `PSD`, `AI`, `EPS`, `XCF` (GIMP i
 ##Features##
 
 * Lightweight and fast: utilize hardware-accelerated video card;
-* Support embeded ICC profiles;
+* Support embedded ICC profiles;
 * GIF animation support;
 * GIMP XCF support;
 * Adobe PSD format support;
 * Adobe AI, EPS formats preview support;
 * Exif support;
 * Very simple interface;
-* Suitable for default image viewer of desktop;
+* Suitable for default image viewer for the desktops and laptops;
 * Minimal lib dependency: look library requirements below;
 * Desktop independent: doesn't require any specific desktop environment;
 * Open source, licensed under GNU GPL;
