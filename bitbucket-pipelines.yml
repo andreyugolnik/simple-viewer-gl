@@ -11,7 +11,7 @@ pipelines:
         script: # Modify the commands below to build your repository.
           # - echo "deb http://ppa.launchpad.net/keithw/glfw3/ubuntu trusty main" | tee -a /etc/apt/sources.list.d/fillwave_ext.list
           # - echo "deb-src http://ppa.launchpad.net/keithw/glfw3/ubuntu trusty main" | tee -a /etc/apt/sources.list.d/fillwave_ext.list
-          - apt-get update
+          - apt-get update -y
           - apt-get install -y --force-yes libglfw3-dev
           - apt-get install -y cmake libxrandr-dev libxcursor-dev libfreetype6-dev liblcms2-dev libexif-dev
           - apt-get install -y libimlib2-dev libtiff5-dev libjpeg-dev libgif-dev libpng12-dev libwebp-dev
