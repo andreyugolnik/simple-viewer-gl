@@ -10,6 +10,7 @@
 #include "common/bitmap_description.h"
 #include "common/file.h"
 
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstdint>
@@ -589,9 +590,9 @@ namespace
         return true;
     }
 
-    inline uint32_t tag_to_ver_num(std::string_view ver)
+    inline uint32_t tag_to_ver_num(const std::string& ver)
     {
-        if (ver.find_first_of("file") != std::string_view::npos)
+        if (ver.find_first_of("file") != std::string::npos)
         {
             return 0;
         }
