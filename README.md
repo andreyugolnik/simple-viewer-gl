@@ -1,20 +1,22 @@
 ![CI status, master](https://api.shippable.com/projects/5894665c8d80360f008b75d4/badge?branch=master)
 ![CI coverage, master](https://api.shippable.com/projects/5894665c8d80360f008b75d4/coverageBadge?branch=master)
 
-###Simple Viewer GL - simple and tiny image viewer based on OpenGL.###
+## Simple Viewer GL description
+
+**Simple Viewer GL** is a simple and tiny image viewer based on OpenGL.
 
 The primary goal for writing **Simple Viewer GL** is to create an image viewer, which only has the most basic features required for fast image viewing. It has some vi-like key bindings and works nicely with tiling window managers (such as Ion3 and Notion).
 
 Supported formats: `PNG`, `JPEG`, `JPEG 2000`, `PSD`, `AI`, `EPS`, `XCF` (GIMP image format), `GIF`, `SVG`, `TIFF`, `TARGA`, `ICO`, `ICNS` (Apple Icon Image), `BMP`, `PNM`, `DDS`, `XWD`, `SCR (ZX-Spectrum screen)`, `XPM`, `WebP`, `OpenEXR`.
 
 ***
-##Screenshot##
+#### Screenshots
 
+![Simple Viewer GL on macOS with Pixel Info](https://bitbucket.org/andreyu/simple-viewer-gl/downloads/Screenshot_Lena.png)
 ![Simple Viewer GL on macOS with EXIF](https://bitbucket.org/andreyu/simple-viewer-gl/downloads/sviewgl-macos_2.png)
-![Simple Viewer GL on macOS with Pixel Info](https://bitbucket.org/andreyu/simple-viewer-gl/downloads/sviewgl-macos_3.png)
 
 ***
-##Features##
+#### Features
 
 * Lightweight and fast: utilize hardware-accelerated video card;
 * Support embedded ICC profiles;
@@ -31,12 +33,12 @@ Supported formats: `PNG`, `JPEG`, `JPEG 2000`, `PSD`, `AI`, `EPS`, `XCF` (GIMP i
 * Open source, licensed under GNU GPL;
 
 ***
-##Usage##
+#### Usage
 
 **Simple Viewer GL** has two modes of operation: image viewer and image info mode. The default is image mode, in which only the current image is shown. In image info mode pixel info and rectangular selection available. This mode useful for brief resource description.
 
 ***
-##Key bindings##
+#### Key bindings
 
 Hotkey                 | Action
 -----------------------|----------------------------------
@@ -66,7 +68,7 @@ Hotkey                 | Action
 `<?>`                  | hide / show keybindings popup
 
 ***
-##Download and build from sources##
+#### Download and build from sources
 
 You can browse the source code repository on Bitbucket or get a copy using git with the following command:
 
@@ -81,7 +83,7 @@ $ make release
 [Gentoo ebuild by](https://gogs.lumi.pw/mike/portage/src/master/media-gfx/simpleviewer-gl) [imul](https://www.linux.org.ru/people/imul/profile)
 
 ***
-##Make DEB package##
+#### Make DEB package
 
 Update and install required dependencies:
 ```bash
@@ -102,7 +104,7 @@ $ make deb
 > You can purge installed packages with `apt-get purge PACKAGE_NAME && apt-get autoremove`
 
 ***
-##Make RPM package##
+#### Make RPM package
 
 Update and install required dependencies:
 ```bash
@@ -119,7 +121,7 @@ $ sudo make rpm
 ```
 
 ***
-##Dependencies##
+#### Dependencies
 
  Name          | Debian package                     | Description / Notes
 ---------------|------------------------------------|---------------------
