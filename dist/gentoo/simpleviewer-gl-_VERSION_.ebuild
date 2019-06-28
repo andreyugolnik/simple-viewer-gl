@@ -6,10 +6,10 @@ EAPI=6
 
 inherit cmake-utils git-r3
 
-DESCRIPTION="Small and simple image viewer for Linux."
+DESCRIPTION="Simple and tiny image viewer for Linux based on OpenGL."
 HOMEPAGE="http://www.ugolnik.info/?p=1302"
 EGIT_REPO_URI="https://bitbucket.org/andreyu/simple-viewer-gl"
-EGIT_TAG="${PV}"
+EGIT_TAG="v${PV}"
 
 LICENSE="GPL-2"
 SLOT="0"
