@@ -48,6 +48,10 @@ void cCMS::createTransform(const void* iccProfile, uint32_t iccProfileSize, Pixe
         auto inProfile = cmsOpenProfileFromMem(iccProfile, iccProfileSize);
         createTransform(inProfile, format);
     }
+#else
+    (void)iccProfile;
+    (void)iccProfileSize;
+    (void)format;
 #endif
 }
 
@@ -85,6 +89,13 @@ void cCMS::createTransform(const float* chr, const float* wp
     }
 
     createTransform(inProfile, format);
+#else
+    (void)chr;
+    (void)wp;
+    (void)gmr;
+    (void)gmg;
+    (void)gmb;
+    (void)format;
 #endif
 }
 
@@ -99,6 +110,9 @@ void cCMS::createTransform(void* inProfile, Pixel format) const
                                          , INTENT_PERCEPTUAL, 0);
         cmsCloseProfile(inProfile);
     }
+#else
+    (void)inProfile;
+    (void)format;
 #endif
 }
 
@@ -118,5 +132,9 @@ void cCMS::doTransform(void* input, void* output, uint32_t sizeInPixels) const
 #if defined(LCMS2_SUPPORT)
     assert(m_transform != nullptr);
     cmsDoTransform(m_transform, input, output, sizeInPixels);
+#else
+    (void)input;
+    (void)output;
+    (void)sizeInPixels;
 #endif
 }
