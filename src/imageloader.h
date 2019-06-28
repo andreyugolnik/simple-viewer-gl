@@ -51,6 +51,7 @@ enum class eImageType
     TGA,
     BMP,
     XCF,
+    SVG,
 #if defined(WEBP_SUPPORT)
     WEBP,
 #endif

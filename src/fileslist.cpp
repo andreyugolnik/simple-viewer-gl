@@ -219,6 +219,7 @@ bool cFilesList::isValidExt(const char* path)
         ".xwd",                                                                                                      // X Window Dump
         ".xcf",                                                                                                      // GIMP XCF format
         ".dds",                                                                                                      // Microsoft DDS
+        ".svg",                                                                                                      // Microsoft DDS
         ".tga", ".targa", ".tpic",                                                                                   // Truevision Advanced Raster Graphics Adapter
         ".pnm", ".pbm", ".pgm", ".ppm",                                                                              // Netpbm
         ".scr", ".atr", ".bsc", ".ifl", ".bmc4", ".mc", ".s", ".$c", ".mg1", ".mg2", ".mg4", ".mg8", ".img", ".mgs", // ZX-Spectrum

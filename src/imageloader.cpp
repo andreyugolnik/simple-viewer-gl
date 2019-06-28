@@ -29,6 +29,7 @@
 #include "formats/formatpvr.h"
 #include "formats/formatraw.h"
 #include "formats/formatscr.h"
+#include "formats/formatsvg.h"
 #include "formats/formattarga.h"
 #include "formats/formattiff.h"
 #include "formats/formatwebp.h"
@@ -207,6 +208,7 @@ namespace
             "TGA",
             "BMP",
             "XCF",
+            "SVG",
 #if defined(WEBP_SUPPORT)
             "WEBP",
 #endif
@@ -334,6 +336,10 @@ cFormat* cImageLoader::createLoader(eImageType type) const
         loader = new cFormatXcf(m_callbacks);
         break;
 
+    case eImageType::SVG:
+        loader = new cFormatSvg(m_callbacks);
+        break;
+
 #if defined(WEBP_SUPPORT)
     case eImageType::WEBP:
         loader = new cFormatWebP(m_callbacks);
@@ -396,6 +402,7 @@ eImageType cImageLoader::getType(const char* name)
             eImageType::JP2,
 #endif
             eImageType::AGE,
+            eImageType::SVG,
             eImageType::RAW, // pretend to remove
             eImageType::PVR, // pretend to remove
             eImageType::SCR,
