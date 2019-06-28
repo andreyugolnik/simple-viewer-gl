@@ -275,8 +275,8 @@ include_directories("src")
 add_subdirectory(third-party/imgui)
 include_directories("third-party/imgui")
 
-add_subdirectory(third-party/xcf)
-include_directories("third-party/xcf")
+# add_subdirectory(third-party/xcf)
+# include_directories("third-party/xcf")
 
 file(GLOB_RECURSE SVIEW_SOURCES "src/*.cpp")
 
@@ -309,8 +309,8 @@ endif()
 add_dependencies(sviewgl ImGui)
 target_link_libraries(sviewgl ImGui)
 
-add_dependencies(sviewgl XcfTools)
-target_link_libraries(sviewgl XcfTools)
+# add_dependencies(sviewgl XcfTools)
+# target_link_libraries(sviewgl XcfTools)
 
 if(OPENGL_FOUND)
     target_link_libraries(sviewgl ${OPENGL_LIBRARY})

@@ -61,7 +61,7 @@ namespace std
 
 namespace
 {
-    template<typename T>
+    template <typename T>
     std::string toBits(T val)
     {
         std::string s;
@@ -88,6 +88,8 @@ namespace
         }
     };
 #pragma pack(pop)
+
+    typedef std::array<xcf_col_t, 256> Palette;
 
     enum struct xcf_property_type : uint32_t
     {
@@ -131,6 +133,18 @@ namespace
         zlib = 2,
         fractal = 3
     };
+
+    const char* toCompMode(xcf_comp_mode mode)
+    {
+        const char* Names[] = {
+            "None",
+            "RLE",
+            "ZLib",
+            "Fractal",
+        };
+
+        return Names[(uint32_t)mode];
+    }
 
     enum struct xcf_layer_mode : uint32_t
     {
@@ -178,13 +192,17 @@ namespace
         size_t real_len = size;
 
         if (pos + size > len)
+        {
             real_len = len - pos;
+        }
 
         file.read(buff, real_len);
 
         auto const extra_len = size - real_len;
         if (extra_len > 0)
+        {
             std::fill_n(buff + real_len, extra_len, 0);
+        }
     }
 
     struct xcf_rect_t
@@ -277,6 +295,7 @@ namespace
             , hierarchy_ptr(fread<uint32_t>(file, true))
             , mask_ptr(fread<uint32_t>(file, true))
         {
+#if defined(DEBUG)
             for (const auto& property : properties)
             {
                 // auto [prop, pos] = property;
@@ -284,6 +303,7 @@ namespace
                 auto pos = property.second;
                 ::printf("(II) Property %u at %u pos.\n", prop.type, pos);
             }
+#endif
         }
     };
 
@@ -305,9 +325,13 @@ namespace
         {
             auto const level = fread<uint32_t>(file, true);
             if (level != 0)
+            {
                 res.push_back(level);
+            }
             else
+            {
                 break;
+            }
         }
         return res;
     }
@@ -333,8 +357,10 @@ namespace
         uint32_t tile_ptr = 0;
         do
         {
-            if (tile_ptr = fread<uint32_t>(file, true); tile_ptr != 0)
+            if ((tile_ptr = fread<uint32_t>(file, true)) != 0)
+            {
                 res.push_back(tile_ptr);
+            }
         } while (tile_ptr != 0);
         return res;
     }
@@ -350,9 +376,13 @@ namespace
     {
         const uint32_t length = fread<uint32_t>(file, big_endian);
         if (length != 0)
+        {
             return raw_read_string(file, length);
+        }
         else
+        {
             return std::string("null");
+        }
     }
 
     inline xcf_property_t xcf_read_property(cFile& file, bool big_endian)
@@ -376,7 +406,9 @@ namespace
             property = xcf_read_property(file, true);
 
             if (property.payload != 0)
+            {
                 file.seek(property.payload, SEEK_CUR);
+            }
 
             res.push_back(std::make_pair(property, pos));
         } while (property.type != xcf_property_type::end);
@@ -391,8 +423,10 @@ namespace
         uint32_t pointer = 0;
         do
         {
-            if (pointer = fread<uint32_t>(file, true); pointer != 0)
+            if ((pointer = fread<uint32_t>(file, true)) != 0)
+            {
                 res.push_back(pointer);
+            }
         } while (pointer != 0);
 
         return res;
@@ -404,7 +438,9 @@ namespace
         auto const tile_row_count = level.tile_y;
 
         if (tile_id > tile_row_count * tile_col_count - 1)
+        {
             return xcf_rect_t(0, 0, 0, 0);
+        }
 
         auto const tile_rows = tile_id / tile_col_count;
         auto const tile_cols = tile_id % tile_col_count;
@@ -415,14 +451,22 @@ namespace
             0, 0);
 
         if (tile_cols == tile_col_count - 1)
+        {
             rect.w = level.width - rect.x;
+        }
         else
+        {
             rect.w = xcf_tile_width;
+        }
 
         if (tile_rows == tile_row_count - 1)
+        {
             rect.h = level.height - rect.y;
+        }
         else
+        {
             rect.h = xcf_tile_height;
+        }
 
         return rect;
     }
@@ -435,7 +479,9 @@ namespace
         auto tile_data = std::make_unique<uint8_t[]>(tile_size);
 
         if (data_len == 0)
+        {
             return false;
+        }
 
         auto xcf_data_smart = std::make_unique<uint8_t[]>(data_len);
 
@@ -457,16 +503,20 @@ namespace
             while (size > 0)
             {
                 if (xcf_data > xcf_data_limit)
+                {
                     return false;
+                }
 
                 auto length = size_t(*xcf_data++);
 
                 if (length >= 128)
                 {
-                    if (length = 255 - (length - 1); length == 128)
+                    if ((length = 255 - (length - 1)) == 128)
                     {
                         if (xcf_data >= xcf_data_limit)
+                        {
                             return false;
+                        }
 
                         length = (*xcf_data << 8) + xcf_data[1];
                         xcf_data += 2;
@@ -475,11 +525,10 @@ namespace
                     count += length;
                     size -= length;
 
-                    if (size < 0)
+                    if (size < 0 || &xcf_data[length - 1] > xcf_data_limit)
+                    {
                         return false;
-
-                    if (&xcf_data[length - 1] > xcf_data_limit)
-                        return false;
+                    }
 
                     while (length-- > 0)
                     {
@@ -493,7 +542,9 @@ namespace
                     if (length == 128)
                     {
                         if (xcf_data >= xcf_data_limit)
+                        {
                             return false;
+                        }
 
                         length = (*xcf_data << 8) + xcf_data[1];
                         xcf_data += 2;
@@ -502,11 +553,10 @@ namespace
                     count += length;
                     size -= length;
 
-                    if (size < 0)
+                    if (size < 0 || xcf_data > xcf_data_limit)
+                    {
                         return false;
-
-                    if (xcf_data > xcf_data_limit)
-                        return false;
+                    }
 
                     const auto val = *xcf_data++;
                     for (size_t j = 0; j < length; j++)
@@ -542,11 +592,15 @@ namespace
     inline uint32_t tag_to_ver_num(std::string_view ver)
     {
         if (ver.find_first_of("file") != std::string_view::npos)
+        {
             return 0;
+        }
         else if (ver[0] == 'v')
+        {
             return std::atoi(std::string(ver.substr(1).data()).c_str());
-        else
-            return std::numeric_limits<uint32_t>::max();
+        }
+
+        return std::numeric_limits<uint32_t>::max();
     }
 
     struct raw_layer_t
@@ -561,14 +615,20 @@ namespace
         }
     };
 
+    typedef std::vector<raw_layer_t> LayersList;
+
     inline xcf_col_t blend(xcf_col_t const& dst, xcf_col_t const& src, uint8_t alpha)
     {
         if (alpha == 0)
+        {
             return dst;
+        }
         if (alpha == 255)
+        {
             return src;
+        }
 
-        uint8_t const alpha_inverse = 255 - alpha;
+        const uint8_t alpha_inverse = 255 - alpha;
 
         return xcf_col_t(
             (src.r * alpha + dst.r * alpha_inverse) >> 8,
@@ -576,8 +636,8 @@ namespace
             (src.b * alpha + dst.b * alpha_inverse) >> 8);
     }
 
-    void draw_pixel(std::array<xcf_col_t, 256> const& palette,
-                    size_t src_pos, size_t src_bpp, xcf_col_mode src_mode, uint8_t* src_buff,
+    void draw_pixel(const Palette& palette,
+                    size_t src_pos, size_t src_bpp, xcf_col_mode src_mode, const uint8_t* src_buff,
                     size_t dst_pos, size_t dst_bpp, xcf_col_mode dst_mode, uint8_t* dst_buff, bool swap = false)
     {
         if (src_mode == xcf_col_mode::indexed)
@@ -587,36 +647,32 @@ namespace
                 switch (src_bpp)
                 {
                 case 1:
-                {
                     switch (dst_bpp)
                     {
                     case 1:
-                    {
                         dst_buff[dst_pos] = src_buff[src_pos];
-                    }
-                    break;
+                        break;
+
                     case 2:
-                    {
                         dst_buff[dst_pos * 2 + 0] = src_buff[src_pos];
                         dst_buff[dst_pos * 2 + 1] = 255;
+                        break;
                     }
                     break;
-                    }
-                }
-                break;
+
                 case 2:
-                {
                     switch (dst_bpp)
                     {
                     case 2:
-                    {
                         dst_buff[dst_pos * 2 + 0] = src_buff[src_pos * 2 + 0];
                         dst_buff[dst_pos * 2 + 1] = src_buff[src_pos * 2 + 1];
+                        break;
                     }
                     break;
-                    }
-                }
-                break;
+
+                default:
+                    // ::printf("-- wrong indexed|indexed src bpp %u\n", (uint32_t)src_bpp);
+                    break;
                 }
             }
             else if (dst_mode == xcf_col_mode::rgb)
@@ -624,35 +680,35 @@ namespace
                 switch (src_bpp)
                 {
                 case 1:
-                {
                     switch (dst_bpp)
                     {
                     case 3:
-                    {
-                        auto const col = palette[src_buff[src_pos]];
-                        dst_buff[dst_pos * 3 + 0] = col.b;
-                        dst_buff[dst_pos * 3 + 1] = col.g;
-                        dst_buff[dst_pos * 3 + 2] = col.r;
-                    }
-                    break;
+                        if (1)
+                        {
+                            auto const col = palette[src_buff[src_pos]];
+                            dst_buff[dst_pos * 3 + 0] = col.b;
+                            dst_buff[dst_pos * 3 + 1] = col.g;
+                            dst_buff[dst_pos * 3 + 2] = col.r;
+                        }
+                        break;
+
                     case 4:
-                    {
-                        auto const col = palette[src_buff[src_pos]];
-                        dst_buff[dst_pos * 4 + 0] = col.b;
-                        dst_buff[dst_pos * 4 + 1] = col.g;
-                        dst_buff[dst_pos * 4 + 2] = col.r;
-                        dst_buff[dst_pos * 4 + 3] = 255;
+                        if (1)
+                        {
+                            auto const col = palette[src_buff[src_pos]];
+                            dst_buff[dst_pos * 4 + 0] = col.b;
+                            dst_buff[dst_pos * 4 + 1] = col.g;
+                            dst_buff[dst_pos * 4 + 2] = col.r;
+                            dst_buff[dst_pos * 4 + 3] = 255;
+                        }
+                        break;
                     }
                     break;
-                    }
-                }
-                break;
+
                 case 2:
-                {
                     switch (dst_bpp)
                     {
                     case 3:
-                    {
                         if (src_buff[src_pos * 2 + 1] > 0)
                         {
                             auto const src = palette[src_buff[src_pos * 2 + 0]];
@@ -667,10 +723,9 @@ namespace
                             dst_buff[dst_pos * 3 + 1] = dst.g;
                             dst_buff[dst_pos * 3 + 2] = dst.r;
                         }
-                    }
-                    break;
+                        break;
+
                     case 4:
-                    {
                         if (src_buff[src_pos * 2 + 1] > 0)
                         {
                             auto const src = palette[src_buff[src_pos * 2 + 0]];
@@ -686,12 +741,18 @@ namespace
                             dst_buff[dst_pos * 4 + 2] = dst.r;
                             dst_buff[dst_pos * 4 + 3] = src_buff[src_pos * 2 + 1];
                         }
+                        break;
                     }
                     break;
-                    }
+
+                default:
+                    // ::printf("-- wrong indexed|rgb src bpp %u\n", (uint32_t)src_bpp);
+                    break;
                 }
-                break;
-                }
+            }
+            else
+            {
+                // ::printf("-- wrong dst mode: %d\n", dst_mode);
             }
         }
         else if (src_mode == xcf_col_mode::rgb)
@@ -705,7 +766,6 @@ namespace
                     switch (dst_bpp)
                     {
                     case 3:
-                    {
                         if (swap)
                         {
                             dst_buff[dst_pos * 3 + 0] = src_buff[src_pos * 3 + 2];
@@ -718,10 +778,9 @@ namespace
                             dst_buff[dst_pos * 3 + 1] = src_buff[src_pos * 3 + 1];
                             dst_buff[dst_pos * 3 + 2] = src_buff[src_pos * 3 + 2];
                         }
-                    }
-                    break;
+                        break;
+
                     case 4:
-                    {
                         if (swap)
                         {
                             dst_buff[dst_pos * 4 + 0] = src_buff[src_pos * 3 + 2];
@@ -735,17 +794,15 @@ namespace
                             dst_buff[dst_pos * 4 + 2] = src_buff[src_pos * 3 + 2];
                         }
                         dst_buff[dst_pos * 4 + 3] = 255;
-                    }
-                    break;
+                        break;
                     }
                 }
                 break;
+
                 case 4:
-                {
                     switch (dst_bpp)
                     {
                     case 3:
-                    {
                         if (src_buff[src_pos * 4 + 3] > 0)
                         {
                             if (swap)
@@ -761,10 +818,9 @@ namespace
                                 dst_buff[dst_pos * 3 + 2] = src_buff[src_pos * 4 + 2];
                             }
                         }
-                    }
-                    break;
+                        break;
+
                     case 4:
-                    {
                         if (src_buff[src_pos * 4 + 3] > 0)
                         {
                             auto const dst = blend(
@@ -792,12 +848,18 @@ namespace
                             }
                             dst_buff[dst_pos * 4 + 3] = 255;
                         }
+                        break;
                     }
                     break;
-                    }
+
+                default:
+                    // ::printf("-- wrong rgb|rgb src bpp %u\n", (uint32_t)src_bpp);
+                    break;
                 }
-                break;
-                }
+            }
+            else
+            {
+                // ::printf("-- wrong dst mode: %d\n", dst_mode);
             }
         }
         else if (src_mode == xcf_col_mode::grayscale)
@@ -807,33 +869,27 @@ namespace
                 switch (src_bpp)
                 {
                 case 1:
-                {
                     switch (dst_bpp)
                     {
                     case 3:
-                    {
                         dst_buff[dst_pos * 3 + 0] = src_buff[src_pos];
                         dst_buff[dst_pos * 3 + 1] = src_buff[src_pos];
                         dst_buff[dst_pos * 3 + 2] = src_buff[src_pos];
-                    }
-                    break;
+                        break;
+
                     case 4:
-                    {
                         dst_buff[dst_pos * 4 + 0] = src_buff[src_pos];
                         dst_buff[dst_pos * 4 + 1] = src_buff[src_pos];
                         dst_buff[dst_pos * 4 + 2] = src_buff[src_pos];
                         dst_buff[dst_pos * 4 + 3] = 255;
+                        break;
                     }
                     break;
-                    }
-                }
-                break;
+
                 case 2:
-                {
                     switch (dst_bpp)
                     {
                     case 3:
-                    {
                         if (src_buff[src_pos * 2 + 1] > 0)
                         {
                             auto const scale = src_buff[src_pos * 2 + 0];
@@ -841,10 +897,9 @@ namespace
                             dst_buff[dst_pos * 3 + 1] = scale;
                             dst_buff[dst_pos * 3 + 2] = scale;
                         }
-                    }
-                    break;
+                        break;
+
                     case 4:
-                    {
                         if (src_buff[src_pos * 2 + 1] > 0)
                         {
                             auto const scale = src_buff[src_pos * 2 + 0];
@@ -853,27 +908,40 @@ namespace
                             dst_buff[dst_pos * 4 + 2] = scale;
                             dst_buff[dst_pos * 4 + 3] = src_buff[src_pos * 2 + 1];
                         }
+                        break;
                     }
                     break;
-                    }
-                }
-                break;
+
+                default:
+                    // ::printf("-- wrong grayscale|rgb src bpp %u\n", (uint32_t)src_bpp);
+                    break;
                 }
             }
+            else
+            {
+                // ::printf("-- wrong dst mode: %d\n", dst_mode);
+            }
+        }
+        else
+        {
+            // ::printf("-- wrong src mode: %d\n", src_mode);
         }
     }
 
-    void draw(raw_layer_t const& layer, raw_layer_t& target, std::array<xcf_col_t, 256> const& palette, bool swap = false)
+    void draw(raw_layer_t const& layer, raw_layer_t& target, const Palette& palette, bool swap = false)
     {
-        auto const layer_len = layer.w * layer.h;
-        auto const target_len = target.w * target.h;
+        const auto layer_len = layer.w * layer.h;
+        const auto target_len = target.w * target.h;
 
+        // ::printf("-- layer size: %d x %d\n", layer.w, layer.h);
+        // ::printf("-- src mode: %d\n", layer.mode);
+        // ::printf("-- dst mode: %d\n", target.mode);
         for (int32_t y = 0; y < layer.h; y++)
         {
             for (int32_t x = 0; x < layer.w; x++)
             {
-                auto const src_pos = (y * layer.w + x);
-                auto const dst_pos = ((y + layer.y) * target.w + (x + layer.x));
+                const auto src_pos = (y * layer.w + x);
+                const auto dst_pos = ((y + layer.y) * target.w + (x + layer.x));
 
                 if ((dst_pos < target_len && dst_pos >= 0) && (src_pos < layer_len && src_pos >= 0))
                 {
@@ -885,18 +953,16 @@ namespace
         }
     }
 
-    typedef std::vector<raw_layer_t> LayersList;
-
-    void combine_layers(raw_layer_t& result, const LayersList& layersList, size_t canvas_w, size_t canvas_h, const std::array<xcf_col_t, 256>& palette)
+    void combine_layers(raw_layer_t& result, const LayersList& layersList, const Palette& palette)
     {
-        (void)canvas_w;
-        (void)canvas_h;
+        // ::printf("-- layers count: %u\n", (uint32_t)layersList.size());
         for (size_t i = 0, size = layersList.size(); i < size; i++)
         {
             auto& layer = layersList[size - i - 1];
             draw(layer, result, palette);
         }
     }
+
 } // namespace
 
 bool import_xcf(cFile& file, sBitmapDescription& desc)
@@ -915,30 +981,34 @@ bool import_xcf(cFile& file, sBitmapDescription& desc)
     const uint32_t width = fread<uint32_t>(file, true);
     const uint32_t height = fread<uint32_t>(file, true);
     const xcf_col_mode col_mode = fread<xcf_col_mode>(file, true);
+#if defined(DEBUG)
     ::printf("(II) Color mode %u.\n", col_mode);
+#endif
 
     xcf_comp_mode compression = xcf_comp_mode::none;
 
-    std::array<xcf_col_t, 256> palette;
+    Palette palette;
 
     auto properties = xcf_query_properties_list(file);
     const auto post_props_pos = file.getOffset();
 
     for (const auto& property : properties)
     {
-        // const auto [prop, pos] = property;
         const auto prop = property.first;
         const auto pos = property.second;
 
         file.seek(pos + sizeof(xcf_property_t), SEEK_SET);
 
+#if defined(DEBUG)
         ::printf("(II) Property type %u\n", prop.type);
+#endif
 
         switch (prop.type)
         {
         case xcf_property_type::col_map:
         {
             xcf_property_col_map_t col_map(prop, file);
+#if defined(DEBUG)
             ::printf("(II) Palette size: %u\n", col_map.count);
 
             for (uint32_t i = 0; i < col_map.count; i++)
@@ -946,6 +1016,7 @@ bool import_xcf(cFile& file, sBitmapDescription& desc)
                 palette[i] = col_map.palette.get()[i];
                 ::printf("(II) Col %u: (%u, %u, %u)\n", i, uint32_t(col_map.palette.get()[i].r), uint32_t(col_map.palette.get()[i].g), uint32_t(col_map.palette.get()[i].b));
             }
+#endif
         }
         break;
 
@@ -953,28 +1024,36 @@ bool import_xcf(cFile& file, sBitmapDescription& desc)
         {
             xcf_property_comp_t p(prop, file);
             compression = p.compression;
-            ::printf("(II) Compression %u\n", (uint32_t)p.compression);
+#if defined(DEBUG)
+            ::printf("(II) Compression %s\n", toCompMode(p.compression));
+#endif
         }
         break;
 
         case xcf_property_type::resolution:
         {
             xcf_property_res_t p(prop, file);
+#if defined(DEBUG)
             ::printf("(II) Resolution %.3f x %.3f\n", p.hres, p.vres);
+#endif
         }
         break;
 
         case xcf_property_type::layer_mode:
         {
             xcf_property_layer_mode_t p(prop, file);
+#if defined(DEBUG)
             ::printf("(II) Layer mode %u\n", p.mode);
+#endif
         }
         break;
 
         case xcf_property_type::layer_offset:
         {
             xcf_property_layer_offset_t p(prop, file);
+#if defined(DEBUG)
             ::printf("(II) Offset %d , %d\n", p.x_offset, p.y_offset);
+#endif
         }
         break;
 
@@ -1007,27 +1086,28 @@ bool import_xcf(cFile& file, sBitmapDescription& desc)
     size_t layerIndex = 0;
     for (const auto& layer : layers)
     {
+#if defined(DEBUG)
         ::printf("Layer '%s' properties:\n", layer.name.c_str());
         for (auto& p : layer.properties)
         {
             ::printf("  type 0x%2x = %s (0x%x)\n", p.first.type, toBits(p.second).c_str(), p.second);
         }
+#endif
 
         auto const offset = [&]() {
             for (auto& property : layer.properties)
             {
-                // auto const [prop, pos] = property;
                 const auto prop = property.first;
                 const auto pos = property.second;
                 file.seek(pos + sizeof(xcf_property_t), SEEK_SET);
 
-                switch (prop.type)
+                if (prop.type == xcf_property_type::layer_offset)
                 {
-                case xcf_property_type::layer_offset:
                     xcf_property_layer_offset_t offset(prop, file);
                     return std::make_pair(offset.x_offset, offset.y_offset);
                 }
             }
+
             return std::make_pair(0, 0);
         }();
 
@@ -1067,9 +1147,11 @@ bool import_xcf(cFile& file, sBitmapDescription& desc)
             auto const offset1 = [&]() -> uint32_t {
                 auto const it = offset0 + 1;
                 if (it == tiles.end())
+                {
                     return (*offset0) + (max_data_len);
-                else
-                    return *it;
+                }
+
+                return *it;
             }();
 
             file.seek(*offset0, SEEK_SET);
@@ -1082,21 +1164,14 @@ bool import_xcf(cFile& file, sBitmapDescription& desc)
 
             switch (compression)
             {
-            case xcf_comp_mode::none:
-                break;
-
             case xcf_comp_mode::rle:
                 xcf_read_tile_rle(file, rect, offset1 - *offset0, hierarchy, level, tag_to_ver_num(ver), pixel_buffer, pixel_buffer_pos);
                 break;
 
+            case xcf_comp_mode::none:
             case xcf_comp_mode::zlib:
-                break;
-
             case xcf_comp_mode::fractal:
-                break;
-
-            default:
-                ::printf("(EE) Unknown compression.\n");
+                ::printf("(EE) Unsupported compression: %s.\n", toCompMode(compression));
                 return false;
             }
 
@@ -1115,6 +1190,7 @@ bool import_xcf(cFile& file, sBitmapDescription& desc)
     }
 
     desc.size = file.getSize();
+    desc.images = 1;
     desc.format = GL_RGBA;
     desc.bpp = 32;
     desc.bppImage = 32;
@@ -1134,7 +1210,7 @@ bool import_xcf(cFile& file, sBitmapDescription& desc)
     canvas_layer.y = 0;
     canvas_layer.buffer = pix;
 
-    combine_layers(canvas_layer, layersList, width, height, palette);
+    combine_layers(canvas_layer, layersList, palette);
 
 #if 0
     for (size_t i = 0; i < width * height; i++)

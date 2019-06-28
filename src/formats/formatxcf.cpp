@@ -10,19 +10,7 @@
 #include "formatxcf.h"
 #include "common/bitmap_description.h"
 #include "common/file.h"
-
-#define XCF
-
-#if defined(XCF)
 #include "formats/xcf.h"
-#elif defined(SDL_XCF)
-#include "sdl_xcf.h"
-#elif defined(XCFTOOLS)
-#include <xcftools/flatten.h>
-#include <xcftools/palette.h>
-#include <xcftools/xcftools.h>
-#endif
-
 #include <cstdio>
 #include <cstring>
 
@@ -255,83 +243,5 @@ bool cFormatXcf::LoadImpl(const char* filename, sBitmapDescription& desc)
 
     m_formatName = "xcf";
 
-#if defined(XCF)
-
     return import_xcf(file, desc);
-
-#elif defined(SDL_XCF)
-
-    return load(file, desc);
-
-#elif defined(XCFTOOLS)
-    Offset = 0;
-    Bitmap = nullptr;
-
-    init_flatspec(&flatspec);
-
-    const char* unzipper = nullptr;
-    read_or_mmap_xcf(filename, unzipper);
-
-    if (getBasicXcfInfo() == false)
-    {
-        return false;
-    }
-
-    initColormap();
-
-    complete_flatspec(&flatspec, guessIndexed);
-
-    desc.size = file.getSize();
-
-    desc.images = 1;
-    desc.current = 0;
-    desc.width = flatspec.dim.width;
-    desc.height = flatspec.dim.height;
-
-    desc.pitch = desc.width * 4;
-    desc.bpp = 32;
-    desc.bppImage = 32;
-    desc.format = GL_RGBA;
-    desc.bitmap.resize(desc.pitch * desc.height);
-    Bitmap = desc.bitmap.data();
-
-    m_formatName = "xcf";
-
-    if (flatspec.process_in_memory)
-    {
-        rgba** allPixels = flattenAll(&flatspec);
-
-        analyse_colormode(&flatspec, allPixels, guessIndexed);
-
-        // See if we can do alpha compaction.
-        if (flatspec.partial_transparency_mode != FlattenSpec::ALLOW_PARTIAL_TRANSPARENCY && !FULLALPHA(flatspec.default_pixel) && flatspec.out_color_mode != FlattenSpec::COLOR_INDEXED)
-        {
-            rgba unused = findUnusedColor(allPixels, flatspec.dim.width, flatspec.dim.height);
-            if (unused && (flatspec.out_color_mode == FlattenSpec::COLOR_RGB || degrayPixel(unused) >= 0))
-            {
-                unused = NEWALPHA(unused, 0);
-                for (uint32_t y = 0; y < flatspec.dim.height; y++)
-                {
-                    for (uint32_t x = 0; x < flatspec.dim.width; x++)
-                    {
-                        if (allPixels[y][x] == 0)
-                        {
-                            allPixels[y][x] = unused;
-                        }
-                    }
-                }
-                flatspec.default_pixel = unused;
-            }
-        }
-        auto callback = selectCallback(flatspec.out_color_mode);
-        shipoutWithCallback(&flatspec, allPixels, callback);
-    }
-    else
-    {
-        auto callback = selectCallback(flatspec.out_color_mode);
-        flattenIncrementally(&flatspec, callback);
-    }
-    return true;
-
-#endif
 }
