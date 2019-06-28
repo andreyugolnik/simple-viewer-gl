@@ -58,9 +58,9 @@ dist:   clean
 	sed "s/_VERSION_/$(VERSION)/" -i $(BUNDLE_NAME)-$(VERSION)/debian/changelog
 	tar -zf $(BUNDLE_NAME)-$(VERSION).tar.gz -c $(BUNDLE_NAME)-$(VERSION)
 
-deb:    clean dist
+deb:    dist
 	mv $(BUNDLE_NAME)-$(VERSION).tar.gz $(BUNDLE_NAME)_$(VERSION).orig.tar.gz
 	cd $(BUNDLE_NAME)-$(VERSION) ; PREFIX=/usr dpkg-buildpackage -F -tc
 
-rpm:    clean dist
+rpm:    dist
 	rpmbuild -ta $(BUNDLE_NAME)-$(VERSION).tar.gz
