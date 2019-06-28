@@ -224,6 +224,8 @@ bool cFormatJpeg::isSupported(cFile& file, Buffer& buffer) const
         { { 0xff, 0xd8, 0xff, 0xe0 } },
         { { 0xff, 0xd8, 0xff, 0xed } },
         { { 0xff, 0xd8, 0xff, 0xe1 } },
+        { { 0xff, 0xd8, 0xff, 0xe2 } },
+        { { 0xff, 0xd8, 0xff, 0xee } },
         { { 0xff, 0xd8, 0xff, 0xfe } },
     };
 
@@ -263,6 +265,7 @@ bool cFormatJpeg::LoadImpl(const char* filename, sBitmapDescription& desc)
 
             auto& exifList = desc.exifList;
 
+            addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_DATE_TIME_ORIGINAL, exifList);
             addExifTag(ed, EXIF_IFD_0, EXIF_TAG_MAKE, exifList);
             addExifTag(ed, EXIF_IFD_0, EXIF_TAG_MODEL, exifList);
             addExifTag(ed, EXIF_IFD_0, EXIF_TAG_SOFTWARE, exifList);
@@ -271,7 +274,6 @@ bool cFormatJpeg::LoadImpl(const char* filename, sBitmapDescription& desc)
             addExifTag(ed, EXIF_IFD_0, EXIF_TAG_Y_RESOLUTION, exifList);
 
             addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_MAX_APERTURE_VALUE, exifList);
-            addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_DATE_TIME, exifList);
             addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_FNUMBER, exifList);
             addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_FOCAL_LENGTH, exifList);
             addExifTag(ed, EXIF_IFD_EXIF, EXIF_TAG_EXPOSURE_TIME, exifList);

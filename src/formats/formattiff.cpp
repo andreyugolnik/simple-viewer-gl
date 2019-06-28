@@ -127,7 +127,8 @@ bool cFormatTiff::load(unsigned current, sBitmapDescription& desc)
             }
 
             TIFFRGBAImage img;
-            if (TIFFRGBAImageBegin(&img, tif, 0, nullptr) != 0)
+            char emsg[1024];
+            if (TIFFRGBAImageBegin(&img, tif, 0, emsg) != 0)
             {
                 desc.width = img.width;
                 desc.height = img.height;
@@ -160,6 +161,10 @@ bool cFormatTiff::load(unsigned current, sBitmapDescription& desc)
                 }
 
                 TIFFRGBAImageEnd(&img);
+            }
+            else
+            {
+                ::printf("(EE) Error: '%s'\n", emsg);
             }
         }
 

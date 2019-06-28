@@ -26,7 +26,25 @@ private:
 private:
     bool load(uint32_t current, sBitmapDescription& desc);
 
+public:
+    struct Entry
+    {
+        enum Compression : uint32_t
+        {
+            None,
+            Pack,
+            PngJ
+        };
+
+        Compression compression;
+        uint32_t offset;
+        uint32_t size;
+        uint32_t iconSize;
+        uint32_t srcBpp;
+        uint32_t dstBpp;
+    };
+
 private:
     std::vector<uint8_t> m_icon;
-    std::vector<uint32_t> m_entries;
+    std::vector<Entry> m_entries;
 };

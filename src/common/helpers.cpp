@@ -195,4 +195,4 @@ namespace helpers
 
         return true;
     }
-}
+} // namespace helpers

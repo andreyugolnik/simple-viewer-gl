@@ -59,15 +59,6 @@ public:
         m_isWindowed = windowed;
     }
 
-    const Vectori& getWindowPosition() const
-    {
-        return m_prevPos;
-    }
-    const Vectori& getWindowSize() const
-    {
-        return m_prevSize;
-    }
-
 public:
     virtual void startLoading() override;
     virtual void doProgress(float progress) override;
@@ -96,10 +87,12 @@ private:
     void updateInfobar();
     void updatePixelInfo(const Vectorf& pos);
 
-    void keyUp();
-    void keyDown();
-    void keyLeft();
-    void keyRight();
+    float getStepVert(bool byPixel) const;
+    float getStepHori(bool byPixel) const;
+    void keyUp(bool byPixel);
+    void keyDown(bool byPixel);
+    void keyLeft(bool byPixel);
+    void keyRight(bool byPixel);
     void shiftCamera(const Vectorf& delta);
     Vectorf screenToImage(const Vectorf& pos) const;
     Vectorf calculateMousePosition(const Vectorf& pos) const;
@@ -117,8 +110,6 @@ private:
     bool m_mouseLB, m_mouseMB, m_mouseRB;
     Vectorf m_lastMouse;
     Vectorf m_camera;
-    Vectori m_prevPos;
-    Vectori m_prevSize;
     int m_angle;
 
     bool m_subImageForced = false;

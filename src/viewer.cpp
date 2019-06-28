@@ -64,8 +64,6 @@ cViewer::cViewer(sConfig& config)
     m_grid.reset(new cImageGrid());
     m_selection.reset(new cSelection());
     m_filesList.reset(new cFilesList(config.skipFilter, config.recursiveScan));
-
-    m_prevSize = { DEF_WINDOW_W, DEF_WINDOW_H };
 }
 
 cViewer::~cViewer()
@@ -125,8 +123,6 @@ void cViewer::onRender()
     m_imgui.beginFrame();
 
     m_checkerBoard->render(!m_config.hideCheckboard);
-
-    //updateViewportSize();
 
     const float scale = m_scale.getScale();
 
@@ -243,13 +239,13 @@ bool cViewer::isUploading() const
 
 void cViewer::onResize(const Vectori& size)
 {
-    GLFWwindow* window = cRenderer::getWindow();
+    auto window = cRenderer::getWindow();
 
     if (m_isWindowed)
     {
-        m_prevSize = size;
+        m_config.windowSize = size;
 
-        glfwGetWindowPos(window, &m_prevPos.x, &m_prevPos.y);
+        glfwGetWindowPos(window, &m_config.windowPos.x, &m_config.windowPos.y);
     }
 
     Vectori fbSize;
@@ -270,7 +266,7 @@ void cViewer::onResize(const Vectori& size)
 
 void cViewer::onPosition(const Vectori& pos)
 {
-    m_prevPos = pos;
+    m_config.windowPos = pos;
 }
 
 Vectorf cViewer::calculateMousePosition(const Vectorf& pos) const
@@ -467,22 +463,22 @@ void cViewer::onKey(int key, int scancode, int action, int mods)
 
     case GLFW_KEY_H:
     case GLFW_KEY_LEFT:
-        keyLeft();
+        keyLeft((mods & GLFW_MOD_SHIFT) == 0);
         break;
 
     case GLFW_KEY_L:
     case GLFW_KEY_RIGHT:
-        keyRight();
+        keyRight((mods & GLFW_MOD_SHIFT) == 0);
         break;
 
     case GLFW_KEY_K:
     case GLFW_KEY_UP:
-        keyUp();
+        keyUp((mods & GLFW_MOD_SHIFT) == 0);
         break;
 
     case GLFW_KEY_J:
     case GLFW_KEY_DOWN:
-        keyDown();
+        keyDown((mods & GLFW_MOD_SHIFT) == 0);
         break;
 
     case GLFW_KEY_R:
@@ -534,24 +530,50 @@ void cViewer::onChar(uint32_t c)
     m_imgui.onChar(c);
 }
 
-void cViewer::keyUp()
+float cViewer::getStepVert(bool byPixel) const
 {
-    shiftCamera({ 0, -10 / m_scale.getScale() });
+    if (byPixel)
+    {
+        return m_config.shiftInPixels / m_scale.getScale();
+    }
+
+    auto percent = m_config.shiftInPercent;
+    return percent * m_image->getHeight();
 }
 
-void cViewer::keyDown()
+float cViewer::getStepHori(bool byPixel) const
 {
-    shiftCamera({ 0, 10 / m_scale.getScale() });
+    if (byPixel)
+    {
+        return m_config.shiftInPixels / m_scale.getScale();
+    }
+
+    auto percent = m_config.shiftInPercent;
+    return percent * m_image->getWidth();
 }
 
-void cViewer::keyLeft()
+void cViewer::keyUp(bool byPixel)
 {
-    shiftCamera({ -10 / m_scale.getScale(), 0 });
+    auto step = getStepVert(byPixel);
+    shiftCamera({ 0.0f, -step });
 }
 
-void cViewer::keyRight()
+void cViewer::keyDown(bool byPixel)
 {
-    shiftCamera({ 10 / m_scale.getScale(), 0 });
+    auto step = getStepVert(byPixel);
+    shiftCamera({ 0.0f, step });
+}
+
+void cViewer::keyLeft(bool byPixel)
+{
+    auto step = getStepHori(byPixel);
+    shiftCamera({ -step, 0.0f });
+}
+
+void cViewer::keyRight(bool byPixel)
+{
+    auto step = getStepHori(byPixel);
+    shiftCamera({ step, 0.0f });
 }
 
 void cViewer::shiftCamera(const Vectorf& delta)
@@ -660,7 +682,7 @@ void cViewer::updateFiltering()
 
 void cViewer::centerWindow()
 {
-    GLFWwindow* window = cRenderer::getWindow();
+    auto window = cRenderer::getWindow();
 
     if (m_isWindowed)
     {
@@ -685,8 +707,8 @@ void cViewer::centerWindow()
             glfwSetWindowSize(window, width, height);
             glfwSetWindowPos(window, x, y);
 
-            m_prevSize = { width, height };
-            m_prevPos = { x, y };
+            m_config.windowSize = { width, height };
+            m_config.windowPos = { x, y };
         }
 
         calculateScale();

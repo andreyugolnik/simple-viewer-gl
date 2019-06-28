@@ -12,13 +12,13 @@
 #include "common/file.h"
 
 #include <cassert>
+#include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 
 namespace
 {
-
     // microsoft
     enum DXGI_FORMAT
     {
@@ -153,88 +153,88 @@ namespace
     // microsoft
     struct DDS_PIXELFORMAT
     {
-        unsigned dwSize;
-        unsigned dwFlags;
-        unsigned dwFourCC;
-        unsigned dwRGBBitCount;
-        unsigned dwRBitMask;
-        unsigned dwGBitMask;
-        unsigned dwBBitMask;
-        unsigned dwABitMask;
+        uint32_t dwSize;
+        uint32_t dwFlags;
+        uint32_t dwFourCC;
+        uint32_t dwRGBBitCount;
+        uint32_t dwRBitMask;
+        uint32_t dwGBitMask;
+        uint32_t dwBBitMask;
+        uint32_t dwABitMask;
     };
 
     struct DDS_HEADER_DXT10
     {
         DXGI_FORMAT dxgiFormat;
         D3D10_RESOURCE_DIMENSION resourceDimension;
-        unsigned miscFlag;
-        unsigned arraySize;
-        unsigned miscFlags2;
+        uint32_t miscFlag;
+        uint32_t arraySize;
+        uint32_t miscFlags2;
     };
 
     // microsoft
     struct DDS_HEADER
     {
-        unsigned dwMagic;
-        unsigned dwSize;
-        unsigned dwFlags;
-        unsigned dwHeight;
-        unsigned dwWidth;
-        unsigned dwPitchOrLinearSize;
-        unsigned dwDepth;
-        unsigned dwMipMapCount;
-        unsigned dwReserved1[11];
+        uint32_t dwMagic;
+        uint32_t dwSize;
+        uint32_t dwFlags;
+        uint32_t dwHeight;
+        uint32_t dwWidth;
+        uint32_t dwPitchOrLinearSize;
+        uint32_t dwDepth;
+        uint32_t dwMipMapCount;
+        uint32_t dwReserved1[11];
         DDS_PIXELFORMAT ddspf;
-        unsigned dwCaps;
-        unsigned dwCaps2;
-        unsigned dwCaps3;
-        unsigned dwCaps4;
-        unsigned dwReserved2;
+        uint32_t dwCaps;
+        uint32_t dwCaps2;
+        uint32_t dwCaps3;
+        uint32_t dwCaps4;
+        uint32_t dwReserved2;
     };
 
     //struct dds_colorkey
     //{
-    //unsigned dwColorSpaceLowValue;
-    //unsigned dwColorSpaceHighValue;
+    //uint32_t dwColorSpaceLowValue;
+    //uint32_t dwColorSpaceHighValue;
     //};
 
     //struct dds_header
     //{
-    //unsigned magic;
-    //unsigned dwSize;
-    //unsigned dwFlags;
-    //unsigned dwHeight;
-    //unsigned dwWidth;
+    //uint32_t magic;
+    //uint32_t dwSize;
+    //uint32_t dwFlags;
+    //uint32_t dwHeight;
+    //uint32_t dwWidth;
     //long lPitch;
-    //unsigned dwDepth;
-    //unsigned dwMipMapCount;
-    //unsigned dwAlphaBitDepth;
-    //unsigned dwReserved;
+    //uint32_t dwDepth;
+    //uint32_t dwMipMapCount;
+    //uint32_t dwAlphaBitDepth;
+    //uint32_t dwReserved;
     //void* lpSurface;
     //dds_colorkey ddckCKDestOverlay;
     //dds_colorkey ddckCKDestBlt;
     //dds_colorkey ddckCKSrcOverlay;
     //dds_colorkey ddckCKSrcBlt;
-    //unsigned dwPFSize;
-    //unsigned dwPFFlags;
-    //unsigned dwFourCC;
-    //unsigned dwRGBBitCount;
-    //unsigned dwRBitMask;
-    //unsigned dwGBitMask;
-    //unsigned dwBBitMask;
-    //unsigned dwRGBAlphaBitMask;
-    //unsigned dwCaps;
-    //unsigned dwCaps2;
-    //unsigned dwCaps3;
-    //unsigned dwVolumeDepth;
-    //unsigned dwTextureStage;
+    //uint32_t dwPFSize;
+    //uint32_t dwPFFlags;
+    //uint32_t dwFourCC;
+    //uint32_t dwRGBBitCount;
+    //uint32_t dwRBitMask;
+    //uint32_t dwGBitMask;
+    //uint32_t dwBBitMask;
+    //uint32_t dwRGBAlphaBitMask;
+    //uint32_t dwCaps;
+    //uint32_t dwCaps2;
+    //uint32_t dwCaps3;
+    //uint32_t dwVolumeDepth;
+    //uint32_t dwTextureStage;
     //};
 
     struct dds_color
     {
-        unsigned char r;
-        unsigned char g;
-        unsigned char b;
+        uint8_t r;
+        uint8_t g;
+        uint8_t b;
     };
 
     enum DDPF_FLAGS
@@ -274,23 +274,21 @@ namespace
 
     const char* formatToStirng(DDS_FORMAT fmt)
     {
-        static const char* formats[] =
-        {
+        static const char* formats[] = {
             "dds/rgb", "dds/rgba", "dds/dxt1", "dds/dxt2", "dds/dxt3", "dds/dxt4", "dds/dxt5", "dds/dxt10"
         };
 
         return fmt != DDS_ERROR ? formats[fmt] : "dds/Unknown format";
     }
 
-
-    bool isValidFormat(const DDS_HEADER& header, unsigned fileSize)
+    bool isValidFormat(const DDS_HEADER& header, uint32_t fileSize)
     {
         if (sizeof(header) >= fileSize)
         {
             return false;
         }
 
-        const unsigned DDS_MAGIC = ('D' | 'D' << 8 | 'S' << 16 | ' ' << 24);
+        const uint32_t DDS_MAGIC = ('D' | 'D' << 8 | 'S' << 16 | ' ' << 24);
         return header.dwMagic == DDS_MAGIC && header.dwSize == 124
             && (header.dwFlags & DDSD_CAPS)
             && (header.dwFlags & DDSD_HEIGHT)
@@ -298,7 +296,7 @@ namespace
             && (header.dwFlags & DDSD_PIXELFORMAT);
     }
 
-}
+} // namespace
 
 cFormatDds::cFormatDds(iCallbacks* callbacks)
     : cFormat(callbacks)
@@ -343,7 +341,7 @@ bool cFormatDds::LoadImpl(const char* filename, sBitmapDescription& desc)
         return false;
     }
 
-    desc.width  = header.dwWidth;
+    desc.width = header.dwWidth;
     desc.height = header.dwHeight;
 
     DDS_FORMAT format = DDS_ERROR;
@@ -352,7 +350,7 @@ bool cFormatDds::LoadImpl(const char* filename, sBitmapDescription& desc)
     {
         if (header.ddspf.dwFourCC == ('D' | 'X' << 8 | '1' << 16 | '0' << 24))
         {
-            if (sizeof(header) != file.read(&header10, sizeof(header10)))
+            if (sizeof(header10) != file.read(&header10, sizeof(header10)))
             {
                 ::printf("(EE) Error load DDS file '%s': wrong DX10 header size.\n", filename);
                 return false;
@@ -396,9 +394,9 @@ bool cFormatDds::LoadImpl(const char* filename, sBitmapDescription& desc)
         return false;
     }
 
-    const unsigned data_size = desc.size - file.getOffset();
-    std::vector<unsigned char> buffer(data_size);
-    unsigned char* src = buffer.data();
+    const uint32_t data_size = desc.size - file.getOffset();
+    std::vector<uint8_t> buffer(data_size);
+    uint8_t* src = buffer.data();
     if (data_size != file.read(src, data_size))
     {
         ::printf("(EE) Error load DDS file '%s': wrong data size.\n", filename);
@@ -413,13 +411,13 @@ bool cFormatDds::LoadImpl(const char* filename, sBitmapDescription& desc)
         desc.bpp = 24;
         desc.bppImage = 24;
         desc.pitch = desc.width * 3;
-        const unsigned size = desc.pitch * desc.height;
+        const uint32_t size = desc.pitch * desc.height;
         desc.bitmap.resize(size);
-        unsigned char* dest = desc.bitmap.data();
+        uint8_t* dest = desc.bitmap.data();
 
-        for (unsigned y = 0; y < desc.height; y++)
+        for (uint32_t y = 0; y < desc.height; y++)
         {
-            for (unsigned x = 0; x < desc.width; x++)
+            for (uint32_t x = 0; x < desc.width; x++)
             {
                 *dest++ = *src++;
                 *dest++ = *src++;
@@ -433,13 +431,13 @@ bool cFormatDds::LoadImpl(const char* filename, sBitmapDescription& desc)
         desc.bpp = 32;
         desc.bppImage = 32;
         desc.pitch = desc.width * 4;
-        const unsigned size = desc.pitch * desc.height;
+        const uint32_t size = desc.pitch * desc.height;
         desc.bitmap.resize(size);
-        unsigned char* dest = desc.bitmap.data();
+        uint8_t* dest = desc.bitmap.data();
 
-        for (unsigned y = 0; y < desc.height; y++)
+        for (uint32_t y = 0; y < desc.height; y++)
         {
-            for (unsigned x = 0; x < desc.width; x++)
+            for (uint32_t x = 0; x < desc.width; x++)
             {
                 *dest++ = *src++;
                 *dest++ = *src++;
@@ -454,38 +452,39 @@ bool cFormatDds::LoadImpl(const char* filename, sBitmapDescription& desc)
         desc.bpp = 32;
         desc.bppImage = 32;
         desc.pitch = desc.width * 4;
-        const unsigned size = desc.pitch * desc.height;
+        const uint32_t h = (uint32_t)::ceilf(desc.height / 4.0f) * 4;
+        const uint32_t size = desc.pitch * h;
         desc.bitmap.resize(size);
 
-        for (unsigned y = 0; y < desc.height; y += 4)
+        for (uint32_t y = 0; y < desc.height; y += 4)
         {
-            for (unsigned x = 0; x < desc.width; x += 4)
+            for (uint32_t x = 0; x < desc.width; x += 4)
             {
-                unsigned long long alpha = 0;
-                unsigned a0 = 0;
-                unsigned a1 = 0;
+                uint64_t alpha = 0;
+                uint32_t a0 = 0;
+                uint32_t a1 = 0;
                 dds_color color[4];
                 if (format == DDS_DXT3)
                 {
-                    alpha = *(unsigned long long*)src;
+                    alpha = *(uint64_t*)src;
                     src += 8;
                 }
                 else if (format == DDS_DXT5)
                 {
-                    alpha = (*(unsigned long long*)src) >> 16;
+                    alpha = (*(uint64_t*)src) >> 16;
                     a0 = src[0];
                     a1 = src[1];
                     src += 8;
                 }
-                unsigned c0 = *(unsigned short*)(src + 0);
-                unsigned c1 = *(unsigned short*)(src + 2);
+                uint32_t c0 = *(uint16_t*)(src + 0);
+                uint32_t c1 = *(uint16_t*)(src + 2);
                 src += 4;
                 color[0].r = ((c0 >> 11) & 0x1f) << 3;
-                color[0].g = ((c0 >>  5) & 0x3f) << 2;
-                color[0].b = ((c0 >>  0) & 0x1f) << 3;
+                color[0].g = ((c0 >> 5) & 0x3f) << 2;
+                color[0].b = ((c0 >> 0) & 0x1f) << 3;
                 color[1].r = ((c1 >> 11) & 0x1f) << 3;
-                color[1].g = ((c1 >>  5) & 0x3f) << 2;
-                color[1].b = ((c1 >>  0) & 0x1f) << 3;
+                color[1].g = ((c1 >> 5) & 0x3f) << 2;
+                color[1].b = ((c1 >> 0) & 0x1f) << 3;
                 if (c0 > c1)
                 {
                     color[2].r = (color[0].r * 2 + color[1].r) / 3;
@@ -505,11 +504,11 @@ bool cFormatDds::LoadImpl(const char* filename, sBitmapDescription& desc)
                     color[3].b = 0;
                 }
 
-                for (unsigned i = 0; i < 4; i++)
+                for (uint32_t i = 0; i < 4; i++)
                 {
-                    unsigned index = *src++;
-                    unsigned char* dest = desc.bitmap.data() + (desc.width * (y + i) + x) * 4;
-                    for (unsigned j = 0; j < 4; j++)
+                    uint32_t index = *src++;
+                    uint8_t* dest = desc.bitmap.data() + (desc.width * (y + i) + x) * 4;
+                    for (uint32_t j = 0; j < 4; j++)
                     {
                         *dest++ = color[index & 0x03].r;
                         *dest++ = color[index & 0x03].g;
@@ -525,7 +524,7 @@ bool cFormatDds::LoadImpl(const char* filename, sBitmapDescription& desc)
                         }
                         else if (format == DDS_DXT5)
                         {
-                            unsigned a = alpha & 0x07;
+                            uint32_t a = alpha & 0x07;
                             if (a == 0)
                             {
                                 *dest++ = a0;

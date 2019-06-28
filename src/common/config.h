@@ -9,7 +9,11 @@
 
 #pragma once
 
+#include "common/Ini.h"
 #include "types/color.h"
+#include "types/vector.h"
+
+#include <string>
 
 struct sConfig
 {
@@ -36,10 +40,23 @@ struct sConfig
     uint32_t bgCellSize = 16;
 
     float fontRatio = 0.5f;
+
+    float shiftInPixels = 10.0f;
+    float shiftInPercent = 0.5f;
+
+    Vectori windowSize{ 0, 0 };
+    Vectori windowPos{ 0, 0 };
 };
 
 class cConfig final
 {
 public:
+    cConfig();
+
     void read(sConfig& config) const;
+    void write(const sConfig& config) const;
+
+private:
+    std::string m_path;
+    mutable ini::cIni m_ini;
 };

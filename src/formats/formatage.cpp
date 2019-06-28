@@ -117,7 +117,7 @@ bool cFormatAge::LoadImpl(const char* filename, sBitmapDescription& desc)
     if (header.compression != AGE::Compression::NONE)
     {
         std::vector<unsigned char> in(header.data_size);
-        if (header.data_size != file.read(&in[0], header.data_size))
+        if (header.data_size != file.read(in.data(), header.data_size))
         {
             return false;
         }
@@ -129,8 +129,8 @@ bool cFormatAge::LoadImpl(const char* filename, sBitmapDescription& desc)
         if (header.compression == AGE::Compression::ZLIB)
         {
             cZlibDecoder decoder;
-            decoded = decoder.decode(&in[0], in.size(), &desc.bitmap[0], desc.bitmap.size());
-            if (!decoded)
+            decoded = decoder.decode(in.data(), in.size(), desc.bitmap.data(), desc.bitmap.size());
+            if (decoded == 0)
             {
                 ::printf("(EE) Error decode ZLIB.\n");
                 return false;
@@ -143,17 +143,18 @@ bool cFormatAge::LoadImpl(const char* filename, sBitmapDescription& desc)
             cRLE decoder;
             if (header.compression == AGE::Compression::RLE4)
             {
-                decoded = decoder.decodeBy4((unsigned*)&in[0], in.size() / 4, (unsigned*)&desc.bitmap[0], desc.bitmap.size() / 4);
+                decoded = decoder.decodeBy4((unsigned*)in.data(), in.size() / 4, (unsigned*)desc.bitmap.data(), desc.bitmap.size() / 4);
 
                 m_formatName = "age/rle4";
             }
             else
             {
-                decoded = decoder.decode(&in[0], in.size(), &desc.bitmap[0], desc.bitmap.size());
+                decoded = decoder.decode(in.data(), in.size(), desc.bitmap.data(), desc.bitmap.size());
 
                 m_formatName = "age/rle";
             }
-            if (!decoded)
+
+            if (decoded == 0)
             {
                 ::printf("(EE) Error decode RLE.\n");
                 return false;

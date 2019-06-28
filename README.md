@@ -17,14 +17,14 @@ Supported formats: `PNG`, `JPEG`, `JPEG 2000`, `PSD`, `AI`, `EPS`, `XCF` (GIMP i
 ##Features##
 
 * Lightweight and fast: utilize hardware-accelerated video card;
-* Support embeded ICC profiles;
+* Support embedded ICC profiles;
 * GIF animation support;
 * GIMP XCF support;
 * Adobe PSD format support;
 * Adobe AI, EPS formats preview support;
 * Exif support;
 * Very simple interface;
-* Suitable for default image viewer of desktop;
+* Suitable for default image viewer for the desktops and laptops;
 * Minimal lib dependency: look library requirements below;
 * Desktop independent: doesn't require any specific desktop environment;
 * Open source, licensed under GNU GPL;
@@ -37,26 +37,32 @@ Supported formats: `PNG`, `JPEG`, `JPEG 2000`, `PSD`, `AI`, `EPS`, `XCF` (GIMP i
 ***
 ##Key bindings##
 
-* `<esc>`           - exit;
-* `<space>`         - next image;
-* `<backspace>`     - previous image;
-* `<+> / <->`       - scale image;
-* `<1>...<0>`       - set scale from 100% to 1000%;
-* `<enter>`         - switch fullscreen / windowed mode;
-* `<del>`           - toggle deletion mark;
-* `<ctrl>+<del>`    - delete marked images from disk;
-* `<r>`             - rotate clockwise;
-* `<shift>+<r>`     - rotate counterclockwise;
-* `<pgup> / <bgdn>` - previous /next subimage;
-* `<s>`             - fit image to window;
-* `<shift>+<s>`     - toggle 'keep scale' on image load;
-* `<c>`             - hide / show chequerboard;
-* `<i>`             - hide / show on-screen info;
-* `<e>`             - hide / show exif;
-* `<p>`             - hide / show pixel info;
-* `<b>`             - hide / show border around image;
-* `<g>`             - hide / show image grid;
-* `<?>`             - hide / show keybindings popup;
+Hotkey                 | Action
+-----------------------|----------------------------------
+`<esc>`                | exit
+`<space>`              | next image
+`<backspace>`          | previous image
+`<+> / <->`            | scale image
+`<1>...<0>`            | set scale from 100% to 1000%
+`<enter>`              | switch fullscreen / windowed mode
+`<h> / <l>`            | pan left / right in pixels
+`<j> / <k>`            | pan down / up in pixels
+`<shift> + <h> / <l>`  | pan left / right in percents
+`<shift> + <j> / <k>`  | pan down / up in percents
+`<del>`                | toggle deletion mark
+`<ctrl> + <del>`       | delete marked images from disk
+`<r>`                  | rotate clockwise
+`<shift> + <r>`        | rotate counterclockwise
+`<pgup> / <bgdn>`      | previous /next subimage
+`<s>`                  | fit image to window
+`<shift> + <s>`        | toggle 'keep scale' on image load
+`<c>`                  | hide / show chequerboard
+`<i>`                  | hide / show on-screen info
+`<e>`                  | hide / show exif
+`<p>`                  | hide / show pixel info
+`<b>`                  | hide / show border around image
+`<g>`                  | hide / show image grid
+`<?>`                  | hide / show keybindings popup
 
 ***
 ##Download and build from sources##
@@ -130,6 +136,7 @@ $ sudo make rpm
 `OpenEXR`      | *libilmbase-dev*, *libopenexr-dev* | (Optional) OpenEXR is a high dynamic-range (HDR) image file format developed by Industrial Light & Magic for use in computer imaging applications.
 `OpenJPEG`     | *libopenjpeg-dev*,                 | (Optional) JPEG 2000 support.
 `ImLib2`       | *libimlib2-dev*                    | (Optional) Common formats support.
+`curl`         | *libcurl-dev*                      | (Optional) Support loading via http/https/ftp protocols.
 
 ```
 Copyright © 2008-2018 Andrey A. Ugolnik. All Rights Reserved.
