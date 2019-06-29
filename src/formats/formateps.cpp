@@ -132,6 +132,10 @@ bool cFormatEps::LoadImpl(const char* filename, sBitmapDescription& desc)
             }
         }
     }
+    else
+    {
+        ::printf("(EE) Cant get xmpGImg:image\n");
+    }
 
     return false;
 }
