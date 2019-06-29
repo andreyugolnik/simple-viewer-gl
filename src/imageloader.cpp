@@ -44,8 +44,9 @@
 #include <cstdio>
 #include <string>
 
-cImageLoader::cImageLoader(iCallbacks* callbacks)
-    : m_callbacks(callbacks)
+cImageLoader::cImageLoader(const sConfig* config, iCallbacks* callbacks)
+    : m_config(config)
+    , m_callbacks(callbacks)
 {
 #if CREATE_ALL_LOADERS_AT_ONCE
     for (uint32_t i = 0; i < (uint32_t)eImageType::COUNT; i++)
@@ -352,6 +353,11 @@ cFormat* cImageLoader::createLoader(eImageType type) const
 
     case eImageType::COUNT: // do nothing
         break;
+    }
+
+    if (loader != nullptr)
+    {
+        loader->setConfig(m_config);
     }
 
     format.reset(loader);

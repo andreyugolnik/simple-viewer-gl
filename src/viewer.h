@@ -101,6 +101,7 @@ private:
 
 private:
     sConfig& m_config;
+
     Vectorf m_ratio;
     bool m_imagePrepared = false;
     cScale m_scale;
@@ -112,6 +113,7 @@ private:
     Vectorf m_camera;
     int m_angle;
 
+    bool m_fitImage = false;
     bool m_subImageForced = false;
     bool m_animation = false;
     float m_animationTime = 0.0f;

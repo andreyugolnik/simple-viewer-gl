@@ -26,6 +26,11 @@ cFormat::~cFormat()
 {
 }
 
+void cFormat::setConfig(const sConfig* config)
+{
+    m_config = config;
+}
+
 bool cFormat::Load(const char* filename, sBitmapDescription& desc)
 {
     m_stop = false;
