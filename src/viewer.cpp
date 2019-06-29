@@ -399,7 +399,8 @@ void cViewer::onKey(int key, int scancode, int action, int mods)
         else
         {
             m_config.fitImage = !m_config.fitImage;
-            if (m_config.fitImage == false)
+            m_fitImage = m_config.fitImage;
+            if (m_fitImage == false)
             {
                 m_scale.setScalePercent(100);
             }
@@ -509,7 +510,7 @@ void cViewer::onKey(int key, int scancode, int action, int mods)
         {
             m_scale.setScalePercent(1000);
             m_camera = { 0.0f, 0.0f };
-            m_config.fitImage = false;
+            m_fitImage = false;
             centerWindow();
             updateInfobar();
         }
@@ -517,7 +518,7 @@ void cViewer::onKey(int key, int scancode, int action, int mods)
         {
             m_scale.setScalePercent((key - GLFW_KEY_0) * 100);
             m_camera = { 0.0f, 0.0f };
-            m_config.fitImage = false;
+            m_fitImage = false;
             centerWindow();
             updateInfobar();
         }
@@ -591,7 +592,7 @@ void cViewer::shiftCamera(const Vectorf& delta)
 
 void cViewer::calculateScale()
 {
-    if (m_config.fitImage && m_loader->isLoaded())
+    if (m_fitImage && m_loader->isLoaded())
     {
         float w = static_cast<float>(m_image->getWidth());
         float h = static_cast<float>(m_image->getHeight());
@@ -643,7 +644,7 @@ void cViewer::calculateScale()
 // TODO update m_camera_x / m_camera_y according current mouse position
 void cViewer::updateScale(bool up)
 {
-    m_config.fitImage = false;
+    m_fitImage = false;
 
     int scale = m_scale.getScalePercent();
 
@@ -717,6 +718,10 @@ void cViewer::centerWindow()
 
 void cViewer::loadImage(int step)
 {
+    m_fitImage = m_config.keepScale
+        ? false
+        : m_config.fitImage;
+
     m_subImageForced = false;
     m_animation = false;
     m_image->stop();
