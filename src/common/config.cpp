@@ -140,6 +140,9 @@ void cConfig::read(sConfig& config) const
 
     readValue(m_ini, "window_w", config.windowSize.x);
     readValue(m_ini, "window_h", config.windowSize.y);
+
+    readValue(m_ini, "minSvgWidth", config.minSvgSize.x);
+    readValue(m_ini, "minSvgHeight", config.minSvgSize.y);
 }
 
 void cConfig::write(const sConfig& config) const

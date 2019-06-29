@@ -46,6 +46,8 @@ struct sConfig
 
     Vectori windowSize{ 0, 0 };
     Vectori windowPos{ 0, 0 };
+
+    Vectorf minSvgSize{ 256.0f, 256.0f };
 };
 
 class cConfig final
