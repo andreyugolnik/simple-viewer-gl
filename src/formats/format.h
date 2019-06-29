@@ -17,11 +17,14 @@ class cCMS;
 class cFile;
 class iCallbacks;
 struct sBitmapDescription;
+struct sConfig;
 
 class cFormat
 {
 public:
     virtual ~cFormat();
+
+    void setConfig(const sConfig* config);
 
     virtual bool isSupported(cFile& file, Buffer& buffer) const = 0;
 
@@ -62,6 +65,7 @@ private:
     std::unique_ptr<cCMS> m_cms;
 
 protected:
+    const sConfig* m_config = nullptr;
     const char* m_formatName = nullptr;
     bool m_stop = false;
 };

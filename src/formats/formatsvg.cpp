@@ -10,6 +10,7 @@
 #include "formatsvg.h"
 #include "common/bitmap_description.h"
 #include "common/file.h"
+#include "common/config.h"
 
 #include <cfloat>
 #include <cmath>
@@ -75,7 +76,13 @@ bool cFormatSvg::LoadImpl(const char* filename, sBitmapDescription& desc)
         return false;
     }
 
-    const auto scale = 1.0f;
+    const auto mw = m_config->minSvgSize.x;
+    const auto sw = image->width < mw ? (mw / image->width) : 1.0f;
+
+    const auto mh = m_config->minSvgSize.y;
+    const auto sh = image->height < mh ? (mh / image->height) : 1.0f;
+
+    const auto scale = std::min(sw, sh);
 
     desc.size = file.getSize();
     desc.images = 1;

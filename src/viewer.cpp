@@ -52,7 +52,7 @@ cViewer::cViewer(sConfig& config)
     , m_angle(0)
 {
     m_image.reset(new cQuadImage());
-    m_loader.reset(new cImageLoader(this));
+    m_loader.reset(new cImageLoader(&config, this));
     m_checkerBoard.reset(new cCheckerboard(config));
     m_deletionMark.reset(new cDeletionMark());
     m_infoBar.reset(new cInfoBar(config));

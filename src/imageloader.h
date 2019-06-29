@@ -16,6 +16,7 @@
 #include <thread>
 
 class iCallbacks;
+struct sConfig;
 
 enum class eImageType
 {
@@ -64,7 +65,7 @@ enum class eImageType
 class cImageLoader final
 {
 public:
-    explicit cImageLoader(iCallbacks* callbacks);
+    explicit cImageLoader(const sConfig* config, iCallbacks* callbacks);
     ~cImageLoader();
 
     void loadImage(const char* path);
@@ -98,6 +99,7 @@ private:
     void load(const char* path);
 
 private:
+    const sConfig* m_config;
     iCallbacks* m_callbacks;
 
     Mode m_mode = Mode::Image;
