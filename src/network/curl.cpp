@@ -10,6 +10,7 @@
 
 #include <cstring>
 #if defined(CURL_SUPPORT)
+#include <cstdlib>
 #include <curl/curl.h>
 #include <unistd.h>
 #endif
@@ -65,7 +66,8 @@ bool cCurl::loadFile(const char* path)
     }
 
     auto curl = ::curl_easy_init();
-    if (curl != nullptr)
+    auto result = curl != nullptr;
+    if (result)
     {
 #if defined(DEBUG)
         ::curl_easy_setopt(curl, CURLOPT_VERBOSE, 1);
@@ -82,7 +84,7 @@ bool cCurl::loadFile(const char* path)
 
     ::fclose(file);
 
-    return curl != nullptr;
+    return result;
 #else
     (void)path;
     return false;

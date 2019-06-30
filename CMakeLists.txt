@@ -272,7 +272,7 @@ endif()
 
 set(DISABLE_CURL_SUPPORT "0" CACHE STRING "Disable Curl support.")
 if (DISABLE_CURL_SUPPORT EQUAL 0)
-    find_package(curl QUIET)
+    find_package(CURL QUIET)
     if(CURL_FOUND)
         message(STATUS "(+) Curl support enabled")
         if(VERBOSE_PATHS)
