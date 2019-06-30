@@ -176,6 +176,9 @@ namespace
 
     GLFWwindow* createWindowedWindow(int width, int height, GLFWwindow* parent, const sConfig& config)
     {
+        width = width <= 0 ? 640 : config.windowSize.x;
+        height = height <= 0 ? 480 : config.windowSize.y;
+
         auto newWindow = glfwCreateWindow(width, height, SVGL_Title, nullptr, parent);
 
         if (config.centerWindow == false)
@@ -372,9 +375,7 @@ int main(int argc, char* argv[])
         }
         else
         {
-            auto width = config.windowSize.x == 0 ? 640 : config.windowSize.x;
-            auto height = config.windowSize.y == 0 ? 480 : config.windowSize.y;
-            window = createWindowedWindow(width, height, nullptr, config);
+            window = createWindowedWindow(config.windowSize.x, config.windowSize.y, nullptr, config);
 
             viewer.setWindowed(true);
         }
