@@ -25,10 +25,12 @@
 cFormatSvg::cFormatSvg(iCallbacks* callbacks)
     : cFormat(callbacks)
 {
+    m_rasterizer = nsvgCreateRasterizer();
 }
 
 cFormatSvg::~cFormatSvg()
 {
+    nsvgDeleteRasterizer(m_rasterizer);
 }
 
 bool cFormatSvg::isSupported(cFile& file, Buffer& buffer) const
@@ -48,6 +50,12 @@ bool cFormatSvg::isSupported(cFile& file, Buffer& buffer) const
 
 bool cFormatSvg::LoadImpl(const char* filename, sBitmapDescription& desc)
 {
+    if (m_rasterizer == nullptr)
+    {
+        ::printf("(EE) SVG rasterizer isn't created.\n");
+        return false;
+    }
+
     cFile file;
     if (file.open(filename) == false)
     {
@@ -65,14 +73,6 @@ bool cFormatSvg::LoadImpl(const char* filename, sBitmapDescription& desc)
     if (image == nullptr)
     {
         ::printf("(EE) Couldn't parse SVG image.\n");
-        return false;
-    }
-
-    auto rasterizer = nsvgCreateRasterizer();
-    if (!rasterizer)
-    {
-        ::printf("(EE) Couldn't create SVG rasterizer.\n");
-        nsvgDelete(image);
         return false;
     }
 
@@ -98,8 +98,7 @@ bool cFormatSvg::LoadImpl(const char* filename, sBitmapDescription& desc)
 
     m_formatName = "svg";
 
-    nsvgRasterize(rasterizer, image, 0.0f, 0.0f, scale, pix, desc.width, desc.height, desc.pitch);
-    nsvgDeleteRasterizer(rasterizer);
+    nsvgRasterize(m_rasterizer, image, 0.0f, 0.0f, scale, pix, desc.width, desc.height, desc.pitch);
     nsvgDelete(image);
 
     return true;
