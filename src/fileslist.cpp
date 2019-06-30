@@ -19,8 +19,6 @@
 cFilesList::cFilesList(bool allValid, bool recursive)
     : m_allValid(allValid)
     , m_recursive(recursive)
-    , m_scanDirectory(false)
-    , m_position(0)
 {
 }
 
@@ -247,6 +245,34 @@ const char* cFilesList::getName(int delta)
     if (count > 0)
     {
         m_position = (m_position + count + delta) % count;
+        return m_files[m_position].path.c_str();
+    }
+
+    return nullptr;
+}
+
+const char* cFilesList::getFirstName()
+{
+    parseDir();
+
+    const auto count = m_files.size();
+    if (count > 0)
+    {
+        m_position = 0;
+        return m_files[m_position].path.c_str();
+    }
+
+    return nullptr;
+}
+
+const char* cFilesList::getLastName()
+{
+    parseDir();
+
+    const auto count = m_files.size();
+    if (count > 0)
+    {
+        m_position = count - 1;
         return m_files[m_position].path.c_str();
     }
 

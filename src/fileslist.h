@@ -23,6 +23,8 @@ public:
     void locateFile(const char* path);
 
     const char* getName(int delta = 0);
+    const char* getFirstName();
+    const char* getLastName();
 
     void toggleDeletionMark();
     bool isMarkedForDeletion() const;
@@ -46,8 +48,8 @@ private:
 private:
     bool m_allValid;
     bool m_recursive;
-    bool m_scanDirectory;
-    size_t m_position; // current position in list
+    bool m_scanDirectory = false;
+    size_t m_position = 0; // current position in list
 
     struct sFile
     {

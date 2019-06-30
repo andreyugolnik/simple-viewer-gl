@@ -79,7 +79,10 @@ public:
     void showCursor(bool show);
 
 private:
+    void loadFirstImage();
+    void loadLastImage();
     void loadImage(int step);
+    void loadImage(const char* path);
     void loadSubImage(int subStep);
     void calculateScale();
     void updateScale(bool up);

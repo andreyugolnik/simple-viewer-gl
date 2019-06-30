@@ -418,6 +418,14 @@ void cViewer::onKey(int key, int scancode, int action, int mods)
         loadImage(-1);
         break;
 
+    case GLFW_KEY_HOME:
+        loadFirstImage();
+        break;
+
+    case GLFW_KEY_END:
+        loadLastImage();
+        break;
+
     case GLFW_KEY_DELETE:
         if (mods & GLFW_MOD_CONTROL)
         {
@@ -716,7 +724,25 @@ void cViewer::centerWindow()
     }
 }
 
+void cViewer::loadFirstImage()
+{
+    auto path = m_filesList->getFirstName();
+    loadImage(path);
+}
+
+void cViewer::loadLastImage()
+{
+    auto path = m_filesList->getLastName();
+    loadImage(path);
+}
+
 void cViewer::loadImage(int step)
+{
+    auto path = m_filesList->getName(step);
+    loadImage(path);
+}
+
+void cViewer::loadImage(const char* path)
 {
     m_fitImage = m_config.keepScale
         ? false
@@ -726,8 +752,7 @@ void cViewer::loadImage(int step)
     m_animation = false;
     m_image->stop();
 
-    const char* file = m_filesList->getName(step);
-    m_loader->loadImage(file);
+    m_loader->loadImage(path);
 }
 
 void cViewer::loadSubImage(int subStep)
