@@ -45,6 +45,17 @@ namespace
         return gifFile;
     }
 
+    const char* GetError(GifFileType* gif)
+    {
+#if GIFLIB_MAJOR >= 5
+        if (gif != nullptr)
+        {
+            return GifErrorString(gif->Error);
+        }
+#endif
+        return "n/a";
+    }
+
     void putPixel(sBitmapDescription& desc, uint32_t pos, const GifColorType* color, bool transparent)
     {
         if (!desc.current || !transparent)
@@ -106,14 +117,14 @@ bool cFormatGif::LoadImpl(const char* filename, sBitmapDescription& desc)
 
     if (m_gif.get() == nullptr)
     {
-        ::printf("(EE) Error Opening GIF image: '%s'.\n", GifErrorString(m_gif->Error));
+        ::printf("(EE) Error Opening GIF image: '%s'.\n", GetError(m_gif.get()));
         return false;
     }
 
     int res = DGifSlurp(m_gif.get());
     if (res != GIF_OK)
     {
-        ::printf("(EE) Error Reading GIF image: '%s'.\n", GifErrorString(m_gif->Error));
+        ::printf("(EE) Error Reading GIF image: '%s'.\n", GetError(m_gif.get()));
         return false;
     }
 
