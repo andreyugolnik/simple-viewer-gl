@@ -28,7 +28,7 @@
 ;fit_image = false
 
 ; start viewer in fullscreen mode on startup (default: false)
-;start_fullscreen = false
+;full_screen = false
 
 ; show or hide border around of image (default: false)
 ;show_image_border = false
