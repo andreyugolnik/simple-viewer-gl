@@ -84,8 +84,8 @@ bool cFormatGif::isSupported(cFile& file, Buffer& buffer) const
     }
 
     const auto h = buffer.data();
-    return (h[0] == 'G' && h[1] == 'I' && h[2] == 'F' && h[3] == '8' && h[5] == 'a')
-        && (h[4] == '7' || h[4] == '9');
+    return ::memcmp(h, "GIF87a", 6) == 0
+        || ::memcmp(h, "GIF89a", 6) == 0;
 }
 
 bool cFormatGif::LoadImpl(const char* filename, sBitmapDescription& desc)
@@ -102,19 +102,24 @@ bool cFormatGif::LoadImpl(const char* filename, sBitmapDescription& desc)
     desc.size = file.getSize();
     file.close();
 
-    auto gif = OpenFile(filename);
-    m_gif.reset(gif);
+    m_gif.reset(OpenFile(filename));
 
     if (m_gif.get() == nullptr)
     {
-        ::printf("(EE) Error Opening GIF image.\n");
+        ::printf("(EE) Error Opening GIF image: '%s'.\n", GifErrorString(m_gif->Error));
         return false;
     }
 
     int res = DGifSlurp(m_gif.get());
-    if (res != GIF_OK || m_gif->ImageCount < 1)
+    if (res != GIF_OK)
     {
-        ::printf("(EE) Error Opening GIF image.\n");
+        ::printf("(EE) Error Reading GIF image: '%s'.\n", GifErrorString(m_gif->Error));
+        return false;
+    }
+
+    if (m_gif->ImageCount < 1)
+    {
+        ::printf("(EE) Wrong ImagesCount: %d.\n", m_gif->ImageCount);
         return false;
     }
 
