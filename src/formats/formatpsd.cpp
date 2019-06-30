@@ -36,13 +36,13 @@ namespace
     struct PSD_HEADER
     {
         uint8_t signature[4]; // file ID, always "8BPS"
-        uint16_t version; // version number, always 1
+        uint16_t version;     // version number, always 1
         uint8_t resetved[6];
-        uint16_t channels; // number of color channels (1-56)
-        uint32_t rows; // height of image in pixels (1-30000)
-        uint32_t columns; // width of image in pixels (1-30000)
-        uint16_t depth; // number of bits per channel (1, 8, 16, 32)
-        ColorMode colorMode; // color mode as defined below
+        uint16_t channels;    // number of color channels (1-56)
+        uint32_t rows;        // height of image in pixels (1-30000)
+        uint32_t columns;     // width of image in pixels (1-30000)
+        uint16_t depth;       // number of bits per channel (1, 8, 16, 32)
+        ColorMode colorMode;  // color mode as defined below
     };
 #pragma pack(pop)
 
@@ -72,14 +72,14 @@ namespace
 
     enum class CompressionMethod : uint16_t
     {
-        RAW = 0, // Raw image data
-        RLE = 1, // RLE compressed the image data starts with the byte counts
-        // for all the scan lines (rows * channels), with each count
-        // stored as a two-byte value. The RLE compressed data follows,
-        // with each scan line compressed separately. The RLE compression
-        // is the same compression algorithm used by the Macintosh ROM
-        // routine PackBits, and the TIFF standard.
-        ZIP = 2, // ZIP without prediction
+        RAW = 0,        // Raw image data
+        RLE = 1,        // RLE compressed the image data starts with the byte counts
+                        // for all the scan lines (rows * channels), with each count
+                        // stored as a two-byte value. The RLE compressed data follows,
+                        // with each scan line compressed separately. The RLE compression
+                        // is the same compression algorithm used by the Macintosh ROM
+                        // routine PackBits, and the TIFF standard.
+        ZIP = 2,        // ZIP without prediction
         ZIP_PREDICT = 3 // ZIP with prediction
     };
 
@@ -196,7 +196,7 @@ namespace
             && header.signature[2] == 'P'
             && header.signature[3] == 'S';
     }
-}
+} // namespace
 
 cFormatPsd::cFormatPsd(iCallbacks* callbacks)
     : cFormat(callbacks)
@@ -242,14 +242,14 @@ bool cFormatPsd::LoadImpl(const char* filename, sBitmapDescription& desc)
     }
 
     const ColorMode colorMode = (ColorMode)helpers::read_uint16((uint8_t*)&header.colorMode);
-    if (colorMode != ColorMode::RGB && colorMode != ColorMode::CMYK) // && colorMode != ColorMode::GRAYSCALE)
+    if (colorMode != ColorMode::RGB && colorMode != ColorMode::CMYK && colorMode != ColorMode::GRAYSCALE)
     {
         ::printf("(EE) Unsupported color mode: %s\n", modeToString(colorMode));
         return false;
     }
 
     const uint32_t depth = helpers::read_uint16((uint8_t*)&header.depth);
-    if (depth != 8 && depth != 16) // && depth != 32)
+    if (depth != 8 && depth != 16 && depth != 32)
     {
         ::printf("(EE) Unsupported depth: %u\n", depth);
         return false;
@@ -478,26 +478,29 @@ bool cFormatPsd::LoadImpl(const char* filename, sBitmapDescription& desc)
             switch (depth)
             {
             case 8:
-            {
-                uint8_t* c = chBufs[0];
-                uint8_t* a = chBufs[1];
-                fromRgba(desc, c, c, c, a);
-            }
-            break;
+                if (1)
+                {
+                    uint8_t* c = chBufs[0];
+                    uint8_t* a = chBufs[1];
+                    fromRgba(desc, c, c, c, a);
+                }
+                break;
             case 16:
-            {
-                uint16_t* c = (uint16_t*)chBufs[0];
-                uint16_t* a = (uint16_t*)chBufs[1];
-                fromRgba(desc, c, c, c, a);
-            }
-            break;
+                if (1)
+                {
+                    uint16_t* c = (uint16_t*)chBufs[0];
+                    uint16_t* a = (uint16_t*)chBufs[1];
+                    fromRgba(desc, c, c, c, a);
+                }
+                break;
             case 32:
-            {
-                uint32_t* c = (uint32_t*)chBufs[0];
-                uint32_t* a = (uint32_t*)chBufs[1];
-                fromRgba(desc, c, c, c, a);
-            }
-            break;
+                if (1)
+                {
+                    uint32_t* c = (uint32_t*)chBufs[0];
+                    uint32_t* a = (uint32_t*)chBufs[1];
+                    fromRgba(desc, c, c, c, a);
+                }
+                break;
             }
         }
         else if (channels == 1)
