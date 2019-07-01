@@ -15,186 +15,20 @@
 
 #include <cstring>
 
-namespace
+namespace icns
 {
-    struct IcnsHeader
+    const char* CompressionToName(Compression compression)
     {
-        uint8_t magic[4];   // Magic literal, must be "icns" (0x69, 0x63, 0x6e, 0x73)
-        uint8_t fileLen[4]; // Length of file, in bytes, msb first
-    };
+        static const char* Names[] = {
+            "None",
+            "Pack",
+            "PngJ"
+        };
 
-    struct IcnsChunk
-    {
-        uint8_t type[4];    // Icon type, see OSType below.
-        uint8_t dataLen[4]; // Length of data, in bytes (including type and length), msb first
-        // Variable Icon data
-    };
-
-    struct ChunkDescription
-    {
-        const char* id;
-
-        cFormatIcns::Entry::Compression compression;
-
-        uint32_t srcBpp;
-        uint32_t dstBpp;
-        uint32_t iconSize;
-    };
-
-    const ChunkDescription TypesList[] = {
-        { "ICON", cFormatIcns::Entry::Compression::None, 1, 8, 32 },     // 128	32	1.0	32×32 1-bit mono icon
-        { "ICN#", cFormatIcns::Entry::Compression::None, 1, 8, 32 },     // 256	32	6.0	32×32 1-bit mono icon with 1-bit mask
-        { "icm#", cFormatIcns::Entry::Compression::None, 1, 8, 16 },     // 48	16	6.0	16×12 1 bit mono icon with 1-bit mask
-        { "icm4", cFormatIcns::Entry::Compression::None, 4, 8, 16 },     // 96	16	7.0	16×12 4 bit icon
-        { "icm8", cFormatIcns::Entry::Compression::None, 8, 8, 16 },     // 192	16	7.0	16×12 8 bit icon
-        { "ics#", cFormatIcns::Entry::Compression::None, 1, 8, 16 },     // 64 (32 img + 32 mask)	16	6.0	16×16 1-bit mask
-        { "ics4", cFormatIcns::Entry::Compression::None, 4, 8, 16 },     // 128	16	7.0	16×16 4-bit icon
-        { "ics8", cFormatIcns::Entry::Compression::None, 8, 8, 16 },     // 256	16	7.0	16x16 8 bit icon
-        { "is32", cFormatIcns::Entry::Compression::Pack, 32, 32, 16 },   // varies (768)	16	8.5	16×16 24-bit icon
-        { "s8mk", cFormatIcns::Entry::Compression::None, 8, 8, 16 },     // 256	16	8.5	16x16 8-bit mask
-        { "icl4", cFormatIcns::Entry::Compression::None, 4, 8, 32 },     // 512	32	7.0	32×32 4-bit icon
-        { "icl8", cFormatIcns::Entry::Compression::None, 8, 8, 32 },     // 1,024	32	7.0	32×32 8-bit icon
-        { "il32", cFormatIcns::Entry::Compression::Pack, 32, 32, 32 },   // varies (3,072)	32	8.5	32x32 24-bit icon
-        { "l8mk", cFormatIcns::Entry::Compression::None, 8, 8, 32 },     // 1,024	32	8.5	32×32 8-bit mask
-        { "ich#", cFormatIcns::Entry::Compression::None, 1, 8, 48 },     // 288	48	8.5	48×48 1-bit mask
-        { "ich4", cFormatIcns::Entry::Compression::None, 4, 8, 48 },     // 1,152	48	8.5	48×48 4-bit icon
-        { "ich8", cFormatIcns::Entry::Compression::None, 8, 8, 48 },     // 2,304	48	8.5	48×48 8-bit icon
-        { "ih32", cFormatIcns::Entry::Compression::Pack, 24, 24, 48 },   // varies (6,912)	48	8.5	48×48 24-bit icon
-        { "h8mk", cFormatIcns::Entry::Compression::None, 8, 8, 48 },     // 2,304	48	8.5	48×48 8-bit mask
-        { "it32", cFormatIcns::Entry::Compression::Pack, 32, 32, 128 },  // varies (49,152)	128	10.0	128×128 24-bit icon
-        { "t8mk", cFormatIcns::Entry::Compression::None, 8, 8, 128 },    // 16,384	128	10.0	128×128 8-bit mask
-        { "icp4", cFormatIcns::Entry::Compression::PngJ, 32, 32, 16 },   // varies	16	10.7	16x16 icon in JPEG 2000 or PNG format
-        { "icp5", cFormatIcns::Entry::Compression::PngJ, 32, 32, 32 },   // varies	32	10.7	32x32 icon in JPEG 2000 or PNG format
-        { "icp6", cFormatIcns::Entry::Compression::PngJ, 32, 32, 64 },   // varies	64	10.7	64x64 icon in JPEG 2000 or PNG format
-        { "ic07", cFormatIcns::Entry::Compression::PngJ, 32, 32, 128 },  // varies	128	10.7	128x128 icon in JPEG 2000 or PNG format
-        { "ic08", cFormatIcns::Entry::Compression::PngJ, 32, 32, 256 },  // varies	256	10.5	256×256 icon in JPEG 2000 or PNG format
-        { "ic09", cFormatIcns::Entry::Compression::PngJ, 32, 32, 512 },  // varies	512	10.5	512×512 icon in JPEG 2000 or PNG format
-        { "ic10", cFormatIcns::Entry::Compression::PngJ, 32, 32, 1024 }, // varies	1024	10.7	1024×1024 in 10.7 (or 512x512@2x "retina" in 10.8) icon in JPEG 2000 or PNG format
-        { "ic11", cFormatIcns::Entry::Compression::PngJ, 32, 32, 32 },   // varies	32	10.8	16x16@2x "retina" icon in JPEG 2000 or PNG format
-        { "ic12", cFormatIcns::Entry::Compression::PngJ, 32, 32, 64 },   // varies	64	10.8	32x32@2x "retina" icon in JPEG 2000 or PNG format
-        { "ic13", cFormatIcns::Entry::Compression::PngJ, 32, 32, 256 },  // varies	256	10.8	128x128@2x "retina" icon in JPEG 2000 or PNG format
-        { "ic14", cFormatIcns::Entry::Compression::PngJ, 32, 32, 512 },  // varies	512	10.8	256x256@2x "retina" icon in JPEG 2000 or PNG format
-    };
-
-    uint32_t ChunkTypeToIndex(const uint8_t* chunk)
-    {
-        for (uint32_t i = 0; i < sizeof(TypesList) / sizeof(TypesList[0]); i++)
-        {
-            auto& e = TypesList[i];
-
-            if (::memcmp(e.id, chunk, 4) == 0)
-            {
-// #if defined(DEBUG)
-                ::printf("Type: %c%c%c%c\n", e.id[0], e.id[1], e.id[2], e.id[3]);
-// #endif
-
-                return i;
-            }
-        }
-
-        ::printf("(EE) Unexpected type %c%c%c%c\n", chunk[0], chunk[1], chunk[2], chunk[3]);
-
-        return (uint32_t)-1;
+        return Names[(uint32_t)compression];
     }
 
-    const ChunkDescription* getDescription(const IcnsChunk& chunk)
-    {
-        auto idx = ChunkTypeToIndex(chunk.type);
-        if (idx != (uint32_t)-1)
-        {
-            const auto dataLen = helpers::read_uint32(chunk.dataLen);
-            auto& e = TypesList[idx];
-
-// #if defined(DEBUG)
-            ::printf("   Data Length: %u\n", dataLen);
-            ::printf("   Icon Size: %ux%u\n", e.iconSize, e.iconSize);
-            ::printf("   Icon Bpp: %u (%u)\n", e.srcBpp, e.dstBpp);
-            ::printf("   %s\n", e.compression ? "Compressed" : "Plain data");
-// #endif
-
-            return &e;
-        }
-
-        return nullptr;
-    }
-
-    void UnpackBits(uint8_t* buffer, const uint8_t* chunk, uint32_t size)
-    {
-        for (uint32_t i = 0; i < size; i++)
-        {
-            uint8_t hex = chunk[i];
-
-            if (hex >= 128)
-            {
-                uint32_t count = 256 - hex;
-
-                i++;
-                auto value = chunk[i];
-                for (uint32_t j = 0; j <= count; j++)
-                {
-                    *buffer++ = value;
-                }
-
-            }
-            else
-            {
-                uint32_t count = hex;
-                for (uint32_t j = 0; j <= count; j++)
-                {
-                    *buffer++ = chunk[i + j + 1];
-                }
-
-                i += count;
-            }
-        }
-    }
-
-    struct RGBA
-    {
-        uint8_t r, g, b, a;
-    };
-
-    struct ICNSA
-    {
-        uint8_t g, r, b, a;
-    };
-
-    void ICNSAtoRGBA(uint8_t* buffer, const uint8_t* chunk, uint32_t size)
-    {
-        auto src = (const ICNSA*)chunk;
-        auto dst = (RGBA*)buffer;
-        for (uint32_t i = 0; i < size / 4; i++)
-        {
-            dst[i].r = src[i].r;
-            dst[i].g = src[i].g;
-            dst[i].b = src[i].b;
-            dst[i].a = src[i].a;
-        }
-    }
-
-    struct RGB
-    {
-        uint8_t r, g, b;
-    };
-
-    struct ICNS
-    {
-        uint8_t g, r, b;
-    };
-
-    void ICNStoRGB(uint8_t* buffer, const uint8_t* chunk, uint32_t size)
-    {
-        auto src = (const ICNS*)chunk;
-        auto dst = (RGBA*)buffer;
-        for (uint32_t i = 0; i < size / 4; i++)
-        {
-            dst[i].r = src[i].r;
-            dst[i].g = src[i].g;
-            dst[i].b = src[i].b;
-        }
-    }
-
-} // namespace
+} // namespace icns
 
 cFormatIcns::cFormatIcns(iCallbacks* callbacks)
     : cFormat(callbacks)
@@ -207,12 +41,12 @@ cFormatIcns::~cFormatIcns()
 
 bool cFormatIcns::isSupported(cFile& file, Buffer& buffer) const
 {
-    if (!readBuffer(file, buffer, sizeof(IcnsHeader)))
+    if (!readBuffer(file, buffer, sizeof(icns::Header)))
     {
         return false;
     }
 
-    const auto h = reinterpret_cast<const IcnsHeader*>(buffer.data());
+    const auto h = reinterpret_cast<const icns::Header*>(buffer.data());
     // ::printf("Magic: %c%c%c%c\n", h->magic[0], h->magic[1], h->magic[2], h->magic[3]);
 
     const uint32_t fileLen = helpers::read_uint32(h->fileLen);
@@ -231,7 +65,7 @@ bool cFormatIcns::LoadImpl(const char* filename, sBitmapDescription& desc)
         return false;
     }
 
-    const uint32_t size = (uint32_t)file.getSize();
+    const auto size = (uint32_t)file.getSize();
 
     m_icon.resize(size);
     auto icon = m_icon.data();
@@ -243,52 +77,57 @@ bool cFormatIcns::LoadImpl(const char* filename, sBitmapDescription& desc)
 
     m_entries.clear();
 
-    uint32_t offset = sizeof(IcnsHeader);
-
-    auto toc = reinterpret_cast<const IcnsChunk*>(icon + offset);
-    if (::memcmp("TOC ", toc->type, 4) == 0)
-    {
-        const uint32_t dataLen = helpers::read_uint32(toc->dataLen);
-        const uint32_t count = dataLen / sizeof(IcnsHeader);
-        ::printf("TOC len: %u, count: %u\n", dataLen, count);
-
-        offset += dataLen;
-        toc++;
-
-        for (uint32_t i = 0; i < count; i++)
-        {
-            const auto chunkSize = helpers::read_uint32(toc[i].dataLen);
-            auto chunk = getDescription(toc[i]);
-
-            if (chunk != nullptr)
-            {
-                const uint32_t size = chunkSize - sizeof(IcnsChunk);
-                ::printf("   offset %u\n", offset);
-                ::printf("   chunk size %u\n", chunkSize);
-                ::printf("   size %u\n", size);
-                m_entries.push_back({ chunk->compression, offset, size, chunk->iconSize, chunk->srcBpp, chunk->dstBpp });
-            }
-
-            offset += chunk->iconSize;
-        }
-    }
-    else
-    {
-        // for (uint32_t i = offset; i < size;)
-        // {
-            // auto& chunk = getDescription(icon + i);
-            // if (chunk.id[0] != 0)
-            // {
-                // m_entries.push_back(i);
-            // }
-
-            // i += chunk.chunkSize;
-        // }
-    }
+    iterateContent(icon, sizeof(icns::Header), size);
 
     desc.images = (uint32_t)m_entries.size();
 
     return desc.images > 0 && load(0, desc);
+}
+
+void cFormatIcns::iterateContent(const uint8_t* icon, uint32_t offset, uint32_t size)
+{
+    while (offset < size)
+    {
+        auto& chunk = reinterpret_cast<const icns::Chunk&>(icon[offset]);
+        const auto chunkSize = helpers::read_uint32(chunk.dataLen);
+
+        auto& desc = getDescription(chunk);
+        if (desc.type != icns::Type::Count)
+        {
+            if (desc.type == icns::Type::TOC_)
+            {
+                ::printf("---- TOC ----\n");
+                offset += chunkSize;
+                iterateContent(icon, offset, size);
+            }
+            else
+            {
+                Entry entry = desc;
+
+                entry.offset = offset + sizeof(icns::Chunk);
+                entry.size = chunkSize - sizeof(icns::Chunk);
+
+                ::printf("   chunk size: %u\n", chunkSize);
+
+                ::printf("   icon bpp: %u -> %u\n", entry.srcBpp, entry.dstBpp);
+                ::printf("   icon resolution: %u x %u\n", entry.iconSize, entry.iconSize);
+
+                auto compression = icns::CompressionToName(entry.compression);
+                ::printf("   copression: %s\n", compression);
+
+                ::printf("   offset: %u\n", entry.offset);
+                ::printf("   size: %u\n", entry.size);
+
+                m_entries.push_back(entry);
+
+                offset += chunkSize;
+            }
+        }
+        else
+        {
+            offset += (uint32_t)sizeof(icns::Chunk);
+        }
+    }
 }
 
 bool cFormatIcns::LoadSubImageImpl(uint32_t current, sBitmapDescription& desc)
@@ -319,7 +158,9 @@ bool cFormatIcns::load(uint32_t current, sBitmapDescription& desc)
     desc.bitmap.resize(desc.pitch * desc.height);
     auto buffer = desc.bitmap.data();
 
-    if (entry.compression == Entry::Compression::PngJ)
+    ::printf(" Decoding: %s\n", icns::CompressionToName(entry.compression));
+
+    if (entry.compression == icns::Compression::PngJ)
     {
         m_formatName = "icns/png";
 
@@ -328,8 +169,8 @@ bool cFormatIcns::load(uint32_t current, sBitmapDescription& desc)
             updateProgress(percent);
         });
 
-        // auto data = icon + sizeof(IcnsChunk);
-        // auto size = chunk.chunkSize - sizeof(IcnsChunk);
+        // auto data = icon + sizeof(icns::Chunk);
+        // auto size = chunk.chunkSize - sizeof(icns::Chunk);
         if (reader.loadPng(desc, data, entry.size))
         {
             auto& iccProfile = reader.getIccProfile();
@@ -348,12 +189,11 @@ bool cFormatIcns::load(uint32_t current, sBitmapDescription& desc)
     }
     else
     {
-        if (entry.compression == Entry::Compression::Pack)
+        if (entry.compression == icns::Compression::Pack)
         {
-            UnpackBits(buffer, data, entry.size);
+            unpackBits(buffer, data, entry.size);
         }
-
-        if (entry.srcBpp == 32)
+        else if (entry.srcBpp == 32)
         {
             ICNSAtoRGBA(buffer, data, entry.size);
         }
@@ -368,4 +208,129 @@ bool cFormatIcns::load(uint32_t current, sBitmapDescription& desc)
     }
 
     return true;
+}
+
+void cFormatIcns::unpackBits(uint8_t* buffer, const uint8_t* chunk, uint32_t size) const
+{
+    uint32_t c = 0;
+
+    const auto end = chunk + size;
+    while (chunk < end)
+    {
+        const uint8_t N = *chunk++;
+
+        if (N < 0x80)
+        {
+            const uint32_t count = N + 1;
+            for (uint32_t i = 0; i < count; i++)
+            {
+                *buffer++ = *chunk++;
+                c++;
+            }
+        }
+        else
+        {
+            const uint32_t count = N - 0x80 + 3;
+
+            const uint8_t value = *chunk++;
+            for (uint32_t i = 0; i < count; i++)
+            {
+                *buffer++ = value;
+                c++;
+            }
+        }
+    }
+
+    ::printf("-- %u\n", c);
+}
+
+void cFormatIcns::ICNSAtoRGBA(uint8_t* buffer, const uint8_t* chunk, uint32_t size) const
+{
+    auto src = (const icns::ICNSA*)chunk;
+    auto dst = (icns::RGBA*)buffer;
+    for (uint32_t i = 0; i < size / 4; i++)
+    {
+        dst[i].r = src[i].r;
+        dst[i].g = src[i].g;
+        dst[i].b = src[i].b;
+        dst[i].a = src[i].a;
+    }
+}
+
+void cFormatIcns::ICNStoRGB(uint8_t* buffer, const uint8_t* chunk, uint32_t size) const
+{
+    auto src = (const icns::ICNS*)chunk;
+    auto dst = (icns::RGBA*)buffer;
+    for (uint32_t i = 0; i < size / 4; i++)
+    {
+        dst[i].r = src[i].r;
+        dst[i].g = src[i].g;
+        dst[i].b = src[i].b;
+    }
+}
+
+const cFormatIcns::Entry& cFormatIcns::getDescription(const icns::Chunk& chunk) const
+{
+    struct Pair
+    {
+        const char* id;
+        Entry entry;
+    };
+
+    static const Pair List[] = {
+        { "TOC ", { icns::Type::TOC_, icns::Compression::None, 0, 0, 0, 0, 0 } },      // Table Of Content
+        { "ICON", { icns::Type::ICON, icns::Compression::None, 1, 8, 32, 0, 0 } },     // 128	32	1.0	32×32 1-bit mono icon
+        { "ICN#", { icns::Type::ICN3, icns::Compression::None, 1, 8, 32, 0, 0 } },     // 256	32	6.0	32×32 1-bit mono icon with 1-bit mask
+        { "icm#", { icns::Type::icm3, icns::Compression::None, 1, 8, 16, 0, 0 } },     // 48	16	6.0	16×12 1 bit mono icon with 1-bit mask
+        { "icm4", { icns::Type::icm4, icns::Compression::None, 4, 8, 16, 0, 0 } },     // 96	16	7.0	16×12 4 bit icon
+        { "icm8", { icns::Type::icm8, icns::Compression::None, 8, 8, 16, 0, 0 } },     // 192	16	7.0	16×12 8 bit icon
+        { "ics#", { icns::Type::ics3, icns::Compression::None, 1, 8, 16, 0, 0 } },     // 64 (32 img + 32 mask)	16	6.0	16×16 1-bit mask
+        { "ics4", { icns::Type::ics4, icns::Compression::None, 4, 8, 16, 0, 0 } },     // 128	16	7.0	16×16 4-bit icon
+        { "ics8", { icns::Type::ics8, icns::Compression::None, 8, 8, 16, 0, 0 } },     // 256	16	7.0	16x16 8 bit icon
+        { "is32", { icns::Type::is32, icns::Compression::Pack, 24, 24, 16, 0, 0 } },   // varies (768)	16	8.5	16×16 24-bit icon
+        { "s8mk", { icns::Type::s8mk, icns::Compression::None, 8, 8, 16, 0, 0 } },     // 256	16	8.5	16x16 8-bit mask
+        { "icl4", { icns::Type::icl4, icns::Compression::None, 4, 8, 32, 0, 0 } },     // 512	32	7.0	32×32 4-bit icon
+        { "icl8", { icns::Type::icl8, icns::Compression::None, 8, 8, 32, 0, 0 } },     // 1,024	32	7.0	32×32 8-bit icon
+        { "il32", { icns::Type::il32, icns::Compression::Pack, 32, 32, 32, 0, 0 } },   // varies (3,072)	32	8.5	32x32 24-bit icon
+        { "l8mk", { icns::Type::l8mk, icns::Compression::None, 8, 8, 32, 0, 0 } },     // 1,024	32	8.5	32×32 8-bit mask
+        { "ich#", { icns::Type::ich3, icns::Compression::None, 1, 8, 48, 0, 0 } },     // 288	48	8.5	48×48 1-bit mask
+        { "ich4", { icns::Type::ich4, icns::Compression::None, 4, 8, 48, 0, 0 } },     // 1,152	48	8.5	48×48 4-bit icon
+        { "ich8", { icns::Type::ich8, icns::Compression::None, 8, 8, 48, 0, 0 } },     // 2,304	48	8.5	48×48 8-bit icon
+        { "ih32", { icns::Type::ih32, icns::Compression::Pack, 24, 24, 48, 0, 0 } },   // varies (6,912)	48	8.5	48×48 24-bit icon
+        { "h8mk", { icns::Type::h8mk, icns::Compression::None, 8, 8, 48, 0, 0 } },     // 2,304	48	8.5	48×48 8-bit mask
+        { "it32", { icns::Type::it32, icns::Compression::Pack, 32, 32, 128, 0, 0 } },  // varies (49,152)	128	10.0	128×128 24-bit icon
+        { "t8mk", { icns::Type::t8mk, icns::Compression::None, 8, 8, 128, 0, 0 } },    // 16,384	128	10.0	128×128 8-bit mask
+        { "icp4", { icns::Type::icp4, icns::Compression::PngJ, 32, 32, 16, 0, 0 } },   // varies	16	10.7	16x16 icon in JPEG 2000 or PNG format
+        { "icp5", { icns::Type::icp5, icns::Compression::PngJ, 32, 32, 32, 0, 0 } },   // varies	32	10.7	32x32 icon in JPEG 2000 or PNG format
+        { "icp6", { icns::Type::icp6, icns::Compression::PngJ, 32, 32, 64, 0, 0 } },   // varies	64	10.7	64x64 icon in JPEG 2000 or PNG format
+        { "ic07", { icns::Type::ic07, icns::Compression::PngJ, 32, 32, 128, 0, 0 } },  // varies	128	10.7	128x128 icon in JPEG 2000 or PNG format
+        { "ic08", { icns::Type::ic08, icns::Compression::PngJ, 32, 32, 256, 0, 0 } },  // varies	256	10.5	256×256 icon in JPEG 2000 or PNG format
+        { "ic09", { icns::Type::ic09, icns::Compression::PngJ, 32, 32, 512, 0, 0 } },  // varies	512	10.5	512×512 icon in JPEG 2000 or PNG format
+        { "ic10", { icns::Type::ic10, icns::Compression::PngJ, 32, 32, 1024, 0, 0 } }, // varies	1024	10.7	1024×1024 in 10.7 (or 512x512@2x "retina" in 10.8) icon in JPEG 2000 or PNG format
+        { "ic11", { icns::Type::ic11, icns::Compression::PngJ, 32, 32, 32, 0, 0 } },   // varies	32	10.8	16x16@2x "retina" icon in JPEG 2000 or PNG format
+        { "ic12", { icns::Type::ic12, icns::Compression::PngJ, 32, 32, 64, 0, 0 } },   // varies	64	10.8	32x32@2x "retina" icon in JPEG 2000 or PNG format
+        { "ic13", { icns::Type::ic13, icns::Compression::PngJ, 32, 32, 256, 0, 0 } },  // varies	256	10.8	128x128@2x "retina" icon in JPEG 2000 or PNG format
+        { "ic14", { icns::Type::ic14, icns::Compression::PngJ, 32, 32, 512, 0, 0 } },  // varies	512	10.8	256x256@2x "retina" icon in JPEG 2000 or PNG format
+
+        { "icnV", { icns::Type::icnV, icns::Compression::PngJ, 0, 0, 0, 0, 0 } },  // 4-byte big endian float - equal to the bundle version number of Icon Composer.app that created to icon
+        { "name", { icns::Type::name, icns::Compression::PngJ, 0, 0, 0, 0, 0 } },  // Unknown
+        { "info", { icns::Type::info, icns::Compression::PngJ, 0, 0, 0, 0, 0 } },  // Info binary plist. Usage unknown
+    };
+
+    auto type = chunk.type;
+
+    for (auto& e : List)
+    {
+        if (::memcmp(e.id, type, 4) == 0)
+        {
+            ::printf("Type: '%s'\n", e.id);
+
+            return e.entry;
+        }
+    }
+
+    ::printf("(EE) Unexpected chunk type: '%c%c%c%c'\n", type[0], type[1], type[2], type[3]);
+
+    static const Entry Error{ icns::Type::Count, icns::Compression::Count, 0, 0, 0, 0, 0 };
+    return Error;
 }
