@@ -6,7 +6,7 @@ EAPI=6
 
 inherit cmake-utils git-r3
 
-DESCRIPTION="Simple and tiny image viewer for Linux, based on the OpenGL framework."
+DESCRIPTION="Small and simple image viewer for Linux."
 HOMEPAGE="http://www.ugolnik.info/?p=1302"
 EGIT_REPO_URI="https://bitbucket.org/andreyu/simple-viewer-gl"
 if [[ ${PV} == 9999 ]] ; then
@@ -40,7 +40,12 @@ DEPEND="
 RDEPEND="${DEPEND}"
 
 src_configure() {
+    VER=( $(awk -F= '/^VER_/{ print $2 }' < Makefile) )
     local mycmakeargs=(
+	-DCMAKE_BUILD_TYPE=Release
+	-DAPP_VERSION_MAJOR:STRING=${VER[0]}
+	-DAPP_VERSION_MINOR:STRING=${VER[1]}
+	-DAPP_VERSION_RELEASE:STRING=${VER[2]}
 	-DDISABLE_LCMS2_SUPPORT=$(usex lcms 0 1)
 	-DDISABLE_EXIF_SUPPORT=$(usex exif 0 1)
 	-DDISABLE_JPEG2000_SUPPORT=$(usex jpeg2k 0 1)
