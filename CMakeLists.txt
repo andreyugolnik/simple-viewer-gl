@@ -6,7 +6,7 @@ include(CheckLibraryExists)
 include(cmake/clang-cxx-dev-tools.cmake)
 
 set(CMAKE_COLOR_MAKEFILE ON)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -315,10 +315,9 @@ endif()
 
 message(STATUS "***************************")
 
-include_directories("src")
-
 add_subdirectory(third-party/imgui)
-include_directories("third-party/imgui")
+
+include_directories("src")
 
 file(GLOB_RECURSE SVIEW_SOURCES "src/*.cpp")
 
