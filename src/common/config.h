@@ -22,7 +22,6 @@ struct sConfig
     bool hideInfobar = false;
     bool showPixelInfo = false;
     bool showExif = false;
-    bool hideCheckboard = false;
     bool fitImage = false;
     bool showImageBorder = false;
     bool showImageGrid = false;
@@ -36,7 +35,8 @@ struct sConfig
     uint32_t mipmapTextureSize = 4096;
     uint32_t fileMaxLength = 100;
 
-    cColor bgColor{ 0, 0, 255, 255 };
+    uint32_t backgroundIndex = 0;
+    cColor bgColor{ 90, 90, 90, 255 };
     uint32_t bgCellSize = 16;
 
     float fontRatio = 0.5f;
@@ -44,10 +44,10 @@ struct sConfig
     float shiftInPixels = 10.0f;
     float shiftInPercent = 0.5f;
 
+    float minSvgSize = 256.0f;
+
     Vectori windowSize{ 0, 0 };
     Vectori windowPos{ 0, 0 };
-
-    Vectorf minSvgSize{ 256.0f, 256.0f };
 };
 
 class cConfig final

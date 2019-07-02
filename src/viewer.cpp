@@ -122,7 +122,7 @@ void cViewer::onRender()
     cRenderer::beginFrame();
     m_imgui.beginFrame();
 
-    m_checkerBoard->render(!m_config.hideCheckboard);
+    m_checkerBoard->render();
 
     const float scale = m_scale.getScale();
 
@@ -462,7 +462,7 @@ void cViewer::onKey(int key, int scancode, int action, int mods)
         break;
 
     case GLFW_KEY_C:
-        m_config.hideCheckboard = !m_config.hideCheckboard;
+        m_config.backgroundIndex = (m_config.backgroundIndex + 1) % 5;
         break;
 
     case GLFW_KEY_ENTER:

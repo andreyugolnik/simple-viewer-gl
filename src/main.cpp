@@ -49,7 +49,7 @@ namespace
         printf("  -s             enable scale to window (default: %s);\n", getValue(config.fitImage));
         printf("  -cw            center window (default: %s);\n", getValue(config.centerWindow));
         printf("  -a             do not filter by file extension;\n");
-        printf("  -c             disable chequerboard (default: %s);\n", getValue(!config.hideCheckboard));
+        printf("  -c             user defined background color (default #%.2x%.2x%.2x);\n", (uint32_t)config.bgColor.r, (uint32_t)config.bgColor.g, (uint32_t)config.bgColor.b);
         printf("  -i             disable on-screen info (default: %s);\n", getValue(!config.hideInfobar));
         printf("  -p             show pixel info (pixel color and coordinates, default: %s);\n", getValue(config.showPixelInfo));
         printf("  -e             show exif info (default: %s);\n", getValue(config.showExif));
@@ -81,7 +81,7 @@ namespace
         printf("  <s>           fit image to window;\n");
         printf("  <r>           rotate clockwise;\n");
         printf("  <shift>+<r>   rotate counterclockwise;\n");
-        printf("  <c>           hide / show chequerboard;\n");
+        printf("  <c>           change background index;\n");
         printf("  <i>           hide / show on-screen info;\n");
         printf("  <e>           hide / show exif popup;\n");
         printf("  <p>           hide / show pixel info;\n");
@@ -281,7 +281,7 @@ int main(int argc, char* argv[])
         }
         else if (::strncmp(argv[i], "-c", 2) == 0)
         {
-            config.hideCheckboard = true;
+            config.backgroundIndex = 1;
         }
         else if (::strncmp(argv[i], "-s", 2) == 0)
         {

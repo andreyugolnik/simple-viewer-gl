@@ -55,9 +55,9 @@ void cCheckerboard::init()
     m_cb->useFilter(false);
 }
 
-void cCheckerboard::render(bool checkboardEanbled)
+void cCheckerboard::render()
 {
-    if (checkboardEanbled)
+    if (m_config.backgroundIndex == 0)
     {
         int width;
         int height;
@@ -68,9 +68,25 @@ void cCheckerboard::render(bool checkboardEanbled)
     }
     else
     {
-        const auto& c = m_config.bgColor;
-        const float inv = 1.0f / 255.0f;
-        glClearColor(c.r * inv, c.g * inv, c.b * inv, c.a * inv);
+        if (m_config.backgroundIndex == 1)
+        {
+            const auto& c = m_config.bgColor;
+            const float inv = 1.0f / 255.0f;
+            glClearColor(c.r * inv, c.g * inv, c.b * inv, c.a * inv);
+        }
+        else if (m_config.backgroundIndex == 2)
+        {
+            glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+        }
+        else if (m_config.backgroundIndex == 3)
+        {
+            glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
+        }
+        else // if (m_config.backgroundIndex == 4)
+        {
+            glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
+        }
+
         glClear(GL_COLOR_BUFFER_BIT);
     }
 }

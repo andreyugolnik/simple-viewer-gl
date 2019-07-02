@@ -22,7 +22,7 @@ public:
     explicit cCheckerboard(const sConfig& config);
     void init();
 
-    void render(bool checkboardEanbled);
+    void render();
 
 private:
     const sConfig& m_config;

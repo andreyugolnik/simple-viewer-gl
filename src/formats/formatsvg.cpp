@@ -16,6 +16,7 @@
 #include <cmath>
 #include <cstring>
 
+#define NANOSVG_ALL_COLOR_KEYWORDS
 #define NANOSVG_IMPLEMENTATION
 #include "formats/nanosvg.h"
 
@@ -59,6 +60,7 @@ bool cFormatSvg::LoadImpl(const char* filename, sBitmapDescription& desc)
     cFile file;
     if (file.open(filename) == false)
     {
+        ::printf("(EE) Couldn't open file.\n");
         return false;
     }
 
@@ -76,13 +78,21 @@ bool cFormatSvg::LoadImpl(const char* filename, sBitmapDescription& desc)
         return false;
     }
 
-    const auto mw = m_config->minSvgSize.x;
-    const auto sw = image->width < mw ? (mw / image->width) : 1.0f;
+    auto scale = 1.0f;
 
-    const auto mh = m_config->minSvgSize.y;
-    const auto sh = image->height < mh ? (mh / image->height) : 1.0f;
+    const auto minSize = m_config->minSvgSize;
+    // ::printf("Config SVG size: %.1f\n", minSize);
 
-    const auto scale = std::min(sw, sh);
+    if (image->width < minSize && image->height < minSize)
+    {
+        const auto sw = minSize / image->width;
+        const auto sh = minSize / image->height;
+        scale = std::min(sw, sh);
+        ::printf("SVG size to small, upscale to %.1f x %.1f\n", image->width * scale, image->width * scale);
+        ::printf("Calculated scale: %.1f x %.1f\n", sw, sh);
+    }
+
+    // ::printf("Selected scale: %.1f\n", scale);
 
     desc.size = file.getSize();
     desc.images = 1;

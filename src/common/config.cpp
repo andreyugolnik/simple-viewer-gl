@@ -59,13 +59,14 @@ namespace
         return value != nullptr ? ::atof(value) : def;
     }
 
-    const char* SectionName = "common";
+    const char* CommonSection = "common";
+    const char* PositionSection = "position";
 
     template <typename T>
-    void readValue(const ini::cIni& ini, const char* name, T& value)
+    void readValue(const ini::cIni& ini, const char* section, const char* name, T& value)
     {
         const auto def = value;
-        value = getValue(ini.getString(SectionName, name), def);
+        value = getValue(ini.getString(section, name), def);
     }
 } // namespace
 
@@ -105,44 +106,45 @@ void cConfig::read(sConfig& config) const
 
     m_ini.read(&file);
 
-    readValue(m_ini, "debug", config.debug);
+    readValue(m_ini, CommonSection, "debug", config.debug);
 
-    readValue(m_ini, "hide_infobar", config.hideInfobar);
-    readValue(m_ini, "show_pixelinfo", config.showPixelInfo);
-    readValue(m_ini, "show_exif", config.showExif);
-    readValue(m_ini, "hide_checkboard", config.hideCheckboard);
-    readValue(m_ini, "fit_image", config.fitImage);
-    readValue(m_ini, "show_image_border", config.showImageBorder);
-    readValue(m_ini, "show_image_grid", config.showImageGrid);
-    readValue(m_ini, "lookup_recursive", config.recursiveScan);
-    readValue(m_ini, "center_window", config.centerWindow);
-    readValue(m_ini, "full_screen", config.fullScreen);
-    readValue(m_ini, "skip_filter", config.skipFilter);
-    readValue(m_ini, "wheel_zoom", config.wheelZoom);
-    readValue(m_ini, "keep_scale", config.keepScale);
+    readValue(m_ini, CommonSection, "hide_infobar", config.hideInfobar);
+    readValue(m_ini, CommonSection, "show_pixelinfo", config.showPixelInfo);
+    readValue(m_ini, CommonSection, "show_exif", config.showExif);
+    readValue(m_ini, CommonSection, "fit_image", config.fitImage);
+    readValue(m_ini, CommonSection, "show_image_border", config.showImageBorder);
+    readValue(m_ini, CommonSection, "show_image_grid", config.showImageGrid);
+    readValue(m_ini, CommonSection, "lookup_recursive", config.recursiveScan);
+    readValue(m_ini, CommonSection, "center_window", config.centerWindow);
+    readValue(m_ini, CommonSection, "full_screen", config.fullScreen);
+    readValue(m_ini, CommonSection, "skip_filter", config.skipFilter);
+    readValue(m_ini, CommonSection, "wheel_zoom", config.wheelZoom);
+    readValue(m_ini, CommonSection, "keep_scale", config.keepScale);
 
-    readValue(m_ini, "mipmap_texture_size", config.mipmapTextureSize);
-    readValue(m_ini, "file_max_length", config.fileMaxLength);
+    readValue(m_ini, CommonSection, "mipmap_texture_size", config.mipmapTextureSize);
+    readValue(m_ini, CommonSection, "file_max_length", config.fileMaxLength);
 
-    readValue(m_ini, "background_r", config.bgColor.r);
-    readValue(m_ini, "background_g", config.bgColor.g);
-    readValue(m_ini, "background_b", config.bgColor.b);
+    readValue(m_ini, CommonSection, "background_index", config.backgroundIndex);
+    config.backgroundIndex %= 4;
 
-    readValue(m_ini, "background_cell_size", config.bgCellSize);
+    readValue(m_ini, CommonSection, "background_r", config.bgColor.r);
+    readValue(m_ini, CommonSection, "background_g", config.bgColor.g);
+    readValue(m_ini, CommonSection, "background_b", config.bgColor.b);
 
-    readValue(m_ini, "font_ratio", config.fontRatio);
+    readValue(m_ini, CommonSection, "background_cell_size", config.bgCellSize);
 
-    readValue(m_ini, "shift_in_pixels", config.shiftInPixels);
-    readValue(m_ini, "shift_in_percent", config.shiftInPercent);
+    readValue(m_ini, CommonSection, "font_ratio", config.fontRatio);
 
-    readValue(m_ini, "window_x", config.windowPos.x);
-    readValue(m_ini, "window_y", config.windowPos.y);
+    readValue(m_ini, CommonSection, "shift_in_pixels", config.shiftInPixels);
+    readValue(m_ini, CommonSection, "shift_in_percent", config.shiftInPercent);
 
-    readValue(m_ini, "window_w", config.windowSize.x);
-    readValue(m_ini, "window_h", config.windowSize.y);
+    readValue(m_ini, CommonSection, "minSvgSize", config.minSvgSize);
 
-    readValue(m_ini, "minSvgWidth", config.minSvgSize.x);
-    readValue(m_ini, "minSvgHeight", config.minSvgSize.y);
+    readValue(m_ini, PositionSection, "window_x", config.windowPos.x);
+    readValue(m_ini, PositionSection, "window_y", config.windowPos.y);
+
+    readValue(m_ini, PositionSection, "window_w", config.windowSize.x);
+    readValue(m_ini, PositionSection, "window_h", config.windowSize.y);
 }
 
 void cConfig::write(const sConfig& config) const
@@ -155,11 +157,11 @@ void cConfig::write(const sConfig& config) const
         return;
     }
 
-    m_ini.setString(SectionName, "window_x", std::to_string(config.windowPos.x).c_str());
-    m_ini.setString(SectionName, "window_y", std::to_string(config.windowPos.y).c_str());
+    m_ini.setString(PositionSection, "window_x", std::to_string(config.windowPos.x).c_str());
+    m_ini.setString(PositionSection, "window_y", std::to_string(config.windowPos.y).c_str());
 
-    m_ini.setString(SectionName, "window_w", std::to_string(config.windowSize.x).c_str());
-    m_ini.setString(SectionName, "window_h", std::to_string(config.windowSize.y).c_str());
+    m_ini.setString(PositionSection, "window_w", std::to_string(config.windowSize.x).c_str());
+    m_ini.setString(PositionSection, "window_h", std::to_string(config.windowSize.y).c_str());
 
     m_ini.save(&file);
 }
