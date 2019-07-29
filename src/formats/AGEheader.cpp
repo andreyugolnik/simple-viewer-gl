@@ -47,6 +47,8 @@ const char* CompressionToStr(Compression compression)
         "rle",
         "rle4",
         "zlib",
+        "lz4",
+        "lz4hc",
     };
     static_assert(sizeof(Names)/sizeof(Names[0]) == (unsigned)Compression::Count, "AGE::Compression missmatch");
 

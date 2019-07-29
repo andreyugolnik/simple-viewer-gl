@@ -16,6 +16,7 @@
 
 #include <cstdio>
 #include <cstring>
+#include <lz4/lz4hc.h>
 
 namespace
 {
@@ -44,7 +45,7 @@ namespace
 
     //return isValidFormat(header, file.getSize());
     //}
-}
+} // namespace
 
 cFormatAge::cFormatAge(iCallbacks* callbacks)
     : cFormat(callbacks)
@@ -126,7 +127,23 @@ bool cFormatAge::LoadImpl(const char* filename, sBitmapDescription& desc)
 
         unsigned decoded = 0;
 
-        if (header.compression == AGE::Compression::ZLIB)
+        if (header.compression == AGE::Compression::LZ4 || header.compression == AGE::Compression::LZ4HC)
+        {
+            decoded = LZ4_decompress_safe((const char*)in.data(), (char*)desc.bitmap.data(), in.size(), desc.bitmap.size());
+            if (decoded <= 0)
+            {
+                ::printf("(EE) Error decode %s.\n",
+                         header.compression == AGE::Compression::LZ4
+                             ? "LZ4"
+                             : "LZ4HC");
+                return false;
+            }
+
+            m_formatName = header.compression == AGE::Compression::LZ4
+                ? "age/lz4"
+                : "age/lz4hc";
+        }
+        else if (header.compression == AGE::Compression::ZLIB)
         {
             cZlibDecoder decoder;
             decoded = decoder.decode(in.data(), in.size(), desc.bitmap.data(), desc.bitmap.size());

@@ -316,6 +316,7 @@ endif()
 message(STATUS "***************************")
 
 add_subdirectory(third-party/imgui)
+add_subdirectory(third-party/lz4)
 
 include_directories("src")
 
@@ -347,8 +348,8 @@ else()
     add_executable(sviewgl ${SVIEW_SOURCES})
 endif()
 
-add_dependencies(sviewgl ImGui)
-target_link_libraries(sviewgl ImGui)
+add_dependencies(sviewgl ImGui LZ4)
+target_link_libraries(sviewgl ImGui LZ4)
 
 if(OPENGL_FOUND)
     target_link_libraries(sviewgl ${OPENGL_LIBRARY})

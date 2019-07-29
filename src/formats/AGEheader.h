@@ -25,6 +25,8 @@ namespace AGE
         RLE,
         RLE4,
         ZLIB,
+        LZ4,
+        LZ4HC,
 
         Count
     };
