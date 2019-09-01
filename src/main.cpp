@@ -223,6 +223,7 @@ namespace
             }
         }
 #endif
+        (void)window;
     }
 } // namespace
 

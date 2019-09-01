@@ -125,6 +125,7 @@ namespace
         return bits;
     }
 
+#if 0
     uint8_t* SYCCtoRGB(opj_image_t* image, uint32_t pixel_pos, uint8_t* bits)
     {
         uint32_t y = image->comps[0].data[pixel_pos];
@@ -151,6 +152,7 @@ namespace
 
         return bits;
     }
+#endif
 
     const char* getColorSpaceName(COLOR_SPACE type)
     {
