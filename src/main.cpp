@@ -59,6 +59,7 @@ namespace
         printf("  -r             recursive directory scan (default: %s);\n", getValue(config.recursiveScan));
         printf("  -wz            enable wheel zoom (default: %s);\n", getValue(config.wheelZoom));
         printf("  -mipmap VALUE  min texture size for mipmap creation (default: %u px);\n", config.mipmapTextureSize);
+        printf("  -svg SIZE      min SVG size (default: %g px);\n", config.minSvgSize);
         printf("  -C RRGGBB      background color in hex format (default: %.2X%.2X%.2X);\n",
                (uint32_t)(config.bgColor.r),
                (uint32_t)(config.bgColor.g),
@@ -260,7 +261,29 @@ int main(int argc, char* argv[])
         {
             config.debug = true;
         }
-        if (::strncmp(argv[i], "-i", 2) == 0)
+        else if (::strncmp(argv[i], "-mipmap", 7) == 0)
+        {
+            if (i + 1 < argc)
+            {
+                config.mipmapTextureSize = (uint32_t)::atoi(argv[++i]);
+            }
+        }
+        else if (::strncmp(argv[i], "-svg", 4) == 0)
+        {
+            if (i + 1 < argc)
+            {
+                config.minSvgSize = (float)::atof(argv[++i]);
+            }
+        }
+        else if (::strncmp(argv[i], "-cw", 3) == 0)
+        {
+            config.centerWindow = true;
+        }
+        else if (::strncmp(argv[i], "-wz", 3) == 0)
+        {
+            config.wheelZoom = true;
+        }
+        else if (::strncmp(argv[i], "-i", 2) == 0)
         {
             config.hideInfobar = true;
         }
@@ -275,10 +298,6 @@ int main(int argc, char* argv[])
         else if (::strncmp(argv[i], "-f", 2) == 0)
         {
             config.fullScreen = true;
-        }
-        else if (::strncmp(argv[i], "-cw", 3) == 0)
-        {
-            config.centerWindow = true;
         }
         else if (::strncmp(argv[i], "-c", 2) == 0)
         {
@@ -304,10 +323,6 @@ int main(int argc, char* argv[])
         {
             config.skipFilter = true;
         }
-        else if (::strncmp(argv[i], "-wz", 3) == 0)
-        {
-            config.wheelZoom = true;
-        }
         else if (::strncmp(argv[i], "-C", 2) == 0)
         {
             uint32_t r, g, b;
@@ -315,13 +330,6 @@ int main(int argc, char* argv[])
             {
                 config.bgColor = { (uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)255 };
                 i++;
-            }
-        }
-        else if (::strncmp(argv[i], "-mipmap", 7) == 0)
-        {
-            if (i + 1 < argc)
-            {
-                config.mipmapTextureSize = (uint32_t)::atoi(argv[++i]);
             }
         }
         else if (strcmp(argv[i], "--") == 0)
