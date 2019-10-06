@@ -125,7 +125,7 @@ void cConfig::read(sConfig& config) const
     readValue(m_ini, CommonSection, "file_max_length", config.fileMaxLength);
 
     readValue(m_ini, CommonSection, "background_index", config.backgroundIndex);
-    config.backgroundIndex %= 4;
+    config.backgroundIndex %= 5;
 
     readValue(m_ini, CommonSection, "background_r", config.bgColor.r);
     readValue(m_ini, CommonSection, "background_g", config.bgColor.g);
