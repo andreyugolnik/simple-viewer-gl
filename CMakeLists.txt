@@ -328,6 +328,7 @@ configure_file(
     )
 
 if(APPLE)
+    add_definitions("-DGL_SILENCE_DEPRECATION")
     execute_process(
         COMMAND makeicns -in res/Icon-1024.png -32 res/Icon-32.png -16 res/Icon-16.png -out res/macos/Icon.icns
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
