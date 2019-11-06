@@ -44,6 +44,8 @@
 #include <cstdio>
 #include <string>
 
+// #define LOADER_NAME
+
 cImageLoader::cImageLoader(const sConfig* config, iCallbacks* callbacks)
     : m_config(config)
     , m_callbacks(callbacks)
@@ -172,7 +174,47 @@ const char* cImageLoader::getImageType() const
 
 namespace
 {
-// #define LOADER_NAME
+    const eImageType SortedTypes[] = {
+        eImageType::JPG,
+        eImageType::PNG,
+        eImageType::BMP,
+#if defined(GIF_SUPPORT)
+        eImageType::GIF,
+#endif
+        eImageType::PSD,
+        eImageType::XCF,
+        eImageType::ICO,
+        eImageType::TGA,
+#if defined(TIFF_SUPPORT)
+        eImageType::TIF,
+#endif
+        eImageType::EPS,
+        eImageType::DDS,
+        eImageType::XWD,
+        eImageType::XPM,
+        eImageType::PNM,
+        eImageType::ICNS,
+#if defined(WEBP_SUPPORT)
+        eImageType::WEBP,
+#endif
+#if defined(JPEG2000_SUPPORT)
+        eImageType::JP2,
+#endif
+        eImageType::AGE,
+        eImageType::SVG,
+        eImageType::RAW, // pretend to remove
+        eImageType::PVR,
+        eImageType::SCR,
+
+#if defined(OPENEXR_SUPPORT)
+        eImageType::EXR,
+#endif
+
+#if defined(IMLIB2_SUPPORT)
+        eImageType::COMMON, // use it as fallback loader
+#endif
+    };
+
 #if defined(LOADER_NAME)
     const char* typeToName(eImageType type)
     {
@@ -381,47 +423,6 @@ eImageType cImageLoader::getType(const char* name)
     cFile file;
     if (file.open(name))
     {
-        const eImageType SortedTypes[] = {
-            eImageType::JPG,
-            eImageType::PNG,
-            eImageType::BMP,
-#if defined(GIF_SUPPORT)
-            eImageType::GIF,
-#endif
-            eImageType::PSD,
-            eImageType::XCF,
-            eImageType::ICO,
-            eImageType::TGA,
-#if defined(TIFF_SUPPORT)
-            eImageType::TIF,
-#endif
-            eImageType::EPS,
-            eImageType::DDS,
-            eImageType::XWD,
-            eImageType::XPM,
-            eImageType::PNM,
-            eImageType::ICNS,
-#if defined(WEBP_SUPPORT)
-            eImageType::WEBP,
-#endif
-#if defined(JPEG2000_SUPPORT)
-            eImageType::JP2,
-#endif
-            eImageType::AGE,
-            eImageType::SVG,
-            eImageType::RAW, // pretend to remove
-            eImageType::PVR, // pretend to remove
-            eImageType::SCR,
-
-#if defined(OPENEXR_SUPPORT)
-            eImageType::EXR,
-#endif
-
-#if defined(IMLIB2_SUPPORT)
-            eImageType::COMMON, // use it as fallback loader
-#endif
-        };
-
         Buffer buffer;
         for (auto type : SortedTypes)
         {

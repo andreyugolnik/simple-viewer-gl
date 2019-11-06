@@ -176,6 +176,114 @@ void cFilesList::scanDirectory(const std::string& root)
     }
 }
 
+namespace
+{
+    template <typename T = size_t>
+    constexpr T length(const char* const str, T size = 0) noexcept
+    {
+        return *str != 0
+            ? length<T>(str + 1, size + 1)
+            : size;
+    }
+
+    struct Ext
+    {
+        const size_t size;
+        const char* ext;
+    };
+
+    constexpr Ext MakeExt(const char* ext)
+    {
+        return { length(ext), ext };
+    }
+
+    constexpr Ext ValidExts[] = {
+        // external loaders
+
+        // openexr
+        MakeExt(".exr"),
+        // libjpeg
+        MakeExt(".jpeg"),
+        MakeExt(".jpg"),
+        MakeExt(".jpe"),
+        MakeExt(".jfif"),
+        // openjpeg
+        MakeExt(".jp2"),
+        // libtiff
+        MakeExt(".tiff"),
+        MakeExt(".tif"),
+        // libpng
+        MakeExt(".png"),
+        // giflib
+        MakeExt(".gif"),
+        // webp
+        MakeExt(".webp"),
+        // imlib2
+        MakeExt(".lbm"),
+        MakeExt(".id3"),
+        MakeExt(".argb"),
+
+        // internal loaders
+
+        // internal age
+        MakeExt(".age"),
+        // internal raw
+        MakeExt(".raw"),
+        // internal pvr
+        MakeExt(".pvr"),
+        MakeExt(".pvrtc"),
+        MakeExt(".pvr.gz"),
+        MakeExt(".pvr.ccz"),
+        // BMP
+        MakeExt(".bmp"),
+        // X Pixmap
+        MakeExt(".xpm"),
+        // Adobe PSD
+        MakeExt(".psd"),
+        // Adobe Illustrator
+        MakeExt(".ai"),
+        // Encapsulated PostScript
+        MakeExt(".eps"),
+        // ICO
+        MakeExt(".ico"),
+        // Apple Icon Image
+        MakeExt(".icns"),
+        // X Window Dump
+        MakeExt(".xwd"),
+        // GIMP XCF format
+        MakeExt(".xcf"),
+        // Microsoft DDS
+        MakeExt(".dds"),
+        // SVG
+        MakeExt(".svg"),
+        // Truevision Advanced Raster Graphics Adapter
+        MakeExt(".tga"),
+        MakeExt(".targa"),
+        MakeExt(".tpic"),
+        // Netpbm
+        MakeExt(".pnm"),
+        MakeExt(".pbm"),
+        MakeExt(".pgm"),
+        MakeExt(".ppm"),
+        // ZX-Spectrum
+        MakeExt(".scr"),
+        MakeExt(".atr"),
+        MakeExt(".bsc"),
+        MakeExt(".ifl"),
+        MakeExt(".bmc4"),
+        MakeExt(".mc"),
+        MakeExt(".s"),
+        MakeExt(".$c"),
+        MakeExt(".mg1"),
+        MakeExt(".mg2"),
+        MakeExt(".mg4"),
+        MakeExt(".mg8"),
+        MakeExt(".img"),
+        MakeExt(".mgs"),
+    };
+
+} // namespace
+
 bool cFilesList::isValidExt(const char* path)
 {
     if (m_allValid)
@@ -183,49 +291,15 @@ bool cFilesList::isValidExt(const char* path)
         return true;
     }
 
-    auto point = ::strrchr(path, '.');
-    if (point == nullptr)
+    std::string tr = path;
+    std::transform(tr.begin(), tr.end(), tr.begin(), ::tolower);
+
+    auto ptr = tr.c_str();
+    const auto size = tr.length();
+
+    for (auto& e : ValidExts)
     {
-        return false;
-    }
-
-    std::string ext = point;
-    std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
-
-    const char* ValidExts[] = {
-        // external loaders
-        ".exr",                           // openexr
-        ".jpeg", ".jpg", ".jpe", ".jfif", // libjpeg
-        ".jp2",                           // openjpeg
-        ".tiff", ".tif",                  // libtiff
-        ".png",                           // libpng
-        ".gif",                           // giflib
-        ".webp",                          // webp
-        ".lbm", ".id3", ".argb",          // imlib2
-
-        // internal loaders
-        ".age",                                                                                                      // internal age
-        ".raw",                                                                                                      // internal raw
-        ".pvr", ".pvrtc",                                                                                            // internal pvr/pvrtc
-        ".bmp",                                                                                                      // BMP
-        ".xpm",                                                                                                      // X Pixmap
-        ".psd",                                                                                                      // Adobe PSD
-        ".ai",                                                                                                       // Adobe Illustrator
-        ".eps",                                                                                                      // Encapsulated PostScript
-        ".ico",                                                                                                      // ICO
-        ".icns",                                                                                                     // Apple Icon Image
-        ".xwd",                                                                                                      // X Window Dump
-        ".xcf",                                                                                                      // GIMP XCF format
-        ".dds",                                                                                                      // Microsoft DDS
-        ".svg",                                                                                                      // Microsoft DDS
-        ".tga", ".targa", ".tpic",                                                                                   // Truevision Advanced Raster Graphics Adapter
-        ".pnm", ".pbm", ".pgm", ".ppm",                                                                              // Netpbm
-        ".scr", ".atr", ".bsc", ".ifl", ".bmc4", ".mc", ".s", ".$c", ".mg1", ".mg2", ".mg4", ".mg8", ".img", ".mgs", // ZX-Spectrum
-    };
-
-    for (const char* e : ValidExts)
-    {
-        if (ext == e)
+        if (size >= e.size && ::memcmp(ptr + size - e.size, e.ext, e.size) == 0)
         {
             return true;
         }
