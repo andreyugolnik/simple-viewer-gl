@@ -89,8 +89,6 @@ if(UNIX AND NOT APPLE)
     else()
         message(FATAL_ERROR "(-) X11 not found")
     endif()
-else()
-    add_definitions(-DGL_SILENCE_DEPRECATION=1)
 endif()
 
 find_package(ZLIB QUIET REQUIRED)
