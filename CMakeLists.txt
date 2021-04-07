@@ -1,5 +1,5 @@
 project(sviewgl)
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.4.1)
 
 include(FindPkgConfig)
 include(CheckLibraryExists)
@@ -12,7 +12,8 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+# prefer new GLVND over OLD
+set(OpenGL_GL_PREFERENCE GLVND)
 
 set(APP_TITLE           "Simple Viewer GL" CACHE STRING "Application name")
 set(APP_VERSION_MAJOR   "1" CACHE STRING "Application major version")
