@@ -10,6 +10,7 @@
 #include "config.h"
 #include "viewer.h"
 
+#include <string>
 #include <cstdio>
 #include <cstdlib>
 #include <strings.h>
@@ -68,36 +69,41 @@ namespace
         const auto def = value;
         value = getValue(ini.getString(section, name), def);
     }
+
+    std::string makeProfilePath(const char* name)
+    {
+        char path[4096];
+
+#if defined(__APPLE__)
+        ::snprintf(path, sizeof(path), "%s/Library/Application Support/sviewgl/%s", ::getenv("HOME"), name);
+#else
+        // make config path according XDG spec
+        const char* xdg_path = ::getenv("XDG_CONFIG_HOME");
+        if (xdg_path != nullptr)
+        {
+            ::snprintf(path, sizeof(path), "%s/sviewgl/%s", xdg_path, name);
+        }
+        else
+        {
+            ::snprintf(path, sizeof(path), "%s/.config/sviewgl/%s", ::getenv("HOME"), name);
+        }
+#endif
+
+        return path;
+    }
+
 } // namespace
 
 cConfig::cConfig()
 {
-    char path[4096];
-
-#if defined(__APPLE__)
-    ::snprintf(path, sizeof(path), "%s/Library/Application Support/sviewgl/config", ::getenv("HOME"));
-#else
-    // make config path according XDG spec
-    const char* xdg_path = ::getenv("XDG_CONFIG_HOME");
-    if (xdg_path != nullptr)
-    {
-        ::snprintf(path, sizeof(path), "%s/sviewgl/config", xdg_path);
-    }
-    else
-    {
-        ::snprintf(path, sizeof(path), "%s/.config/sviewgl/config", ::getenv("HOME"));
-    }
-#endif
-
-    m_path = path;
 }
 
 void cConfig::read(sConfig& config) const
 {
-    auto path = m_path.c_str();
+    auto path = makeProfilePath("config");
 
     ini::cFile file;
-    if (file.open(path) == false)
+    if (file.open(path.c_str()) == false)
     {
         return;
     }
@@ -149,10 +155,10 @@ void cConfig::read(sConfig& config) const
 
 void cConfig::write(const sConfig& config) const
 {
-    auto path = m_path.c_str();
+    auto path = makeProfilePath("config");
 
     ini::cFile file;
-    if (file.open(path, "w") == false)
+    if (file.open(path.c_str(), "w") == false)
     {
         return;
     }

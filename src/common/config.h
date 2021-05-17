@@ -13,8 +13,6 @@
 #include "types/color.h"
 #include "types/vector.h"
 
-#include <string>
-
 struct sConfig
 {
     bool debug = false;
@@ -59,6 +57,5 @@ public:
     void write(const sConfig& config) const;
 
 private:
-    std::string m_path;
     mutable ini::cIni m_ini;
 };
