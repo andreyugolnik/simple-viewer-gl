@@ -12,7 +12,8 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+# prefer new GLVND over OLD
+set(OpenGL_GL_PREFERENCE GLVND)
 
 set(APP_TITLE           "Simple Viewer GL" CACHE STRING "Application name")
 set(APP_VERSION_MAJOR   "1" CACHE STRING "Application major version")
@@ -27,7 +28,7 @@ message(STATUS "***************************")
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
     message(STATUS "*      Release Build      *")
     add_definitions("-DNDEBUG" )
-    add_definitions("-Wall -Wextra -pedantic -pedantic-errors -O2")
+    add_definitions("-Wall -Wextra -pedantic -pedantic-errors -Wno-deprecated-register -O2")
 else()
     message(STATUS "*       Debug Build       *")
     add_definitions("-DDEBUG" )
