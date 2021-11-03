@@ -231,9 +231,9 @@ bool cFormatExr::LoadImpl(const char* filename, sBitmapDescription& desc)
 
     bool result = false;
 
-    Imf::RgbaChannels channels;
+    Imf::RgbaChannels channels = static_cast<Imf::RgbaChannels>(0u);
     Imf::Array2D<Imf::Rgba> pixels;
-    uint32_t compression;
+    uint32_t compression = ~0u;
 
     try
     {
