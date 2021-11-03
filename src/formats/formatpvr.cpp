@@ -360,12 +360,12 @@ namespace
                 break;
             }
 
-            switch (err)
+            if (err == Z_NEED_DICT)
             {
-            case Z_NEED_DICT:
                 err = Z_DATA_ERROR;
-            case Z_DATA_ERROR:
-            case Z_MEM_ERROR:
+            }
+            if (err == Z_DATA_ERROR || err == Z_MEM_ERROR)
+            {
                 inflateEnd(&d_stream);
                 return err;
             }
@@ -603,7 +603,7 @@ bool cFormatPvr::LoadImpl(const char* filename, sBitmapDescription& desc)
         case PVR2TexturePixelFormat::I8:
         case PVR2TexturePixelFormat::AI88:
         default:
-            ::printf("(EE) pvr2 usupported pixelFormat %u\n", pixelFormat);
+            ::printf("(EE) pvr2 usupported pixelFormat %u\n", static_cast<uint32_t>(pixelFormat));
             return false;
         }
 
@@ -721,7 +721,7 @@ bool cFormatPvr::LoadImpl(const char* filename, sBitmapDescription& desc)
                 break;
 
             default:
-                ::printf("(EE) pvr3 usupported pixelFormat %llu\n", pixelFormat);
+                ::printf("(EE) pvr3 usupported pixelFormat %llu\n", static_cast<long long unsigned>(pixelFormat));
                 return false;
             }
 

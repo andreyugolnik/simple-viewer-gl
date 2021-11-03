@@ -261,7 +261,9 @@ namespace
                 // auto [prop, pos] = property;
                 auto prop = property.first;
                 auto pos = property.second;
-                ::printf("(II) Property %u at %u pos.\n", prop.type, pos);
+                ::printf("(II) Property %u at %u pos.\n",
+                         static_cast<uint32_t>(prop.type),
+                         pos);
             }
 #endif
         }
@@ -942,7 +944,7 @@ bool import_xcf(cFile& file, sBitmapDescription& desc)
     const uint32_t height = fread<uint32_t>(file, true);
     const xcf_col_mode col_mode = fread<xcf_col_mode>(file, true);
 #if defined(DEBUG)
-    ::printf("(II) Color mode %u.\n", col_mode);
+    ::printf("(II) Color mode %u.\n", static_cast<uint32_t>(col_mode));
 #endif
 
     xcf_comp_mode compression = xcf_comp_mode::none;
@@ -960,7 +962,7 @@ bool import_xcf(cFile& file, sBitmapDescription& desc)
         file.seek(pos + sizeof(xcf_property_t), SEEK_SET);
 
 #if defined(DEBUG)
-        ::printf("(II) Property type %u\n", prop.type);
+        ::printf("(II) Property type %u\n", static_cast<uint32_t>(prop.type));
 #endif
 
         switch (prop.type)
@@ -1003,7 +1005,7 @@ bool import_xcf(cFile& file, sBitmapDescription& desc)
         {
             xcf_property_layer_mode_t p(prop, file);
 #if defined(DEBUG)
-            ::printf("(II) Layer mode %u\n", p.mode);
+            ::printf("(II) Layer mode %u\n", static_cast<uint32_t>(p.mode));
 #endif
         }
         break;
@@ -1050,7 +1052,10 @@ bool import_xcf(cFile& file, sBitmapDescription& desc)
         ::printf("Layer '%s' properties:\n", layer.name.c_str());
         for (auto& p : layer.properties)
         {
-            ::printf("  type 0x%2x = %s (0x%x)\n", p.first.type, toBits(p.second).c_str(), p.second);
+            ::printf("  type 0x%2x = %s (0x%x)\n",
+                     static_cast<uint32_t>(p.first.type),
+                     toBits(p.second).c_str(),
+                     p.second);
         }
 #endif
 
