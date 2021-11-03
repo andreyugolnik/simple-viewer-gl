@@ -4,8 +4,11 @@
 .build_debug
 .build_release
 .ycm_extra_conf.py*
+/.cache/
+/.compile_commands/
 /_fix_it/
 TODO.org
+compile_commands.json
 cppcheck-output
 project.xcworkspace/
 src/version.h
