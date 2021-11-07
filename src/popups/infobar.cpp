@@ -36,8 +36,8 @@ void cInfoBar::render()
     auto font = ImGui::GetFont();
     const float h = s.WindowPadding.y * 2.0f + font->FontSize;
 
-    ImGui::SetNextWindowPos({ 0.0f, height - h }, ImGuiSetCond_Always);
-    ImGui::SetNextWindowSize({ (float)width, h }, ImGuiSetCond_Always);
+    ImGui::SetNextWindowPos({ 0.0f, height - h }, ImGuiCond_Always);
+    ImGui::SetNextWindowSize({ (float)width, h }, ImGuiCond_Always);
     const int flags = ImGuiWindowFlags_NoTitleBar |
         ImGuiWindowFlags_NoResize |
         ImGuiWindowFlags_NoMove |
@@ -68,7 +68,7 @@ void cInfoBar::render()
             frame = 0;
         }
 
-        ImGui::SetNextWindowPos({ 0.0f, 0.0f }, ImGuiSetCond_Always);
+        ImGui::SetNextWindowPos({ 0.0f, 0.0f }, ImGuiCond_Always);
         if (ImGui::Begin("debug", nullptr, flags | ImGuiWindowFlags_AlwaysAutoResize))
         {
             ImGui::TextColored(Color, "fps: %.1f", fps);

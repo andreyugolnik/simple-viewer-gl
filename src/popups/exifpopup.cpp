@@ -30,7 +30,7 @@ void cExifPopup::render()
             | ImGuiWindowFlags_NoSavedSettings
             | ImGuiWindowFlags_NoFocusOnAppearing;
 
-        ImGui::SetNextWindowPos({ 5.0f, 5.0f }, ImGuiSetCond_Once);
+        ImGui::SetNextWindowPos({ 5.0f, 5.0f }, ImGuiCond_Once);
         if (ImGui::Begin("EXIF", nullptr, flags))
         {
             ImGui::Columns(2);

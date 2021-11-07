@@ -110,7 +110,7 @@ void cPixelPopup::renderInfo()
         std::min<float>(y + offset, height - m_size.y)
     };
 
-    ImGui::SetNextWindowPos(pos, ImGuiSetCond_Always);
+    ImGui::SetNextWindowPos(pos, ImGuiCond_Always);
 
     const int flags = ImGuiWindowFlags_NoTitleBar
         | ImGuiWindowFlags_AlwaysAutoResize

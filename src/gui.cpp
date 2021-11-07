@@ -96,6 +96,9 @@ void cGui::init(GLFWwindow* window)
 {
     m_window = window;
 
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+
     auto& io = ImGui::GetIO();
     io.KeyMap[ImGuiKey_Tab] = GLFW_KEY_TAB; // Keyboard mapping. ImGui will use those indices to peek into the io.KeyDown[] array.
     io.KeyMap[ImGuiKey_LeftArrow] = GLFW_KEY_LEFT;
@@ -117,7 +120,7 @@ void cGui::init(GLFWwindow* window)
     io.KeyMap[ImGuiKey_Y] = GLFW_KEY_Y;
     io.KeyMap[ImGuiKey_Z] = GLFW_KEY_Z;
 
-    io.RenderDrawListsFn = nullptr;
+    // io.RenderDrawListsFn = nullptr;
     io.IniFilename = nullptr;
     io.LogFilename = nullptr;
 
@@ -140,7 +143,8 @@ void cGui::init(GLFWwindow* window)
 void cGui::shutdown()
 {
     invalidateDeviceObjects();
-    ImGui::Shutdown();
+    // ImGui::Shutdown();
+    ImGui::DestroyContext();
 }
 
 void cGui::beginFrame()

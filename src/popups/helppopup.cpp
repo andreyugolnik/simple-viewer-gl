@@ -52,7 +52,7 @@ void cHelpPopup::render()
             | ImGuiWindowFlags_AlwaysAutoResize
             | ImGuiWindowFlags_NoSavedSettings;
 
-        ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
+        ImGui::SetNextWindowPos({ 0.0f, 0.0f }, ImGuiCond_Appearing, { 0.5f, 0.5f });
         if (ImGui::Begin("Help", nullptr, flags))
         {
             // ImGui::Columns(2);
