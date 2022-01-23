@@ -132,7 +132,7 @@ bool cFormatTiff::load(unsigned current, sBitmapDescription& desc)
             {
                 desc.width = img.width;
                 desc.height = img.height;
-                desc.pitch = desc.width * sizeof(uint32);
+                desc.pitch = desc.width * sizeof(uint32_t);
                 desc.bitmap.resize(desc.pitch * desc.height);
                 desc.bpp = 32;
                 desc.bppImage = img.bitspersample * img.samplesperpixel;
@@ -144,7 +144,7 @@ bool cFormatTiff::load(unsigned current, sBitmapDescription& desc)
                 m_formatName = "tiff";
 
                 auto bitmap = desc.bitmap.data();
-                result = TIFFRGBAImageGet(&img, (uint32*)bitmap, desc.width, desc.height) != 0;
+                result = TIFFRGBAImageGet(&img, (uint32_t*)bitmap, desc.width, desc.height) != 0;
 
                 if (result)
                 {
