@@ -28,7 +28,7 @@ namespace
     void showVersion()
     {
         printf("%s %d.%d.%d\n\n", SVGL_Title, SVGL_VerMajor, SVGL_VerMinor, SVGL_VerRelease);
-        printf("Copyright © 2008-2019 Andrey A. Ugolnik. All Rights Reserved.\n");
+        printf("Copyright © 2008-2022 Andrey A. Ugolnik. All Rights Reserved.\n");
         printf("http://www.ugolnik.info\n");
         printf("andrey@ugolnik.info\n");
     }
