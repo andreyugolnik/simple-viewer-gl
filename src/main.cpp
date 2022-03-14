@@ -154,7 +154,7 @@ namespace
         glfwSwapInterval(1);
 
         glfwSetWindowSizeCallback(window, callbackResize);
-        //glfwSetFramebufferSizeCallback(window, callbackResize);
+        // glfwSetFramebufferSizeCallback(window, callbackResize);
         glfwSetWindowPosCallback(window, callbackPosition);
 
         glfwSetWindowRefreshCallback(window, callbackRedraw);
@@ -226,7 +226,40 @@ namespace
 #endif
         (void)window;
     }
+
 } // namespace
+
+extern "C" {
+void OpenFileWrapper(const char* filename)
+{
+    static std::string FileToLoadAtStartup;
+
+    if (m_viewer == nullptr)
+    {
+        if (filename != nullptr)
+        {
+            // this is the case where a user double clicks a file, but your app is not yet open
+            FileToLoadAtStartup = filename;
+        }
+    }
+    else
+    {
+        const char* paths[1] = { nullptr };
+        if (FileToLoadAtStartup.empty() == false)
+        {
+            paths[0] = FileToLoadAtStartup.c_str();
+        }
+        else if (filename != nullptr)
+        {
+            paths[0] = filename;
+        }
+
+        m_viewer->addPaths(paths, 1);
+        FileToLoadAtStartup.clear();
+    }
+}
+
+} // extern "C"
 
 int main(int argc, char* argv[])
 {
@@ -395,6 +428,8 @@ int main(int argc, char* argv[])
             viewer.setWindow(window);
 
             bool updateSizePos = false;
+
+            OpenFileWrapper(nullptr);
 
             while (!glfwWindowShouldClose(window))
             {

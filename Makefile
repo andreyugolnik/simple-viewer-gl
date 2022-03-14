@@ -57,8 +57,8 @@ debug:
 		cmake .. -DCMAKE_EXPORT_COMPILE_COMMANDS=1 \
 		-DAPP_VERSION_MAJOR:STRING=$(VER_MAJOR) \
 		-DAPP_VERSION_MINOR:STRING=$(VER_MINOR) \
-		-DAPP_VERSION_RELEASE:STRING=$(VER_RELEASE) && \
-		rm -f ../compile_commands.json ; ln -s compile_commands.json ../compile_commands.json
+		-DAPP_VERSION_RELEASE:STRING=$(VER_RELEASE)
+	rm -f compile_commands.json ; ln -s $(COMPILE_COMMANDS_DIR)/compile_commands.json compile_commands.json
 
 cppcheck:
 	cppcheck \

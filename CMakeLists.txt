@@ -338,7 +338,9 @@ if(APPLE)
     set(SVIEW_ICON ${CMAKE_CURRENT_SOURCE_DIR}/res/macos/Icon.icns)
     set_source_files_properties(${SVIEW_ICON} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
 
-    add_executable(sviewgl MACOSX_BUNDLE ${SVIEW_ICON} ${SVIEW_SOURCES})
+    file(GLOB_RECURSE SVIEW_SOURCES_M "src/*.m")
+
+    add_executable(sviewgl MACOSX_BUNDLE ${SVIEW_ICON} ${SVIEW_SOURCES} ${SVIEW_SOURCES_M})
 
     set_target_properties(sviewgl PROPERTIES
         MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/res/macos/Info.plist.in
@@ -346,6 +348,8 @@ if(APPLE)
         MACOSX_BUNDLE_SHORT_VERSION_STRING ${VERSION}
         MACOSX_BUNDLE_BUNDLE_VERSION ${VERSION}
         )
+
+    target_link_libraries(sviewgl "-framework AppKit")
 else()
     add_executable(sviewgl ${SVIEW_SOURCES})
 endif()
