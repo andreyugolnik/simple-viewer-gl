@@ -254,8 +254,11 @@ void OpenFileWrapper(const char* filename)
             paths[0] = filename;
         }
 
-        m_viewer->addPaths(paths, 1);
-        FileToLoadAtStartup.clear();
+        if (paths[0] != nullptr)
+        {
+            m_viewer->addPaths(paths, 1);
+            FileToLoadAtStartup.clear();
+        }
     }
 }
 

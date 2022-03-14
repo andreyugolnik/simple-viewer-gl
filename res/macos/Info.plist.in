@@ -57,12 +57,18 @@
                 <string>ico</string>
                 <string>id3</string>
                 <string>ifl</string>
+                <string>img</string>
                 <string>jfif</string>
+                <string>jp2</string>
+                <string>jpc</string>
                 <string>jpe</string>
                 <string>jpeg</string>
                 <string>jpg</string>
                 <string>lbm</string>
                 <string>mc</string>
+                <string>mg2</string>
+                <string>mg8</string>
+                <string>mgs</string>
                 <string>pbm</string>
                 <string>pgm</string>
                 <string>png</string>
@@ -74,11 +80,13 @@
                 <string>raw</string>
                 <string>s</string>
                 <string>scr</string>
+                <string>svg</string>
                 <string>targa</string>
                 <string>tga</string>
                 <string>tif</string>
                 <string>tiff</string>
                 <string>webp</string>
+                <string>xcf</string>
                 <string>xpm</string>
                 <string>xwd</string>
             </array>
