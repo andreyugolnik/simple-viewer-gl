@@ -1,6 +1,6 @@
 VER_MAJOR=3
 VER_MINOR=1
-VER_RELEASE=7
+VER_RELEASE=8
 VERSION=$(VER_MAJOR).$(VER_MINOR).$(VER_RELEASE)
 BUILD_DIR_RELEASE=.build_release
 BUILD_DIR_DEBUG=.build_debug
@@ -30,23 +30,50 @@ help:
 
 release:
 	$(shell if [ ! -d $(BUILD_DIR_RELEASE) ]; then mkdir $(BUILD_DIR_RELEASE); fi)
-	cd $(BUILD_DIR_RELEASE) ; cmake -Wno-dev -DCMAKE_BUILD_TYPE=Release -DAPP_VERSION_MAJOR:STRING=$(VER_MAJOR) -DAPP_VERSION_MINOR:STRING=$(VER_MINOR) -DAPP_VERSION_RELEASE:STRING=$(VER_RELEASE) .. ; make ; cd ..
+	cd $(BUILD_DIR_RELEASE) && \
+		cmake .. \
+		-Wno-dev \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DAPP_VERSION_MAJOR:STRING=$(VER_MAJOR) \
+		-DAPP_VERSION_MINOR:STRING=$(VER_MINOR) \
+		-DAPP_VERSION_RELEASE:STRING=$(VER_RELEASE) && \
+		make -j
 	rm -fr $(OUT_NAME) && cp -r $(BUILD_DIR_RELEASE)/$(BUNDLE_NAME) $(OUT_NAME)
 
 debug:
 	$(shell if [ ! -d $(BUILD_DIR_DEBUG) ]; then mkdir $(BUILD_DIR_DEBUG); fi)
-	cd $(BUILD_DIR_DEBUG) ; cmake -DCMAKE_BUILD_TYPE=Debug -DAPP_VERSION_MAJOR:STRING=$(VER_MAJOR) -DAPP_VERSION_MINOR:STRING=$(VER_MINOR) -DAPP_VERSION_RELEASE:STRING=$(VER_RELEASE) .. ; make ; cd ..
+	cd $(BUILD_DIR_DEBUG) && \
+		cmake .. \
+		-DCMAKE_BUILD_TYPE=Debug \
+		-DAPP_VERSION_MAJOR:STRING=$(VER_MAJOR) \
+		-DAPP_VERSION_MINOR:STRING=$(VER_MINOR) \
+		-DAPP_VERSION_RELEASE:STRING=$(VER_RELEASE) && \
+		make -j
 	rm -fr $(OUT_NAME) && cp -r $(BUILD_DIR_DEBUG)/$(BUNDLE_NAME) $(OUT_NAME)
 
 .build_compile_commands:
 	$(shell if [ ! -d $(COMPILE_COMMANDS_DIR) ]; then mkdir $(COMPILE_COMMANDS_DIR); fi )
-	cd $(COMPILE_COMMANDS_DIR) && cmake .. -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DAPP_VERSION_MAJOR:STRING=$(VER_MAJOR) -DAPP_VERSION_MINOR:STRING=$(VER_MINOR) -DAPP_VERSION_RELEASE:STRING=$(VER_RELEASE)
+	cd $(COMPILE_COMMANDS_DIR) && \
+		cmake .. -DCMAKE_EXPORT_COMPILE_COMMANDS=1 \
+		-DAPP_VERSION_MAJOR:STRING=$(VER_MAJOR) \
+		-DAPP_VERSION_MINOR:STRING=$(VER_MINOR) \
+		-DAPP_VERSION_RELEASE:STRING=$(VER_RELEASE) && \
+		rm -f ../compile_commands.json ; ln -s compile_commands.json ../compile_commands.json
 
 cppcheck:
 	cppcheck \
-		-DEXIF_SUPPORT=1 -DLCMS2_SUPPORT=1 -DJPEG2000_SUPPORT=1 -DGIF_SUPPORT=1 \
-		-DTIFF_SUPPORT=1 -DWEBP_SUPPORT=1 -DOPENEXR_SUPPORT=1 -DIMLIB2_SUPPORT=1 \
-		-j 1 --std=c++11 --enable=all -f -I src src/ 2> cppcheck-output
+		-DEXIF_SUPPORT=1 \
+		-DLCMS2_SUPPORT=1 \
+		-DJPEG2000_SUPPORT=1 \
+		-DGIF_SUPPORT=1 \
+		-DTIFF_SUPPORT=1 \
+		-DWEBP_SUPPORT=1 \
+		-DOPENEXR_SUPPORT=1 \
+		-DIMLIB2_SUPPORT=1 \
+		-j 1 \
+		--std=c++14 \
+		--enable=all \
+		-f -I src src/ 2> cppcheck-output
 
 clean:
 	rm -fr $(BUILD_DIR_RELEASE) $(BUILD_DIR_DEBUG) $(OUT_NAME) $(BUNDLE_NAME) cppcheck-output $(BUNDLE_NAME)-$(VERSION)* $(BUNDLE_NAME)_$(VERSION)* *.log *.tasks *.sh *.xz *.list *.deb strace_out cov-int
