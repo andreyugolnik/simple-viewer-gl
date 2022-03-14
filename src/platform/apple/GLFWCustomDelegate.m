@@ -11,7 +11,7 @@
 #import "GLFWCustomDelegate.h"
 #import <objc/runtime.h>
 
-extern void OpenFileWrapper(const char* filename);
+extern void AddFile(const char* filename);
 
 @implementation GLFWCustomDelegate
 
@@ -54,13 +54,16 @@ extern void OpenFileWrapper(const char* filename);
 
 - (BOOL)swz_application: (NSApplication*)sender openFile: (NSString*)filename
 {
-    OpenFileWrapper(filename.UTF8String);
+    AddFile(filename.UTF8String);
     return true;
 }
 
 - (void)swz_application: (NSApplication*)sender openFiles: (NSArray<NSString*>*)filenames
 {
-    OpenFileWrapper(filenames.firstObject.UTF8String);
+    for (NSString* filename in filenames)
+    {
+        AddFile(filename.UTF8String);
+    }
 }
 
 @end

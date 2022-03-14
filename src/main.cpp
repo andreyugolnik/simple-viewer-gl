@@ -227,38 +227,43 @@ namespace
         (void)window;
     }
 
+    class cOpenWrapper
+    {
+    public:
+        void addFile(const char* filename)
+        {
+            if (filename != nullptr)
+            {
+                m_files.push_back(filename);
+            }
+        }
+
+        using FilesList = std::vector<std::string>;
+
+        const FilesList& getList() const
+        {
+            return m_files;
+        }
+
+    private:
+        FilesList m_files;
+    };
+
+    cOpenWrapper OpenWrapper;
+
 } // namespace
 
 extern "C" {
-void OpenFileWrapper(const char* filename)
+void AddFile(const char* filename)
 {
-    static std::string FileToLoadAtStartup;
-
     if (m_viewer == nullptr)
     {
-        if (filename != nullptr)
-        {
-            // this is the case where a user double clicks a file, but your app is not yet open
-            FileToLoadAtStartup = filename;
-        }
+        OpenWrapper.addFile(filename);
     }
     else
     {
-        const char* paths[1] = { nullptr };
-        if (FileToLoadAtStartup.empty() == false)
-        {
-            paths[0] = FileToLoadAtStartup.c_str();
-        }
-        else if (filename != nullptr)
-        {
-            paths[0] = filename;
-        }
-
-        if (paths[0] != nullptr)
-        {
-            m_viewer->addPaths(paths, 1);
-            FileToLoadAtStartup.clear();
-        }
+        const char* paths[] = { filename };
+        m_viewer->addPaths(paths, 1);
     }
 }
 
@@ -406,6 +411,12 @@ int main(int argc, char* argv[])
     {
         pathsList.push_back(p.c_str());
     }
+
+    for (auto& p : OpenWrapper.getList())
+    {
+        pathsList.push_back(p.c_str());
+    }
+
     viewer.addPaths(pathsList.data(), pathsList.size());
 
     int result = 0;
@@ -431,8 +442,6 @@ int main(int argc, char* argv[])
             viewer.setWindow(window);
 
             bool updateSizePos = false;
-
-            OpenFileWrapper(nullptr);
 
             while (!glfwWindowShouldClose(window))
             {

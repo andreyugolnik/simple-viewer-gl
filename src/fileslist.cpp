@@ -50,7 +50,7 @@ namespace
         auto p = dir->d_name;
         return (p[0] == '.' && (p[1] == '\0' || (p[1] == '.' && p[2] == '\0'))) ? 0 : 1;
     }
-}
+} // namespace
 
 void cFilesList::parseDir()
 {
@@ -77,7 +77,7 @@ void cFilesList::addFile(const char* path)
         path = fullPath;
     }
 
-    m_scanDirectory = m_files.size() == 0;
+    m_scanDirectory = true; // m_files.size() == 0;
 
     if (isValidExt(path) == true)
     {
@@ -111,11 +111,13 @@ void cFilesList::sortList()
     });
     m_files.erase(last, m_files.end());
 
-    // ::printf("Sorted unique file %u:\n", (uint32_t)m_files.size());
-    // for (const auto& f : m_files)
-    // {
-        // ::printf("'%s'\n", f.path.c_str());
-    // }
+#if 0
+    ::printf("Sorted unique file %u:\n", (uint32_t)m_files.size());
+    for (const auto& f : m_files)
+    {
+        ::printf("'%s'\n", f.path.c_str());
+    }
+#endif
 }
 
 void cFilesList::locateFile(const char* path)
