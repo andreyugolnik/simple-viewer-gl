@@ -16,7 +16,6 @@ class cFilesList final
 {
 public:
     cFilesList(bool allValid, bool recursive = false);
-    ~cFilesList();
 
     void addFile(const char* path);
     void sortList();
@@ -46,9 +45,10 @@ private:
     bool isValidExt(const char* path);
 
 private:
-    bool m_allValid;
-    bool m_recursive;
-    bool m_scanDirectory = false;
+    const bool m_allValid;
+    const bool m_recursive;
+
+private:
     size_t m_position = 0; // current position in list
 
     struct sFile

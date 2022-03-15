@@ -22,10 +22,6 @@ cFilesList::cFilesList(bool allValid, bool recursive)
 {
 }
 
-cFilesList::~cFilesList()
-{
-}
-
 namespace
 {
     std::string GetBaseDir(const char* path)
@@ -50,14 +46,14 @@ namespace
         auto p = dir->d_name;
         return (p[0] == '.' && (p[1] == '\0' || (p[1] == '.' && p[2] == '\0'))) ? 0 : 1;
     }
+
 } // namespace
 
 void cFilesList::parseDir()
 {
-    if (m_scanDirectory && m_position < m_files.size())
+    const auto count = m_files.size();
+    if (count == 1)
     {
-        m_scanDirectory = false;
-
         const auto& current = m_files[m_position];
         const auto localCopy = current.path;
         auto path = localCopy.c_str();
@@ -77,17 +73,9 @@ void cFilesList::addFile(const char* path)
         path = fullPath;
     }
 
-    m_scanDirectory = true; // m_files.size() == 0;
-
     if (isValidExt(path) == true)
     {
         m_files.push_back({ false, path });
-    }
-    else
-    {
-        m_scanDirectory = false;
-
-        scanDirectory(path);
     }
 
     if (fullPath != nullptr)
