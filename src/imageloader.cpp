@@ -218,51 +218,64 @@ namespace
 #if defined(LOADER_NAME)
     const char* typeToName(eImageType type)
     {
-        const char* Names[] = {
+        struct Pair
+        {
+            const char* name;
+            const eImageType type;
+        };
+
+        const Pair Names[] = {
 #if defined(IMLIB2_SUPPORT)
-            "COMMON",
+            { "COMMON", eImageType::COMMON },
 #endif
 #if defined(OPENEXR_SUPPORT)
-            "EXR",
+            { "EXR", eImageType::EXR },
 #endif
-            "JPG",
+            { "JPG", eImageType::JPG },
 #if defined(JPEG2000_SUPPORT)
-            "JP2",
+            { "JP2", eImageType::JP2 },
 #endif
-            "PSD",
-            "EPS",
-            "PNG",
+            { "PSD", eImageType::PSD },
+            { "EPS", eImageType::EPS },
+            { "PNG", eImageType::PNG },
 #if defined(GIF_SUPPORT)
-            "GIF",
+            { "GIF", eImageType::GIF },
 #endif
-            "ICO",
-            "ICNS",
+            { "ICO", eImageType::ICO },
+            { "ICNS", eImageType::ICNS },
 #if defined(TIFF_SUPPORT)
-            "TIF",
+            { "TIF", eImageType::TIF },
 #endif
-            "XWD",
-            "XPM",
-            "DDS",
-            "RAW",
-            "AGE",
-            "PNM",
-            "PVR",
-            "SCR",
-            "TGA",
-            "BMP",
-            "XCF",
-            "SVG",
+            { "XWD", eImageType::XWD },
+            { "XPM", eImageType::XPM },
+            { "DDS", eImageType::DDS },
+            { "RAW", eImageType::RAW },
+            { "AGE", eImageType::AGE },
+            { "PNM", eImageType::PNM },
+            { "PVR", eImageType::PVR },
+            { "SCR", eImageType::SCR },
+            { "TGA", eImageType::TGA },
+            { "BMP", eImageType::BMP },
+            { "XCF", eImageType::XCF },
+            { "SVG", eImageType::SVG },
 #if defined(WEBP_SUPPORT)
-            "WEBP",
+            { "WEBP", eImageType::WEBP },
 #endif
 
-            "NOTAVAILABLE",
+            { "NOTAVAILABLE", eImageType::NOTAVAILABLE },
         };
 
         const auto idx = (size_t)type;
         const auto size = helpers::countof(Names);
         assert(size == (size_t)eImageType::COUNT);
-        return idx < size ? Names[idx] : "";
+        if (idx < size)
+        {
+            auto& pair = Names[idx];
+            assert(pair.type = type);
+            return pair.name;
+        }
+
+        return "";
     }
 #endif
 
