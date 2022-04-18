@@ -460,7 +460,7 @@ namespace
         {
             auto data = tile_data.get() + i;
             auto size = int32_t(tile_rect.w * tile_rect.h);
-            auto count = size_t(0);
+            // auto count = size_t(0);
 
             while (size > 0)
             {
@@ -484,7 +484,7 @@ namespace
                         xcf_data += 2;
                     }
 
-                    count += length;
+                    // count += length;
                     size -= length;
 
                     if (size < 0 || &xcf_data[length - 1] > xcf_data_limit)
@@ -512,7 +512,7 @@ namespace
                         xcf_data += 2;
                     }
 
-                    count += length;
+                    // count += length;
                     size -= length;
 
                     if (size < 0 || xcf_data > xcf_data_limit)
