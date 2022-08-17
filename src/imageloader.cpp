@@ -271,7 +271,7 @@ namespace
         if (idx < size)
         {
             auto& pair = Names[idx];
-            assert(pair.type = type);
+            assert(pair.type == type);
             return pair.name;
         }
 
