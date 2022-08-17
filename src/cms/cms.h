@@ -41,6 +41,8 @@ private:
     void createTransform(void* inProfile, Pixel format) const;
 
 private:
+#if defined(LCMS2_SUPPORT)
     mutable void* m_outProfile = nullptr;
+#endif
     mutable void* m_transform = nullptr;
 };
