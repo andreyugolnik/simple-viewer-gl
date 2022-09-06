@@ -51,7 +51,7 @@ private:
     }
 
 public:
-    static const uint32_t MinBytesToTest = 8;
+    static const uint32_t HeaderSize = 8;
 
 private:
     progressCallback m_progress = nullptr;

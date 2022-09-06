@@ -16,6 +16,61 @@
 
 namespace
 {
+    class cPngReadStruct final
+    {
+    public:
+        ~cPngReadStruct()
+        {
+            destroy();
+        }
+
+        bool create()
+        {
+            destroy();
+
+            m_png = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+            if (m_png == nullptr)
+            {
+                ::printf("(EE) png_create_read_struct failed.\n");
+                return false;
+            }
+
+            m_info = png_create_info_struct(m_png);
+            if (m_info == nullptr)
+            {
+                ::printf("(EE) png_create_info_struct failed.\n");
+                return false;
+            }
+
+            return true;
+        }
+
+        png_structp getPng() const
+        {
+            return m_png;
+        }
+
+        png_infop getInfo() const
+        {
+            return m_info;
+        }
+
+    private:
+        void destroy()
+        {
+            if (m_png != nullptr)
+            {
+                png_destroy_read_struct(&m_png, &m_info, nullptr);
+                m_png = nullptr;
+                m_info = nullptr;
+            }
+        }
+
+    private:
+        png_structp m_png = nullptr;
+        png_infop m_info = nullptr;
+    };
+
     class cPngMemoryReader
     {
     public:
@@ -87,9 +142,14 @@ cPngReader::~cPngReader()
 
 bool cPngReader::isValid(const uint8_t* data, uint32_t size)
 {
-    uint8_t header[MinBytesToTest];
-    ::memcpy(header, data, sizeof(header));
-    return size >= MinBytesToTest && png_sig_cmp(header, 0, sizeof(header)) == 0;
+    if (size >= HeaderSize)
+    {
+        uint8_t header[HeaderSize];
+        ::memcpy(header, data, sizeof(header));
+        return png_sig_cmp(header, 0, sizeof(header)) == 0;
+    }
+
+    return false;
 }
 
 bool cPngReader::loadPng(sBitmapDescription& desc, const uint8_t* data, uint32_t size)
@@ -101,20 +161,15 @@ bool cPngReader::loadPng(sBitmapDescription& desc, const uint8_t* data, uint32_t
     }
 
     // initialize stuff
-    auto png = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
-    if (png == nullptr)
+    cPngReadStruct pngStruct;
+    if (pngStruct.create() == false)
     {
-        ::printf("(EE) png_create_read_struct failed.\n");
+        ::printf("(EE) png_create_info_struct failed.\n");
         return false;
     }
 
-    auto info = png_create_info_struct(png);
-    if (info == nullptr)
-    {
-        ::printf("(EE) png_create_info_struct failed.\n");
-        png_destroy_read_struct(&png, nullptr, nullptr);
-        return false;
-    }
+    auto png = pngStruct.getPng();
+    auto info = pngStruct.getInfo();
 
     cPngMemoryReader pngReader{ data, size };
     png_set_read_fn(png, &pngReader, cPngMemoryReader::memoryReader);
@@ -186,8 +241,6 @@ bool cPngReader::loadPng(sBitmapDescription& desc, const uint8_t* data, uint32_t
         ::memcpy(m_iccProfile.data(), iccProfile, iccProfileSize);
     }
 
-    png_destroy_read_struct(&png, &info, nullptr);
-
     return true;
 }
 
@@ -195,8 +248,8 @@ bool cPngReader::loadPng(sBitmapDescription& desc, cFile& file)
 {
     desc.size = file.getSize();
 
-    uint8_t header[MinBytesToTest];
-    if (file.read(&header, MinBytesToTest) != MinBytesToTest
+    uint8_t header[HeaderSize];
+    if (file.read(&header, HeaderSize) != HeaderSize
         && isValid(header, file.getSize()) == false)
     {
         ::printf("(EE) Is not recognized as a PNG file.\n");
@@ -204,19 +257,14 @@ bool cPngReader::loadPng(sBitmapDescription& desc, cFile& file)
     }
 
     // initialize stuff
-    auto png = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
-    if (png == nullptr)
+    cPngReadStruct pngStruct;
+    if (pngStruct.create() == false)
     {
-        ::printf("(EE) png_create_read_struct failed.\n");
         return false;
     }
 
-    auto info = png_create_info_struct(png);
-    if (info == nullptr)
-    {
-        ::printf("(EE) png_create_info_struct failed.\n");
-        return false;
-    }
+    auto png = pngStruct.getPng();
+    auto info = pngStruct.getInfo();
 
     if (setjmp(png_jmpbuf(png)) != 0)
     {
@@ -225,7 +273,7 @@ bool cPngReader::loadPng(sBitmapDescription& desc, cFile& file)
     }
 
     png_init_io(png, (FILE*)file.getHandle());
-    png_set_sig_bytes(png, 8);
+    png_set_sig_bytes(png, HeaderSize);
 
     png_read_info(png, info);
 
@@ -295,8 +343,6 @@ bool cPngReader::loadPng(sBitmapDescription& desc, cFile& file)
     {
         ::memcpy(m_iccProfile.data(), iccProfile, iccProfileSize);
     }
-
-    png_destroy_read_struct(&png, &info, nullptr);
 
     return true;
 }

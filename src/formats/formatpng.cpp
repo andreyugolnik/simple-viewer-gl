@@ -24,7 +24,7 @@ cFormatPng::~cFormatPng()
 
 bool cFormatPng::isSupported(cFile& file, Buffer& buffer) const
 {
-    if (!readBuffer(file, buffer, cPngReader::MinBytesToTest))
+    if (!readBuffer(file, buffer, cPngReader::HeaderSize))
     {
         return false;
     }
