@@ -4,8 +4,7 @@
 # -----
 # You can specify a custom docker image from Docker Hub as your build environment.
 # image: gcc:6.1
-# image: atlassian/default-image:2
-image: gcc
+image: atlassian/default-image:3
 
 pipelines:
   default:
