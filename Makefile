@@ -37,7 +37,7 @@ release:
 		-DAPP_VERSION_MAJOR:STRING=$(VER_MAJOR) \
 		-DAPP_VERSION_MINOR:STRING=$(VER_MINOR) \
 		-DAPP_VERSION_RELEASE:STRING=$(VER_RELEASE) && \
-		make -j
+		make -j4
 	rm -fr $(OUT_NAME) && cp -r $(BUILD_DIR_RELEASE)/$(BUNDLE_NAME) $(OUT_NAME)
 
 debug:
@@ -48,7 +48,7 @@ debug:
 		-DAPP_VERSION_MAJOR:STRING=$(VER_MAJOR) \
 		-DAPP_VERSION_MINOR:STRING=$(VER_MINOR) \
 		-DAPP_VERSION_RELEASE:STRING=$(VER_RELEASE) && \
-		make -j
+		make -j4
 	rm -fr $(OUT_NAME) && cp -r $(BUILD_DIR_DEBUG)/$(BUNDLE_NAME) $(OUT_NAME)
 
 .build_compile_commands:
