@@ -1,5 +1,7 @@
-project(sviewgl)
-cmake_minimum_required(VERSION 3.4.1)
+cmake_minimum_required(VERSION 3.8)
+
+set(APPLICATION_NAME "sviewgl")
+project(${APPLICATION_NAME})
 
 include(FindPkgConfig)
 include(CheckLibraryExists)
@@ -340,90 +342,90 @@ if(APPLE)
 
     file(GLOB_RECURSE SVIEW_SOURCES_M "src/*.m")
 
-    add_executable(sviewgl MACOSX_BUNDLE ${SVIEW_ICON} ${SVIEW_SOURCES} ${SVIEW_SOURCES_M})
+    add_executable(${APPLICATION_NAME} MACOSX_BUNDLE ${SVIEW_ICON} ${SVIEW_SOURCES} ${SVIEW_SOURCES_M})
 
-    set_target_properties(sviewgl PROPERTIES
+    set_target_properties(${APPLICATION_NAME} PROPERTIES
         MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/res/macos/Info.plist.in
         MACOSX_BUNDLE_LONG_VERSION_STRING ${VERSION}
         MACOSX_BUNDLE_SHORT_VERSION_STRING ${VERSION}
         MACOSX_BUNDLE_BUNDLE_VERSION ${VERSION}
         )
 
-    target_link_libraries(sviewgl "-framework AppKit")
+        target_link_libraries(${APPLICATION_NAME} "-framework AppKit")
 else()
-    add_executable(sviewgl ${SVIEW_SOURCES})
+    add_executable(${APPLICATION_NAME} ${SVIEW_SOURCES})
 endif()
 
-add_dependencies(sviewgl ImGui LZ4)
-target_link_libraries(sviewgl ImGui LZ4)
+add_dependencies(${APPLICATION_NAME} ImGui LZ4)
+target_link_libraries(${APPLICATION_NAME} ImGui LZ4)
 
 if(OPENGL_FOUND)
-    target_link_libraries(sviewgl ${OPENGL_LIBRARY})
+    target_link_libraries(${APPLICATION_NAME} ${OPENGL_LIBRARY})
 endif()
 
 if(GLFW3_FOUND)
-    target_link_libraries(sviewgl ${GLFW3_LIBRARIES})
+    target_link_libraries(${APPLICATION_NAME} ${GLFW3_LIBRARIES})
 endif()
 
 if(Threads_FOUND)
-    target_link_libraries(sviewgl ${CMAKE_THREAD_LIBS_INIT})
+    target_link_libraries(${APPLICATION_NAME} ${CMAKE_THREAD_LIBS_INIT})
 endif()
 
 if(LCMS2_FOUND)
-    target_link_libraries(sviewgl ${LCMS2_LIBRARIES})
+    target_link_libraries(${APPLICATION_NAME} ${LCMS2_LIBRARIES})
 endif()
 
 if(ZLIB_FOUND)
-    target_link_libraries(sviewgl ${ZLIB_LIBRARIES})
+    target_link_libraries(${APPLICATION_NAME} ${ZLIB_LIBRARIES})
 endif()
 
 if(X11_FOUND)
-    target_link_libraries(sviewgl ${X11_LIBRARIES})
+    target_link_libraries(${APPLICATION_NAME} ${X11_LIBRARIES})
     if(X11_Xinerama_FOUND)
-        target_link_libraries(sviewgl ${X11_Xinerama_LIB})
+        target_link_libraries(${APPLICATION_NAME} ${X11_Xinerama_LIB})
     endif()
 endif()
 
 if(PNG_FOUND)
-    target_link_libraries(sviewgl ${PNG_LIBRARY})
+    target_link_libraries(${APPLICATION_NAME} ${PNG_LIBRARY})
 endif()
 
 if(JPEG_FOUND)
-    target_link_libraries(sviewgl ${JPEG_LIBRARIES})
+    target_link_libraries(${APPLICATION_NAME} ${JPEG_LIBRARIES})
 endif()
 
 if(EXIF_FOUND)
-    target_link_libraries(sviewgl ${EXIF_LIBRARIES})
+    target_link_libraries(${APPLICATION_NAME} ${EXIF_LIBRARIES})
 endif()
 
 if(JPEG2K_FOUND)
-    target_link_libraries(sviewgl ${JPEG2K_LIBRARIES})
+    target_link_libraries(${APPLICATION_NAME} ${JPEG2K_LIBRARIES})
 endif()
 
 if(GIF_FOUND)
-    target_link_libraries(sviewgl ${GIF_LIBRARIES})
+    target_link_libraries(${APPLICATION_NAME} ${GIF_LIBRARIES})
 endif()
 
 if(TIFF_FOUND)
-    target_link_libraries(sviewgl ${TIFF_LIBRARIES})
+    target_link_libraries(${APPLICATION_NAME} ${TIFF_LIBRARIES})
 endif()
 
 if(WEBP_FOUND)
-    target_link_libraries(sviewgl ${WEBP_LIBRARIES})
+    target_link_libraries(${APPLICATION_NAME} ${WEBP_LIBRARIES})
 endif()
 
 if(OPENEXR_FOUND AND ILMBASE_FOUND)
-    target_link_libraries(sviewgl ${ILMBASE_LIBRARIES} ${OPENEXR_LIBRARIES})
+    target_link_libraries(${APPLICATION_NAME} ${ILMBASE_LIBRARIES} ${OPENEXR_LIBRARIES})
 endif()
 
 if(CURL_FOUND)
-    target_link_libraries(sviewgl ${CURL_LIBRARIES})
+    target_link_libraries(${APPLICATION_NAME} ${CURL_LIBRARIES})
 endif()
 
 if(IMLIB2_FOUND)
-    target_link_libraries(sviewgl ${IMLIB2_LIBRARY})
+    target_link_libraries(${APPLICATION_NAME} ${IMLIB2_LIBRARY})
 endif()
 
 if(RT_FOUND)
-    target_link_libraries(sviewgl ${RT_LIBRARY})
+    target_link_libraries(${APPLICATION_NAME} ${RT_LIBRARY})
 endif()

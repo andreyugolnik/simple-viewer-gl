@@ -2,8 +2,11 @@ VER_MAJOR=3
 VER_MINOR=1
 VER_RELEASE=9
 VERSION=$(VER_MAJOR).$(VER_MINOR).$(VER_RELEASE)
-BUILD_DIR_RELEASE=.build_release
-BUILD_DIR_DEBUG=.build_debug
+
+BUILD_DIR=.build
+BUILD_DIR_RELEASE=$(BUILD_DIR)_release
+BUILD_DIR_DEBUG=$(BUILD_DIR)_debug
+
 BUNDLE_NAME=sviewgl
 OUT_NAME=sviewgl
 COMPILE_COMMANDS_DIR=.compile_commands
@@ -51,14 +54,15 @@ debug:
 		make -j4
 	rm -fr $(OUT_NAME) && cp -r $(BUILD_DIR_DEBUG)/$(BUNDLE_NAME) $(OUT_NAME)
 
-.build_compile_commands:
+build_compile_commands:
 	$(shell if [ ! -d $(COMPILE_COMMANDS_DIR) ]; then mkdir $(COMPILE_COMMANDS_DIR); fi )
 	cd $(COMPILE_COMMANDS_DIR) && \
 		cmake .. -DCMAKE_EXPORT_COMPILE_COMMANDS=1 \
 		-DAPP_VERSION_MAJOR:STRING=$(VER_MAJOR) \
 		-DAPP_VERSION_MINOR:STRING=$(VER_MINOR) \
 		-DAPP_VERSION_RELEASE:STRING=$(VER_RELEASE)
-	rm -f compile_commands.json ; ln -s $(COMPILE_COMMANDS_DIR)/compile_commands.json compile_commands.json
+	rm -f compile_commands.json ; \
+		ln -s $(COMPILE_COMMANDS_DIR)/compile_commands.json compile_commands.json
 
 cppcheck:
 	cppcheck \
@@ -76,7 +80,10 @@ cppcheck:
 		-f -I src src/ 2> cppcheck-output
 
 clean:
-	rm -fr $(BUILD_DIR_RELEASE) $(BUILD_DIR_DEBUG) $(OUT_NAME) $(BUNDLE_NAME) cppcheck-output $(BUNDLE_NAME)-$(VERSION)* $(BUNDLE_NAME)_$(VERSION)* *.log *.tasks *.sh *.xz *.list *.deb strace_out cov-int
+	rm -fr $(BUILD_DIR) $(OUT_NAME) $(BUNDLE_NAME) $(COMPILE_COMMANDS_DIR) \
+		$(BUNDLE_NAME)-$(VERSION)* $(BUNDLE_NAME)_$(VERSION)* \
+		*.log *.tasks *.sh *.xz *.list *.deb \
+		cppcheck-output strace_out cov-int
 
 install:
 	install -m 755 -d $(DESTDIR)$(PREFIX)/bin
