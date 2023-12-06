@@ -49,19 +49,24 @@ namespace
 
 } // namespace
 
+void cFilesList::parseDirectory(const std::string& current)
+{
+    const auto localCopy = current;
+    auto path = localCopy.c_str();
+
+    scanDirectory(GetBaseDir(path));
+
+    sortList();
+    locateFile(path);
+}
+
 void cFilesList::parseDir()
 {
     const auto count = m_files.size();
     if (count == 1)
     {
-        const auto& current = m_files[m_position];
-        const auto localCopy = current.path;
-        auto path = localCopy.c_str();
-
-        scanDirectory(GetBaseDir(path));
-
-        sortList();
-        locateFile(path);
+        const auto& current = m_files[m_position].path;
+        parseDirectory(current);
     }
 }
 
@@ -76,6 +81,10 @@ void cFilesList::addFile(const char* path)
     if (isValidExt(path) == true)
     {
         m_files.push_back({ false, path });
+    }
+    else if (m_files.size() == 0)
+    {
+        parseDirectory(path);
     }
 
     if (fullPath != nullptr)

@@ -40,6 +40,7 @@ public:
     }
 
 private:
+    void parseDirectory(const std::string& current);
     void parseDir();
     void scanDirectory(const std::string& root);
     bool isValidExt(const char* path);
