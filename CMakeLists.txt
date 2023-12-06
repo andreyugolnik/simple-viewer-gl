@@ -41,6 +41,9 @@ message(STATUS "***************************")
 
 find_package(PkgConfig REQUIRED)
 
+add_subdirectory(third-party/imgui)
+add_subdirectory(third-party/lz4)
+
 find_package(OpenGL QUIET REQUIRED)
 if(OPENGL_FOUND)
     message(STATUS "(+) OpenGL found")
@@ -317,9 +320,6 @@ if(RT_FOUND)
 endif()
 
 message(STATUS "***************************")
-
-add_subdirectory(third-party/imgui)
-add_subdirectory(third-party/lz4)
 
 include_directories("src")
 
