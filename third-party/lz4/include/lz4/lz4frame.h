@@ -365,8 +365,9 @@ typedef struct LZ4F_dctx_s LZ4F_dctx;   /* incomplete type */
 typedef LZ4F_dctx* LZ4F_decompressionContext_t;   /* compatibility with previous API versions */
 
 typedef struct {
-  unsigned stableDst;     /* pledges that last 64KB decompressed data will remain available unmodified between invocations.
-                           * This optimization skips storage operations in tmp buffers. */
+  unsigned stableDst;     /* pledges that last 64KB decompressed data is present right before @dstBuffer pointer.
+                           * This optimization skips internal storage operations.
+                           * Once set, this pledge must remain valid up to the end of current frame. */
   unsigned skipChecksums; /* disable checksum calculation and verification, even when one is present in frame, to save CPU time.
                            * Setting this option to 1 once disables all checksums for the rest of the frame. */
   unsigned reserved1;     /* must be set to zero for forward compatibility */
@@ -472,6 +473,11 @@ LZ4F_getFrameInfo(LZ4F_dctx* dctx,
  *
  * `dstBuffer` can freely change between each consecutive function invocation.
  * `dstBuffer` content will be overwritten.
+ *
+ *  Note: if `LZ4F_getFrameInfo()` is called before `LZ4F_decompress()`, srcBuffer must be updated to reflect
+ *  the number of bytes consumed after reading the frame header. Failure to update srcBuffer before calling
+ *  `LZ4F_decompress()` will cause decompression failure or, even worse, successful but incorrect decompression.
+ *  See the `LZ4F_getFrameInfo()` docs for details.
  *
  * @return : an hint of how many `srcSize` bytes LZ4F_decompress() expects for next call.
  *  Schematically, it's the size of the current (or remaining) compressed block + header of next block.
