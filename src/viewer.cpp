@@ -702,8 +702,12 @@ void cViewer::centerWindow()
             auto monitor = glfwGetPrimaryMonitor();
             auto mode = glfwGetVideoMode(monitor);
 
-            const int width = std::min<int>(imgw, mode->width);
-            const int height = std::min<int>(imgh, mode->height);
+            const int width = m_fitImage
+                ? m_config.windowSize.w
+                : std::min<int>(imgw, mode->width);
+            const int height = m_fitImage
+                ? m_config.windowSize.h
+                : std::min<int>(imgh, mode->height);
 
             // calculate window position
             const int x = (mode->width - width) / 2;

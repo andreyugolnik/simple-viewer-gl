@@ -8,7 +8,6 @@
 \**********************************************/
 
 #include "common/config.h"
-#include "types/types.h"
 #include "version.h"
 #include "viewer.h"
 
@@ -61,9 +60,9 @@ namespace
         printf("  -mipmap VALUE  min texture size for mipmap creation (default: %u px);\n", config.mipmapTextureSize);
         printf("  -svg SIZE      min SVG size (default: %g px);\n", config.minSvgSize);
         printf("  -C RRGGBB      background color in hex format (default: %.2X%.2X%.2X);\n",
-               (uint32_t)(config.bgColor.r),
-               (uint32_t)(config.bgColor.g),
-               (uint32_t)(config.bgColor.b));
+               (uint32_t)config.bgColor.r,
+               (uint32_t)config.bgColor.g,
+               (uint32_t)config.bgColor.b);
         printf("  --             read null terminated files list from stdin.\n");
         printf("                 Usage:\n");
         printf("                   find /path -name *.psd -print0 | sviewgl --\n");
