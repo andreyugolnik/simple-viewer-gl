@@ -177,8 +177,12 @@ namespace
 
     GLFWwindow* createWindowedWindow(int width, int height, GLFWwindow* parent, const sConfig& config)
     {
-        width = width <= 0 ? 640 : config.windowSize.x;
-        height = height <= 0 ? 480 : config.windowSize.y;
+        width = width <= DefaultWindowSize.w
+            ? DefaultWindowSize.w
+            : config.windowSize.w;
+        height = height <= DefaultWindowSize.h
+            ? DefaultWindowSize.h
+            : config.windowSize.h;
 
         auto newWindow = glfwCreateWindow(width, height, SVGL_Title, nullptr, parent);
 

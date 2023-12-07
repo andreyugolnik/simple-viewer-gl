@@ -22,18 +22,13 @@
 #include "progress.h"
 #include "quadimage.h"
 #include "selection.h"
-#include "imgui/imgui.h"
 
 #include <cassert>
 #include <cmath>
 #include <cstdlib>
-#include <string>
 
 namespace
 {
-    const int DEF_WINDOW_W = 300;
-    const int DEF_WINDOW_H = 200;
-
     bool FixeScale(int& scale, int step)
     {
         const int oldScale = scale;
@@ -41,7 +36,8 @@ namespace
         scale *= step;
         return oldScale != scale;
     }
-}
+
+} // namespace
 
 cViewer::cViewer(sConfig& config)
     : m_config(config)
@@ -379,7 +375,7 @@ void cViewer::onKey(int key, int scancode, int action, int mods)
 
     case GLFW_KEY_I:
         m_config.hideInfobar = !m_config.hideInfobar;
-        //calculateScale();
+        // calculateScale();
         centerWindow();
         break;
 
@@ -636,7 +632,7 @@ void cViewer::calculateScale()
             }
             if (new_w != 0.0f && new_h != 0.0f)
             {
-                //m_scale = static_cast<float>((angle == 0 || angle == 180) ? new_w : new_h) / w;
+                // m_scale = static_cast<float>((angle == 0 || angle == 180) ? new_w : new_h) / w;
                 m_scale.setScale(new_w / w);
             }
         }
@@ -700,8 +696,8 @@ void cViewer::centerWindow()
             // calculate window size
             int imgw = m_image->getWidth() + (m_config.showImageBorder ? m_border->getThickness() * 2 : 0);
             int imgh = m_image->getHeight() + (m_config.showImageBorder ? m_border->getThickness() * 2 : 0);
-            imgw = std::max<int>(imgw / m_ratio.x, DEF_WINDOW_W);
-            imgh = std::max<int>(imgh / m_ratio.y, DEF_WINDOW_H);
+            imgw = std::max<int>(imgw / m_ratio.x, std::max<int>(m_config.windowSize.w, DefaultWindowSize.w));
+            imgh = std::max<int>(imgh / m_ratio.y, std::max<int>(m_config.windowSize.h, DefaultWindowSize.h));
 
             auto monitor = glfwGetPrimaryMonitor();
             auto mode = glfwGetVideoMode(monitor);
