@@ -209,7 +209,7 @@ bool cPngReader::loadPng(sBitmapDescription& desc, const uint8_t* data, uint32_t
     desc.width = png_get_image_width(png, info);
     desc.height = png_get_image_height(png, info);
     desc.bpp = png_get_bit_depth(png, info) * png_get_channels(png, info);
-    desc.pitch = helpers::calculatePitch(desc.width, desc.bpp); //png_get_rowbytes(png, info);
+    desc.pitch = helpers::calculatePitch(desc.width, desc.bpp); // png_get_rowbytes(png, info);
     if (desc.pitch < png_get_rowbytes(png, info))
     {
         ::printf("(EE) Invalid pitch: %u instead %u.\n", desc.pitch, (uint32_t)png_get_rowbytes(png, info));
@@ -260,6 +260,7 @@ bool cPngReader::loadPng(sBitmapDescription& desc, cFile& file)
     cPngReadStruct pngStruct;
     if (pngStruct.create() == false)
     {
+        ::printf("(EE) png_create_info_struct failed.\n");
         return false;
     }
 
@@ -305,7 +306,7 @@ bool cPngReader::loadPng(sBitmapDescription& desc, cFile& file)
     desc.width = png_get_image_width(png, info);
     desc.height = png_get_image_height(png, info);
     desc.bpp = png_get_bit_depth(png, info) * png_get_channels(png, info);
-    desc.pitch = helpers::calculatePitch(desc.width, desc.bpp); //png_get_rowbytes(png, info);
+    desc.pitch = helpers::calculatePitch(desc.width, desc.bpp); // png_get_rowbytes(png, info);
     if (desc.pitch < png_get_rowbytes(png, info))
     {
         ::printf("(EE) Invalid pitch: %u instead %u.\n", desc.pitch, (uint32_t)png_get_rowbytes(png, info));

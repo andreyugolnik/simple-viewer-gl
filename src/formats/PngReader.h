@@ -8,8 +8,6 @@
 
 #pragma once
 
-#include "types/types.h"
-
 #include <functional>
 #include <vector>
 
@@ -22,7 +20,7 @@ public:
     cPngReader();
     virtual ~cPngReader();
 
-    typedef std::function<void (float percent)> progressCallback;
+    typedef std::function<void(float percent)> progressCallback;
 
     void setProgressCallback(const progressCallback& callback)
     {
