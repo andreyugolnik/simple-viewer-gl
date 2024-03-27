@@ -14,7 +14,8 @@ namespace
 {
     const ImVec4 tagColor{ 1.0f, 1.0f, 0.5f, 1.0f };
     const ImVec4 valueColor{ 1.0f, 1.0f, 1.0f, 1.0f };
-}
+
+} // namespace
 
 void cExifPopup::setExifList(const sBitmapDescription::ExifList& exifList)
 {
@@ -33,20 +34,17 @@ void cExifPopup::render()
         ImGui::SetNextWindowPos({ 5.0f, 5.0f }, ImGuiCond_Once);
         if (ImGui::Begin("EXIF", nullptr, flags))
         {
-            ImGui::Columns(2);
-
-            ImGui::TextColored(tagColor, "Tag");
-            ImGui::NextColumn();
-            ImGui::TextColored(valueColor, "Value");
-            ImGui::NextColumn();
-            ImGui::Separator();
-
-            for (const auto& s : m_exif)
+            if (ImGui::BeginTable("exif_table", 2))
             {
-                ImGui::TextColored(tagColor, "%s", s.tag.c_str());
-                ImGui::NextColumn();
-                ImGui::TextColored(valueColor, "%s", s.value.c_str());
-                ImGui::NextColumn();
+                for (const auto& s : m_exif)
+                {
+                    ImGui::TableNextRow();
+                    ImGui::TableSetColumnIndex(0);
+                    ImGui::TextColored(tagColor, "%s", s.tag.c_str());
+                    ImGui::TableSetColumnIndex(1);
+                    ImGui::TextColored(valueColor, "%s", s.value.c_str());
+                }
+                ImGui::EndTable();
             }
         }
         ImGui::End();
