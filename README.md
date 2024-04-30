@@ -1,7 +1,4 @@
-![CI status, master](https://api.shippable.com/projects/5894665c8d80360f008b75d4/badge?branch=master)
-![CI coverage, master](https://api.shippable.com/projects/5894665c8d80360f008b75d4/coverageBadge?branch=master)
-
-## Simple Viewer GL description
+## Simple Viewer GL
 
 **Simple Viewer GL** is a simple and tiny image viewer based on OpenGL.
 
@@ -10,35 +7,35 @@ The primary goal for writing **Simple Viewer GL** is to create an image viewer, 
 Supported formats: `PNG`, `JPEG`, `JPEG 2000`, `PSD`, `AI`, `EPS`, `XCF` (GIMP image format), `GIF`, `SVG`, `TIFF`, `TARGA`, `ICO`, `ICNS` (Apple Icon Image), `BMP`, `PNM`, `DDS`, `XWD`, `SCR (ZX-Spectrum screen)`, `XPM`, `WebP`, `OpenEXR`.
 
 ***
-#### Screenshots
+### Screenshots
 
 ![Simple Viewer GL on macOS with Pixel Info](https://bitbucket.org/andreyu/simple-viewer-gl/downloads/Screenshot_Lena.png)
 ![Simple Viewer GL on macOS with EXIF](https://bitbucket.org/andreyu/simple-viewer-gl/downloads/sviewgl-macos_2.png)
 
 ***
-#### Features
+### Features
 
-* Lightweight and fast: utilize hardware-accelerated video card;
-* Support embedded ICC profiles;
-* GIF animation support;
-* GIMP XCF support;
-* Adobe PSD format support;
-* Adobe AI, EPS formats preview support;
-* SVG format support;
-* Exif support;
-* Very simple interface;
-* Suitable for default image viewer for the desktops and laptops;
-* Minimal lib dependency: look library requirements below;
-* Desktop independent: doesn't require any specific desktop environment;
-* Open source, licensed under GNU GPL;
+- [x] Lightweight and fast: utilize hardware-accelerated video card;
+- [x] Support embedded ICC profiles;
+- [x] GIF animation support;
+- [x] GIMP XCF support;
+- [x] Adobe PSD format support;
+- [x] Adobe AI, EPS formats preview support;
+- [x] SVG format support;
+- [x] Exif support;
+- [x] Very simple interface;
+- [x] Suitable for default image viewer for the desktops and laptops;
+- [x] Minimal lib dependency: look library requirements below;
+- [x] Desktop independent: doesn't require any specific desktop environment;
+- [x] Open source, licensed under GNU GPL;
 
 ***
-#### Usage
+### Usage
 
 **Simple Viewer GL** has two modes of operation: image viewer and image info mode. The default is image mode, in which only the current image is shown. In image info mode pixel info and rectangular selection available. This mode useful for brief resource description.
 
 ***
-#### Key bindings
+### Key bindings
 
 Hotkey                 | Action
 -----------------------|----------------------------------
@@ -70,12 +67,12 @@ Hotkey                 | Action
 `<?>`                  | hide / show keybindings popup
 
 ***
-#### Download and build from sources
+### Download and build from sources
 
-You can browse the source code repository on Bitbucket or get a copy using git with the following command:
+You can browse the source code repository on GitHub or get a copy using git with the following command:
 
 ```bash
-$ git clone https://bitbucket.org/andreyu/simple-viewer-gl.git
+$ git clone https://github.com/andreyugolnik/simple-viewer-gl.git
 $ cd simple-viewer-gl
 $ make release
 ```
@@ -85,7 +82,7 @@ $ make release
 [Gentoo ebuild by](https://gogs.lumi.pw/mike/portage/src/master/media-gfx/simpleviewer-gl) [imul](https://www.linux.org.ru/people/imul/profile)
 
 ***
-#### Make DEB package
+### Make DEB package
 
 Update and install required dependencies:
 ```bash
@@ -98,7 +95,7 @@ $ sudo apt-get install libglfw3-dev libexif-dev libilmbase-dev libopenexr-dev
 
 Clone and make DEB:
 ```bash
-$ git clone https://bitbucket.org/andreyu/simple-viewer-gl.git
+$ git clone https://github.com/andreyugolnik/simple-viewer-gl.git
 $ cd simple-viewer-gl
 $ make deb
 ```
@@ -106,7 +103,7 @@ $ make deb
 > You can purge installed packages with `apt-get purge PACKAGE_NAME && apt-get autoremove`
 
 ***
-#### Make RPM package
+### Make RPM package
 
 Update and install required dependencies:
 ```bash
@@ -117,13 +114,13 @@ $ sudo dnf install libwebp-devel libexif-devel imlib2-devel zlib-devel ilmbase-d
 
 Clone and make source for RPM:
 ```bash
-$ git clone https://bitbucket.org/andreyu/simple-viewer-gl.git
+$ git clone https://github.com/andreyugolnik/simple-viewer-gl.git
 $ cd simple-viewer-gl
 $ sudo make rpm
 ```
 
 ***
-#### Dependencies
+### Dependencies
 
  Name          | Debian package                     | Description / Notes
 ---------------|------------------------------------|---------------------
@@ -143,9 +140,10 @@ $ sudo make rpm
 `ImLib2`       | *libimlib2-dev*                    | (Optional) Common formats support.
 `curl`         | *libcurl-dev*                      | (Optional) Support loading via http/https/ftp protocols.
 
+
 ```
-Copyright © 2008-2018 Andrey A. Ugolnik. All Rights Reserved.
-http://www.ugolnik.info
+Copyright © 2008-2024 Andrey A. Ugolnik. All Rights Reserved.
+https://www.ugolnik.info
 andrey@ugolnik.info
 
 Icon was created by

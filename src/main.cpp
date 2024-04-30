@@ -26,9 +26,13 @@ namespace
 
     void showVersion()
     {
-        printf("%s %d.%d.%d\n\n", SVGL_Title, SVGL_VerMajor, SVGL_VerMinor, SVGL_VerRelease);
-        printf("Copyright © 2008-2022 Andrey A. Ugolnik. All Rights Reserved.\n");
-        printf("http://www.ugolnik.info\n");
+        printf("%s %d.%d.%d\n\n",
+               version::getTitle(),
+               version::getMajor(),
+               version::getMinor(),
+               version::getRelease());
+        printf("Copyright © 2008-2024 Andrey A. Ugolnik. All Rights Reserved.\n");
+        printf("https://www.ugolnik.info\n");
         printf("andrey@ugolnik.info\n");
     }
 
@@ -183,7 +187,7 @@ namespace
             ? DefaultWindowSize.h
             : config.windowSize.h;
 
-        auto newWindow = glfwCreateWindow(width, height, SVGL_Title, nullptr, parent);
+        auto newWindow = glfwCreateWindow(width, height, version::getTitle(), nullptr, parent);
 
         if (config.centerWindow == false)
         {
@@ -197,7 +201,7 @@ namespace
     {
         auto monitor = glfwGetPrimaryMonitor();
         const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-        auto newWindow = glfwCreateWindow(mode->width, mode->height, SVGL_Title, monitor, parent);
+        auto newWindow = glfwCreateWindow(mode->width, mode->height, version::getTitle(), monitor, parent);
         return newWindow;
     }
 

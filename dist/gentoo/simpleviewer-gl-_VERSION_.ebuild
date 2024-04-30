@@ -7,8 +7,8 @@ EAPI=6
 inherit cmake-utils git-r3
 
 DESCRIPTION="Small and simple image viewer for Linux."
-HOMEPAGE="http://www.ugolnik.info/?p=1302"
-EGIT_REPO_URI="https://bitbucket.org/andreyu/simple-viewer-gl"
+HOMEPAGE="https://www.ugolnik.info/?p=1302"
+EGIT_REPO_URI="https://github.com/andreyugolnik/simple-viewer-gl.git"
 if [[ ${PV} == 9999 ]] ; then
     EGIT_BRANCH="development"
 else

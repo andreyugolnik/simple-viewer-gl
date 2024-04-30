@@ -326,8 +326,8 @@ include_directories("src")
 file(GLOB_RECURSE SVIEW_SOURCES "src/*.cpp")
 
 configure_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/version.h.in"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/version.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/version.cpp.in"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/version.cpp"
     )
 
 if(APPLE)
@@ -351,7 +351,7 @@ if(APPLE)
         MACOSX_BUNDLE_BUNDLE_VERSION ${VERSION}
         )
 
-        target_link_libraries(${APPLICATION_NAME} "-framework AppKit")
+    target_link_libraries(${APPLICATION_NAME} "-framework AppKit")
 else()
     add_executable(${APPLICATION_NAME} ${SVIEW_SOURCES})
 endif()
