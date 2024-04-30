@@ -9,8 +9,8 @@ Supported formats: `PNG`, `JPEG`, `JPEG 2000`, `PSD`, `AI`, `EPS`, `XCF` (GIMP i
 ***
 ### Screenshots
 
-![Simple Viewer GL on macOS with Pixel Info](https://bitbucket.org/andreyu/simple-viewer-gl/downloads/Screenshot_Lena.png)
-![Simple Viewer GL on macOS with EXIF](https://bitbucket.org/andreyu/simple-viewer-gl/downloads/sviewgl-macos_2.png)
+![Simple Viewer GL on macOS with Pixel Info](/simple-viewer-gl/blob/master/res/Screenshot-PixelInfo.png?raw=true "Simple Viewer GL")
+![Simple Viewer GL on macOS with EXIF](/simple-viewer-gl/blob/master/res/Screenshot-EXIF.png?raw=true "Simple Viewer GL")
 
 ***
 ### Features
