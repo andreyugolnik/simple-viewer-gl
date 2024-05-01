@@ -321,14 +321,14 @@ endif()
 
 message(STATUS "***************************")
 
-include_directories("src")
-
-file(GLOB_RECURSE SVIEW_SOURCES "src/*.cpp")
-
 configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/src/version.cpp.in"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/version.cpp"
     )
+
+include_directories("src")
+
+file(GLOB_RECURSE SVIEW_SOURCES "src/*.cpp")
 
 if(APPLE)
     add_definitions("-DGL_SILENCE_DEPRECATION")
