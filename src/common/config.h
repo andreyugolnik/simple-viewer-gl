@@ -37,7 +37,7 @@ struct sConfig
 
     uint32_t backgroundIndex = 0;
     cColor bgColor{ 90, 90, 90, 255 };
-    uint32_t bgCellSize = 16;
+    uint32_t bgCellSize = 64;
 
     float fontRatio = 0.5f;
 
