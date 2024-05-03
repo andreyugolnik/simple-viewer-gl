@@ -66,11 +66,12 @@ public:
 
     void onRender();
     void onUpdate();
-    void onResize(const Vectori& size);
+    void onWindowResize(const Vectori& winSize);
+    void onFramebufferResize(const Vectori& fbSize);
     void onPosition(const Vectori& pos);
     void onMouse(const Vectorf& pos);
     void onCursorEnter(bool entered);
-    void onMouseScroll(const Vectorf& pos);
+    void onMouseScroll(const Vectorf& offset);
     void onMouseButtons(int button, int action, int mods);
     void onKey(int key, int scancode, int action, int mods);
     void onChar(uint32_t c);
@@ -79,6 +80,7 @@ public:
     void showCursor(bool show);
 
 private:
+    void onResize(const Vectori& winSize, const Vectori& fbSize);
     void loadFirstImage();
     void loadLastImage();
     void loadImage(int step);

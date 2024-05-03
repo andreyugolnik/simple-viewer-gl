@@ -96,7 +96,12 @@ namespace
 
     void callbackResize(GLFWwindow* /*window*/, int width, int height)
     {
-        m_viewer->onResize({ width, height });
+        m_viewer->onWindowResize({ width, height });
+    }
+
+    void callbackFramebufferResize(GLFWwindow* /*window*/, int width, int height)
+    {
+        m_viewer->onFramebufferResize({ width, height });
     }
 
     void callbackPosition(GLFWwindow* /*window*/, int x, int y)
@@ -151,13 +156,24 @@ namespace
         ::printf("(EE) GLFW error (%d) '%s'\n", e, error);
     }
 
-    void setup(GLFWwindow* window)
+    void setHints()
+    {
+        glfwWindowHintString(GLFW_X11_CLASS_NAME, "sviewgl");
+
+        if (glfwGetPlatform() == GLFW_PLATFORM_WAYLAND)
+        {
+            glfwWindowHintString(GLFW_WAYLAND_APP_ID, "sviewgl");
+            glfwWindowHint(GLFW_ANY_POSITION, true);
+        }
+    }
+
+    void setContext(GLFWwindow* window)
     {
         glfwMakeContextCurrent(window);
         glfwSwapInterval(1);
 
         glfwSetWindowSizeCallback(window, callbackResize);
-        // glfwSetFramebufferSizeCallback(window, callbackResize);
+        glfwSetFramebufferSizeCallback(window, callbackFramebufferResize);
         glfwSetWindowPosCallback(window, callbackPosition);
 
         glfwSetWindowRefreshCallback(window, callbackRedraw);
@@ -180,6 +196,8 @@ namespace
 
     GLFWwindow* createWindowedWindow(int width, int height, GLFWwindow* parent, const sConfig& config)
     {
+        setHints();
+
         width = width <= DefaultWindowSize.w
             ? DefaultWindowSize.w
             : config.windowSize.w;
@@ -188,17 +206,13 @@ namespace
             : config.windowSize.h;
 
         auto newWindow = glfwCreateWindow(width, height, version::getTitle(), nullptr, parent);
-
-        if (config.centerWindow == false)
-        {
-            glfwSetWindowPos(newWindow, config.windowPos.x, config.windowPos.y);
-        }
-
         return newWindow;
     }
 
     GLFWwindow* createFullscreenWindow(GLFWwindow* parent)
     {
+        setHints();
+
         auto monitor = glfwGetPrimaryMonitor();
         const GLFWvidmode* mode = glfwGetVideoMode(monitor);
         auto newWindow = glfwCreateWindow(mode->width, mode->height, version::getTitle(), monitor, parent);
@@ -213,7 +227,7 @@ namespace
 
     void macOSMojaveUglyHack(GLFWwindow* window)
     {
-#ifdef __APPLE__
+#if defined(__APPLE__)
         if (macOSHackCount < 2)
         {
             macOSHackCount++;
@@ -439,18 +453,17 @@ int main(int argc, char* argv[])
         else
         {
             window = createWindowedWindow(config.windowSize.x, config.windowSize.y, nullptr, config);
-
             viewer.setWindowed(true);
         }
 
+        bool updateSizePos = !(config.fullScreen || config.centerWindow);
+
         if (window != nullptr)
         {
-            setup(window);
+            setContext(window);
             viewer.setWindow(window);
 
-            bool updateSizePos = false;
-
-            while (!glfwWindowShouldClose(window))
+            while (glfwWindowShouldClose(window) == false)
             {
                 macOSMojaveUglyHack(window);
 
@@ -464,15 +477,15 @@ int main(int argc, char* argv[])
                         updateSizePos = true;
 
                         newWindow = createWindowedWindow(config.windowSize.x, config.windowSize.y, window, config);
+                        viewer.setWindowed(true);
                     }
                     else
                     {
-                        viewer.setWindowed(false);
-
                         newWindow = createFullscreenWindow(window);
+                        viewer.setWindowed(false);
                     }
 
-                    setup(newWindow);
+                    setContext(newWindow);
                     viewer.setWindow(newWindow);
 
                     glfwDestroyWindow(window);
@@ -485,8 +498,11 @@ int main(int argc, char* argv[])
                     updateSizePos = false;
                     viewer.setWindowed(true);
 
-                    glfwSetWindowSize(window, config.windowSize.x, config.windowSize.y);
-                    glfwSetWindowPos(window, config.windowPos.x, config.windowPos.y);
+                    if (glfwGetPlatform() != GLFW_PLATFORM_WAYLAND)
+                    {
+                        glfwSetWindowSize(window, config.windowSize.x, config.windowSize.y);
+                        glfwSetWindowPos(window, config.windowPos.x, config.windowPos.y);
+                    }
                 }
 
                 const float timeStart = glfwGetTime();

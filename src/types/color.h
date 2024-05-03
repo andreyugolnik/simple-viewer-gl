@@ -32,6 +32,24 @@ public:
     static const cColor Blue;
     static const cColor Yellow;
 
+    struct GLcolor
+    {
+        float r;
+        float g;
+        float b;
+        float a;
+    };
+
+    GLcolor toGL() const
+    {
+        return {
+            r / 255.0f,
+            g / 255.0f,
+            b / 255.0f,
+            a / 255.0f,
+        };
+    }
+
 public:
     uint8_t r = 255;
     uint8_t g = 255;

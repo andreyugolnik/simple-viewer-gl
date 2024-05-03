@@ -14,6 +14,7 @@
 #include "common/helpers.h"
 #include "types/vector.h"
 
+#include <GL/gl.h>
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
@@ -31,7 +32,8 @@ namespace
     bool Npot = false;
     uint32_t TextureSizeLimit = 1024;
     bool IsMipmapEnabled = false;
-}
+
+} // namespace
 
 void cRenderer::init(GLFWwindow* window, uint32_t maxTextureSize)
 {
@@ -121,7 +123,7 @@ void cRenderer::setData(GLuint tex, const uint8_t* data, uint32_t w, uint32_t h,
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-        //std::cout << "creating " << tw << " x " << th << " texture" << std::endl;
+        // std::cout << "creating " << tw << " x " << th << " texture" << std::endl;
         GLenum type = 0;
         GLint internalFormat = format;
         if (format == GL_RGB || format == GL_BGR)
@@ -158,7 +160,7 @@ void cRenderer::setData(GLuint tex, const uint8_t* data, uint32_t w, uint32_t h,
         }
 
         glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, w, h, 0, format, type, data);
-        checkError("setData");
+        glCheckError("setData");
     }
 }
 
@@ -166,19 +168,18 @@ GLuint cRenderer::createTexture()
 {
     GLuint tex = 0;
     glGenTextures(1, &tex);
-    checkError("createTexture");
+    glCheckError("createTexture");
 
     return tex;
 }
 
-bool cRenderer::checkError(const char* msg)
+bool cRenderer::checkError(const char* msg, const char* file, int line)
 {
-    bool result = false;
-    for (GLenum e = glGetError(); e != GL_NO_ERROR; e = glGetError())
+    auto result = false;
+    for (auto e = glGetError(); e != GL_NO_ERROR; e = glGetError())
     {
         result = true;
-        //const GLubyte* s   = gluErrorString(e);
-        printf("%s : 0x%x\n", msg, e);
+        printf("(EE) %s error 0x%x at %s:%d\n", msg, e, file, line);
     }
 
     return result;

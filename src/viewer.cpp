@@ -23,6 +23,7 @@
 #include "quadimage.h"
 #include "selection.h"
 
+#include "types/vector.h"
 #include <cassert>
 #include <cmath>
 #include <cstdlib>
@@ -85,15 +86,6 @@ void cViewer::setWindow(GLFWwindow* window)
     // m_helpPopup->init();
     m_progress->init();
     m_selection->init();
-
-    Vectori winSize;
-    glfwGetWindowSize(window, &winSize.x, &winSize.y);
-
-    Vectori fbSize;
-    glfwGetFramebufferSize(window, &fbSize.x, &fbSize.y);
-    m_ratio = { (float)fbSize.x / winSize.x, (float)fbSize.y / winSize.y };
-
-    onResize(winSize);
 }
 
 void cViewer::addPaths(const char** paths, int count)
@@ -233,19 +225,25 @@ bool cViewer::isUploading() const
     return m_image->isUploading();
 }
 
-void cViewer::onResize(const Vectori& size)
+void cViewer::onResize(const Vectori& winSize, const Vectori& fbSize)
 {
+    // ::printf("(II) win size %d x %d\n", winSize.x, winSize.y);
+    // ::printf("(II) fb size %d x %d\n\n", fbSize.x, fbSize.y);
+
+    m_ratio = { (float)fbSize.x / winSize.x, (float)fbSize.y / winSize.y };
+    // ::printf("(II) fb size %g x %g\n\n", m_ratio.x, m_ratio.y);
+
     auto window = cRenderer::getWindow();
 
     if (m_isWindowed)
     {
-        m_config.windowSize = size;
+        m_config.windowSize = winSize;
 
-        glfwGetWindowPos(window, &m_config.windowPos.x, &m_config.windowPos.y);
+        if (glfwGetPlatform() != GLFW_PLATFORM_WAYLAND)
+        {
+            glfwGetWindowPos(window, &m_config.windowPos.x, &m_config.windowPos.y);
+        }
     }
-
-    Vectori fbSize;
-    glfwGetFramebufferSize(window, &fbSize.x, &fbSize.y);
 
     cRenderer::setViewportSize(fbSize);
 
@@ -258,6 +256,26 @@ void cViewer::onResize(const Vectori& size)
 
     updatePixelInfo(m_lastMouse);
     updateInfobar();
+}
+
+void cViewer::onWindowResize(const Vectori& winSize)
+{
+    auto window = cRenderer::getWindow();
+
+    Vectori fbSize;
+    glfwGetFramebufferSize(window, &fbSize.x, &fbSize.y);
+
+    onResize(winSize, fbSize);
+}
+
+void cViewer::onFramebufferResize(const Vectori& fbSize)
+{
+    auto window = cRenderer::getWindow();
+
+    Vectori winSize;
+    glfwGetWindowSize(window, &winSize.x, &winSize.y);
+
+    onResize(winSize, fbSize);
 }
 
 void cViewer::onPosition(const Vectori& pos)
@@ -308,13 +326,18 @@ void cViewer::onCursorEnter(bool entered)
     m_cursorInside = entered;
 }
 
-void cViewer::onMouseScroll(const Vectorf& pos)
+void cViewer::onMouseScroll(const Vectorf& offset)
 {
-    m_imgui.onScroll(pos);
+    m_imgui.onScroll(offset);
 
     if (m_config.wheelZoom)
     {
-        updateScale(pos.y > 0.0f);
+        updateScale(offset.y > 0.0f);
+    }
+    else
+    {
+        auto& panRatio = m_config.panRatio;
+        shiftCamera({ -offset.x * panRatio, -offset.y * panRatio });
     }
 }
 
@@ -713,8 +736,11 @@ void cViewer::centerWindow()
             const int x = (mode->width - width) / 2;
             const int y = (mode->height - height) / 2;
 
-            glfwSetWindowSize(window, width, height);
-            glfwSetWindowPos(window, x, y);
+            if (glfwGetPlatform() != GLFW_PLATFORM_WAYLAND)
+            {
+                glfwSetWindowSize(window, width, height);
+                glfwSetWindowPos(window, x, y);
+            }
 
             m_config.windowSize = { width, height };
             m_config.windowPos = { x, y };
@@ -801,9 +827,11 @@ void cViewer::updateInfobar()
 
 Vectorf cViewer::screenToImage(const Vectorf& pos) const
 {
-    const float inv = 1.0f / m_scale.getScale();
     const auto& viewport = cRenderer::getViewportSize();
-    return pos + m_camera - Vectorf(viewport.x * inv - m_image->getWidth(), viewport.y * inv - m_image->getHeight()) * 0.5f;
+    auto scale = m_scale.getScale();
+    auto size = Vectorf{ viewport.x / scale - m_image->getWidth(),
+                         viewport.y / scale - m_image->getHeight() };
+    return pos + m_camera - size * 0.5f;
 }
 
 void cViewer::updatePixelInfo(const Vectorf& pos)

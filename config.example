@@ -47,8 +47,12 @@
 ; lookup for images in subfolder recursively on startup (default: false)
 ;lookup_recursive = false
 
-; enable zoom by mouse wheel (default: true)
+; enables zooming using the mouse wheel (default on macOS: false, true otherwise).
 ;wheel_zoom = true
+
+; pan ratio (default 10.0)
+; only valid if wheel_zoom is false
+;pan_ratio = 10.0
 
 ; minimum texture size to create mipmap levels (default: 4096)
 ;mipmap_texture_size = 4096

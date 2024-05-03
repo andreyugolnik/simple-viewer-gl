@@ -29,7 +29,11 @@ struct sConfig
     bool centerWindow = false;
     bool fullScreen = false;
     bool skipFilter = false;
+#if defined(__APPLE__)
+    bool wheelZoom = false;
+#else
     bool wheelZoom = true;
+#endif
     bool keepScale = false;
 
     uint32_t mipmapTextureSize = 4096;
@@ -38,6 +42,8 @@ struct sConfig
     uint32_t backgroundIndex = 0;
     cColor bgColor{ 90, 90, 90, 255 };
     uint32_t bgCellSize = 64;
+
+    float panRatio = 10.0f; // if wheelZoom is false
 
     float fontRatio = 0.5f;
 

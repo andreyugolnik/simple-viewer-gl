@@ -10,9 +10,9 @@
 #include "config.h"
 #include "viewer.h"
 
-#include <string>
 #include <cstdio>
 #include <cstdlib>
+#include <string>
 #include <strings.h>
 
 namespace
@@ -138,6 +138,8 @@ void cConfig::read(sConfig& config) const
     readValue(m_ini, CommonSection, "background_b", config.bgColor.b);
 
     readValue(m_ini, CommonSection, "background_cell_size", config.bgCellSize);
+
+    readValue(m_ini, CommonSection, "pan_ratio", config.panRatio);
 
     readValue(m_ini, CommonSection, "font_ratio", config.fontRatio);
 

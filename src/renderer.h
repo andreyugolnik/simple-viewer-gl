@@ -70,5 +70,7 @@ public:
     static float getZoom();
     static int getAngle();
 
-    static bool checkError(const char* msg);
+    static bool checkError(const char* msg, const char* file, int line);
 };
+
+#define glCheckError(msg) cRenderer::checkError(msg, __FILE__, __LINE__)
