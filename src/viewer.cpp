@@ -86,6 +86,12 @@ void cViewer::setWindow(GLFWwindow* window)
     // m_helpPopup->init();
     m_progress->init();
     m_selection->init();
+
+    Vectori fbSize;
+    glfwGetFramebufferSize(window, &fbSize.x, &fbSize.y);
+    Vectori winSize;
+    glfwGetWindowSize(window, &winSize.x, &winSize.y);
+    onResize(winSize, fbSize);
 }
 
 void cViewer::addPaths(const char** paths, int count)
@@ -336,8 +342,8 @@ void cViewer::onMouseScroll(const Vectorf& offset)
     }
     else
     {
-        auto& panRatio = m_config.panRatio;
-        shiftCamera({ -offset.x * panRatio, -offset.y * panRatio });
+        auto panRatio = m_ratio * m_config.panRatio;
+        shiftCamera({ -offset.x * panRatio.x, -offset.y * panRatio.y });
     }
 }
 

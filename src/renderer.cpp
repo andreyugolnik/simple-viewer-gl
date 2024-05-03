@@ -14,9 +14,7 @@
 #include "common/helpers.h"
 #include "types/vector.h"
 
-#include <GL/gl.h>
 #include <algorithm>
-#include <cmath>
 #include <cstdio>
 
 namespace
