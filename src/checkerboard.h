@@ -10,7 +10,6 @@
 #pragma once
 
 #include "quad.h"
-#include "types/color.h"
 
 #include <memory>
 

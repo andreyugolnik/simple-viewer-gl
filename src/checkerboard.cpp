@@ -59,20 +59,21 @@ void cCheckerboard::render()
 {
     if (m_config.backgroundIndex == 0)
     {
-        int width;
-        int height;
-        glfwGetFramebufferSize(cRenderer::getWindow(), &width, &height);
+        auto& viewport = cRenderer::getViewportSize();
+        Vectorf pos{ -(float)(viewport.x >> 1),
+                     -(float)(viewport.y >> 1) };
+        Vectorf size{ (float)viewport.x,
+                      (float)viewport.y };
 
-        m_cb->setTextureRect({ 0.0f, 0.0f }, { (float)width, (float)height });
+        m_cb->setTextureRect(pos, size);
         m_cb->render({ 0.0f, 0.0f });
     }
     else
     {
         if (m_config.backgroundIndex == 1)
         {
-            const auto& c = m_config.bgColor;
-            const float inv = 1.0f / 255.0f;
-            glClearColor(c.r * inv, c.g * inv, c.b * inv, c.a * inv);
+            auto c = m_config.bgColor.toGL();
+            glClearColor(c.r, c.g, c.b, c.a);
         }
         else if (m_config.backgroundIndex == 2)
         {
