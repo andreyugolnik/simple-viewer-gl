@@ -1,12 +1,13 @@
-version: 1.0.{build}
+---
+version: 3.1.10-{build}-{branch}
 environment:
   matrix:
-  - COMPILER: "gcc"
-    PLATFORM: "x64"
-    CONFIGURATION: "release"
-  - COMPILER: "clang"
-    PLATFORM: "x64"
-    CONFIGURATION: "release"
+    - COMPILER: "gcc"
+      PLATFORM: "x64"
+      CONFIGURATION: "release"
+    - COMPILER: "clang"
+      PLATFORM: "x64"
+      CONFIGURATION: "release"
 
 install:
   - ECHO Install part %COMPILER% %PLATFORM% %CONFIGURATION%
@@ -19,27 +20,27 @@ build_script:
       gcc -v &&
       make -v &&
       echo ----- &&
-      make -j %CONFIGURATION% &&
+      make -j CC=%COMPILER% %CONFIGURATION%
   - ECHO *** %TIME%
 
-# test_script:
-#   - ECHO *** %TIME% &&
-#       ECHO Testing %COMPILER% %PLATFORM% %CONFIGURATION% &&
-#       ECHO ***
-#   - ECHO *** %TIME%
+test_script:
+  - ECHO *** %TIME% &&
+      ECHO Testing %COMPILER% %PLATFORM% %CONFIGURATION% &&
+      ECHO ***
+  - ECHO *** %TIME%
 
 # artifacts:
-  # - path: bin\lz4_x64.zip
-  # - path: bin\lz4_x86.zip
+#   - path: bin\lz4_x64.zip
+#   - path: bin\lz4_x86.zip
 
 # deploy:
-# - provider: GitHub
-#   artifact: bin\lz4_x64.zip
-#   auth_token:
-#     secure: w6UJaGie0qbZvffr/fqyhO/Vj8rMiQWnv9a8qm3gxfngdHDTMT42wYupqJpIExId
-#   force_update: true
-#   prerelease: true
-#   on:
-#     COMPILER: gcc
+#   - provider: GitHub
+#     artifact: bin\lz4_x64.zip
+#     auth_token:
+#       secure: w6UJaGie0qbZvffr/fqyhO/Vj8rMiQWnv9a8qm3gxfngdHDTMT42wYupqJpIExId
+#     force_update: true
+#     prerelease: true
+#     on:
+#       COMPILER: gcc
 #     PLATFORM: "mingw64"
 #     appveyor_repo_tag: true
