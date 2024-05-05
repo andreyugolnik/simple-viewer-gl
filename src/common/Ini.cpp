@@ -47,7 +47,9 @@ namespace ini
 
     bool cFile::close()
     {
-        const bool result = m_file != nullptr ? (fclose((FILE*)m_file) == 0) : false;
+        const bool result = m_file != nullptr
+            ? (fclose((FILE*)m_file) == 0)
+            : false;
 
         m_file = nullptr;
         m_size = 0;

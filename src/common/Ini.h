@@ -12,7 +12,6 @@
 
 namespace ini
 {
-
     class cFile
     {
     public:
@@ -43,10 +42,8 @@ namespace ini
         unsigned m_offset;
     };
 
-
-
     class cSection;
-    typedef std::vector<cSection*> SectionList;
+    using SectionList = std::vector<cSection*>;
 
     class cIni final
     {
@@ -66,4 +63,4 @@ namespace ini
         ini::SectionList m_sections;
     };
 
-}
+} // namespace ini
