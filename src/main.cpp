@@ -501,7 +501,7 @@ int main(int argc, char* argv[])
                     updateSizePos = false;
                     viewer.setWindowed(true);
 
-                    if (helpers::getPlatform() == helpers::Platform::Wayland)
+                    if (helpers::getPlatform() != helpers::Platform::Wayland)
                     {
                         glfwSetWindowSize(window, config.windowSize.x, config.windowSize.y);
                         glfwSetWindowPos(window, config.windowPos.x, config.windowPos.y);
