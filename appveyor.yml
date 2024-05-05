@@ -5,7 +5,8 @@ image: Ubuntu2204
 
 branches:
   only:
-    - ci
+    - master
+    - development
 
 environment:
   fast_finish: true
