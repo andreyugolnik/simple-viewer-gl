@@ -10,6 +10,7 @@
 #include "viewer.h"
 #include "checkerboard.h"
 #include "common/config.h"
+#include "common/helpers.h"
 #include "deletionmark.h"
 #include "fileslist.h"
 #include "imageborder.h"
@@ -245,7 +246,7 @@ void cViewer::onResize(const Vectori& winSize, const Vectori& fbSize)
     {
         m_config.windowSize = winSize;
 
-        if (glfwGetPlatform() != GLFW_PLATFORM_WAYLAND)
+        if (helpers::getPlatform() == helpers::Platform::Wayland)
         {
             glfwGetWindowPos(window, &m_config.windowPos.x, &m_config.windowPos.y);
         }
@@ -742,7 +743,7 @@ void cViewer::centerWindow()
             const int x = (mode->width - width) / 2;
             const int y = (mode->height - height) / 2;
 
-            if (glfwGetPlatform() != GLFW_PLATFORM_WAYLAND)
+            if (helpers::getPlatform() == helpers::Platform::Wayland)
             {
                 glfwSetWindowSize(window, width, height);
                 glfwSetWindowPos(window, x, y);

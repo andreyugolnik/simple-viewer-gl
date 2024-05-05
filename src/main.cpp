@@ -8,6 +8,7 @@
 \**********************************************/
 
 #include "common/config.h"
+#include "common/helpers.h"
 #include "version.h"
 #include "viewer.h"
 
@@ -160,10 +161,12 @@ namespace
     {
         glfwWindowHintString(GLFW_X11_CLASS_NAME, "sviewgl");
 
-        if (glfwGetPlatform() == GLFW_PLATFORM_WAYLAND)
+        if (helpers::getPlatform() == helpers::Platform::Wayland)
         {
+#if GLFW_VERSION_MAJOR >= 3 && GLFW_VERSION_MINOR >= 4
             glfwWindowHintString(GLFW_WAYLAND_APP_ID, "sviewgl");
             glfwWindowHint(GLFW_ANY_POSITION, true);
+#endif
         }
     }
 
@@ -498,7 +501,7 @@ int main(int argc, char* argv[])
                     updateSizePos = false;
                     viewer.setWindowed(true);
 
-                    if (glfwGetPlatform() != GLFW_PLATFORM_WAYLAND)
+                    if (helpers::getPlatform() == helpers::Platform::Wayland)
                     {
                         glfwSetWindowSize(window, config.windowSize.x, config.windowSize.y);
                         glfwSetWindowPos(window, config.windowPos.x, config.windowPos.y);

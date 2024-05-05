@@ -1,46 +1,34 @@
 ---
-version: 3.1.10-{build}-{branch}
+version: "{build}-{branch}"
+
+image: Ubuntu2204
+
+branches:
+  only:
+    - ci
+
 environment:
-  matrix:
-    - COMPILER: "gcc"
-      PLATFORM: "x64"
-      CONFIGURATION: "release"
-    - COMPILER: "clang"
-      PLATFORM: "x64"
-      CONFIGURATION: "release"
+  fast_finish: true
+  APPVEYOR_YML_DISABLE_PS_LINUX: true
+
+platform:
+  - x64
+
+configuration:
+  - release
 
 install:
-  - ECHO Install part %COMPILER% %PLATFORM% %CONFIGURATION%
+  - echo "--- Installing dependencies ---"
+  - sudo apt-get --assume-yes update
+  - sudo apt-get --assume-yes install cmake libglfw3-dev
+  - sudo apt-get --assume-yes install liblcms2-dev libexif-dev libgif-dev libtiff5-dev libwebp-dev libilmbase-dev libopenexr-dev libopenjp2-7-dev libimlib2-dev
+# - sudo apt-get --assume-yes install libjpeg-dev libpng-dev zlib1g-dev libxrandr-dev libxcursor-dev
+
+build: off
 
 build_script:
-  - ECHO *** &&
-      ECHO Building %COMPILER% %PLATFORM% %CONFIGURATION% &&
-      ECHO ***
-  - ECHO ----- %TIME% &&
-      gcc -v &&
-      make -v &&
-      echo ----- &&
-      make -j CC=%COMPILER% %CONFIGURATION%
-  - ECHO *** %TIME%
+  - echo --- Building ---
+  - make -j release
+  - echo --- done ---
 
-test_script:
-  - ECHO *** %TIME% &&
-      ECHO Testing %COMPILER% %PLATFORM% %CONFIGURATION% &&
-      ECHO ***
-  - ECHO *** %TIME%
-
-# artifacts:
-#   - path: bin\lz4_x64.zip
-#   - path: bin\lz4_x86.zip
-
-# deploy:
-#   - provider: GitHub
-#     artifact: bin\lz4_x64.zip
-#     auth_token:
-#       secure: w6UJaGie0qbZvffr/fqyhO/Vj8rMiQWnv9a8qm3gxfngdHDTMT42wYupqJpIExId
-#     force_update: true
-#     prerelease: true
-#     on:
-#       COMPILER: gcc
-#     PLATFORM: "mingw64"
-#     appveyor_repo_tag: true
+test: off

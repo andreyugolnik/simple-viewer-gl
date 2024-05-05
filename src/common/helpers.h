@@ -16,6 +16,17 @@
 
 namespace helpers
 {
+    enum class Platform
+    {
+        Unknown,
+        Win32,
+        Cocoa,
+        Wayland,
+        X11,
+    };
+
+    Platform getPlatform();
+
     uint16_t read_uint16(const uint8_t* p);
     uint32_t read_uint32(const uint8_t* p);
     void swap_uint32s(uint8_t* p, uint32_t size);

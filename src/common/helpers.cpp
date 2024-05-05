@@ -9,6 +9,8 @@
 
 #include "helpers.h"
 
+#include <GLFW/glfw3.h>
+
 #include <cmath>
 #include <cstring>
 #include <ctime>
@@ -16,6 +18,29 @@
 
 namespace helpers
 {
+    Platform getPlatform()
+    {
+#if GLFW_VERSION_MAJOR >= 3 && GLFW_VERSION_MINOR >= 4
+        auto platform = glfwGetPlatform();
+        switch (platform)
+        {
+        case GLFW_PLATFORM_WIN32:
+            return Platform::Win32;
+
+        case GLFW_PLATFORM_COCOA:
+            return Platform::Cocoa;
+
+        case GLFW_PLATFORM_WAYLAND:
+            return Platform::Wayland;
+
+        case GLFW_PLATFORM_X11:
+            return Platform::X11;
+        }
+#endif
+
+        return Platform::Unknown;
+    }
+
     uint16_t read_uint16(const uint8_t* p)
     {
         return ((uint16_t)p[0] << 8) | p[1];
