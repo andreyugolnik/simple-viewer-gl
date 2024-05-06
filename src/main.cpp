@@ -165,7 +165,6 @@ namespace
         {
 #if GLFW_VERSION_MAJOR >= 3 && GLFW_VERSION_MINOR >= 4
             glfwWindowHintString(GLFW_WAYLAND_APP_ID, "sviewgl");
-            glfwWindowHint(GLFW_ANY_POSITION, true);
 #endif
         }
     }
@@ -428,25 +427,28 @@ int main(int argc, char* argv[])
         }
     }
 
-    cViewer viewer(config);
-    m_viewer = &viewer;
-
-    for (auto& p : stdinPaths)
-    {
-        pathsList.push_back(p.c_str());
-    }
-
-    for (auto& p : OpenWrapper.getList())
-    {
-        pathsList.push_back(p.c_str());
-    }
-
-    viewer.addPaths(pathsList.data(), pathsList.size());
-
     int result = 0;
+    glfwSetErrorCallback([](int error_code, const char* description) {
+        ::printf("(EE) %d: '%s'\n", error_code, description);
+    });
 
     if (glfwInit())
     {
+        cViewer viewer(config);
+        m_viewer = &viewer;
+
+        for (auto& p : stdinPaths)
+        {
+            pathsList.push_back(p.c_str());
+        }
+
+        for (auto& p : OpenWrapper.getList())
+        {
+            pathsList.push_back(p.c_str());
+        }
+
+        viewer.addPaths(pathsList.data(), pathsList.size());
+
         GLFWwindow* window = nullptr;
         if (config.fullScreen)
         {
