@@ -13,6 +13,8 @@
 #include "types/color.h"
 #include "types/vector.h"
 
+#include <string>
+
 constexpr Vectori DefaultWindowSize{ 320, 240 };
 
 struct sConfig
