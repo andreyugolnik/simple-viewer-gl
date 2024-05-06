@@ -60,32 +60,67 @@ namespace
         return value != nullptr ? ::atof(value) : def;
     }
 
+    template <>
+    std::string getValue<std::string>(const char* value, std::string def)
+    {
+        return value != nullptr ? value : def;
+    }
+
     const char* CommonSection = "common";
     const char* PositionSection = "position";
 
     template <typename T>
     void readValue(const ini::cIni& ini, const char* section, const char* name, T& value)
     {
-        const auto def = value;
+        auto def = value;
         value = getValue(ini.getString(section, name), def);
     }
 
-    std::string makeProfilePath(const char* name)
+    // Based on
+    // https://stackoverflow.com/questions/2342162/stdstring-formatting-like-sprintf
+    template <typename... Args>
+    std::string strfmt(const std::string& format, Args... args)
     {
-        char path[4096];
-
-#if defined(__APPLE__)
-        ::snprintf(path, sizeof(path), "%s/Library/Application Support/sviewgl/%s", ::getenv("HOME"), name);
-#else
-        // make config path according XDG spec
-        const char* xdg_path = ::getenv("XDG_CONFIG_HOME");
-        if (xdg_path != nullptr)
+        auto desiredSize = std::snprintf(nullptr, 0, format.c_str(), args...);
+        if (desiredSize <= 0)
         {
-            ::snprintf(path, sizeof(path), "%s/sviewgl/%s", xdg_path, name);
+            return {};
         }
-        else
+
+        auto size = static_cast<size_t>(desiredSize + 1); // Plus null-terminator
+        std::unique_ptr<char[]> buf(new char[size]);
+        std::snprintf(buf.get(), size, format.c_str(), args...);
+
+        return std::string(buf.get(), buf.get() + size - 1); // We don't want the '\0' inside
+    }
+
+    enum class Location
+    {
+        XDG,
+        HOME,
+        MACOS
+    };
+
+    std::string makeProfilePath(const char* name, Location location)
+    {
+        std::string path;
+
+        if (location == Location::XDG)
         {
-            ::snprintf(path, sizeof(path), "%s/.config/sviewgl/%s", ::getenv("HOME"), name);
+            auto xdgConfigHome = ::getenv("XDG_CONFIG_HOME");
+            if (xdgConfigHome != nullptr)
+            {
+                path = strfmt("%s/sviewgl/%s", xdgConfigHome, name);
+            }
+        }
+        else if (location == Location::HOME)
+        {
+            path = strfmt("%s/.sviewgl/%s", ::getenv("HOME"), name);
+        }
+#if defined(__APPLE__)
+        else if (location == Location::MACOS)
+        {
+            path = strfmt("%s/Library/Application Support/sviewgl/%s", ::getenv("HOME"), name);
         }
 #endif
 
@@ -96,23 +131,46 @@ namespace
 
 cConfig::cConfig()
 {
+    static const Location Locations[] = {
+        Location::XDG,
+        Location::HOME,
+        Location::MACOS
+    };
+
+    for (auto location : Locations)
+    {
+        auto path = makeProfilePath("config", location);
+        ini::cFile file;
+        if (path.empty() == false && file.open(path.c_str()) == true)
+        {
+            m_path = path;
+            break;
+        }
+    }
+
+    if (m_path.empty())
+    {
+        ::printf("Using default config.\n");
+    }
+    else
+    {
+        ::printf("Using config file: '%s'.\n", m_path.c_str());
+    }
 }
 
 void cConfig::read(sConfig& config) const
 {
-    auto path = makeProfilePath("config");
-
     ini::cFile file;
-    if (file.open(path.c_str()) == false)
+    if (m_path.empty() || file.open(m_path.c_str()) == false)
     {
         return;
     }
 
-    // ::printf("Using config file: '%s'\n", path);
-
     m_ini.read(&file);
 
     readValue(m_ini, CommonSection, "debug", config.debug);
+
+    readValue(m_ini, CommonSection, "class_name", config.className);
 
     readValue(m_ini, CommonSection, "hide_infobar", config.hideInfobar);
     readValue(m_ini, CommonSection, "show_pixelinfo", config.showPixelInfo);
@@ -157,10 +215,8 @@ void cConfig::read(sConfig& config) const
 
 void cConfig::write(const sConfig& config) const
 {
-    auto path = makeProfilePath("config");
-
     ini::cFile file;
-    if (file.open(path.c_str(), "w") == false)
+    if (m_path.empty() || file.open(m_path.c_str(), "w") == false)
     {
         return;
     }

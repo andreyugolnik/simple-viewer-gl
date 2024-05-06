@@ -19,6 +19,8 @@ struct sConfig
 {
     bool debug = false;
 
+    std::string className = "sviewgl";
+
     bool hideInfobar = false;
     bool showPixelInfo = false;
     bool showExif = false;
@@ -63,6 +65,9 @@ public:
 
     void read(sConfig& config) const;
     void write(const sConfig& config) const;
+
+private:
+    std::string m_path;
 
 private:
     mutable ini::cIni m_ini;

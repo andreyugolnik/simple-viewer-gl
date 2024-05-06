@@ -50,6 +50,7 @@ namespace
         printf("  %s [OPTION]... FILE\n", (p != nullptr ? p + 1 : name));
         printf("  -h, --help     show this help;\n");
         printf("  -v, --version  show viewer version;\n");
+        printf("  --class VALUE  class name (default: %s);\n", config.className.c_str());
         printf("  -s             enable scale to window (default: %s);\n", getValue(config.fitImage));
         printf("  -cw            center window (default: %s);\n", getValue(config.centerWindow));
         printf("  -a             do not filter by file extension;\n");
@@ -157,14 +158,17 @@ namespace
         ::printf("(EE) GLFW error (%d) '%s'\n", e, error);
     }
 
-    void setHints()
+    void setHints(const sConfig& config)
     {
-        glfwWindowHintString(GLFW_X11_CLASS_NAME, "sviewgl");
+        auto className = config.className.c_str();
+
+        glfwWindowHintString(GLFW_X11_CLASS_NAME, className);
 
         if (helpers::getPlatform() == helpers::Platform::Wayland)
         {
 #if GLFW_VERSION_MAJOR >= 3 && GLFW_VERSION_MINOR >= 4
-            glfwWindowHintString(GLFW_WAYLAND_APP_ID, "sviewgl");
+            glfwWindowHintString(GLFW_WAYLAND_APP_ID, className);
+            glfwWindowHint(GLFW_ANY_POSITION, true);
 #endif
         }
     }
@@ -196,24 +200,20 @@ namespace
 #endif
     }
 
-    GLFWwindow* createWindowedWindow(int width, int height, GLFWwindow* parent, const sConfig& config)
+    GLFWwindow* createWindowedWindow(GLFWwindow* parent, const sConfig& config)
     {
-        setHints();
+        setHints(config);
 
-        width = width <= DefaultWindowSize.w
-            ? DefaultWindowSize.w
-            : config.windowSize.w;
-        height = height <= DefaultWindowSize.h
-            ? DefaultWindowSize.h
-            : config.windowSize.h;
+        auto width = std::max(config.windowSize.w, DefaultWindowSize.w);
+        auto height = std::max(config.windowSize.h, DefaultWindowSize.h);
 
         auto newWindow = glfwCreateWindow(width, height, version::getTitle(), nullptr, parent);
         return newWindow;
     }
 
-    GLFWwindow* createFullscreenWindow(GLFWwindow* parent)
+    GLFWwindow* createFullscreenWindow(GLFWwindow* parent, const sConfig& config)
     {
-        setHints();
+        setHints(config);
 
         auto monitor = glfwGetPrimaryMonitor();
         const GLFWvidmode* mode = glfwGetVideoMode(monitor);
@@ -324,6 +324,13 @@ int main(int argc, char* argv[])
         if (::strncmp(argv[i], "--debug", 7) == 0)
         {
             config.debug = true;
+        }
+        if (::strncmp(argv[i], "--class", 7) == 0)
+        {
+            if (i + 1 < argc)
+            {
+                config.className = argv[++i];
+            }
         }
         else if (::strncmp(argv[i], "-mipmap", 7) == 0)
         {
@@ -452,12 +459,12 @@ int main(int argc, char* argv[])
         GLFWwindow* window = nullptr;
         if (config.fullScreen)
         {
-            window = createFullscreenWindow(nullptr);
+            window = createFullscreenWindow(nullptr, config);
             viewer.setWindowed(false);
         }
         else
         {
-            window = createWindowedWindow(config.windowSize.x, config.windowSize.y, nullptr, config);
+            window = createWindowedWindow(nullptr, config);
             viewer.setWindowed(true);
         }
 
@@ -481,12 +488,12 @@ int main(int argc, char* argv[])
                     {
                         updateSizePos = true;
 
-                        newWindow = createWindowedWindow(config.windowSize.x, config.windowSize.y, window, config);
+                        newWindow = createWindowedWindow(window, config);
                         viewer.setWindowed(true);
                     }
                     else
                     {
-                        newWindow = createFullscreenWindow(window);
+                        newWindow = createFullscreenWindow(window, config);
                         viewer.setWindowed(false);
                     }
 
