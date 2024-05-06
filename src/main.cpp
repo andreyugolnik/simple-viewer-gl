@@ -165,7 +165,6 @@ namespace
         {
 #if GLFW_VERSION_MAJOR >= 3 && GLFW_VERSION_MINOR >= 4
             glfwWindowHintString(GLFW_WAYLAND_APP_ID, "sviewgl");
-            glfwWindowHint(GLFW_ANY_POSITION, true);
 #endif
         }
     }
