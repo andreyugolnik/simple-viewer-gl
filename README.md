@@ -1,9 +1,19 @@
-## Simple Viewer GL
+# Simple Viewer GL
+
+![GitHub License](https://img.shields.io/github/license/andreyugolnik/simple-viewer-gl)
+![GitHub Release](https://img.shields.io/github/v/release/andreyugolnik/simple-viewer-gl)
+![GitHub commits since latest release (development)](https://img.shields.io/github/commits-since/andreyugolnik/simple-viewer-gl/latest/development)
+
+![GitHub language count](https://img.shields.io/github/languages/count/andreyugolnik/simple-viewer-gl)
+![GitHub top language](https://img.shields.io/github/languages/top/andreyugolnik/simple-viewer-gl)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/andreyugolnik/simple-viewer-gl)
+![GitHub commit activity](https://img.shields.io/github/commit-activity/m/andreyugolnik/simple-viewer-gl)
+
 
 Branch      | Build status
 ------------|--------------
-master      | [![Build status: master](https://ci.appveyor.com/api/projects/status/55qlv1c7ca5vp7y4/branch/master?svg=true)](https://ci.appveyor.com/project/andreyugolnik/simple-viewer-gl/branch/master "Branch: master")
-development | [![Build status: development](https://ci.appveyor.com/api/projects/status/55qlv1c7ca5vp7y4/branch/development?svg=true)](https://ci.appveyor.com/project/andreyugolnik/simple-viewer-gl/branch/development "Branch: development")
+master      | [![Build status: master](https://ci.appveyor.com/api/projects/status/55qlv1c7ca5vp7y4/branch/master?svg=true)](https://ci.appveyor.com/project/andreyugolnik/simple-viewer-gl/branch/master "Branch: master") ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/andreyugolnik/simple-viewer-gl/master)
+development | [![Build status: development](https://ci.appveyor.com/api/projects/status/55qlv1c7ca5vp7y4/branch/development?svg=true)](https://ci.appveyor.com/project/andreyugolnik/simple-viewer-gl/branch/development "Branch: development") ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/andreyugolnik/simple-viewer-gl/development)
 
 **Simple Viewer GL** is a simple and tiny image viewer based on OpenGL.
 
@@ -12,13 +22,13 @@ The primary goal for writing **Simple Viewer GL** is to create an image viewer, 
 Supported formats: `PNG`, `JPEG`, `JPEG 2000`, `PSD`, `AI`, `EPS`, `XCF` (GIMP image format), `GIF`, `SVG`, `TIFF`, `TARGA`, `ICO`, `ICNS` (Apple Icon Image), `BMP`, `PNM`, `DDS`, `XWD`, `SCR (ZX-Spectrum screen)`, `XPM`, `WebP`, `OpenEXR`.
 
 ***
-### Screenshots
+## Screenshots
 
 ![Simple Viewer GL on macOS with Pixel Info](https://raw.githubusercontent.com/andreyugolnik/simple-viewer-gl/master/res/Screenshot-PixelInfo.png "Simple Viewer GL")
 ![Simple Viewer GL on macOS with EXIF](https://raw.githubusercontent.com/andreyugolnik/simple-viewer-gl/master/res/Screenshot-EXIF.png "Simple Viewer GL")
 
 ***
-### Features
+## Features
 
 - [x] Lightweight and fast: utilize hardware-accelerated video card;
 - [x] Support embedded ICC profiles;
@@ -35,12 +45,12 @@ Supported formats: `PNG`, `JPEG`, `JPEG 2000`, `PSD`, `AI`, `EPS`, `XCF` (GIMP i
 - [x] Open source, licensed under GNU GPL;
 
 ***
-### Usage
+## Usage
 
 **Simple Viewer GL** has two modes of operation: image viewer and image info mode. The default is image mode, in which only the current image is shown. In image info mode pixel info and rectangular selection available. This mode useful for brief resource description.
 
 ***
-### Key bindings
+## Key bindings
 
 Hotkey                 | Action
 -----------------------|----------------------------------
@@ -72,7 +82,7 @@ Hotkey                 | Action
 `<?>`                  | hide / show keybindings popup
 
 ***
-### Download and build from sources
+## Download and build from sources
 
 You can browse the source code repository on GitHub or get a copy using git with the following command:
 
@@ -87,7 +97,7 @@ $ make release
 [Gentoo ebuild by](https://gogs.lumi.pw/mike/portage/src/master/media-gfx/simpleviewer-gl) [imul](https://www.linux.org.ru/people/imul/profile)
 
 ***
-### Make DEB package
+## Make DEB package
 
 Update and install required dependencies:
 ```bash
@@ -108,7 +118,7 @@ $ make deb
 > You can purge installed packages with `apt-get purge PACKAGE_NAME && apt-get autoremove`
 
 ***
-### Make RPM package
+## Make RPM package
 
 Update and install required dependencies:
 ```bash
@@ -125,7 +135,7 @@ $ sudo make rpm
 ```
 
 ***
-### Dependencies
+## Dependencies
 
  Name          | Debian package                     | Description / Notes
 ---------------|------------------------------------|---------------------
