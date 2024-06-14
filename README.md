@@ -17,9 +17,9 @@ development | [![Build status: development](https://ci.appveyor.com/api/projects
 
 **Simple Viewer GL** is a simple and tiny image viewer based on OpenGL.
 
-The primary goal for writing **Simple Viewer GL** is to create an image viewer, which only has the most basic features required for fast image viewing. It has some vi-like key bindings and works nicely with tiling window managers (such as Ion3 and Notion).
+The primary goal for writing **Simple Viewer GL** is to create an image viewer, which only has the most basic features required for fast image viewing. It has some `vi`-like key bindings and works nicely with tiling window managers (such as ion3/notion, i3wm, dwm, xmonad, hyprland, sway, etc).
 
-Supported formats: `PNG`, `JPEG`, `JPEG 2000`, `PSD`, `AI`, `EPS`, `XCF` (GIMP image format), `GIF`, `SVG`, `TIFF`, `TARGA`, `ICO`, `ICNS` (Apple Icon Image), `BMP`, `PNM`, `DDS`, `XWD`, `SCR (ZX-Spectrum screen)`, `XPM`, `WebP`, `OpenEXR`.
+Supported formats: `PNG`, `JPEG`, `JPEG 2000`, `PSD` (Adobe Photoshop), `AI` (Adobe Illustrator), `EPS`, `XCF` (GIMP image format), `GIF`, `SVG`, `TIFF`, `TARGA`, `ICO`, `ICNS` (Apple Icon Image), `BMP`, `PNM`, `DDS`, `XWD`, `SCR` (ZX-Spectrum screen), `XPM`, `WebP`, `OpenEXR` and more.
 
 ***
 ## Screenshots
