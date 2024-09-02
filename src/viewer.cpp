@@ -312,6 +312,7 @@ void cViewer::onMouse(const Vectorf& pos)
         }
     }
 
+    showCursor(m_config.showPixelInfo == false);
     if (m_config.showPixelInfo)
     {
         const int cursor = m_selection->getCursor();
@@ -321,10 +322,6 @@ void cViewer::onMouse(const Vectorf& pos)
         m_selection->mouseMove(point, m_scale.getScale());
 
         updatePixelInfo(posFixed);
-    }
-    else
-    {
-        showCursor(true);
     }
 }
 
@@ -935,7 +932,15 @@ void cViewer::updatePixelInfo(const Vectorf& pos)
 
 void cViewer::showCursor(bool show)
 {
-    GLFWwindow* window = cRenderer::getWindow();
+    auto window = cRenderer::getWindow();
+
+    double x, y;
+    glfwGetCursorPos(window, &x, &y);
+
+    auto& size = m_config.windowSize;
+    // ::printf("cursor %g x %g , window: %d x %d\n", pos.x, pos.y, size.w, size.h);
+    m_cursorInside = !(x < 0.0 || x >= size.w || y < 0.0 || y >= size.h);
+
     glfwSetInputMode(window, GLFW_CURSOR, show ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_HIDDEN);
 }
 

@@ -175,6 +175,8 @@ namespace
 
     void setContext(GLFWwindow* window)
     {
+        glfwSetErrorCallback(callbackError);
+
         glfwMakeContextCurrent(window);
         glfwSwapInterval(1);
 
@@ -187,13 +189,13 @@ namespace
         glfwSetKeyCallback(window, callbackKey);
         glfwSetCharCallback(window, callbackChar);
 
-        glfwSetInputMode(window, GLFW_STICKY_MOUSE_BUTTONS, 1);
+        glfwSetInputMode(window, GLFW_STICKY_MOUSE_BUTTONS, GLFW_TRUE);
         glfwSetMouseButtonCallback(window, callbackMouseButtons);
         glfwSetCursorPosCallback(window, callbackMousePosition);
-        glfwSetCursorEnterCallback(window, callbackCursorEnter);
         glfwSetScrollCallback(window, callbackMouseScroll);
-
-        glfwSetErrorCallback(callbackError);
+        // INFO: Disabled due to a bug in GLFW.
+        // Check the actual cursor position instead.
+        // glfwSetCursorEnterCallback(window, callbackCursorEnter);
 
 #if GLFW_VERSION_MAJOR >= 3 && GLFW_VERSION_MINOR >= 1
         glfwSetDropCallback(window, callbackDrop);
