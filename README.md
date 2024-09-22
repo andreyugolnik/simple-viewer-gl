@@ -11,7 +11,7 @@
 
 
 Branch      | Build status
-------------|--------------
+:---------- | :------------
 master      | [![Build status: master](https://ci.appveyor.com/api/projects/status/55qlv1c7ca5vp7y4/branch/master?svg=true)](https://ci.appveyor.com/project/andreyugolnik/simple-viewer-gl/branch/master "Branch: master") ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/andreyugolnik/simple-viewer-gl/master)
 development | [![Build status: development](https://ci.appveyor.com/api/projects/status/55qlv1c7ca5vp7y4/branch/development?svg=true)](https://ci.appveyor.com/project/andreyugolnik/simple-viewer-gl/branch/development "Branch: development") ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/andreyugolnik/simple-viewer-gl/development)
 
@@ -52,44 +52,44 @@ Supported formats: `PNG`, `JPEG`, `JPEG 2000`, `PSD` (Adobe Photoshop), `AI` (Ad
 ***
 ## Key bindings
 
-Hotkey                 | Action
------------------------|----------------------------------
-`<esc>`                | exit
-`<space>`              | next image
-`<backspace>`          | previous image
-`<home>`               | first file in list
-`<end>`                | last file in list
-`<+> / <->`            | scale image
-`<1>...<0>`            | set scale from 100% to 1000%
-`<enter>`              | switch fullscreen / windowed mode
-`<h> / <l>`            | pan left / right in pixels
-`<j> / <k>`            | pan down / up in pixels
-`<shift> + <h> / <l>`  | pan left / right in percents
-`<shift> + <j> / <k>`  | pan down / up in percents
-`<del>`                | toggle deletion mark
-`<ctrl> + <del>`       | delete marked images from disk
-`<r>`                  | rotate clockwise
-`<shift> + <r>`        | rotate counterclockwise
-`<pgup> / <bgdn>`      | previous /next subimage
-`<s>`                  | fit image to window
-`<shift> + <s>`        | toggle 'keep scale' on image load
-`<c>`                  | hide / show chequerboard
-`<i>`                  | hide / show on-screen info
-`<e>`                  | hide / show exif
-`<p>`                  | hide / show pixel info
-`<b>`                  | hide / show border around image
-`<g>`                  | hide / show image grid
-`<?>`                  | hide / show keybindings popup
+Hotkey                    | Action
+:------------------------ | :--------------------------------
+`<esc>`                   | exit
+`<space>`                 | next image
+`<backspace>`             | previous image
+`<home>`                  | first file in list
+`<end>`                   | last file in list
+`<+>` / `<->`             | scale image
+`<1>`...`<0>`             | set scale from 100% to 1000%
+`<enter>`                 | switch fullscreen / windowed mode
+`<h>` / `<l>`             | pan left / right in pixels
+`<j>` / `<k>`             | pan down / up in pixels
+`<shift>` + `<h>` / `<l>` | pan left / right in percents
+`<shift>` + `<j>` / `<k>` | pan down / up in percents
+`<del>`                   | toggle deletion mark
+`<ctrl>` + `<del>`        | delete marked images from disk
+`<r>`                     | rotate clockwise
+`<shift>` + `<r>`         | rotate counterclockwise
+`<pgup>` / `<bgdn>`       | previous /next subimage
+`<s>`                     | fit image to window
+`<shift>` + `<s>`         | toggle 'keep scale' on image load
+`<c>`                     | hide / show chequerboard
+`<i>`                     | hide / show on-screen info
+`<e>`                     | hide / show exif
+`<p>`                     | hide / show pixel info
+`<b>`                     | hide / show border around image
+`<g>`                     | hide / show image grid
+`<?>`                     | hide / show keybindings popup
 
 ***
 ## Download and build from sources
 
 You can browse the source code repository on GitHub or get a copy using git with the following command:
 
-```bash
-$ git clone https://github.com/andreyugolnik/simple-viewer-gl.git
-$ cd simple-viewer-gl
-$ make release
+```sh
+git clone https://github.com/andreyugolnik/simple-viewer-gl.git
+cd simple-viewer-gl
+make release
 ```
 > On success **sviewgl** binary produced in current directory. Just symlink it `ln -s /path/to/sviewgl /usr/bin/sviewgl` or copy it `cp /path/to/sviewgl /usr/bin/`.
 
@@ -100,19 +100,19 @@ $ make release
 ## Make DEB package
 
 Update and install required dependencies:
-```bash
-$ sudo apt-get update
-$ sudo apt-get install g++ make build-essential debhelper cmake pkg-config libgl1-mesa-dev
-$ sudo apt-get install libxrandr-dev libxcursor-dev libfreetype6-dev libjpeg-dev
-$ sudo apt-get install libtiff-dev libgif-dev liblcms2-dev libimlib2-dev libwebp-dev
-$ sudo apt-get install libglfw3-dev libexif-dev libilmbase-dev libopenexr-dev
+```sh
+sudo apt-get update
+sudo apt-get install g++ make build-essential debhelper cmake pkg-config libgl1-mesa-dev
+sudo apt-get install libxrandr-dev libxcursor-dev libfreetype6-dev libjpeg-dev
+sudo apt-get install libtiff-dev libgif-dev liblcms2-dev libimlib2-dev libwebp-dev
+sudo apt-get install libglfw3-dev libexif-dev libilmbase-dev libopenexr-dev
 ```
 
 Clone and make DEB:
-```bash
-$ git clone https://github.com/andreyugolnik/simple-viewer-gl.git
-$ cd simple-viewer-gl
-$ make deb
+```sh
+git clone https://github.com/andreyugolnik/simple-viewer-gl.git
+cd simple-viewer-gl
+make deb
 ```
 
 > You can purge installed packages with `apt-get purge PACKAGE_NAME && apt-get autoremove`
@@ -121,24 +121,24 @@ $ make deb
 ## Make RPM package
 
 Update and install required dependencies:
-```bash
-$ sudo dnf install gcc-c++ make cmake mesa-libGL-devel glfw-devel freetype-devel
-$ sudo dnf install libpng-devel libjpeg-turbo-devel libtiff-devel giflib-devel lcms2-devel
-$ sudo dnf install libwebp-devel libexif-devel imlib2-devel zlib-devel ilmbase-devel OpenEXR-devel
+```sh
+sudo dnf install gcc-c++ make cmake mesa-libGL-devel glfw-devel freetype-devel
+sudo dnf install libpng-devel libjpeg-turbo-devel libtiff-devel giflib-devel lcms2-devel
+sudo dnf install libwebp-devel libexif-devel imlib2-devel zlib-devel ilmbase-devel OpenEXR-devel
 ```
 
 Clone and make source for RPM:
-```bash
-$ git clone https://github.com/andreyugolnik/simple-viewer-gl.git
-$ cd simple-viewer-gl
-$ sudo make rpm
+```sh
+git clone https://github.com/andreyugolnik/simple-viewer-gl.git
+cd simple-viewer-gl
+sudo make rpm
 ```
 
 ***
 ## Dependencies
 
- Name          | Debian package                     | Description / Notes
----------------|------------------------------------|---------------------
+Name           | Debian package                     | Description / Notes
+:------------- | :--------------------------------- | :-------------------
 `CMake`        | *cmake*                            | Cross-platform family of tools designed to build, test and package software.
 `GLFW3`        | *libglfw3-dev*                     | Multi-platform library for creating windows with OpenGL contexts and receiving input and events.
 `JPEG`         | *libjpeg-dev*                      | JPEG format support.
@@ -156,11 +156,9 @@ $ sudo make rpm
 `curl`         | *libcurl-dev*                      | (Optional) Support loading via http/https/ftp protocols.
 
 
-```
-Copyright © 2008-2024 Andrey A. Ugolnik. All Rights Reserved.
-https://www.ugolnik.info
-andrey@ugolnik.info
-
-Icon was created by
-Iryna Poliakova (Iryna.poliakova@icloud.com).
-```
+> Copyright © 2008-2024 Andrey A. Ugolnik. All Rights Reserved.
+> https://www.ugolnik.info
+> andrey@ugolnik.info
+>
+> Icon was created by
+> Iryna Poliakova (Iryna.poliakova@icloud.com).
