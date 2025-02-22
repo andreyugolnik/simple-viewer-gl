@@ -1,21 +1,17 @@
 # Simple Viewer GL
 
-![GitHub License](https://img.shields.io/github/license/andreyugolnik/simple-viewer-gl)
+**Simple Viewer GL** is a simple and tiny image viewer based on OpenGL.
+
+![Simple Viewer GL](https://github.com/andreyugolnik/simple-viewer-gl/blob/master/res/Featured-1024x500.png)
+
+***
+
 ![GitHub Release](https://img.shields.io/github/v/release/andreyugolnik/simple-viewer-gl)
 ![GitHub commits since latest release (development)](https://img.shields.io/github/commits-since/andreyugolnik/simple-viewer-gl/latest/development)
 
-![GitHub language count](https://img.shields.io/github/languages/count/andreyugolnik/simple-viewer-gl)
-![GitHub top language](https://img.shields.io/github/languages/top/andreyugolnik/simple-viewer-gl)
-![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/andreyugolnik/simple-viewer-gl)
-![GitHub commit activity](https://img.shields.io/github/commit-activity/m/andreyugolnik/simple-viewer-gl)
-
-
-Branch      | Build status
-------------|--------------
-master      | [![Build status: master](https://ci.appveyor.com/api/projects/status/55qlv1c7ca5vp7y4/branch/master?svg=true)](https://ci.appveyor.com/project/andreyugolnik/simple-viewer-gl/branch/master "Branch: master") ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/andreyugolnik/simple-viewer-gl/master)
-development | [![Build status: development](https://ci.appveyor.com/api/projects/status/55qlv1c7ca5vp7y4/branch/development?svg=true)](https://ci.appveyor.com/project/andreyugolnik/simple-viewer-gl/branch/development "Branch: development") ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/andreyugolnik/simple-viewer-gl/development)
-
-**Simple Viewer GL** is a simple and tiny image viewer based on OpenGL.
+master | development
+:----: | :----:
+[![Build status: master](https://ci.appveyor.com/api/projects/status/55qlv1c7ca5vp7y4/branch/master?svg=true)](https://ci.appveyor.com/project/andreyugolnik/simple-viewer-gl/branch/master "Branch: master") ![GitHub last commit (master)](https://img.shields.io/github/last-commit/andreyugolnik/simple-viewer-gl/master) | [![Build status: development](https://ci.appveyor.com/api/projects/status/55qlv1c7ca5vp7y4/branch/development?svg=true)](https://ci.appveyor.com/project/andreyugolnik/simple-viewer-gl/branch/development "Branch: development") ![GitHub last commit (development)](https://img.shields.io/github/last-commit/andreyugolnik/simple-viewer-gl/development)
 
 The primary goal for writing **Simple Viewer GL** is to create an image viewer, which only has the most basic features required for fast image viewing. It has some `vi`-like key bindings and works nicely with tiling window managers (such as ion3/notion, i3wm, dwm, xmonad, hyprland, sway, etc).
 
